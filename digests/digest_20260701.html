@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 01, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 01, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Signature-Based Optimal Execution for Statistical Arbitrage with Path-Dependent Trading Signals</h2>
+  <p class="meta">Gianmarco Morbelli, Sven Karbach, Mike Derksen<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-06-30 &middot; <a href="http://arxiv.org/abs/2606.31387v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.31387v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you encode a price path's entire history as a "signature," the impossible-looking question of <em>how fast should I trade right now</em> collapses into ordinary high-school-style quadratic optimization.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you spot that two nearly-identical stocks — say two share classes of the same company — have drifted apart in price, and you bet the gap will close (this is "statistical arbitrage," or stat-arb). Knowing the trade is only half the battle. If you buy the cheap one all at once, your own buying pushes its price up against you (this is <em>market impact</em>), so you eat into the very profit you were chasing. If you buy too slowly, the gap may close before you finish and you miss it. And while you hold a big position, you are exposed to risk. So the real question is not <em>whether</em> to trade but <em>how fast</em> to trade at every instant — a schedule, not a single decision. A homely version: you have 10,000 concert tickets to unload. Dump them and the resale price craters; dribble them out too slowly and the show sells out first. The best schedule depends on the whole story of how prices have moved so far, not just today's number.</p>
+<p><strong>The idea.</strong> The authors reach for a tool from pure mathematics called the <em>path signature</em>. Think of it as a fingerprint of a wiggly line: a long list of numbers that records not just where the path went but in what order it wiggled, how it looped, how fast it turned. The magic property is that almost any reasonable function of a path can be rebuilt as a simple weighted sum of these fingerprint numbers. So the authors write <em>both</em> the trading signal (their estimate of future profit, the "alpha") <em>and</em> the trading speed as weighted sums of the same fingerprint. Once everything is a weighted sum with unknown weights, choosing the best trading rule becomes choosing the best weights — and that turns out to be a tame optimization.</p>
+<p><strong>What they found.</strong> Their headline is a theorem: inside this family of "signature-linear" trading rules, the whole messy, memory-laden execution problem becomes a <em>finite</em> quadratic optimization — the kind with a single guaranteed best answer. When they test the fitted rule on simulated mean-reverting spreads and on a real equity pairs-trading backtest, it earns more profit <em>per unit of trading</em> than the standard "trade when the gap is more than two standard deviations wide" (z-score) rule that practitioners have used for decades.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $\hat X_t = (t, X_t)$ be the <em>time-augmented</em> market path, where $X_t$ is the observable state (for a pair, the log-spread) and $t$ is stapled on so the signature can see the clock. The truncated signature up to level $N$, written $\mathbb{X}^{\le N}_{0,t}$, is the collection of iterated integrals of $\hat X$ over $[0,t]$ — a finite vector of coordinates. The alpha (expected edge) and the trading speed are both linear readouts of it:
+$$\alpha_t = \langle \ell,\, \mathbb{X}^{\le N}_{0,t}\rangle, \qquad v_t = \langle \theta,\, \mathbb{X}^{\le M}_{0,t}\rangle,$$
+where $\ell$ are fixed signal weights, $\theta$ are the policy weights we optimize, and $\langle\cdot,\cdot\rangle$ is the dot product. Inventory accumulates as $q_t = q_0 + \int_0^t v_s\,ds$.</p>
+<p><strong>The key equation.</strong> The trader maximizes an expected objective of the form
+$$J(\theta) = \mathbb{E}\Big[\int_0^T \alpha_t\, q_t\, dt \;-\; \eta\!\int_0^T v_t^2\, dt \;-\; \phi\!\int_0^T q_t^2\, dt \;-\; \text{(terminal liquidation \& $\$$-neutrality)}\Big],$$
+where $T$ is the horizon, $\eta$ prices temporary impact (trading fast is quadratically costly), and $\phi$ penalizes holding inventory (risk). Here $q_t$ is linear in $\theta$ and $v_t$ is linear in $\theta$, so every term is at worst *quadratic* in $\theta$.
+
+**The method.** This is the "quadratic reduction theorem." Because products of signature coordinates re-express as *other* signature coordinates (the shuffle-product identity), taking the expectation $\mathbb E[\cdot]$ just replaces them with entries of the *expected signature* of the driving model. The objective becomes
+$$J(\theta) = \theta^\top A\,\theta + b^\top \theta + c,$$
+a concave quadratic form. The optimum solves the linear system $2A\theta^\star = -b$ — no dynamic programming, no PDE, just linear algebra, with $A,b$ built from the expected signature (closed-form in tractable models, Monte-Carlo otherwise).</p>
+<p><strong>Results with numbers.</strong> Under a synthetic mean-reverting log-spread model the fitted signature policy delivers a higher <em>return-on-turnover</em> than the classical z-score threshold benchmark; on a historical equity pairs backtest it again beats the benchmark in accounting P&amp;L. (The paper reports relative outperformance rather than a single Sharpe figure.)</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Path signature</strong> — a finite list of iterated integrals that acts as a fingerprint of a path, ordered wiggles and all.</li>
+<li><strong>Iterated integral</strong> — an integral of an integral of the path, the raw ingredient each signature coordinate is built from.</li>
+<li><strong>Shuffle-product identity</strong> — the rule that a product of two signature coordinates equals a sum of other signature coordinates, which is what makes expectations tractable.</li>
+<li><strong>Temporary market impact</strong> — the self-inflicted adverse price move caused by your own trading, which fades after you stop.</li>
+<li><strong>Quadratic program</strong> — an optimization whose objective is a quadratic (bowl-shaped) function, guaranteeing one best answer.</li>
+<li><strong>Mean reversion</strong> — the tendency of a quantity (here a spread) to be pulled back toward an average level.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The evidence is one synthetic model plus a single pairs backtest, and "return-on-turnover" is not the same as a transaction-cost-net Sharpe ratio, so live profitability is unproven. Restricting the trading rule to be <em>linear</em> in the signature keeps the math clean but may leave the truly optimal (nonlinear) policy on the table, and computing $A,b$ needs a trusted model for the expected signature — exactly the thing markets love to break. Still, the reduction to a QP is a real, usable engineering win.</p>
+<h3>Bottom Line</h3>
+<p>Feed the whole price history in as a fingerprint, and optimal execution stops being a control-theory nightmare and becomes a matrix you can solve on a laptop.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Generating Plausible Stress Scenarios via Large Deviations</h2>
+  <p class="meta">Anand Deo<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-06-30 &middot; <a href="http://arxiv.org/abs/2606.31122v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.31122v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a catastrophic loss happens, it almost always happens in one particular way — and large-deviations theory tells you <em>which</em> way, so you can manufacture realistic stress scenarios even when history contains none.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks and insurers must run "stress tests": what if rates spike, what if a market crashes, what if three things go wrong at once? The usual approach is to hand-pick a few scary scenarios. But hand-picking is guesswork — you might miss the genuinely lethal combination of shocks, or waste attention on a dramatic-but-absurd one that could never actually happen. A concrete example: an insurer wants to know which combination of simultaneous storms, defaults, and rate moves would wipe out its capital. Brainstorming that list by hand is unreliable, and the historical record has few or zero examples of true disasters — which is exactly the regime you most need to understand.</p>
+<p><strong>The idea.</strong> The authors borrow a deep result from probability called the <em>large-deviations principle</em>. Its punchline is beautifully simple: rare events are exponentially unlikely, but <em>conditional on a rare event actually occurring</em>, the system almost surely got there by its single cheapest route. Picture a hiker crossing a mountain range in fog. There are countless paths, but if you find hikers on the far side, they overwhelmingly came through the one lowest pass. In the same way, conditional on a huge portfolio loss, the underlying risk factors concentrate near the one "most likely" configuration that produces that loss. The paper uses this to define representative stress distributions and to <em>extrapolate</em> real data outward into more extreme territory while preserving how plausible each stress mechanism is relative to the others.</p>
+<p><strong>What they found.</strong> On two financial-network models (where losses cascade through interconnected institutions), the method faithfully reconstructs the true stressed loss distribution and its key diagnostics — even in cases where standard scenario generators produce <em>zero</em> stressed samples at all.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let the loss be $L = f(Y)$, where $Y \in \mathbb{R}^d$ is a vector of exogenous risk factors whose probability law depends on a small scaling parameter $\varepsilon$ that controls how rare large losses are. As $\varepsilon \to 0$, large losses become vanishingly probable, and the large-deviations principle governs <em>how</em> probable.</p>
+<p><strong>The key equations.</strong> The principle states that the tail probability decays exponentially with an explicit <em>rate function</em> $I$:
+$$\lim_{\varepsilon \to 0}\; \varepsilon \log \mathbb{P}(L \ge a) \;=\; -\inf_{\,y:\, f(y)\ge a} I(y).$$
+The minimizer
+$$y^\star = \arg\min_{\,y:\, f(y)\ge a} I(y)$$
+is the <em>dominating point</em> — the single cheapest configuration of risk factors consistent with a loss of at least $a$. Here $a$ is the loss threshold, $I(y)$ measures how "costly" (improbable) a configuration $y$ is, and $y^\star$ is the characteristic way the disaster unfolds. The stress distribution is then built as an exponentially tilted law centered on $y^\star$.</p>
+<p><strong>The method.</strong> Two ingredients. First, solve the variational (optimization) problem for the dominating point $y^\star$ — a constrained minimization of the rate function. Second, use <em>exponential tilting</em> (the Gibbs conditioning principle) to reweight the original sampling measure so that draws concentrate around $y^\star$, generating synthetic stressed scenarios that respect the model's dependence structure. This lets you sample the disaster regime directly instead of waiting for nature to supply examples.</p>
+<p><strong>Results with numbers.</strong> On two financial-network loss models, the procedure recovers the stressed loss law and stress diagnostics (which nodes fail, how losses concentrate), including regimes where benchmark generators fail to produce a single stressed sample — a qualitative gap, not just a marginal improvement.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Large-deviations principle</strong> — the mathematical law describing the exponentially small probabilities of rare events and the single most-likely way they occur.</li>
+<li><strong>Rate function</strong> — a function $I(y)$ assigning each configuration a "cost" whose exponential controls how improbable that configuration is.</li>
+<li><strong>Dominating point</strong> — the cheapest (least improbable) configuration of risk factors consistent with the rare event; the disaster's signature.</li>
+<li><strong>Exponential tilting</strong> — reweighting a probability distribution by an exponential factor so that sampling concentrates near a chosen region.</li>
+<li><strong>Gibbs conditioning principle</strong> — the statement that, conditioned on a rare constraint, a system's state concentrates around the dominating point.</li>
+<li><strong>Financial-network model</strong> — a model in which institutions are linked so that one firm's loss can cascade into others.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The whole edifice rests on trusting the assumed law of the risk factors — get the tail dependence wrong and the "cheapest route" is wrong too. The principle is an <em>asymptotic</em> statement ($\varepsilon \to 0$), so at realistic loss sizes the approximation can drift, and if there are several comparably-likely dominating points the single-point picture undersells the danger. Used as a scenario <em>generator</em> rather than a probability oracle, though, it is a genuine upgrade over hand-picked shocks.</p>
+<h3>Bottom Line</h3>
+<p>Disasters have a favorite route through the mountains; find that pass and you can rehearse the catastrophe long before it ever arrives.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Valuing American options and Flexible Forwards contracts in time-dependent models</h2>
+  <p class="meta">Leif Andersen, Andrey Itkin, Rakhymzhan Kazbek<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-06-25 &middot; <a href="http://arxiv.org/abs/2606.27335v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.27335v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A "flexible forward" currency contract is secretly an American option on <em>when</em> to settle, and you can price it in about a second using a time-varying Heston model, a recursive matrix Riccati solution, and a spectral integration trick.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A company that will receive euros in a few months wants to lock in today's exchange rate but keep the freedom to choose the exact delivery day within a window — this product is a <em>flexible forward</em>. That freedom-to-choose-the-day is optionality, and options on timing are "American-style" (exercisable early, not just at one fixed date). Pricing it correctly means respecting the <em>volatility skew</em>: the market charges different implied volatilities for different strike prices and maturities, and ignoring that mis-prices the flexibility. An everyday analogy: a gift card redeemable on any day in a range, whose true value depends on your ability to pick the best day — and on how bouncy prices are between now and then.</p>
+<p><strong>The idea.</strong> Model the exchange rate with a <em>time-inhomogeneous Heston</em> model — the classic stochastic-volatility model, but with parameters allowed to change over time so it can match the whole term structure of skew, not just one slice. The engine that makes Heston tractable is its <em>characteristic function</em> (a Fourier-transform summary of the price distribution), which here solves a matrix <em>Riccati</em> differential equation solved recursively across time steps. The American price is then split into the price of an ordinary European option <em>plus</em> an early-exercise premium, and the boundary at which you should exercise is pinned down by a <em>Volterra integral equation</em>. The remaining integral is computed by two spectral (series-expansion) methods: the fast cosine "COS" method, and a sturdier "DSINC" (damped-Sinc) scheme that avoids the ringing artifacts COS suffers in nasty regimes.</p>
+<p><strong>What they found.</strong> Both methods price a contract in about 1–2 seconds — roughly an order of magnitude faster than the finest finite-difference grid — and DSINC is about <strong>twelve times</strong> more accurate (median) than COS. They also show the early-exercise boundary is a strongly <em>nonlinear</em> function of variance, overturning the linear-in-variance shortcut common in earlier work.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Under the risk-neutral measure $\mathbb{Q}$, the FX rate $S_t$ and its variance $v_t$ follow a Heston system with <em>time-dependent</em> coefficients:
+$$dS_t = (r_d - r_f)\,S_t\,dt + \sqrt{v_t}\,S_t\,dW_t^S, \qquad dv_t = \kappa(t)\big(\theta(t)-v_t\big)\,dt + \sigma(t)\sqrt{v_t}\,dW_t^v,$$
+with $d\langle W^S, W^v\rangle_t = \rho(t)\,dt$. Here $r_d, r_f$ are domestic/foreign rates, $\kappa(t)$ the mean-reversion speed of variance, $\theta(t)$ its long-run level, $\sigma(t)$ the vol-of-vol, and $\rho(t)$ the price/variance correlation.</p>
+<p><strong>The key equations.</strong> The joint characteristic function factorizes as
+$$\phi(u,t,T) = \exp\!\big(A(t,T) + B(t,T)\,v_t + i u \log S_t\big),$$
+where $A,B$ solve coupled <em>Riccati</em> ODEs integrated recursively over the time grid. The American value admits the decomposition
+$$V(S,v,t) = V_{\text{Eur}}(S,v,t) + \int_t^T \Pi\big(S,v,t;\, b(s)\big)\,ds,$$
+splitting it into the European value plus an early-exercise premium, and the exercise boundary $b(s)$ satisfies a <em>Volterra integral equation</em> (a value-matching/smooth-pasting condition along the free boundary).</p>
+<p><strong>The method.</strong> Solve the recursive matrix Riccati for $\phi$; evaluate the premium integral's inner expectation by (i) a <strong>COS</strong> cosine expansion of the transition density and (ii) a <strong>DSINC</strong> damped-Sinc local-basis scheme robust to Gibbs oscillations that appear when the <em>Feller ratio</em> is low or vol-of-vol is large. Benchmark against a penalty-iteration MCS-ADI finite-difference PDE solver.</p>
+<p><strong>Results with numbers.</strong> Pricing time ≈ 1–2 seconds per contract, ~10× faster than the finest finite-difference grid; DSINC improves median accuracy over COS by ≈ 12×; the early-exercise surface is materially nonlinear in variance.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>American option</strong> — an option that can be exercised at any time up to expiry, not only at a single date.</li>
+<li><strong>Characteristic function</strong> — the Fourier transform of a distribution; for Heston it is known in closed form and drives all pricing.</li>
+<li><strong>Riccati equation</strong> — a specific quadratic differential equation whose solution gives the characteristic function's coefficients.</li>
+<li><strong>Volatility skew</strong> — the empirical pattern that implied volatility varies with strike and maturity rather than being constant.</li>
+<li><strong>COS method</strong> — a Fourier-cosine series technique for fast option pricing from the characteristic function.</li>
+<li><strong>Feller condition</strong> — a parameter inequality ($2\kappa\theta \ge \sigma^2$) guaranteeing the variance stays strictly positive; violating it triggers numerical ringing.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The speed and accuracy are real, but everything is conditional on the Heston family being the right model and on a clean calibration to the skew term structure — model risk the numerics cannot fix. Low-Feller, high-vol-of-vol regimes still stress even DSINC, and the spectral methods carry a finite range of convergence in strike. For an FX desk pricing bespoke flexible forwards, though, this is a plausibly deployable upgrade.</p>
+<h3>Bottom Line</h3>
+<p>Treat the delivery-date choice as an American option, and a one-second spectral solver prices a bespoke FX hedge that used to demand a slow finite-difference grid.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Path Space Robust Bayesian Portfolio Selection</h2>
+  <p class="meta">Andy Au<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-23 &middot; <a href="http://arxiv.org/abs/2606.24212v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.24212v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>An investor who is still learning an asset's expected return <em>and</em> worried his price model is wrong should scale back big bets by a cubic correction — and the exact price of that caution is half the variance of the loss he would otherwise have suffered.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> No investor actually knows an asset's true expected return (its <em>drift</em>). You estimate it from data as you go. But there is a deeper worry: your entire model of how prices behave might be subtly wrong (<em>model misspecification</em>). Both problems bite at once. An everyday analogy: you're judging a racehorse's ability from its past finishes (learning the drift), but the track has been running systematically fast all season in a way your data doesn't reveal (the model is wrong). How should you bet so that you're protected not just against bad luck but against your model being off?</p>
+<p><strong>The idea.</strong> This is <em>robust control</em>. Imagine an adversary — call it "the market's malice" — who is allowed to distort the true probability law of the prices you observe, but must <em>pay</em> for any distortion in proportion to how far it strays, measured by <em>relative entropy</em> (a rigorous notion of statistical distance). You then choose your portfolio to do as well as possible against the <em>worst</em> distortion the adversary can afford. The subtle twist the paper highlights: because your wealth and your evolving <em>beliefs</em> are driven by the very same random shocks, a single distortion poisons your trading profits and your learning filter <em>simultaneously</em> — you can't treat them separately. Solving this worst-case game yields a clean, closed-form rule that pulls you back from large positions by a <em>cubic</em> correction: the bigger the bet the classical model wants, the disproportionately harder robustness reins it in.</p>
+<p><strong>What they found.</strong> Both the robust portfolio and its value have closed-form expressions. To leading order, the <em>price of robustness</em> equals half the variance of the loss the non-robust investor would have suffered. Crucially, if you pretended you <em>knew</em> the drift exactly, robustness would cost infinitely much; under honest <em>learning</em> the cost is finite. And the interesting structure comes from how the robustness penalty is <em>scaled</em>, not from the learning itself.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The unknown drift $\mu$ is inferred by a <em>Kalman–Bucy filter</em>, producing a running posterior mean $\hat m_t$ and variance. Wealth $W_t$ and the belief $\hat m_t$ are both driven by the same innovations Brownian motion $\bar W_t$. An adversary reweights the observation law via a drift distortion $h_t$, penalized by relative entropy. The investor solves a mean–variance objective under the worst-case measure — a two-player stochastic differential game.</p>
+<p><strong>The key equations.</strong> The filter evolves as
+$$d\hat m_t = \frac{\Sigma_t}{\sigma^2}\big(dS_t/S_t - \hat m_t\,dt\big), \qquad \dot\Sigma_t = -\frac{\Sigma_t^2}{\sigma^2},$$
+where $\Sigma_t$ is the posterior variance of the drift and $\sigma$ the price volatility. The robust optimal exposure takes the form
+$$\pi^\star_t = \pi^{\text{MV}}_t - c\,\big(\pi^{\text{MV}}_t\big)^3 + \cdots,$$
+a classical mean–variance position $\pi^{\text{MV}}_t$ minus a cubic pullback with coefficient $c$ set by the entropy penalty. The value satisfies a Hamilton–Jacobi–Bellman–Isaacs (HJBI) equation, and the leading-order <em>price of robustness</em> is $\tfrac12 \operatorname{Var}(\text{non-robust loss})$.</p>
+<p><strong>The method.</strong> Dynamic programming for the two-player game gives an HJBI PDE; exploiting the affine (linear-in-belief) structure and a <em>value-scaling</em> of the entropy penalty yields the closed form. Value-scaling is what preserves the affine policy exactly and makes the correction cubic rather than intractable.</p>
+<p><strong>Results with numbers.</strong> Closed-form robust policy and value; price of robustness $\approx \tfrac12 \operatorname{Var}(\text{loss})$ to leading order; infinite cost under known drift versus finite cost under learning; the affine policy is preserved exactly under value-scaling.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Drift</strong> — the expected rate of return of an asset, the quantity the investor does not know and must learn.</li>
+<li><strong>Kalman–Bucy filter</strong> — the continuous-time algorithm that optimally updates a Gaussian belief about a hidden quantity from noisy observations.</li>
+<li><strong>Relative entropy (KL divergence)</strong> — a measure of how much one probability law differs from another, used here to price the adversary's distortions.</li>
+<li><strong>Robust control</strong> — optimizing against the worst-case model within a penalized neighborhood of your baseline model.</li>
+<li><strong>Mean–variance</strong> — the objective that trades off expected return against the variance of return.</li>
+<li><strong>HJBI equation</strong> — the Hamilton–Jacobi–Bellman–Isaacs PDE characterizing the value of a two-player (max–min) stochastic game.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean closed form leans on Gaussian, linear filtering and a single risky asset — the moment drift dynamics are nonlinear or there are many correlated assets, the affine miracle likely fades. The entropy penalty is a modeling <em>choice</em>, not a law of nature, so the "half the variance" price is only as meaningful as that choice, and it is a leading-order approximation. As a conceptual guide — <em>learn before you fear, and shrink your biggest bets cubically</em> — it is genuinely illuminating.</p>
+<h3>Bottom Line</h3>
+<p>Fear of a wrong model doesn't rewrite your whole strategy — it just quietly trims your boldest positions, and the bill comes to half the variance of the mistake you avoided.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Settlement Manipulation in Prediction Markets</h2>
+  <p class="meta">David Dai, Ruizhe Jia, Shihao Yu<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-06-30 &middot; <a href="http://arxiv.org/abs/2606.31675v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.31675v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If a betting contract settles on a price that the bettors themselves can move, they will move it — money flows from small players to manipulators — and the fix is almost embarrassingly simple: make the settlement window longer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Prediction markets like Polymarket let you bet on questions such as "will Bitcoin be above USD 60,000 at 3:05pm?" The catch: the contract settles on the <em>actual spot price of Bitcoin</em>, and the people holding the bet can go trade Bitcoin itself to nudge that price where they want it. It's like betting on a horse race in which the bettors are allowed to trip the horses. This quietly transfers wealth from ordinary bettors (who just wanted to express a view) to sophisticated manipulators, and it distorts price discovery in the underlying asset — the market's job of finding the "right" price gets corrupted right when it matters most.</p>
+<p><strong>The idea.</strong> The authors build a model with two kinds of players: <em>liquidity traders</em> who bet for ordinary reasons, and a <em>manipulator</em> who holds a large bet and, in the final moments before settlement, trades the underlying to drag the settlement price across the payout threshold. Trading the underlying isn't free — pushing the price costs money (market impact), and the price snaps back afterward — so the manipulator only does it when the bet payoff outweighs the round-trip trading cost. The model predicts a burst of trading right at settlement, a payout skewed toward the manipulator, and a price that <em>reverses</em> just after settlement. Then they take this to real Polymarket data.</p>
+<p><strong>What they found.</strong> After Polymarket launched its <em>five-minute</em> Bitcoin contract, spot order flow spiked precisely at settlement time, followed by large post-settlement price reversals — exactly the fingerprint the model predicts. Manipulators captured substantial profit, mostly extracted from retail bettors. The clincher: the <em>fifteen-minute</em> contracts show essentially no manipulation. Lengthening the horizon makes moving the price for five minutes far too expensive to be worth it, so the manipulation simply disappears — a clean, actionable market-design remedy.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let the underlying price around settlement be $p_t$, moved by order flow through a linear (Kyle-style) <em>price-impact</em> function. A manipulator holds a position of size $Q$ in a binary contract that pays 1 per unit if $p_T \ge K$ at settlement time $T$, and 0 otherwise. Alongside are liquidity traders whose order flow is noisy. The manipulator chooses how much of the underlying, $x$, to trade just before $T$.</p>
+<p><strong>The key equations.</strong> Price impact is linear:
+$$p_T = p_{T^-} + \lambda\, x,$$
+where $p_{T^-}$ is the pre-settlement price, $\lambda > 0$ is the <em>price-impact coefficient</em> (Kyle's lambda), and $x$ is the manipulator's trade. The manipulator's net objective is
+$$\max_{x}\; \underbrace{Q \cdot \Delta\Pi(x)}_{\text{gain on the bet}} \;-\; \underbrace{\tfrac12 \lambda\, x^2}_{\text{round-trip impact cost}},$$
+where $\Delta\Pi(x)$ is the increase in expected contract payoff from pushing the price by $\lambda x$ (large when $p_{T^-}$ sits near the threshold $K$), and the quadratic term is the cost of moving and unwinding. The first-order condition gives an optimal manipulation $x^\star$ that is increasing in the bet size $Q$ and decreasing in impact $\lambda$ and in the horizon length.</p>
+<p><strong>The method.</strong> A game-theoretic <em>market-microstructure</em> equilibrium (Kyle-type) delivers the manipulation size and the resulting wealth transfer as comparative statics, and an empirical <em>event study</em> around the Polymarket contract launch tests the predictions on high-frequency spot data — measuring the settlement-time order-flow spike, the post-settlement reversal, and manipulator profits.</p>
+<p><strong>Results with numbers.</strong> Settlement-time spot order flow spikes and large price reversals appear after the five-minute contract's launch; manipulators capture a large share of profits, predominantly from retail; the fifteen-minute contract exhibits no such manipulation — the horizon length is the decisive comparative static.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Prediction market</strong> — a marketplace where contracts pay out based on the outcome of a future event, so prices act as probabilities.</li>
+<li><strong>Settlement</strong> — the moment a contract's payout is determined by reading off some reference value (here, the spot price).</li>
+<li><strong>Price impact (Kyle's lambda)</strong> — how much the price moves per unit of order flow; the coefficient $\lambda$ measures market shallowness.</li>
+<li><strong>Liquidity trader</strong> — a participant who trades for reasons unrelated to manipulation, providing the noise manipulators hide behind.</li>
+<li><strong>Price discovery</strong> — the process by which trading aggregates information into an accurate market price.</li>
+<li><strong>Comparative statics</strong> — how the equilibrium outcome changes as one parameter (here, the contract horizon) is varied.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The impact model is reduced-form and linear, with essentially a single strategic manipulator, so it abstracts away competition among manipulators and richer order-book dynamics that could dampen or amplify the effect. It is also crypto-specific — a 24/7, relatively thin market where five-minute manipulation is cheap. But the core prediction is sharp, the event-study evidence lines up, and the remedy (lengthen the window) is concrete, cheap, and already visible in the data.</p>
+<h3>Bottom Line</h3>
+<p>Settle a bet on a number the bettors can push, and you've built a casino where the house lets some players load the dice — unless you simply make the round long enough that cheating stops paying.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
