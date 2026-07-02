@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 02, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 02, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> When large trades are not news: Liquidity tail risk and price discovery</h2>
+  <p class="meta">Umut Çetin, Mingwei Lin, Giulia Livieri<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-01 &middot; <a href="http://arxiv.org/abs/2607.01198v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.01198v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Whether a giant order looks like insider trading or an innocent cash need depends on how often innocent trades are freakishly large — and the fatter that tail, the slower the market figures out the truth.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Picture the people who stand ready to buy and sell all day — market makers. A huge buy order lands on their screen. They face a guessing game: is this person buying because they <em>know</em> something the rest of us don't (an "informed" trader), or are they just a pension fund that needs cash and is selling to raise it (an "uninformed" or liquidity trader)? The stakes are real. If the big order is informed, the price <em>should</em> jump, and the market maker who sold too cheap just got fleeced — this danger is called adverse selection, and makers protect themselves by widening the gap between their buy and sell prices. If the order is innocent, over-reacting just scares away business. Everyday version: your neighbor suddenly dumps their house at a discount. Do they know the neighborhood is about to sour (news), or did they just get transferred to another city (liquidity)? Your read changes what your own house is worth.</p>
+<p><strong>The idea.</strong> The authors' insight is that the whole answer hinges on one thing: <em>how often do innocent trades happen to be enormous?</em> If innocent orders are almost always modest — like human heights, where nobody is thirty feet tall — then a monster order can only mean one thing: someone knows something. The maker reacts hard. But if innocent orders <em>occasionally</em> balloon to gigantic size — like city populations or personal wealth, where true monsters do appear — then even a whale of an order might be a rare-but-innocent liquidity event, and the maker stays calm. They capture "how often do freak-large innocent trades happen" with a single dial called the <strong>tail index</strong> of a Student-t distribution: crank it one way and tails are thin, crank it the other way and rare giants become common.</p>
+<p><strong>What they found.</strong> Fat liquidity tails make price impact <em>flatter and more concave</em> — big trades push the price less per share than you'd expect — and they make the market <em>learn the fundamental value more slowly</em>. The premium makers charge to guard against informed traders stays stubbornly high for longer. So the thickness of the liquidity tail is a hidden control knob governing market impact, spread resilience, and how fast prices discover the truth.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A sequential, competitive limit-order book with asymmetric information. The aggregate order flow the makers observe is
+$$X = I + U,$$
+where $I$ is informed demand (correlated with the unknown fundamental value $V$) and $U$ is uninformed liquidity demand. Makers see the <em>sum</em> $X$ but never the split. The uninformed part $U$ is modeled with Student-t tails, so its density decays polynomially,
+$$f_U(u)\;\sim\; c\,|u|^{-(1+\alpha)},\qquad |u|\to\infty,$$
+with $\alpha>0$ the <strong>tail index</strong> (small $\alpha$ = heavy tails, rare giants common). Competitive, zero-expected-profit pricing forces the price to equal the conditional expectation of value given the observed flow.</p>
+<p><strong>The key equation.</strong> The equilibrium is a <strong>marginal-cost schedule</strong> $p(\cdot)$ solving a fixed-point:
+$$p(x) \;=\; \mathbb{E}\!\left[\,V \,\middle|\, I + U = x\,\right],$$
+which is a fixed point because the informed trader's demand $I$ is itself chosen optimally <em>against</em> the schedule $p$. Here $V$ is the fundamental value, $I$ informed order size, $U$ uninformed order size with the heavy-tailed density above, and $p(x)$ the price makers post for aggregate flow $x$. For very large orders the price impact obeys <strong>regular variation</strong>:
+$$p(x) - \mathbb{E}[V] \;\sim\; L(x)\,x^{-\rho},\qquad x\to\infty,$$
+where $\rho$ is an impact exponent depending on the tail index $\alpha$, the intensity of informed competition, and the makers' posterior beliefs, and $L$ is a slowly varying function.</p>
+<p><strong>The method.</strong> The usual Gaussian toolkit — monotone likelihood ratios and compactness — <em>breaks</em>, because heavy tails keep faraway liquidity states relevant at only polynomial (not exponential) decay, so remote states still move prices. Instead the authors build the fixed point on a <em>tail-controlled compact class</em> of schedules, prove existence along selected monotone branches, and then read off learning rates and the large-order asymptotics.</p>
+<p><strong>Results.</strong> This is a theory paper, so the "numbers" are qualitative laws rather than a table of basis points: thin-tailed noise makes large imbalances read almost immediately as private information; heavy-tailed noise <em>delays the decline of adverse-selection premia</em> and <em>slows finite-horizon price discovery</em>; and the large-order impact exponent $\rho$ is pinned explicitly to the tail index $\alpha$. Under stable information-rate conditions repeated order flow still eventually reveals $V$ — heavier tails just make the road there longer.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>adverse selection</strong> — the loss a market maker suffers from unknowingly trading against someone with better information.</li>
+<li><strong>tail index ($\alpha$)</strong> — a single number saying how likely extreme values are; smaller means rare giants show up more often.</li>
+<li><strong>Student-t distribution</strong> — a bell-ish curve with adjustable fat tails, so occasional huge draws are allowed.</li>
+<li><strong>marginal-cost schedule</strong> — the function mapping each order size to the price a competitive maker must charge to break even.</li>
+<li><strong>regular variation</strong> — a precise sense in which a function behaves like a power law $x^{-\rho}$ for large $x$.</li>
+<li><strong>fixed-point equilibrium</strong> — a self-consistent solution where the price rule and the informed trader's behavior each best-respond to the other.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It is a stylized, single-asset model, and the Student-t liquidity is a reduced-form stand-in, not calibrated to real limit-order-book data — so you won't get a plug-and-play impact number out of it. What you do get is a clean, testable claim: the fatness of liquidity tails is a state variable that execution desks and price-impact models currently ignore. A practitioner couldn't deploy it tomorrow, but it reframes what "abnormally large trade" should mean.</p>
+<h3>Bottom Line</h3>
+<p>In a market with fat innocent tails, a whale-sized order isn't necessarily a signal — and pretending it is makes you learn slower and pay more.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> The Fundamental Theorem of Asset Pricing, Formalized in Lean 4</h2>
+  <p class="meta">Raphael Coelho<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-27 &middot; <a href="http://arxiv.org/abs/2606.28990v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.28990v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The single most important theorem in finance — "no free money exactly when a fair-odds probability exists" — has now been checked line-by-line by a computer, with no gaps.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The Fundamental Theorem of Asset Pricing (FTAP) is the load-bearing wall of modern finance. In plain words it says: a market lets you make risk-free profit out of nothing (an <em>arbitrage</em>) if and only if there is <em>no</em> consistent "fair-odds" way to view the world under which every asset's price is just its expected discounted payoff. Flip it around: the <em>absence</em> of free lunches is mathematically the <em>same thing</em> as the existence of a special probability measure (a "risk-neutral" or martingale measure) under which prices behave like fair bets. Every option-pricing formula, every hedging argument, rests on this equivalence. But mathematical proofs, even famous ones, are written by humans and occasionally have subtle gaps — a missing assumption, a hand-waved step. For a result this central, "probably correct" is uncomfortable.</p>
+<p><strong>The idea.</strong> The authors re-proved the FTAP inside <strong>Lean 4</strong>, a <em>proof assistant</em>: software where every logical step must be justified in a language the computer mechanically verifies. You can't wave your hands; if a step is missing, it simply won't compile. Think of it as the difference between a chef saying "trust me, this is safe to eat" and a lab certifying every ingredient. They did it in three settings of increasing generality: a finite market over finite time (the classic Harrison–Pliska picture), a one-period market on any probability space with a single return, and a one-period market with many assets.</p>
+<p><strong>What they found.</strong> They produced the <em>first machine-checked proof of the FTAP in any proof assistant</em>. The elegant twist is in the many-asset case: instead of the traditional heavy machinery (separating-hyperplane theorems, closedness arguments in exotic function spaces), they build the fair-odds measure <em>explicitly</em> as the minimizer of a smooth, bowl-shaped function — the same "logistic" potential that shows up in machine-learning classifiers. No-arbitrage turns out to be exactly the statement that this bowl has a bottom, and the bottom <em>is</em> the risk-neutral measure. Everything is "sorry-free" (Lean's word for "no unproven gaps"), and the exact logical axioms used are pinned down automatically.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider a one-period market with $d$ risky assets whose net returns form a random vector $Y \in \mathbb{R}^d$ on a probability space $(\Omega,\mathcal{F},\mathbb{P})$. A portfolio is a vector $\theta \in \mathbb{R}^d$; its payoff is the inner product $\langle \theta, Y\rangle$. An <strong>arbitrage</strong> is a $\theta$ with $\langle\theta,Y\rangle \ge 0$ almost surely and $>0$ with positive probability — a bet that never loses and sometimes wins. An <strong>equivalent martingale measure</strong> is a probability $\mathbb{Q}$ with the same null sets as $\mathbb{P}$ under which $\mathbb{E}_{\mathbb{Q}}[Y]=0$ (every asset is a fair bet).</p>
+<p><strong>The key equation.</strong> The centerpiece is that the martingale measure is the minimizer of the smooth convex potential
+$$\Phi(\theta) \;=\; \mathbb{E}\big[\log\big(1 + e^{\langle \theta, Y\rangle}\big)\big].$$
+Here $\theta\in\mathbb{R}^d$ ranges over portfolios, $Y$ is the return vector, and $\langle\theta,Y\rangle$ the portfolio payoff. Three facts line up perfectly:
+1. <strong>No arbitrage $\iff$ coercivity of $\Phi$</strong> — the bowl grows to $+\infty$ in every direction, so a minimizer $\theta^\star$ exists.
+2. <strong>First-order condition $\iff$ martingale property</strong> — setting the gradient to zero, $\nabla\Phi(\theta^\star)=0$, is exactly $\mathbb{E}_{\mathbb{Q}}[Y]=0$.
+3. <strong>The minimizer's logistic weight is the density.</strong> The Radon–Nikodym derivative of $\mathbb{Q}$ w.r.t. $\mathbb{P}$ is
+$$\frac{d\mathbb{Q}}{d\mathbb{P}} \;\propto\; \frac{e^{\langle \theta^\star, Y\rangle}}{1 + e^{\langle \theta^\star, Y\rangle}},$$
+a probability-like weight in $(0,1)$ that is strictly positive, hence $\mathbb{Q}$ is <em>equivalent</em> to $\mathbb{P}$.</p>
+<p><strong>The method.</strong> Formal verification in <strong>Lean 4 over Mathlib</strong> (its mathematics library). The proof strategy for the $d$-asset case is <em>constructive optimization</em>: exhibit $\mathbb{Q}$ as $\arg\min \Phi$, so existence follows from coercivity rather than from an abstract separation/duality argument. Crucially it uses <strong>no Hahn–Banach theorem, no $L^0$-closedness, no measurable selection, and no non-redundancy hypothesis</strong> — the usual sources of pain in FTAP proofs.</p>
+<p><strong>Results with numbers.</strong> The "numbers" here are logical guarantees rather than error bars: <strong>three</strong> settings formalized (finite-state Harrison–Pliska, scalar one-period Föllmer–Schied, and $d$-asset one-period); <strong>zero</strong> <code>sorry</code> placeholders; every headline theorem's axiom footprint is pinned to Mathlib's classical defaults by a <strong>build-enforced gate</strong>; and the whole development is reproducible from a pinned toolchain. The explicit boundary: the general multi-period Dalang–Morton–Willinger theorem is <em>not</em> covered.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>arbitrage</strong> — a trading strategy that cannot lose and can strictly win, i.e. free money.</li>
+<li><strong>equivalent martingale measure</strong> — a re-weighting of probabilities, agreeing on what's possible, under which every asset is a fair (zero-expected-gain) bet.</li>
+<li><strong>proof assistant / Lean 4</strong> — software that mechanically checks each logical step, so a proof only "compiles" if it is airtight.</li>
+<li><strong>coercive function</strong> — one that heads to $+\infty$ in every direction, guaranteeing it has a minimum somewhere.</li>
+<li><strong>Radon–Nikodym derivative</strong> — the density $d\mathbb{Q}/d\mathbb{P}$ telling you how to re-weight one probability to get another.</li>
+<li><strong>sorry-free</strong> — Lean slang for a proof containing no admitted-without-proof gaps.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundations, not a trading edge: it won't price a single option better than existing code. Its value is trust and pedagogy — a gap-free, reproducible proof plus an unusually clean logistic-potential construction that could become the textbook route. The honest limitation is scope: the hard, genuinely infinite-dimensional multi-period case (Dalang–Morton–Willinger) is explicitly left out, and that's where the real analytical dragons live.</p>
+<h3>Bottom Line</h3>
+<p>Finance's cornerstone theorem now has a machine-checked proof, and it turns out the risk-neutral world is just the bottom of a logistic bowl.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Comonotonic and moment matching approximations for sums of lognormal random variables</h2>
+  <p class="meta">Chunle Huang<br>
+    <span class="cat">math.PR</span> &middot; 2026-06-28 &middot; <a href="http://arxiv.org/abs/2606.29143v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.29143v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Adding up several lognormal random variables has no clean formula, but a new "weighted" trick approximates the sum especially well right where it matters most — the dangerous far-right tail.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A stunning amount of finance and insurance boils down to one awkward question: <em>what is the distribution of a sum of lognormals?</em> A lognormal is what you get when a growth rate is normal — stock prices, insurance claim sizes, and asset values are routinely modeled this way because they can't go negative and occasionally spike huge. The trouble: add two lognormals and the result is not lognormal, and there's no tidy closed-form for it. Yet you constantly need one. The value of a basket of stocks, an Asian option that averages a price over time, the total payout of a portfolio of insurance policies, a pension fund's aggregate liability — all are sums of lognormals. Getting the <em>right tail</em> right (the probability of a very large total) is exactly what determines capital buffers and how much you should charge for catastrophe protection, so a bad tail approximation isn't an academic quibble — it's under-reserved risk.</p>
+<p><strong>The idea.</strong> Existing go-to approximations use a beautiful idea called <strong>comonotonicity</strong>: replace the messy, partially-correlated sum with an idealized "everything moves together" sum, which <em>does</em> have a tractable form and neatly bounds the real thing. The catch is that classic comonotonic approximations tend to be least accurate precisely in the far-right tail. The authors sharpen the tool using <strong>weighted distributions</strong> — instead of treating every scenario equally, they re-weight outcomes to emphasize the region you care about, like putting a magnifying glass over the tail before you approximate. Their construction keeps two prized properties at once: it stays <em>comonotonic</em> (so it remains a clean, order-preserving bound) <em>and</em> it <em>matches moments</em> (so its mean, and other averages, agree with the true sum). Their second contribution is a general "step-weighting" theory that makes this re-weighting rigorous for continuous random variables.</p>
+<p><strong>What they found.</strong> Overall the new approximations perform <em>comparably</em> to the classical comonotonic ones across the board — but in the <strong>right tail</strong> they do <strong>better</strong>. That's the sweet spot: the region that governs Value-at-Risk, solvency capital, and out-of-the-money option prices is exactly where the old methods were weakest and the new ones improve.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $S = \sum_{i=1}^{n} X_i$ where each $X_i = e^{\mu_i + \sigma_i Z_i}$ is lognormal and the $Z_i$ are jointly normal with some correlation structure. The distribution of $S$ has no closed form. A <strong>comonotonic</strong> approximation replaces the dependence with the comonotonic copula — the coupling in which all components are increasing functions of a <em>single</em> common uniform driver $U$, giving
+$$S^{c} \;=\; \sum_{i=1}^{n} F_{X_i}^{-1}(U),$$
+whose quantile function is simply the sum of the marginal quantile functions, hence easy to invert and bound with.</p>
+<p><strong>The key equation.</strong> The new idea replaces the plain density $f$ of a component (or of the driver) with a <strong>weighted density</strong>
+$$f^{w}(x) \;=\; \frac{w(x)\,f(x)}{\mathbb{E}[\,w(X)\,]},$$
+where $w(\cdot)\ge 0$ is a chosen weight function and the denominator $\mathbb{E}[w(X)]$ renormalizes it to integrate to one. Symbols: $f$ original density, $w$ the weight emphasizing a region (e.g. large values), $f^w$ the tilted density. Choosing $w$ well lets the resulting comonotonic approximation <em>also</em> satisfy moment-matching constraints such as
+$$\mathbb{E}[\,\tilde S\,] = \mathbb{E}[S], \qquad \mathbb{E}[\,\tilde S^2\,] = \mathbb{E}[S^2],$$
+so the approximating sum $\tilde S$ reproduces the true sum's low-order moments exactly. The <strong>step-weighting theory</strong> they establish is what guarantees such weightings behave consistently for continuous variables (composing weights in "steps" without breaking the comonotone/moment-matched structure).</p>
+<p><strong>The method.</strong> Analytical construction plus numerical validation. They derive the weighted-comonotonic approximants in closed enough form to evaluate, then benchmark their distribution — especially tail quantiles — against Monte-Carlo "truth" and against the classical comonotonic upper/lower bounds.</p>
+<p><strong>Results with numbers.</strong> The paper's evidence is comparative rather than a single headline statistic: across the tested cases the weighted approximations track the true sum's distribution about as well as the classical comonotonic bounds overall, and <em>outperform them specifically in the right tail</em> of $S$ — the high-quantile region that drives risk and pricing. The step-weighting theory is delivered as a general, reusable result for continuous random variables.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>lognormal</strong> — a variable whose logarithm is normal; non-negative and right-skewed, the default model for prices and claims.</li>
+<li><strong>comonotonic</strong> — a dependence structure in which all variables rise and fall together as functions of one common driver.</li>
+<li><strong>copula</strong> — the part of a joint distribution that encodes <em>only</em> the dependence, stripped of the individual marginals.</li>
+<li><strong>moment matching</strong> — forcing an approximation to reproduce the true mean, variance, etc.</li>
+<li><strong>weighted distribution</strong> — a re-normalized density that up- or down-weights regions to emphasize the part you care about.</li>
+<li><strong>right tail</strong> — the far upper end of a distribution, i.e. the probability of unusually large totals.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a targeted numerical-approximation advance, not a new pricing paradigm: the gains are concentrated in the right tail and the paper reports "comparable overall, better in the tail" rather than order-of-magnitude error crushes. Its practical worth depends on how much your application lives in that tail — for solvency capital and deep out-of-the-money options, quite a lot; for at-the-money pricing, less so. A quant could fold it in as a drop-in refinement of an existing comonotonic pipeline.</p>
+<h3>Bottom Line</h3>
+<p>When you must approximate a sum of lognormals, tilt the weights toward the tail — that's exactly the part the old methods got wrong.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Hidden Dependence and Aggregate Tail Risk</h2>
+  <p class="meta">Corrado De Vecchi, Max Nendel, Steven Vanduffel<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-06-29 &middot; <a href="http://arxiv.org/abs/2606.30193v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.30193v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you're even slightly unsure how your risks are correlated, the worst plausible dependence can be catastrophically worse than your model — and a tiny wobble away from a Gaussian assumption can justify a dramatic jump in required capital.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A bank or insurer rarely worries about one loss; it worries about the <em>total</em> across a portfolio — many loans, many policies, many positions summed together. How bad the total can get depends enormously on <em>how the pieces move together</em>. If losses are independent, disasters average out. If they all crash at once, the total is far uglier. This co-movement is the <strong>dependence structure</strong>, and here's the uncomfortable truth: you can estimate each individual risk's behavior fairly well from data, but the <em>joint</em> behavior in the extreme tail — the once-a-decade "everything fails together" scenario — is almost impossible to pin down, because by definition you've seen very few such events. So risk managers pick a convenient dependence model (very often a Gaussian one) and hope. The question this paper asks: <em>how much worse could reality be than my assumed dependence, if I only trust my model approximately?</em></p>
+<p><strong>The idea.</strong> They study the <em>worst-case</em> aggregate tail risk over all dependence structures consistent with what you know — a "distributionally robust" view, meaning you don't commit to one model but instead ask what the most adversarial plausible one would do. The key new gadget is <strong>hidden dependence</strong>: starting from any joint behavior and any specific bad "tail event" (say, aggregate loss exceeding some threshold), they show you can always cook up a companion dependence structure that looks marginally identical — each individual risk unchanged — yet <em>dominates</em> on that tail event, concentrating catastrophe exactly where it hurts. It's like discovering that a set of individually well-behaved employees could, without any of them personally changing, be arranged into a team that fails all at once. The unsettling part: even if you restrict yourself to dependence structures <em>close</em> to your reference model (small perturbations that leave the individual risks untouched), the worst case is <em>just as bad</em> as if you'd allowed anything at all.</p>
+<p><strong>What they found.</strong> Applied to credit risk, small deviations from a reference Gaussian dependence model can, in principle, justify <em>dramatic</em> increases in capital requirements. In other words, the comforting Gaussian copula sitting inside many credit models may be badly understating tail risk, and you don't need a wild alternative to expose it — a nearby one suffices.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A random vector $Y=(Y_1,\dots,Y_n)$ of individual losses with <em>fixed</em> marginal distributions. The aggregate is formed by a non-decreasing <strong>aggregation function</strong> $g$, e.g. the sum $g(Y)=\sum_i Y_i$. Risk is measured by a <strong>tail risk measure</strong> — a $\gamma$-tail risk measure $\rho_\gamma$ that depends only on the top $\gamma$-fraction of outcomes (Value-at-Risk and Expected Shortfall are examples). Model uncertainty is a set $\mathcal{U}$ of joint distributions sharing those marginals.</p>
+<p><strong>The key equation.</strong> The object of interest is the worst-case aggregate risk under dependence uncertainty:
+$$\overline{\rho} \;=\; \sup_{\,\pi\in\mathcal{U}}\; \rho_\gamma\!\big(g(Y_\pi)\big),$$
+where the supremum runs over all couplings $\pi$ (dependence structures) in the uncertainty set $\mathcal{U}$, $Y_\pi$ is $Y$ under coupling $\pi$, $g$ the aggregation, $\rho_\gamma$ the $\gamma$-tail risk measure. The <strong>hidden dependence</strong> construction says: given a tail event
+$$A = \{\, g(Y) > t \,\},$$
+one can build a coupling that stochastically dominates $Y$ on $A$ while preserving every marginal. Their main robustness result is that restricting $\mathcal{U}$ to a small ball around a reference law $\pi_0$ (in a suitable probability distance, marginals fixed),
+$$\mathcal{U}_\varepsilon = \{\pi : d(\pi,\pi_0)\le \varepsilon,\ \text{marginals}=F_1,\dots,F_n\},$$
+does <em>not</em> lower the worst-case: $\overline{\rho}$ over $\mathcal{U}_\varepsilon$ equals the <em>unconstrained</em> worst case for appropriately matched $\gamma$ and $\varepsilon$.</p>
+<p><strong>The method.</strong> Distributionally robust optimization built on the theory of <strong>risk concentration</strong> and <strong>common tail events</strong> (Wang–Zitikis, 2020). They prove existence of the dominating hidden-dependence coupling via an explicit construction on the tail event, then show small-perturbation compatibility so that the constrained and unconstrained worst-case bounds coincide.</p>
+<p><strong>Results with numbers.</strong> As a theory paper the quantitative punchline is the credit-risk application: they demonstrate that even <em>small</em> departures from a reference Gaussian dependence can produce <em>large</em> increases in worst-case portfolio risk and hence in capital requirements — a formal warning that dependence misspecification, not marginal misspecification, is the dangerous blind spot.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>dependence structure / copula</strong> — how random losses move together, separate from how each behaves alone.</li>
+<li><strong>distributionally robust</strong> — optimizing against the worst plausible model rather than trusting a single one.</li>
+<li><strong>tail risk measure ($\gamma$-tail)</strong> — a number (like Value-at-Risk or Expected Shortfall) summarizing only the worst $\gamma$-fraction of outcomes.</li>
+<li><strong>aggregation function</strong> — a non-decreasing map (often a sum) combining individual losses into a portfolio total.</li>
+<li><strong>hidden dependence</strong> — a marginal-preserving coupling engineered to concentrate loss on a chosen tail event.</li>
+<li><strong>stochastic dominance</strong> — one distribution being "uniformly at least as large" as another in a precise ordering sense.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a <em>warning</em>, not a plug-in capital formula: it produces worst-case bounds, which are by design pessimistic and may overstate risk for a manager who genuinely has extra structural knowledge the abstract set-up ignores. Real regulators constrain dependence with more than fixed marginals, so the fully unconstrained worst case is a ceiling, not a forecast. Still, the core message — that a nearby dependence model can be as bad as anything, and Gaussian credit assumptions may lull you — is exactly the kind of thing a risk committee should stress-test.</p>
+<h3>Bottom Line</h3>
+<p>Your losses' marginals may be well-behaved and your dependence model only slightly off, and that is still enough for the tail to blow up.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Hedging Maturity-Specific Risk in Forward Curve Derivatives under Stochastic Volatility</h2>
+  <p class="meta">Riccardo Alberti, Sven Karbach<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-27 &middot; <a href="http://arxiv.org/abs/2606.28891v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.28891v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you hedge an option on an entire forward curve — a whole term structure of futures prices — some of the risk is simply un-hedgeable, and this paper says exactly how much, splitting the leftover into named buckets.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many contracts aren't written on a single price but on a <em>forward curve</em> — the whole schedule of prices for delivery next month, in six months, in two years. Think of an electricity or gas producer who has sold power for delivery across dozens of future dates: their risk lives along an entire curve, and each maturity wiggles somewhat on its own. Now suppose someone holds an option whose payoff depends on this curve, and volatility itself is random (some days the curve is calm, some days it thrashes). How do you hedge it — how do you hold a portfolio of tradable forwards that cancels the option's risk as tightly as possible? And crucially: <em>can you cancel all of it, or is some risk fundamentally trapped?</em> The honest answer in real markets is that not every wiggle of the curve corresponds to something you can trade, so perfect hedging is impossible and you're left with a residual you must simply carry.</p>
+<p><strong>The idea.</strong> The authors set up the forward curve as an object that evolves like a <em>field</em> — a shape that ripples over time — driven by randomness plus a separately-random "how violent is the rippling" component. They then find the <strong>variance-optimal hedge</strong>: the tradable strategy that minimizes the <em>variance</em> of your hedging error, i.e. gets you as close as mathematically possible. The elegant part is what they do with the leftover. Rather than reporting one fuzzy "residual risk" number, they <em>decompose</em> it into interpretable pieces: a <strong>bucket</strong> part (risk tied to specific maturity ranges), a <strong>rank</strong> part (risk in the finer, higher-order modes of curve movement that a low-dimensional hedge can't reach), and a genuine <strong>residual</strong> — the irreducible floor coming from randomness in volatility itself that no traded instrument touches. It's like a mechanic itemizing which rattles you can fix, which need special parts, and which are baked into the engine.</p>
+<p><strong>What they found.</strong> They prove the optimal hedge is given by a specific projection (the best approximation of your claim inside the space of tradable strategies), show that hedges built from finitely many maturity "modes" <em>converge</em> to the true optimum as you add modes, and derive an <em>exact</em> formula splitting the quadratic hedging error into bucket + rank + residual. In enlarged-information settings, the residual becomes a <strong>stochastic-volatility floor</strong> — a hard lower bound on hedging error for any claim that loads on non-traded volatility noise.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The forward curve $t\mapsto f_t(\cdot)$ is a function-valued process obeying a <strong>Heath–Jarrow–Morton–Musiela (HJMM)</strong> stochastic <em>partial</em> differential equation, modulated by an infinite-rank stochastic covariance component (random, operator-valued volatility). Formally the curve lives in a Hilbert space $H$ of maturity/delivery profiles and evolves as
+$$df_t = \big(\partial_x f_t + \text{drift}\big)\,dt + \sigma_t\, dW_t,$$
+where $\partial_x$ is the Musiela shift (time flowing toward maturity), $\sigma_t$ is a random covariance operator, and $W_t$ an $H$-valued (cylindrical) Brownian motion.</p>
+<p><strong>The key equation.</strong> For a European claim, the variance-optimal hedge is the <strong>Galtchouk–Kunita–Watanabe (GKW) projection</strong> of the claim onto the space of tradable forward strategies, taken in a covariance-norm quotient generated by the forward-curve martingale $M$:
+$$H = \langle \varphi \cdot M\rangle + N,\qquad \varphi = \frac{d\langle H,M\rangle}{d\langle M\rangle},$$
+where $H$ is the claim's payoff (as a martingale), $\varphi$ the optimal hedge ratio (the tradable part), $\langle\cdot\rangle$ the predictable quadratic-variation bracket, and $N$ the residual orthogonal to all traded assets. The quadratic hedging error then decomposes exactly:
+$$\mathbb{E}\big[(\text{hedge error})^2\big] \;=\; \underbrace{\mathcal{E}_{\text{bucket}}}_{\text{maturity ranges}} + \underbrace{\mathcal{E}_{\text{rank}}}_{\text{unspanned modes}} + \underbrace{\mathcal{E}_{\text{residual}}}_{\text{stoch-vol floor}}.$$</p>
+<p><strong>The method.</strong> Infinite-dimensional stochastic analysis: they establish <strong>density</strong> of finite-maturity and delivery-window strategies (so simple hedges can approximate any admissible one), prove <strong>convergence of spectral finite-rank hedge projections</strong> (truncating the covariance operator to its top eigen-modes and letting the rank grow), and identify the residual in <em>enlarged filtrations</em> as a stochastic-volatility floor. Concrete illustrations use affine stochastic-covariance and multiplicative HJMM models, with a worked example in a <strong>CIR</strong> (Cox–Ingersoll–Ross) stochastic-covariance model.</p>
+<p><strong>Results with numbers.</strong> This is a theorem paper, so the deliverables are structural guarantees rather than a P&amp;L table: (i) an <em>exact</em> three-way error decomposition; (ii) <em>convergence</em> of finite-rank spectral hedges to the variance-optimal hedge as rank increases; (iii) <em>density</em> of practical bucket/window strategies in the full strategy space; and (iv) an explicit residual floor in the CIR example quantifying the un-hedgeable volatility component.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>forward curve</strong> — the whole schedule of prices for delivery at each future date, not a single spot price.</li>
+<li><strong>HJMM equation</strong> — a stochastic PDE describing how an entire forward curve evolves, with maturity "flowing" over time.</li>
+<li><strong>variance-optimal hedge</strong> — the tradable strategy minimizing the <em>variance</em> of the leftover hedging error.</li>
+<li><strong>Galtchouk–Kunita–Watanabe projection</strong> — the mathematically-best approximation of a payoff inside the space of things you can actually trade.</li>
+<li><strong>quadratic variation bracket $\langle\cdot\rangle$</strong> — a measure of accumulated randomness/covariation of a process over time.</li>
+<li><strong>stochastic-volatility floor</strong> — an irreducible lower bound on hedging error caused by volatility being random and untradeable.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is heavy infinite-dimensional machinery, and its immediate audience is quants at energy/rates desks comfortable with HJMM models, not a broad practitioner base. The residual "floor" is genuinely useful — it tells you when to stop trying to hedge and start reserving — but the concrete numbers depend entirely on model choice (affine, CIR), so real-world usefulness hinges on whether those models fit your market's volatility dynamics. The decomposition, though, is a clean and reusable way to <em>report</em> where hedging risk actually lives.</p>
+<h3>Bottom Line</h3>
+<p>Hedging a whole forward curve, you can cancel the bucket and mode risk but never the volatility-of-volatility floor — and now you can measure exactly what's left.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
