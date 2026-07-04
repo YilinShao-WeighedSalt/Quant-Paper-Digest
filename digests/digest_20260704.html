@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 04, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 04, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Portfolio Optimization under Fast and Slow Latent Mean-Reverting and Momentum Drift</h2>
+  <p class="meta">Dannin J. Eccles, Roger Lee<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-02 &middot; <a href="http://arxiv.org/abs/2607.01705v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.01705v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The famous MACD trading indicator isn't just folklore — it falls out, exactly, of the optimal way to guess a stock's hidden drift when that drift moves at two different speeds.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you own a stock, what you really care about is its <em>drift</em> — the invisible average rate at which it tends to climb (or sink). Trouble is, you never see the drift. You only see prices bouncing around, and the bounce (volatility) is huge compared to the tiny signal underneath. It's like trying to hear a whispered melody at a rock concert. Professional traders spend fortunes trying to estimate this hidden drift, because if you knew it, you'd know how much of the stock to hold.</p>
+<p><strong>The idea.</strong> The authors assume the hidden drift is pushed around by two unseen forces running at different tempos: a <em>fast</em> one that flickers day to day, and a <em>slow</em> one that drifts over months — think of a nervous short-term mood layered on top of a slow economic tide. They then ask: given only the price history, what is the mathematically best running estimate of that hidden drift? The beautiful answer is that the optimal estimate turns out to be the <em>difference between a fast and a slow exponential moving average of past prices</em> — which is precisely the MACD (Moving Average Convergence Divergence) signal that chartists have eyeballed for forty years. The "fast EMA minus slow EMA" recipe isn't a superstition; it's what optimal filtering spits out when drift has two timescales. There's also a small extra correction term (a "Volterra" memory term) that classic MACD ignores.</p>
+<p><strong>What they found.</strong> Once you have that best drift estimate, they solve for the actual optimal portfolio — how much of your wealth to put in the stock at each instant — for the three standard ways of measuring an investor's appetite for risk. The strategies come out in clean, explicit "feedback" formulas: plug in today's MACD-type signal, out comes today's ideal position. So the paper gives a rigorous mathematical <em>foundation</em> for a beloved but previously hand-wavy trading tool, and shows how to use it optimally rather than just watching two lines cross.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The risky asset price $S_t$ follows
+$$dS_t = \mu_t S_t\,dt + \sigma S_t\,dW_t,$$
+where $\mu_t$ is a <em>latent</em> (unobserved) stochastic drift, $\sigma$ is volatility, and $W_t$ is a Brownian motion. The drift is driven by two hidden Ornstein–Uhlenbeck-type factors at distinct speeds:
+$$d\mu_t = \kappa_f(\theta_t - \mu_t)\,dt + \dots, \qquad d\theta_t = \kappa_s(\bar\theta - \theta_t)\,dt + \dots,$$
+with $\kappa_f \gg \kappa_s$ — a <em>fast</em> mean-reversion rate $\kappa_f$ pulling the drift toward a slowly-moving level $\theta_t$, which itself reverts slowly (rate $\kappa_s$) toward a long-run mean $\bar\theta$. The investor observes only the price path (partial information), i.e. the filtration $\mathcal F_t^S$ generated by $S$.</p>
+<p><strong>The key equation.</strong> Nonlinear filtering (the Kalman–Bucy machinery, since the system is conditionally Gaussian) gives the best estimate $\hat\mu_t = \mathbb E[\mu_t\mid \mathcal F_t^S]$. Their result is that
+$$\hat\mu_t \;\propto\; \underbrace{\text{EMA}_{\text{fast}}(dS/S) - \text{EMA}_{\text{slow}}(dS/S)}_{\text{MACD-type signal}} \;+\; (\text{deterministic Volterra correction}),$$
+where each EMA is an exponentially weighted average of trailing log-returns with decay tied to $\kappa_f$ or $\kappa_s$. The Volterra term is a time-dependent kernel convolution correcting for the two-scale coupling.</p>
+<p><strong>The method.</strong> They combine <em>stochastic filtering</em> (reduce the partial-information problem to a fully-observed one in the estimate $\hat\mu_t$) with <em>stochastic control</em>: solve the Hamilton–Jacobi–Bellman equation for the value function under logarithmic, power (CRRA), and exponential (CARA) utility. For these utilities the HJB separates, yielding candidate optimal portfolio weights $\pi_t^*$ in explicit feedback form, e.g. for log utility
+$$\pi_t^* = \frac{\hat\mu_t - r}{\sigma^2},$$
+where $r$ is the risk-free rate — the classical Merton fraction, but with the <em>filtered</em> drift $\hat\mu_t$ plugged in. They then prove <strong>admissibility</strong> (the strategy is well-defined and self-financing) and a <strong>verification theorem</strong> (the candidate really is optimal).</p>
+<p><strong>Results with numbers.</strong> The contribution is structural rather than a horse-race table: the headline "number" is the exact identification of the optimal filter with a MACD signal plus a characterized correction term, holding across three utility classes, with full admissibility and verification proofs.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Drift</strong> — the deterministic per-unit-time trend term $\mu_t$ in an asset's return, as opposed to its random volatility part.</li>
+<li><strong>Latent factor</strong> — a hidden state variable you never observe directly and must infer from data.</li>
+<li><strong>Filtering</strong> — computing the best probabilistic estimate of a hidden state given the noisy observations seen so far.</li>
+<li><strong>Mean reversion</strong> — the tendency of a process to be pulled back toward a central level, at a rate set by $\kappa$.</li>
+<li><strong>HJB equation</strong> — the partial differential equation whose solution is the optimal value function in a stochastic control problem.</li>
+<li><strong>Feedback form</strong> — a strategy written as an explicit function of the current observable state, so you just plug in and act.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The two-factor OU drift and constant volatility are clean but stylized; real drifts aren't tidy Gaussian factors and volatility isn't constant, so the exact MACD identity is a model artifact, not a law of markets. Still, as a <em>theoretical</em> justification for why fast-minus-slow moving-average signals capture drift information, it's genuinely illuminating, and the explicit feedback strategies are implementable. A practitioner gains intuition and a principled way to tune EMA windows, not a turnkey money machine.</p>
+<h3>Bottom Line</h3>
+<p>MACD is what optimal drift-estimation looks like when the hidden trend runs on two clocks.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Tail Risk Management with Puts and Trend Following: A CVaR Framework for Crashes and Drawdowns</h2>
+  <p class="meta">Miquel Noguer I Alonso, Ali Al Fallouji<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-01 &middot; <a href="http://arxiv.org/abs/2607.00883v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.00883v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Crash insurance (put options) and trend-following each protect against a <em>different kind</em> of disaster, so the right question isn't which to buy — it's how to split your protection budget between them.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Big losses don't all look alike. Sometimes the market falls off a cliff overnight (a <em>crash</em>). Sometimes it grinds relentlessly downward for months (a <em>drawdown</em>). Sometimes fear itself gets repriced and everything gets more expensive to insure (a <em>volatility</em> shock). If you're a pension fund or endowment trying not to blow up, you need protection — but a hedge tuned for one disaster is often useless or even costly against another. Buying put options (the right to sell at a fixed price) is fantastic insurance against a sudden crash, but you bleed premium every quiet month. Trend-following (systematically selling as markets fall) costs nothing up front and shines in slow grinding declines, but it's <em>late</em> to a sudden crash because its signal has to turn negative first.</p>
+<p><strong>The idea.</strong> The authors put both protections inside one honest budget and ask a control problem: at each moment, how much crash insurance and how much trend protection should you hold? Their key insight is <em>temporal separation</em> — the two hedges pay off at different times. Put options react <strong>instantly</strong> to a jump (insurance pays the moment the house burns). Trend-following reacts <strong>slowly</strong> but keeps getting more defensive the longer a decline persists, and it doesn't cost fresh premium to stay on. So the two are complements across the timeline of a disaster, not substitutes. They measure "how bad is bad" with CVaR — the average size of your worst-case losses, not just a single threshold.</p>
+<p><strong>What they found.</strong> A <em>hybrid</em> holding some of each protection reduces worst-case (CVaR) losses more than either pure sleeve alone, in the regimes they simulate. They also build a four-part diagnostic scorecard — does the hedge give convex payoff when stressed, does it fire reliably in tail events, what does it cost you in calm times, and how well does it handle <em>persistent</em> drawdowns — so a manager can see <em>why</em> a mix helps, not just that it does.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state is Markov: wealth $X_t$, spot price $S_t$, stochastic variance $V_t$, and an exponentially-weighted log-return trend signal $M_t$. The spot follows a jump-diffusion with stochastic volatility,
+$$\frac{dS_t}{S_t} = \mu\,dt + \sqrt{V_t}\,dW_t^S + \big(e^{J}-1\big)\,dN_t,$$
+where $\mu$ is drift, $V_t$ the variance, $W_t^S$ a Brownian motion, $N_t$ a Poisson jump counter and $J$ the jump size — so both smooth moves and sudden crashes are present. The put sleeve is modeled as a <strong>marked-to-market traded asset</strong> with its own physical return process, so premium drag, diffusion exposure and jump repricing all enter consistently rather than through terminal-payoff accounting.</p>
+<p><strong>The key equation.</strong> The investor maximizes utility of terminal wealth subject to a tail constraint, and the value function $u$ solves a Hamilton–Jacobi–Bellman equation in <strong>viscosity</strong> form:
+$$\sup_{\pi,\,\phi}\Big\{ \mathcal L^{\pi,\phi} u(t,x,s,v,m) \Big\} = 0,$$
+where $\pi$ is the trend allocation, $\phi$ the put allocation, and $\mathcal L^{\pi,\phi}$ the controlled generator combining drift, diffusion and jump operators over the state $(x,s,v,m)$. Because jumps make classical derivatives fail, solutions are interpreted in the viscosity sense. They also derive a <strong>CVaR policy-gradient identity</strong>
+$$\nabla_\theta\,\text{CVaR}_\alpha(L_\theta) = \mathbb E\big[\nabla_\theta L_\theta \mid L_\theta \ge \text{VaR}_\alpha\big],$$
+where $L_\theta$ is the loss under policy parameters $\theta$, $\alpha$ the tail level, and $\text{VaR}_\alpha$ the value-at-risk threshold — telling you how to nudge allocations to shrink expected tail loss.</p>
+<p><strong>The method.</strong> Continuous-time stochastic control (dynamic programming → HJB in viscosity form) to characterize the optimal hybrid, plus a policy-gradient formulation for CVaR so allocations can be optimized numerically. They give sufficient and local conditions for an <strong>interior</strong> hybrid solution (i.e. you genuinely want <em>both</em> sleeves, not a corner). Validation is by stylized Monte-Carlo simulation.</p>
+<p><strong>Results with numbers.</strong> In the reported regimes, both fixed equal-weight hybrids and grid-optimized hybrids deliver <strong>lower terminal CVaR</strong> than either the pure-put or pure-trend sleeve; the precise optimal weight is calibration-dependent and not pinned to a universal number. The qualitative, robust finding is the CVaR reduction from mixing.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CVaR (Conditional Value-at-Risk)</strong> — the average loss in the worst $\alpha\%$ of outcomes, a coherent tail-risk measure.</li>
+<li><strong>Put option</strong> — a contract giving the right to sell at a set strike, paying off when prices crash.</li>
+<li><strong>Trend-following</strong> — a systematic rule that increases short/defensive exposure as prices fall and vice versa.</li>
+<li><strong>Jump-diffusion</strong> — a price model with continuous random wiggles plus occasional discontinuous jumps.</li>
+<li><strong>Viscosity solution</strong> — a generalized notion of solving a PDE that works even when the value function isn't smooth (as jumps cause).</li>
+<li><strong>Policy gradient</strong> — the derivative of an objective with respect to strategy parameters, used to improve the strategy.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a framework paper: the evidence is stylized Monte-Carlo, not a live track record, and the authors are candid that the exact optimal split is calibration-dependent. Whether trend-following actually reduces <em>your</em> drawdowns depends on the trend model, transaction costs and the crash's shape — none fully captured here. The lasting value is the conceptual "insurance reprices instantly, trend defends persistently" separation and a disciplined way to budget across both.</p>
+<h3>Bottom Line</h3>
+<p>Puts insure the crash, trends defend the grind — buy the pair, and size them by their CVaR contribution.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Financial Resilience Evaluation: From Conditional Expectations to Dynamic Convex Risk Measures</h2>
+  <p class="meta">Matteo Ferrari, Roger J. A. Laeven, Emanuela Rosazza Gianin, Marco Zullino<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-29 &middot; <a href="http://arxiv.org/abs/2606.30070v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.30070v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two portfolios can be expected to recover from a shock at the same average speed yet be wildly different in how <em>risky</em> that recovery is — so this paper measures resilience with a risk-aware yardstick instead of a plain average.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> <em>Resilience</em> is about bounce-back: after a bad shock, how fast does a position recover — or keep sinking? A recent line of work summarized this with a single "resilience rate": the expected instantaneous rate of favorable change. But an average hides everything you care about in finance. Two positions can share the <em>same</em> expected recovery while one recovers smoothly and the other only recovers on average because it mixes big gains with big further losses. If you're managing risk, those are not the same animal. Using only the mean throws away exactly the tail information that determines whether you survive.</p>
+<p><strong>The idea.</strong> Instead of asking "what's the <em>expected</em> next increment?", the authors ask "what does a genuine <em>risk measure</em> say about the next increment?" A risk measure is a rule that assigns a number to an uncertain payoff reflecting how dangerous it is (value-at-risk and its coherent cousins are examples), and can penalize downside more than it rewards upside. So they replace the plain conditional expectation with a possibly-nonlinear, <em>dynamic</em> risk measure and define a "resilience evaluation" — the instantaneous risk-adjusted rate of change of the position. This captures not just how fast you recover on average but how safe that recovery is.</p>
+<p><strong>What they found.</strong> They prove this new object is <em>well-defined</em> (the limit that defines it actually exists) and, remarkably, that it has an <strong>explicit formula</strong>: it equals a <em>worst-case</em> expected recovery rate, taken over a family of alternative probability scenarios, of an "effective drift" that blends the position's own drift with a risk adjustment applied to its volatility. In other words, resilience-under-risk = worst-case pessimistic view of an adjusted recovery speed. They also show this worst-case scenario is actually <em>attained</em> (there's a specific pessimistic model that achieves it), and stress-test the theory with examples and counterexamples showing where the assumptions bite.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The position is an Itô process $\pi_t$ on a filtered probability space, with dynamics
+$$d\pi_t = b_t\,dt + \varsigma_t\,dW_t,$$
+where $b_t$ is the drift, $\varsigma_t$ the volatility, and $W_t$ a Brownian motion. The evaluator is $\rho = (\rho_s)$, a <strong>normalized, cash-additive dynamic risk measure</strong> (normalized: $\rho(0)=0$; cash-additive: adding a sure amount shifts risk by exactly that amount).</p>
+<p><strong>The key equation.</strong> They define the <strong>resilience evaluation</strong> as the $L^1$ limit
+$$\mathcal D_s^{\rho}\pi_t := L^1\text{-}\lim_{\varepsilon\to 0^+}\frac{1}{\varepsilon}\,\rho_s\big(\pi_{t+\varepsilon}-\pi_t\big),\qquad 0\le s\le t<T,$$
+where $\pi_{t+\varepsilon}-\pi_t$ is the increment of the position over a tiny interval $\varepsilon$, and $\rho_s$ evaluates that increment's risk as seen at time $s$. When $\rho$ is a <strong>convex</strong> dynamic risk measure induced by a backward stochastic differential equation (BSDE) with a Lipschitz or quadratic driver $g$, they prove the limit exists and admits the <strong>dual representation</strong>
+$$\mathcal D_s^{\rho}\pi_t = \operatorname*{ess\,sup}_{\mathbb Q\in\mathcal Q_0}\; \mathbb E^{\mathbb Q}\!\big[\,b_t + \text{(risk adjustment of } \varsigma_t)\ \big|\ \mathcal F_s\big],$$
+a worst-case (essential supremum) conditional expectation over a <strong>zero-penalty</strong> class $\mathcal Q_0$ of equivalent measure changes, of an <em>effective drift</em> combining the true drift $b_t$ with the risk correction $\rho$ assigns to the volatility $\varsigma_t$.</p>
+<p><strong>The method.</strong> The engine is <strong>BSDE theory</strong>: a convex dynamic risk measure is represented as the solution of a backward SDE whose driver $g$ encodes risk preferences. The instantaneous rate is extracted by a first-order expansion of the BSDE solution as $\varepsilon\to0$, and convex-duality turns the driver into the worst-case-over-measures representation. Attainment of the optimal scenario is established, i.e. the supremum is a maximum.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper; its deliverables are theorems — existence/well-posedness of $\mathcal D_s^{\rho}\pi_t$, the explicit dual representation, and attainment of the worst-case measure — illustrated (not benchmarked) through worked examples and counterexamples for Lipschitz and quadratic BSDE drivers.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Dynamic risk measure</strong> — a time-indexed rule assigning to each future payoff a number quantifying its risk, updated as information arrives.</li>
+<li><strong>Convex / coherent risk measure</strong> — a risk measure rewarding diversification (mixing positions never increases risk).</li>
+<li><strong>Cash-additive</strong> — adding a guaranteed amount of cash reduces the risk number by exactly that amount.</li>
+<li><strong>BSDE (backward stochastic differential equation)</strong> — an SDE solved from a known terminal condition backward in time; its driver encodes the risk preference.</li>
+<li><strong>Dual representation</strong> — writing a convex risk measure as a worst-case expectation over a set of alternative probability measures (each with a penalty).</li>
+<li><strong>Itô process</strong> — a continuous stochastic process built from a drift term plus a Brownian (diffusion) term.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is pure mathematical finance — no data, no calibration — so a practitioner can't lift a number from it. The results hinge on the risk measure being convex and BSDE-representable with well-behaved drivers, which excludes some measures used in practice (e.g. plain VaR isn't convex). Its worth is conceptual and infrastructural: it gives a rigorous, tail-aware definition of resilience that downstream applied work can calibrate and test.</p>
+<h3>Bottom Line</h3>
+<p>Recovery speed is only half the story — this paper measures how <em>safely</em> a position bounces back, and gives the worst-case formula for it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> A General Theory of Paths: Signatures, Jump Lifts, and Expected Signatures of Self-Exciting Processes</h2>
+  <p class="meta">Miquel Noguer i Alonso<br>
+    <span class="cat">math.PR</span> &middot; 2026-06-27 &middot; <a href="http://arxiv.org/abs/2606.28869v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.28869v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>There's a universal "coordinate system" for entire paths — not just points — and this paper shows how to compute it even when the path jumps, then uses it to read off, in closed form, the parameters of markets that get more active because they just got active.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A huge amount of finance is about <em>paths</em>, not snapshots — the whole trajectory of a price, an order book, a stream of trades. But how do you feed an entire wiggly, jumpy path into a formula or a model as a single mathematical object? And markets have a nasty habit of <em>self-excitement</em>: a burst of trades makes more trades more likely (volatility clusters, flash crashes cascade). Modeling that feedback, and estimating how strong it is, is genuinely hard.</p>
+<p><strong>The idea.</strong> The tool is the <em>signature</em> of a path — think of it as an infinite list of numbers (built from iterated averages of how the path moves in each direction, then each pair of directions, and so on) that together pin down the path almost completely, the way a Taylor series pins down a function. It's a "universal coordinate" for paths. The wrinkle is that signatures were built for smooth or continuous paths, and financial data <em>jumps</em>. This paper builds the theory carefully for jumpy paths, sorting out the subtle ways different jump conventions (the "Itô" vs "Marcus" ways of accounting for a jump) give different answers, and identifies exactly where the clean algebraic rules break — a "geometricity defect" — and what replaces them (a bracket term, and a covariance term when you average over random paths).</p>
+<p><strong>What they found.</strong> The showcase payoff is for <strong>Hawkes processes</strong> — the standard model of self-exciting events. The authors prove that the <em>expected signature</em> (the average signature over all random outcomes) of a Hawkes process, truncated to finite order, satisfies a <strong>finite-dimensional linear system</strong> after augmenting the state. That's a big deal: an infinite, feedback-laden object collapses to something you can solve exactly. For a single Hawkes "clock" this lets you read off the three parameters that define it — the <strong>baseline</strong> rate, the <strong>excitation</strong> strength, and the <strong>decay</strong> speed — directly from signature quantities. They even prove a second-order signature term detects the <em>direction</em> of excitation between two coupled event streams (does A trigger B or B trigger A?). Everything is backed by a reproducibility script.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A path $X:[0,T]\to\mathbb R^d$ is lifted to its <strong>signature</strong>, an element of the tensor algebra
+$$S(X)_{0,T} = \Big(1,\ \int dX,\ \iint dX\otimes dX,\ \dots\Big),$$
+where the $k$-th level is the iterated integral $\int_{0<t_1<\dots<t_k<T} dX_{t_1}\otimes\cdots\otimes dX_{t_k}$. For smooth paths, signatures obey the <strong>shuffle identity</strong> (products of coordinates equal sums of higher coordinates) — the algebraic property called <em>geometricity</em>.</p>
+<p><strong>The key equations.</strong> The <strong>Geometricity-Defect Theorem</strong> identifies the two canonical failures of shuffle-multiplicativity: quadratic covariation (for stochastic lifts) and coordinate covariance (when averaging random paths). The <strong>Hopf Square</strong> result states that for pure-jump finite-variation paths, the forward Itô signature equals the iterated-sums signature, while the <strong>Marcus</strong> signature is Hoffman's exponential image of it:
+$$S^{\text{Marcus}}(X) = \exp_{\mathsf H}\big(S^{\text{Itô}}(X)\big),$$
+where $\exp_{\mathsf H}$ is Hoffman's exponential map between the shuffle and quasi-shuffle Hopf algebras. Most consequentially, for an affine/exponential <strong>Hawkes</strong> intensity $\lambda_t$, the truncated <strong>expected signature</strong> $\Phi_t = \mathbb E[S(X)_{0,t}]$ satisfies, after state-weight augmentation, a finite linear ODE
+$$\frac{d}{dt}\Phi_t = A\,\Phi_t,$$
+with a constant matrix $A$ built from the baseline $\mu$, excitation $\alpha$, and decay $\beta$ of the Hawkes kernel — turning parameter identification into linear algebra.</p>
+<p><strong>The method.</strong> The scaffolding is <strong>Hopf-algebra / rough-path theory</strong>: signatures live in a graded algebra, and the shuffle vs quasi-shuffle structures encode continuous vs jump behavior. Self-exciting intensities are handled by <em>state-weight augmentation</em> — enlarging the state so the expected-signature dynamics close linearly, exactly as affine processes close their moment ODEs. An antisymmetric second-level <strong>cross-area</strong> term is derived to detect two-channel excitation direction to first order.</p>
+<p><strong>Results with numbers.</strong> The contributions are structural theorems rather than error bars: (1) the Geometricity-Defect Theorem; (2) the Hopf-Square equality of Itô and iterated-sums signatures; (3) finite-dimensional linear closure of truncated expected signatures for affine/exponential Hawkes, with explicit recovery of baseline, excitation and decay for scalar clocks; (4) directional detection of two-channel excitation. All identities are validated by a reproducibility script; secondary results cover kernel-MMD decompositions, heavy-tail normalizations, stable-law thresholds, and a large-deviation principle.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Signature of a path</strong> — an ordered collection of iterated integrals that characterizes a path up to reparametrization, serving as universal path features.</li>
+<li><strong>Hawkes process</strong> — a self-exciting point process where each event temporarily raises the arrival rate of future events.</li>
+<li><strong>Shuffle identity</strong> — the algebraic rule making products of signature coordinates equal to sums of higher-level ones (holds for geometric/continuous lifts).</li>
+<li><strong>Marcus vs Itô lift</strong> — two conventions for defining stochastic integrals across jumps, giving geometrically different signatures.</li>
+<li><strong>Expected signature</strong> — the average of a random path's signature; it plays the role of a "moment generating object" for path-valued randomness.</li>
+<li><strong>Hopf algebra</strong> — the algebraic structure (with a product and a coproduct) that organizes signatures and their shuffle/quasi-shuffle multiplication rules.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is deep, abstract mathematics (math.PR) — the finance payoff, Hawkes parameter identification, is real but demonstrated on the theory's own terms rather than on live order-book data, and truncating the signature discards information whose cost isn't quantified here. Practitioners won't drop it into a trading system tomorrow, but the finite-dimensional closure for expected signatures is a genuinely useful bridge for anyone modeling clustered market events. Its immediate value is to researchers building the next generation of path-based models.</p>
+<h3>Bottom Line</h3>
+<p>Feed a market's whole jumpy trajectory into one universal coordinate, and self-exciting dynamics that looked intractable become linear algebra.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Balancing Shareholder Value and Financial Stability under a Reduced-Form Liquidation Model</h2>
+  <p class="meta">Benjamin Avanzi, Bernard Wong, Jinxia Zhu<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-27 &middot; <a href="http://arxiv.org/abs/2606.28706v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.28706v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If a regulator wants a shaky firm to both stay alive longer <em>and</em> keep some value for its owners, it should wind the firm down gradually through <em>two</em> danger zones — one below and one above the classic bankruptcy line — not shut it at a single hard threshold.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a bank or insurer gets into trouble, regulators face a tension. Shareholders want the firm to keep paying out profits (dividends) as long as possible. Society wants the firm to survive — a sudden collapse is destabilizing. These pull in opposite directions: pay too many dividends and you hollow out the safety buffer; hoard everything and shareholders get nothing. Modern "resolution regimes" increasingly don't just flip a switch at one bankruptcy threshold; they wind a firm down <em>gradually</em>, tightening the screws as its health deteriorates. How should such a graduated regime be <em>designed</em>?</p>
+<p><strong>The idea.</strong> The authors model the firm's financial cushion (its <em>surplus</em>) as a randomly evolving quantity. Instead of a hard "die at zero" rule, forced liquidation arrives <em>probabilistically</em>, with a <strong>hazard rate</strong> — an instantaneous chance of being shut down — that climbs as the firm's surplus falls. Picture a dimmer switch rather than an on/off switch: the sicker the firm, the higher the odds the regulator pulls the plug this instant. The regulatory design carves the number line into three zones: an <strong>unregulated</strong> region where dividends may flow, a <strong>regulated</strong> region where solvency rules forbid payouts, and a <strong>distress</strong> region where the liquidation hazard bites. The design question is <em>where to place these zones</em>.</p>
+<p><strong>What they found.</strong> By solving for the dividend strategy that maximizes shareholder value, they show the optimal payout policy is a <strong>barrier strategy</strong>: pay out everything above a certain surplus level, nothing below. Then comes the punchline for regulators. If you put the distress zone <em>entirely below</em> the classical ruin threshold, or <em>entirely above</em> it, you <em>cannot</em> reliably improve both shareholder value and survival at once — you trade one for the other. But if you <strong>combine</strong> the two, placing distress regions straddling the threshold, you get a genuine <strong>Pareto improvement</strong>: owners <em>and</em> stability both come out ahead. Regulatory design isn't a detail — it's decisive.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The firm's surplus $X_t$ follows a general diffusion,
+$$dX_t = \mu(X_t)\,dt + \sigma(X_t)\,dW_t - dL_t,$$
+where $\mu(\cdot)$ is the surplus drift, $\sigma(\cdot)$ the volatility, $W_t$ a Brownian motion, and $L_t$ the cumulative dividends paid (a non-decreasing control). Forced liquidation is <strong>reduced-form</strong>: it arrives at the first jump of a point process with a <strong>surplus-dependent hazard rate</strong> $h(X_t)$ that increases as $X_t$ deteriorates, so the survival time is
+$$\tau = \inf\Big\{t:\ \int_0^t h(X_s)\,ds \ge E\Big\},\qquad E\sim\text{Exp}(1).$$</p>
+<p><strong>The key equation.</strong> Shareholder value is the expected present value of dividends until liquidation,
+$$V(x) = \sup_{L}\ \mathbb E_x\!\left[\int_0^{\tau} e^{-\delta t}\,dL_t\right],$$
+where $\delta$ is the discount rate and the supremum is over admissible dividend controls $L$. Because dividends can be paid in lumps, this is a <strong>singular stochastic control</strong> problem, and $V$ satisfies the HJB variational inequality
+$$\max\Big\{\ \mathcal A V(x) - \big(\delta + h(x)\big)V(x)\ ,\ \ 1 - V'(x)\ \Big\} = 0,$$
+where $\mathcal A V = \mu V' + \tfrac12\sigma^2 V''$ is the diffusion generator. The first branch governs the <em>no-dividend</em> region; the second ($V'(x)=1$) pins the <strong>dividend barrier</strong> $b^*$, above which surplus is immediately paid out.</p>
+<p><strong>The method.</strong> They solve the singular control problem analytically: prove a <strong>verification theorem</strong> (a candidate value function satisfying the HJB inequality is the true value), show a <strong>barrier strategy</strong> is optimal, and obtain <strong>tractable closed-form expressions</strong> for both $V(x)$ and the expected survival time $\mathbb E_x[\tau]$. Because both objectives are available in closed form, competing regulatory designs — different placements of the distress region relative to the ruin threshold — can be compared cheaply.</p>
+<p><strong>Results with numbers.</strong> The qualitative theorem is the headline: a distress region placed <em>solely</em> below or <em>solely</em> above the classical ruin threshold does <strong>not</strong> consistently improve both shareholder value and survival, whereas <strong>combining</strong> below- and above-threshold distress regions yields a <strong>Pareto improvement</strong> in both. Closed-form value and survival-time formulas make the comparison exact and low-cost across designs.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Surplus</strong> — the firm's net financial cushion; when it hits trouble, liquidation looms.</li>
+<li><strong>Hazard rate</strong> — the instantaneous probability per unit time of an event (here, forced liquidation) occurring right now.</li>
+<li><strong>Reduced-form liquidation</strong> — modeling default/liquidation as a random arrival driven by a hazard rate, rather than a fixed threshold crossing.</li>
+<li><strong>Singular stochastic control</strong> — an optimization where the control (dividends) can be applied in lumps or at infinite rate, not just smoothly.</li>
+<li><strong>Barrier strategy</strong> — pay out all surplus above a fixed level $b^*$ and nothing below it.</li>
+<li><strong>Pareto improvement</strong> — a change that makes at least one objective better without making the other worse.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The tractability comes from strong assumptions — a one-dimensional diffusion surplus, a cleanly specified hazard rate, risk-neutral discounting — that real distressed institutions violate (multiple risk factors, strategic behavior, feedback with markets). The paper is a stylized policy-design argument, not a calibrated tool for a specific regulator. Still, the qualitative lesson — that straddling the ruin threshold with graduated distress beats a single hard cutoff — is a clean, defensible insight that could inform how resolution regimes are structured.</p>
+<h3>Bottom Line</h3>
+<p>A gentle two-sided dimmer beats a hard off-switch: graduated wind-down straddling the bankruptcy line can protect owners and stability at once.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
