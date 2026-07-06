@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 06, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 06, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> The Bounce Has No Direction: Sign, Magnitude, and the Microstructure of Equity Return Predictability</h2>
+  <p class="meta">Victoria Portnaya<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-06-28 &middot; <a href="http://arxiv.org/abs/2606.29591v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.29591v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Yesterday's big move predicts a smaller move today — but not which way — and a new spectral test proves the S&amp;P's famous "reversal" is mostly the bid-ask bounce, not tradable mean reversion.</p>
+<h3>Plain English</h3>
+<p>Statisticians have long noticed that stock returns are weakly negatively correlated from one day to the next. For the S&amp;P 500 ETF (SPY), if yesterday was up, today tends to be down a touch, and vice versa — one of the most statistically reliable patterns in all of equity finance. But there is a catch: the standard test cannot tell you <em>what kind</em> of pattern it is. Does a big up-day genuinely tend to flip to a down-day (a directional reversal you could trade), or does a big move of <em>any</em> sign simply tend to be followed by a <em>smaller</em> move of any sign (a shrinking of magnitude you cannot trade at all)? These have opposite trading implications, and the usual tool lumps them together.</p>
+<p>Picture a ball bouncing on a bumpy floor. If you only measure "how far it moved," you cannot tell whether it reversed direction or just travelled a shorter distance forward. You need to separate direction from distance. That is exactly what the authors build: a mathematical prism — the Fourier-Residue Identity (FRI) — that splits the daily-return correlation into two independent channels, a <strong>sign</strong> channel (does the direction flip?) and a <strong>magnitude</strong> channel (does the size shrink?), each testable on its own.</p>
+<p>The verdict for SPY: the sign channel is statistically insignificant (could easily be chance), while the magnitude channel is astronomically significant. Translation: the famous "reversal" is not a reversal at all. A big move yesterday just predicts a smaller move today, regardless of direction — the classic fingerprint of the bid-ask bounce (prices flickering between buy and sell quotes) and stale prices among the index's constituent stocks. But dig one day deeper, at lag 3, and a <em>genuine</em> directional reversal appears — invisible to the standard test — reflecting slow price adjustment. Across 21 markets, this mean reversion lives only in exchange-traded stocks and government bonds; commodities, FX, and crypto look like pure random walks.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> Let $r_t$ be the demeaned daily log return. SPY's lag-1 sample autocorrelation is $\hat\rho(1)=-0.081$ with $z=-7.4$. The Lo–MacKinlay variance-ratio statistic is $VR(q)$. The central object is the spectral (Fourier) representation of the autocorrelation function.</p>
+<p><strong>Key equations.</strong> They prove the Fejér identity
+$$VR(q)=1+2\sum_{k=1}^{q-1}\left(1-\frac{k}{q}\right)\hat\rho(k)\equiv 1+2C_q,$$
+where $VR(q)$ is the variance ratio at horizon $q$, $\hat\rho(k)$ the lag-$k$ autocorrelation, and $C_q$ a triangular (Fejér-weighted) partial sum — confirmed numerically to $<0.001$. The Fourier-Residue Identity then decomposes the autocorrelation contribution into harmonics indexed by $k$: the $k=2$ harmonic isolates the <strong>sign</strong> channel and the $k=4$ harmonic the <strong>magnitude</strong> channel, each independently testable. They also define a subsample diagnostic
+$$R_N=\frac{G_{N/2}}{G_N},$$
+where $G_N$ is an estimator computed on a sample of size $N$; $R_N\to 1$ signals a structural (real) effect while $R_N\to\sqrt{2}$ signals sampling noise.</p>
+<p><strong>Method.</strong> This is harmonic (spectral) analysis — expressing the correlation as a sum of Fourier components so that direction and size land in different frequency bins, then testing channel-by-channel. Monte Carlo under a GARCH data-generating process confirms the tests hold their nominal 5% size, and 27 unit tests validate the estimators.</p>
+<p><strong>Results with numbers.</strong> For SPY the sign test is insignificant ($p=0.11$) while the full test achieves $p<10^{-12}$; the lag-3 directional reversal is significant ($p=0.02$); the Fejér identity holds to $<0.001$ across all series. The cross-asset panel confines mean reversion to equities and sovereign bonds.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Autocorrelation</strong> — how strongly today's return is statistically tied to a previous day's return.</li>
+<li><strong>Variance-ratio test</strong> — a classic random-walk check comparing return variance across horizons.</li>
+<li><strong>Bid-ask bounce</strong> — spurious price wiggles from trades alternating between the lower bid and higher ask quote.</li>
+<li><strong>Fejér identity/kernel</strong> — a triangular-weighted sum of Fourier terms that rewrites the variance ratio spectrally.</li>
+<li><strong>GARCH</strong> — a model where volatility clusters into calm and stormy periods, used here to stress-test the new statistics.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The FRI is a diagnostic, not a strategy — knowing the lag-1 effect is "magnitude, not sign" tells you what you <em>cannot</em> trade as much as what you can. The lag-3 directional signal is real but tiny and likely swamped by transaction costs. For anyone building microstructure models, though, this is a genuinely useful scalpel.</p>
+<h3>Bottom Line</h3>
+<p>The market's daily "bounce" shrinks your bets without steering them — the reversal everyone trades on is mostly an accounting illusion of the spread.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Valuation Reveals Uncertainty</h2>
+  <p class="meta">Jongjin Park, Hyungbin Park<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-06-28 &middot; <a href="http://arxiv.org/abs/2606.29572v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.29572v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you can watch how a firm prices risky payoffs cautiously, you can mathematically reverse-engineer exactly which worst-case scenarios it is secretly worried about — overturning a century-old claim that deep uncertainty is unmeasurable.</p>
+<h3>Plain English</h3>
+<p>Economists distinguish <em>risk</em> (you know the odds, like a roulette wheel) from <em>uncertainty</em> (you do not even know the odds — "Knightian" uncertainty, after Frank Knight). For a hundred years the received wisdom was that this deep uncertainty is inherently unmeasurable: you can feel it but never pin it down. Yet uncertainty is exactly what drives cautious pricing — an insurer or a bank quoting a conservative price is implicitly betting against a whole set of nasty scenarios. The question this paper asks: can we look at the <em>prices</em> and recover the <em>scenarios</em> that produced them?</p>
+<p>Imagine a friend who always quotes the pessimistic estimate for a road trip — they price in traffic, a flat tire, a wrong turn. Watch enough of their estimates across enough trips and you could back out precisely which bad events they mentally allow for, and how heavily. This paper does that for financial valuation. A "robust valuation" prices each payoff at its worst-case expected value over a whole family of plausible probability models. That family — the uncertainty structure — is hidden; only the prices are observable.</p>
+<p>The authors show the prices contain enough information to recover the hidden family, and they give an explicit recipe to do it. They also define what it means for that hidden uncertainty to be <em>time-consistent</em> (your today-view and tomorrow-view do not contradict each other) and characterize <em>every</em> uncertainty structure consistent with a given pricing rule. Contrary to Knight, uncertainty turns out to be measurable — from observed valuations alone you can identify, characterize, and even statistically estimate the underlying set of feared models, with nonparametric estimators that work from limited data.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> Work on a filtered probability space $(\Omega,\mathcal F,(\mathcal F_t)_t)$. A payoff $X$ is a random variable; a robust (sublinear) valuation is an operator $\mathcal E_t(\cdot)$ mapping payoffs to $\mathcal F_t$-measurable values.</p>
+<p><strong>Key representation.</strong>
+$$\mathcal E_t(X)=\operatorname*{ess\,sup}_{Q\in\mathcal Q}\,\mathbb E^{Q}\!\left[X\mid\mathcal F_t\right],$$
+where $\mathcal Q$ is a set of probability measures (the uncertainty structure), $\mathbb E^{Q}[\cdot\mid\mathcal F_t]$ the conditional expectation under model $Q$, and the essential supremum picks the worst-case model. The operator is <em>sublinear</em>: $\mathcal E_t(X+Y)\le\mathcal E_t(X)+\mathcal E_t(Y)$ and $\mathcal E_t(\lambda X)=\lambda\mathcal E_t(X)$ for $\lambda\ge 0$. The valuation $\mathcal E$ is observable; the set $\mathcal Q$ is latent.</p>
+<p><strong>Time consistency.</strong> For the valuation it is the tower property $\mathcal E_s(\mathcal E_t(X))=\mathcal E_s(X)$ for $s\le t$. The paper builds the uncertainty-side counterpart — a stability/rectangularity condition on $\mathcal Q$ (loosely: you can paste together conditional models across time and stay inside $\mathcal Q$) — and characterizes all such structures representing a given $\mathcal E$.</p>
+<p><strong>Method.</strong> The engine is convex duality plus dynamic programming. A sublinear operator is dual to a convex set of measures (a support-function / separating-hyperplane argument), so recovering $\mathcal Q$ is recovering the support set of $\mathcal E$; because only the closed convex hull matters, they identify the <em>maximal</em> representing set and single out the time-consistent one via the rectangularity condition. Finally, nonparametric estimators reconstruct $\mathcal Q$ from finitely many observed valuations.</p>
+<p><strong>Results.</strong> The headline is a set of theorems rather than Sharpe ratios: (i) an identification theorem giving an explicit construction of $\mathcal Q$ from $\mathcal E$; (ii) a characterization of all time-consistent representing structures; and (iii) consistency of the nonparametric estimators from limited data — together overturning the unmeasurability doctrine.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Knightian uncertainty</strong> — not knowing the probabilities themselves, as opposed to knowing them and facing randomness.</li>
+<li><strong>Sublinear valuation</strong> — a cautious pricing rule that values a combined position no higher than the sum of its parts.</li>
+<li><strong>Set of measures $\mathcal Q$</strong> — the family of probability models the valuer treats as plausible.</li>
+<li><strong>Essential supremum</strong> — the "worst case" taken over a family of random variables, ignoring negligible exceptions.</li>
+<li><strong>Time consistency (tower property)</strong> — valuing something in one step gives the same answer as valuing it in two.</li>
+<li><strong>Convex duality</strong> — the correspondence between a cautious (sublinear) operator and the convex set of models it maximizes over.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is elegant theory, not a trading tool: it assumes you can observe a rich, near-noise-free valuation operator across many payoffs, which real markets provide only sparsely and noisily. The nonparametric estimators are the practical bridge, but their finite-sample behavior on messy market data is where the rubber meets the road — and that is largely future work.</p>
+<h3>Bottom Line</h3>
+<p>Knight said uncertainty could not be measured; this paper shows the prices were quietly measuring it all along.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Real-time identification of the onset of financial rogue waves</h2>
+  <p class="meta">Rosie Hayward, Orla Lennon, Fabio Biancalana<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-06-30 &middot; <a href="http://arxiv.org/abs/2606.31475v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.31475v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Borrowing the physics of freak ocean waves and rogue light pulses, the authors build an eigenvalue "alarm" that spikes just before the VIX explodes, flagging 7 of 8 major volatility crises out-of-sample.</p>
+<h3>Plain English</h3>
+<p>Market crises show up as sudden, extreme spikes in volatility — the VIX is the famous "fear index." Everyone wants an early warning, but by the time volatility has obviously spiked, it is too late. Can we detect the <em>onset</em> — the moment just before the surge?</p>
+<p>Here is the twist. Rogue waves are monster ocean waves that appear from almost nowhere and sink ships; physicists have found the <em>same</em> freak-event mathematics in optical fibers, where giant light pulses erupt without warning. The authors' bet is that financial volatility spikes are "rogue waves" too, and the tools that predict them in water and light might predict them in markets.</p>
+<p>So they feed the volatility index into a Schrödinger equation — the central equation of quantum mechanics — treating the recent volatility history as a "potential well" shaped like a Kerr nonlinearity (the very optics that spawn rogue light pulses). Then they watch one specific number: the <strong>lowest eigenvalue</strong> of that quantum system. As a rogue peak approaches, the wave gets "trapped" — a phenomenon called Anderson localisation — and the rate of change of that lowest eigenvalue spikes. That spike is the alarm bell.</p>
+<p>On the VIX, the gradient of the minimum eigenvalue reliably jumps at the onset of extreme events. Simulating real-time data arrival (using only the past), it detects all but one major VIX peak. Out-of-sample on two other fear indices — VXO (the older S&amp;P 100 gauge) and VSTOXX (Europe's) — it catches 7 of 8 major peaks (87.5%) each, strong evidence it is not merely curve-fitting the VIX.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> Let $V(x)$ denote the volatility signal over a moving time window, with position variable $x$ standing in for time within the window. Embed it as the potential in a stationary Schrödinger operator carrying a Kerr-type nonlinearity.</p>
+<p><strong>Key equation.</strong> The (nonlinear) Schrödinger eigenvalue problem
+$$-\frac{d^2\psi}{dx^2}+\big[V(x)+\gamma|\psi|^2\big]\psi=E\,\psi,$$
+where $\psi(x)$ is the wavefunction, $V(x)$ the potential built from recent volatility, $\gamma$ the Kerr nonlinearity strength, $|\psi|^2$ the intensity (the nonlinear self-interaction term), and $E$ an eigenvalue. The diagnostic is the minimum eigenvalue $E_{\min}$ and its numerical gradient
+$$g_t=\frac{dE_{\min}}{dt},$$
+which spikes at crisis onset. Anderson localisation refers to the eigenfunction $\psi$ becoming spatially confined as the "disorder" (volatility roughness) grows.</p>
+<p><strong>Method.</strong> For each moving window they solve the eigenvalue problem numerically — discretize the operator into a matrix and extract its smallest eigenvalue — track $E_{\min}$ over time, and threshold its gradient $g_t$. The real-time variant only ever uses past data inside the window, so there is no look-ahead bias.</p>
+<p><strong>Results with numbers.</strong> In-sample VIX: all but one major peak detected, with visible Anderson localisation as peaks approach. Out-of-sample VXO and VSTOXX: 87.5% (7 of 8) major peaks each. The eigenvalue-gradient spike consistently precedes the volatility surge rather than merely coinciding with it.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>VIX / VXO / VSTOXX</strong> — indices of expected stock-market volatility; the market's "fear gauges" for the S&amp;P 500, S&amp;P 100, and Euro Stoxx 50.</li>
+<li><strong>Rogue wave</strong> — a rare, disproportionately large wave (or spike) that emerges suddenly from a system.</li>
+<li><strong>Schrödinger equation</strong> — the equation governing a quantum wavefunction in a potential; used here as a signal-analysis engine, not literal physics.</li>
+<li><strong>Kerr nonlinearity</strong> — an optical effect where a medium's response depends on light intensity, the ingredient that breeds rogue pulses.</li>
+<li><strong>Anderson localisation</strong> — the trapping of a wave in a disordered medium instead of it spreading out.</li>
+<li><strong>Minimum eigenvalue</strong> — the lowest "energy level" of the Schrödinger operator; the sudden change in it is the crisis signal.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Detecting the onset is not the same as calling the top or sizing the crash — an alarm that fires "something big is coming" still leaves the trade unspecified. The physics analogy is suggestive rather than causal (markets are not literally optical fibers), "all but one peak" means real misses, and the method needs a decent history to calibrate the window. As a complementary early-warning indicator, though, it is genuinely intriguing.</p>
+<h3>Bottom Line</h3>
+<p>The math that predicts freak waves in the ocean may also hear the first rumble of a market storm.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Heads, Not Backbones: Output Heads Dominate Architectures on Fat-Tailed Returns</h2>
+  <p class="meta">Sichao He, Yansong Zhang<br>
+    <span class="cat">cs.LG</span> &middot; 2026-06-29 &middot; <a href="http://arxiv.org/abs/2606.30037v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.30037v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When forecasting fat-tailed stock returns, the humble "output head" that shapes a prediction into a probability distribution matters far more than the fancy neural-network architecture behind it.</p>
+<h3>Plain English</h3>
+<p>A deep-learning forecaster has two parts: a <em>backbone</em> (the big neural network that digests the data) and an <em>output head</em> (the final layer that turns the network's guess into a prediction). The field obsesses over backbones — Transformers, this, that. But financial returns are <em>fat-tailed</em>: crashes and rallies happen far more often than a bell curve would predict. What a risk manager actually needs is a good estimate of the <em>whole distribution</em> of tomorrow's return, not just a single number. So which matters more — the flashy backbone or the modest head?</p>
+<p>Think of weather forecasting. You can spend all your money on a supercomputer (the backbone), but if your forecast only says "tomorrow: 15°C" instead of "70% chance of 12–18°C, 5% chance of a freak storm," you have thrown away the information that matters for deciding whether to carry an umbrella. For markets, that "freak storm" tail is exactly what risk managers care about.</p>
+<p>So the authors run a clean experiment: hold the head fixed and swap four modern backbones (TimesNet, DLinear, N-BEATS, iTransformer); then hold the backbone fixed and swap three heads — a <em>point</em> head (one number), a <em>single-Gaussian</em> head (one bell curve), and a <em>Gaussian-mixture</em> head (several bell curves blended, which can grow a fat tail). They score everything with distributional metrics, not just squared error.</p>
+<p>The heads form a strict ladder. Going from point to Gaussian improves the score (CRPS) by about 1.3%; going from Gaussian to mixture adds a further 2.4%. Swapping backbones, by contrast, changes things by less than 1.5% on the simple head. The mixture head's extra value is largest in the wildest regimes — 13.9% better during 1970s stagflation at the one-year horizon — exactly when tail risk bites. One twist: at longer horizons (six months and beyond), the backbone re-takes the lead.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> The target is the monthly log-return $r_t$ of the S&amp;P 500 (1871–2023). A backbone $f_\theta$ maps a window of past returns to a latent representation $h_t=f_\theta(r_{t-L:t-1})$; an output head maps $h_t$ to a predictive distribution over $r_{t+h}$. Anchored walk-forward validation trains on an expanding past and tests on the next block.</p>
+<p><strong>The three heads.</strong>
+- Point: $\hat r_{t+1}=g(h_t)$, scored by squared error.
+- Gaussian density: $r_{t+1}\sim\mathcal N\!\big(\mu(h_t),\sigma^2(h_t)\big)$.
+- Gaussian mixture ($K=4$): $$p(r_{t+1}\mid h_t)=\sum_{k=1}^{K}\pi_k(h_t)\,\mathcal N\!\big(r_{t+1};\mu_k(h_t),\sigma_k^2(h_t)\big),$$ where $\pi_k$ are mixture weights with $\sum_k\pi_k=1$, and $\mu_k,\sigma_k^2$ the component means and variances.</p>
+<p><strong>Evaluation metric.</strong> The Continuous Ranked Probability Score
+$$\text{CRPS}(F,y)=\int_{-\infty}^{\infty}\big(F(z)-\mathbf 1\{z\ge y\}\big)^2\,dz,$$
+where $F$ is the predicted cumulative distribution, $y$ the realized return, and $\mathbf 1\{\cdot\}$ the indicator function — lower is better.</p>
+<p><strong>Method.</strong> Train each of the 12 backbone×head combinations by maximum likelihood (negative log-likelihood loss for the density heads), evaluate out-of-sample with CRPS, pinball loss, and coverage, and rank robustness with the Model Confidence Set (a statistical test of which models cannot be excluded as best).</p>
+<p><strong>Results with numbers.</strong> Point→Gaussian: +1.3% CRPS; Gaussian→mixture: +2.4%; backbone swap: &lt;1.5% on the point head, up to 5.1% on one density row (driven by N-BEATS). The head gradient of 3.7 percentage points still dominates. The mixture's crisis edge reaches 13.9% at $h=12$ in the 1970s. On <em>squared error</em> alone, the Model Confidence Set excludes none of the 12 variants at the 5% level — the head separates them only on distributional metrics.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Backbone vs. head</strong> — the main network that processes data vs. the final layer that shapes the output.</li>
+<li><strong>Fat-tailed</strong> — extreme moves occur much more often than a normal (bell-curve) distribution predicts.</li>
+<li><strong>Gaussian mixture</strong> — a weighted blend of several bell curves, able to represent skew and fat tails.</li>
+<li><strong>CRPS</strong> — a score for a full probabilistic forecast, rewarding both sharpness and calibration.</li>
+<li><strong>Anchored walk-forward validation</strong> — repeatedly train on all data up to time $t$, test on the next block, then roll forward.</li>
+<li><strong>Model Confidence Set</strong> — a test returning the group of models statistically indistinguishable from the best.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The result rests on one series (S&amp;P monthly) with a modest, low-frequency ~150-year sample, so "the head dominates" may not transfer to intraday or cross-sectional problems. The gains are real but single-digit in CRPS — meaningful for risk calibration, less so for point forecasting. Still, it is a healthy corrective to backbone hype: spend your effort modeling the tail, not the transformer.</p>
+<h3>Bottom Line</h3>
+<p>For fat-tailed returns, how you shape the forecast beats how big your network is — model the distribution, not the architecture.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Strategic Risk Reduction: Self-Protection and Self-Insurance</h2>
+  <p class="meta">Wing Fung Chong<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-06-29 &middot; <a href="http://arxiv.org/abs/2606.30363v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2606.30363v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you cannot buy insurance, math tells you whether to spend on preventing a loss, on softening it, or on both — and the answer flips depending on whether you fear an ordinary bad day or a genuine catastrophe.</p>
+<h3>Plain English</h3>
+<p>Sometimes there is no insurance market — you cannot buy a policy for the risk you face (a startup's failure, a rare operational disaster, a personal risk with no product). You have two levers instead. <em>Self-protection</em>: spend to lower the <em>chance</em> the bad thing happens (a sprinkler lowers the odds of a fire). <em>Self-insurance</em>: spend to lower <em>how bad</em> it is if it does happen (a fireproof safe cuts the damage). With a limited budget and a way of measuring your risk, how should you split effort between the two?</p>
+<p>Think of protecting your laptop's data. Self-protection is careful browsing and antivirus (lowering the chance of losing files). Self-insurance is regular backups (lowering the damage when you do). Where should your time and money go?</p>
+<p>The authors model a simple loss that either happens or does not (a Bernoulli loss). The person judges their leftover risk in one of two ways: <em>Value-at-Risk</em> (VaR) — roughly "how bad is a typical bad outcome at some confidence level" — or <em>Tail Value-at-Risk</em> (TVaR) — "how bad is the <em>average</em> of the truly extreme outcomes." Then they solve for the optimal spending mix.</p>
+<p>The findings split sharply by risk measure. Under VaR the optimum is a clean <em>threshold rule</em>: you do exactly one of three things — nothing, pure self-protection, or pure self-insurance — never a blend. Under TVaR the problem turns <em>non-convex</em> (tricky, with several candidate optima) because reducing frequency and reducing severity now interact directly, and the two activities can behave as substitutes or complements depending on the confidence level and how their costs interlock. They crack the hard case with an isoquant-geometry method.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> A Bernoulli loss: with probability $p$ a loss of size $\ell$ occurs, else zero. Self-protection spends $x$ to reduce the probability to $p(x)$; self-insurance spends $y$ to reduce the severity to $\ell(y)$. A joint cost $c(x,y)$ allows technological interaction (spending on one can make the other cheaper or dearer). The risk holder minimizes a risk measure of the residual loss $L=\ell(y)\cdot B$, where $B\sim\text{Bernoulli}(p(x))$.</p>
+<p><strong>Key equations.</strong> Value-at-Risk at confidence $\alpha$,
+$$\text{VaR}_\alpha(L)=\inf\{m:\ \mathbb P(L\le m)\ge\alpha\},$$
+and Tail Value-at-Risk,
+$$\text{TVaR}_\alpha(L)=\frac{1}{1-\alpha}\int_\alpha^1\text{VaR}_u(L)\,du,$$
+where $L$ is the residual loss, $\alpha\in(0,1)$ the confidence level, $m$ a candidate loss threshold, and $u$ the integration variable sweeping the tail. Because a Bernoulli loss is a single jump, its residual VaR is a step function of $p(x)$ — hence the corner (threshold) solutions. Under TVaR the objective mixes $p(x)$ and $\ell(y)$ multiplicatively, breaking convexity.</p>
+<p><strong>Method.</strong> Constrained optimization. For VaR they compare a finite set of corner candidates (no action / pure protection / pure insurance) and take the cheapest that meets the risk target. For TVaR they use <em>isoquant geometry</em> — draw the curves of equal residual risk and of equal cost in the $(x,y)$ plane and find where their marginal-balance (tangency) conditions hold — classifying optima as interior tangencies, boundary points, or "touching/crossing" components.</p>
+<p><strong>Results.</strong> The output is structural rather than empirical: a full taxonomy of when the optimum is a boundary, an extreme constrained candidate, a touching component, or a crossing component, plus a characterization of when self-protection and self-insurance act as substitutes vs. complements as functions of $\alpha$ and the cost technology.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Self-protection</strong> — spending that lowers the probability a loss occurs.</li>
+<li><strong>Self-insurance</strong> — spending that lowers the size of the loss if it occurs.</li>
+<li><strong>Bernoulli loss</strong> — an all-or-nothing loss: it either happens or it does not.</li>
+<li><strong>Value-at-Risk (VaR)</strong> — the loss level a position will not exceed with a given confidence.</li>
+<li><strong>Tail Value-at-Risk (TVaR)</strong> — the average loss in the worst tail beyond the VaR threshold.</li>
+<li><strong>Isoquant</strong> — a curve of input combinations that all yield the same output (here, the same residual risk).</li>
+<li><strong>Convexity / non-convexity</strong> — whether an optimization has one clean optimum (convex) or several tricky candidates (non-convex).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It is a stylized single-loss model — real risks are continuous, correlated, and repeated, and the neat corner solutions under VaR partly reflect that VaR ignores tail shape, a known weakness. The TVaR analysis is more realistic but harder, and the paper stays at characterizing optima rather than handing over plug-in numbers. Useful as a decision-framing tool, not a calculator.</p>
+<h3>Bottom Line</h3>
+<p>Prevent, cushion, or both — the right mix hinges on whether you fear an ordinary bad day (VaR) or the genuine catastrophe (TVaR).</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
