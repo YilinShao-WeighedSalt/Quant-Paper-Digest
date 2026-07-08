@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 08, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 08, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Entropic Dynamics of Jump-Diffusion Option Pricing</h2>
+  <p class="meta">Mohammad Abedi<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-07-07 &middot; <a href="http://arxiv.org/abs/2607.06355v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.06355v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of <em>guessing</em> that stock prices jump and wiggle, you can <em>derive</em> exactly the famous jump-diffusion pricing model from a single principle: assume the least you can while still respecting the facts you know.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every option-pricing model — from Black–Scholes onward — starts by <em>postulating</em> how a stock price moves: "assume it drifts upward at rate $\mu$ and jitters with volatility $\sigma$, and occasionally jumps." That's a bit unsatisfying. Where do those assumptions come from? Why <em>that</em> equation and not another? If a beginner asks "why is the price a geometric Brownian motion?", the honest answer has usually been "because it's convenient and roughly fits." This paper wants a principled answer.</p>
+<p><strong>The idea.</strong> The author borrows a tool from physics called <strong>entropic inference</strong> — the same reasoning that, in thermodynamics, tells you the most honest probability distribution to assume when you only know a few averages. The rule of thumb: <em>among all the stories consistent with what you actually know, pick the one that assumes nothing extra.</em> Think of it like sketching a suspect from witness statements — you draw only what the witnesses agreed on and leave everything else deliberately vague. Feed in three "facts" about a stock: (1) markets care about <em>returns</em>, not raw price levels (so you should track the <em>logarithm</em> of price), (2) prices mostly move continuously but with a slight directional pull, and (3) once in a while they jump, and you know roughly how often and how big those jumps are. Turn the crank on the entropy principle, and out pops — with no further guessing — the <strong>Merton jump-diffusion model</strong>, the standard workhorse for pricing options when crashes matter.</p>
+<p><strong>What they found.</strong> The headline is <em>unification</em>: the whole zoo of models is really one inference engine fed different facts. Supply no jump information and you recover plain Black–Scholes. Add jumps and you get Merton. The principle even tells you <em>which</em> fair-pricing rule to use in an incomplete market (where perfect hedging is impossible) — it singles out the <strong>Esscher transform</strong> — and reproduces the "volatility smile," the well-known way real option prices bend away from Black–Scholes.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $x = \ln S$ be the log-price of the asset, treated as the dynamical variable because returns (differences in $\ln S$), not price levels, are what markets reward. We seek the transition probability density $p(x' \mid x)$ for an infinitesimal step. Entropic inference maximizes the relative entropy
+$$ S[p, q] = -\int p(x'\mid x)\,\ln\frac{p(x'\mid x)}{q(x'\mid x)}\,dx' $$
+subject to constraints, where $q$ is a prior and $p$ the posterior we solve for.</p>
+<p><strong>The key equations.</strong> Price changes split into two independent channels acting on disjoint parts of the microstate, so the densities factorize. The <strong>continuous channel</strong> carries constraints of continuity and directionality; the <strong>jump channel</strong> carries an arrival rate $\lambda$ and the first two moments of jump size. Maximizing entropy under these constraints yields dynamics whose density obeys the <strong>Kolmogorov–Feller equation</strong>
+$$ \partial_t p = -\mu\,\partial_x p + \tfrac{1}{2}\sigma^2 \partial_x^2 p + \lambda \int \big[p(x - y) - p(x)\big]\,w(y)\,dy $$
+where $p = p(x,t)$ is the log-price density, $\mu$ the drift, $\sigma$ the diffusion volatility, $\lambda$ the jump arrival rate, and $w(y)$ the jump-size distribution. The no-jump limit ($\lambda \to 0$) drops the integral and leaves the <strong>Fokker–Planck equation</strong>. Imposing no-arbitrage through the mean log-return selects the <strong>Esscher-transformed</strong> martingale measure, under which the option value $V(S,t)$ satisfies Merton's partial integro-differential equation
+$$ \partial_t V + rS\,\partial_S V + \tfrac12\sigma^2 S^2 \partial_{SS} V + \lambda\,\mathbb{E}\big[V(Sy,t) - V(S,t)\big] - \lambda\,\bar\kappa S\,\partial_S V = rV $$
+with $r$ the risk-free rate and $\bar\kappa = \mathbb{E}[y-1]$ the mean relative jump size.</p>
+<p><strong>The method.</strong> The technique is <strong>constrained maximum-entropy (MaxEnt) inference</strong>: constraints enter via Lagrange multipliers, and the multipliers turn out to <em>be</em> the model parameters ($\mu,\sigma,\lambda$). The martingale-measure selection is a second MaxEnt step; the Esscher transform is the exponential-tilting measure change that emerges. Option prices follow as the risk-neutral expectation, which is a <strong>Poisson mixture of lognormals</strong> — a weighted sum where the $n$-th term is Black–Scholes with $n$ jumps folded in.</p>
+<p><strong>Results with numbers.</strong> The paper is derivational rather than empirical, so the "results" are structural identities: the Poisson mixture of lognormals reproduces the implied-volatility smile, and every classical result (Black–Scholes, Merton PIDE, Esscher measure) is recovered as a special case determined solely by <em>what information is supplied</em> to the inference.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Relative entropy</strong> — a number measuring how much a candidate probability distribution assumes beyond a reference; maximizing it = assuming as little as possible.</li>
+<li><strong>Jump-diffusion</strong> — a price model mixing continuous random wiggle (diffusion) with occasional instantaneous jumps.</li>
+<li><strong>Martingale measure</strong> — a re-weighting of probabilities under which the discounted asset price has zero expected drift, the mathematical statement of "no free lunch."</li>
+<li><strong>Esscher transform</strong> — a specific exponential re-weighting of a distribution used to pick a fair pricing measure in incomplete markets.</li>
+<li><strong>Incomplete market</strong> — a market where you <em>cannot</em> perfectly hedge every risk, so more than one fair price exists.</li>
+<li><strong>Implied-volatility smile</strong> — the empirical U-shape you get when you back out Black–Scholes volatility from real option prices across strikes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a foundations paper: it re-derives known models more elegantly, not a new model that prices better. A practitioner gains conceptual clarity and a principled way to <em>choose</em> a pricing measure, but the calibration work (estimating $\lambda$, jump moments) is unchanged, and the entropy story doesn't tell you the jump distribution — you still have to supply it. Its value is pedagogical and unifying rather than a performance edge.</p>
+<h3>Bottom Line</h3>
+<p>Option-pricing models aren't laws of nature — they're the most honest guesses given what you claim to know, and entropy is the machine that turns your knowledge into an equation.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Signature-based identification of volatility models from path geometry</h2>
+  <p class="meta">Òscar Burés, Rafael De Santiago<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-07 &middot; <a href="http://arxiv.org/abs/2607.06340v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.06340v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can tell which kind of "randomness engine" produced a volatility path just by looking at the <em>shape</em> of the path — no fitting, no formulas — using a geometric fingerprint called the path signature.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Volatility — how violently a stock's price is swinging — is itself random and moves over time. Quants have many competing mathematical models for <em>how</em> volatility evolves: Heston, Ornstein–Uhlenbeck, and the newer "rough" volatility models. Picking the right family matters, because your option prices and hedges depend on it. The usual way to decide is <strong>calibration</strong>: assume a model, fit its parameters to data, and see how well it fits. That's slow, and comparing across model <em>families</em> is awkward — you're comparing apples fitted one way to oranges fitted another.</p>
+<p><strong>The idea.</strong> Instead of fitting, treat model selection as <strong>pattern recognition on the curve itself</strong>. The trick is the <strong>path signature</strong>, a tool from a branch of math called rough-path theory. Imagine you trace a squiggly line with a pen; the signature is an infinite list of numbers summarizing that squiggle's geometry — its total displacement, how much it curls, how it twists, and so on, at ever-finer levels of detail. Crucially, two paths with the same signature are essentially the same shape, so the signature is a faithful <em>fingerprint</em> of a curve. The authors compute these fingerprints for many simulated volatility paths, then hand them to a standard machine-learning classifier (<strong>gradient boosting</strong> — a committee of small decision trees that vote) and ask: "which model family drew this?" No parametric fitting required — the geometry does the talking.</p>
+<p><strong>What they found.</strong> It works, and surprisingly well. The method separates structurally different models easily, and even distinguishes <strong>rough volatility models with very close roughness settings</strong> — a genuinely hard task. It stays accurate even when each path is generated with randomly drawn parameters (so the classifier can't cheat by memorizing one parameter set). And most of the discriminating power lives in the <strong>first four levels</strong> of the signature; going deeper barely helps. The one honest failure mode: Heston and Ornstein–Uhlenbeck get confused when the "volatility of volatility" is small, which makes sense — in that limit the two models genuinely look alike.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A volatility trajectory is a continuous path $t \mapsto \sigma_t$ observed on $[0,T]$. Augment it to a $d$-dimensional path $X: [0,T] \to \mathbb{R}^d$ (e.g. including time and price). The object of study is the <strong>truncated signature</strong> of $X$.</p>
+<p><strong>The key equations.</strong> The signature is the collection of iterated integrals
+$$ S(X)^{i_1 \dots i_k} = \idotsint\limits_{0<t_1<\cdots<t_k<T} dX^{i_1}_{t_1}\,dX^{i_2}_{t_2}\cdots dX^{i_k}_{t_k}, $$
+and the full signature is the graded tensor
+$$ S(X)_{0,T} = \big(1,\ \{S^{i}\},\ \{S^{ij}\},\ \{S^{ijk}\},\dots\big) \in T((\mathbb{R}^d)). $$
+Here $X^{i}_t$ is the $i$-th coordinate of the path, the superscripts $i_1,\dots,i_k$ index which coordinates are integrated (each ranging over $1,\dots,d$), $k$ is the <strong>level</strong> (depth) of the term, and $T((\mathbb{R}^d))$ is the tensor algebra housing all these numbers. Truncating at level $N$ keeps all terms with $k \le N$; the paper finds $N=4$ nearly optimal. Level-1 terms recover net increments; level-2 terms encode signed area (Lévy area) capturing how the path curls.</p>
+<p><strong>The method.</strong> The pipeline is: (1) simulate paths from each candidate volatility model; (2) map each to its truncated signature feature vector $\Phi(X) = (S^{(k)})_{k\le N}$; (3) train a <strong>gradient-boosting classifier</strong> — an additive ensemble $F_M(x) = \sum_{m=1}^M \gamma_m h_m(x)$ of weak tree learners $h_m$ fitted stagewise to the gradient of a logistic loss — to output $\hat y = \arg\max_c \mathbb{P}(c \mid \Phi(X))$, the predicted model class $c$. The signature's key virtue is <strong>universality</strong>: any continuous function of the path is approximated arbitrarily well by a <em>linear</em> function of the signature, so a simple classifier on signature features can in principle detect any path property.</p>
+<p><strong>Results with numbers.</strong> Classification accuracy is high across settings, including rough-volatility models with <strong>closely spaced Hurst parameters</strong> $H$. Discriminative information saturates at signature level 4 (higher levels give only marginal gains). The Heston–OU misclassification rate rises precisely as the vol-of-vol parameter shrinks, matching the theoretical expectation that the models coincide in that limit.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Path signature</strong> — an ordered collection of iterated integrals of a curve that acts as a near-unique geometric fingerprint of its shape.</li>
+<li><strong>Iterated integral</strong> — an integral nested inside another, so it accumulates not just where the path went but the order in which it went there.</li>
+<li><strong>Rough volatility</strong> — a model in which volatility's path is more jagged than ordinary Brownian motion, governed by a Hurst parameter $H < 1/2$.</li>
+<li><strong>Hurst parameter $H$</strong> — a number in $(0,1)$ measuring path roughness; lower means jaggier, $H=1/2$ is standard Brownian.</li>
+<li><strong>Gradient boosting</strong> — a machine-learning method that builds a strong predictor by adding many small decision trees, each correcting the last one's errors.</li>
+<li><strong>Universality (of signatures)</strong> — the theorem that continuous functionals of a path are linearly approximable in its signature.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This classifies <em>simulated</em> paths, where the true model is known — the real world hands you noisy, discretely sampled prices and volatility is <em>latent</em> (never observed directly), so a practitioner must first estimate the vol path before fingerprinting it, which reintroduces error the paper sidesteps. The Heston/OU confusion at low vol-of-vol is a candid reminder that some models are statistically indistinguishable from finite data. Still, as a fast, calibration-free <em>screening</em> tool for model choice, it's genuinely promising.</p>
+<h3>Bottom Line</h3>
+<p>The shape of a wiggle remembers what drew it, and the signature is how you read that memory.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Arbitrage-Free Multi-Maturity Risk-Neutral Marginals</h2>
+  <p class="meta">Hao Qin, Ruozhong Yang, Charlie Che, Liming Feng<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-07 &middot; <a href="http://arxiv.org/abs/2607.06204v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.06204v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Given a handful of option prices, this builds the <em>entire</em> probability distribution the market is implicitly betting on — guaranteed to contain no arbitrage, with closed-form density, quantiles, and tails you can sample from.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option's price secretly encodes the market's probability guess about where a stock will end up. Collect option prices across many strike prices and you can, in principle, reconstruct the whole <strong>risk-neutral distribution</strong> — the market-implied odds of every future price. Tons of downstream machinery needs this distribution as its input: stress testing, tail-risk measurement, optimal-transport pricing, local-volatility calibration. But real option data is <em>discrete</em> (prices at a few strikes) and <em>finite</em> (nothing beyond the highest and lowest traded strike). Naively interpolating creates monsters: "distributions" with negative probabilities, or prices that let you make risk-free money — <strong>arbitrage</strong>. Existing reconstruction methods each nail <em>some</em> desired properties but sacrifice others.</p>
+<p><strong>The idea.</strong> The authors give an explicit, build-it-by-hand recipe. On the range of strikes you actually observe, they lay down probability mass <strong>interval by interval</strong>, choosing each piece so the reconstructed option prices match the inputs <em>exactly</em> — like distributing a fixed amount of sand into bins so that every measured "weight so far" comes out precisely right. Beyond the observed strikes, where data runs out, they glue on <strong>power-law tails</strong> — smooth mathematical tails whose shape is pinned down by matching the price and slope at the boundary and by using up the leftover probability. The whole construction is arbitrage-free <em>by design</em>: you can't build a butterfly or calendar arbitrage into it because the assembly rules forbid it. And the result is genuinely usable — you get a formula for the density, the cumulative distribution, the quantiles, and a way to draw Monte-Carlo samples.</p>
+<p><strong>What they found.</strong> Tested on synthetic SSVI surfaces (a standard smooth benchmark) and real S&amp;P 500 data, the construction reliably produces distributions satisfying <em>all</em> the wish-list properties at once — exact price reproduction, no butterfly or calendar arbitrage, closed-form everything — efficiently and robustly, closing the gap between raw quoted prices and the clean distributions downstream models demand.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> For maturity $T$, let $C(K)$ be the arbitrage-free call price at strike $K$, observed at discrete strikes $K_1 < \cdots < K_n$. The <strong>Breeden–Litzenberger</strong> relation says the risk-neutral density is the second derivative of price in strike:
+$$ q_T(K) = e^{rT}\,\frac{\partial^2 C(K)}{\partial K^2}, \qquad \mathbb{P}(S_T > K) = -e^{rT}\,\frac{\partial C(K)}{\partial K}, $$
+where $q_T$ is the risk-neutral density at maturity $T$, $r$ the risk-free rate, $S_T$ the terminal asset price, and $K$ the strike. No-arbitrage requires $C$ to be <strong>convex and decreasing</strong> in $K$ (no butterfly arbitrage) and monotone across maturities (no calendar arbitrage).</p>
+<p><strong>The key equations.</strong> On $[K_1, K_n]$, probability mass is assigned per interval to reproduce the inputs, enforcing for each observed strike
+$$ C(K_i) = e^{-rT}\,\mathbb{E}\big[(S_T - K_i)^+\big] = e^{-rT}\!\int_{K_i}^{\infty} (s-K_i)\,q_T(s)\,ds, $$
+so the reconstructed $\hat C(K_i)$ equals the market $C(K_i)$ exactly. Outside the range, the tails take the closed <strong>power-law</strong> form
+$$ q_T(s) \propto s^{-(1+\alpha)} \quad (s \to \infty), \qquad q_T(s) \propto s^{\,\beta-1} \quad (s \to 0^+), $$
+with tail exponents $\alpha, \beta > 0$ fixed by matching the density value and slope (the price and its first derivative) at the boundary strikes $K_1$ and $K_n$ and by allocating the remaining probability mass so that $\int q_T = 1$.</p>
+<p><strong>The method.</strong> This is a <strong>constructive (non-optimization) algorithm</strong>: rather than solving a fit that <em>approximately</em> honors the constraints, the mass-allocation and tail-completion steps make convexity, monotonicity, normalization, and exact price-matching hold <em>by construction</em>. Feasibility is guaranteed whenever the inputs are themselves arbitrage-free. Densities, CDFs, quantiles, and Monte-Carlo sampling then follow in closed form because each piece is an elementary function.</p>
+<p><strong>Results with numbers.</strong> On synthetic <strong>SSVI</strong> (surface stochastic volatility inspired) data and on <strong>S&amp;P 500</strong> market quotes, the method produces marginals that simultaneously (i) reproduce input prices exactly, (ii) are provably free of butterfly and calendar arbitrage, and (iii) admit closed-form density/CDF/quantile evaluation and efficient sampling — a combination existing methods achieve only partially.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk-neutral marginal</strong> — the market-implied probability distribution of an asset's price at a single future date, extracted from option prices.</li>
+<li><strong>Breeden–Litzenberger formula</strong> — the identity that the risk-neutral density equals the second derivative of the call price with respect to strike.</li>
+<li><strong>Butterfly arbitrage</strong> — a risk-free-profit opportunity that exists whenever the option-implied density goes negative (call price non-convex in strike).</li>
+<li><strong>Calendar arbitrage</strong> — a risk-free profit from inconsistent prices across maturities (a shorter option worth more than a longer one, other things equal).</li>
+<li><strong>SSVI</strong> — "surface SVI," a widely used parametric form for a smooth, arbitrage-free implied-volatility surface.</li>
+<li><strong>Power-law tail</strong> — a probability tail decaying like $s^{-(1+\alpha)}$, heavier than a normal distribution's, capturing extreme moves.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The construction is only as arbitrage-free as its inputs — real quotes have bid-ask spreads and noise, so you must pre-clean prices into an arbitrage-free set before feeding this, and that cleaning step carries its own modeling choices. The power-law tail shape is imposed, not learned, so deep out-of-the-money tail risk reflects an assumption more than data. But as an interpolation/extrapolation <em>engine</em> feeding downstream models, its guarantees are exactly what practitioners want.</p>
+<h3>Bottom Line</h3>
+<p>A few option prices are enough to rebuild the market's entire crystal ball — if you assemble it so no free lunch can hide inside.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Deep Learning for Dynamic Programming with Recursive Utility</h2>
+  <p class="meta">Xianhua Peng, Wu Guo<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-05 &middot; <a href="http://arxiv.org/abs/2607.04278v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.04278v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The first neural-network method that can solve high-dimensional planning problems where your happiness today depends recursively on your uncertainty about tomorrow — a case classical solvers choke on.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A huge class of economics and finance questions are <strong>dynamic programming</strong> problems: at each date, choose an action (how much to consume, save, or invest) to maximize lifetime satisfaction, knowing today's choice reshapes tomorrow's options. Classical methods solve these by gridding up the space of possible situations — fine when there are two or three variables, hopeless when there are twenty (the grid explodes; this is the "curse of dimensionality"). It gets worse with <strong>recursive utility</strong> (the Epstein–Zin kind economists love), which separates how much you dislike risk from how much you dislike consumption swings over time. Recursive utility has no clean formula — your value today is defined in terms of a <em>certainty equivalent</em> of your uncertain value tomorrow, a quantity that is itself hard to compute. So you have a nasty problem nested inside a high-dimensional problem.</p>
+<p><strong>The idea.</strong> Replace the grid with <strong>neural networks</strong> and let simulation do the exploring. The authors' <strong>Certainty Equivalent Learning (CEL)</strong> algorithm trains three networks together: one guesses the <em>value</em> (how good a situation is), one guesses the <em>policy</em> (what to do), and — the novelty — one directly learns the troublesome <em>certainty-equivalent</em> function, the risk-adjusted summary of tomorrow's uncertain payoff. Think of it as three apprentices coached in parallel: the strategist proposes actions, the appraiser scores situations, and a specialist whose only job is to price uncertainty. Because it's <strong>mesh-free</strong> (no grid) and <strong>simulation-based</strong> (it learns from sampled trajectories), it scales to many dimensions, and it never needs derivatives of the system's dynamics or hand-derived optimality equations — a big practical relief.</p>
+<p><strong>What they found.</strong> Across a battery of textbook-hard problems — linear-quadratic control, robust control with small noise, an Epstein–Zin macroeconomic model, and multi-asset portfolio choice — CEL matches the accuracy of classical value-function iteration where that's feasible, and keeps working where classical methods can't (high dimensions). Out-of-sample errors land in the range $10^{-4}$ to $10^{-3}$, small enough to trust.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A discrete-time controlled Markov system has state $x_t \in \mathbb{R}^n$, control $a_t \in \mathbb{R}^m$, and transition $x_{t+1} = g(x_t, a_t, \varepsilon_{t+1})$ with shocks $\varepsilon_{t+1}$. Preferences are <strong>recursive (Epstein–Zin / Kreps–Porteus)</strong>: the value today is defined implicitly through tomorrow's <em>certainty equivalent</em> rather than a plain expectation.</p>
+<p><strong>The key equations.</strong> The recursive-utility Bellman equation is
+$$ V(x_t) = \max_{a_t}\ W\!\Big(u(x_t,a_t),\ \mathcal{R}_t\big[V(x_{t+1})\big]\Big), $$
+where $V$ is the value function, $W$ the time aggregator combining current felicity with the risk-adjusted continuation value, $u$ the per-period utility, and $\mathcal{R}_t[\cdot]$ the <strong>certainty-equivalent operator</strong>
+$$ \mathcal{R}_t\big[V(x_{t+1})\big] = \phi^{-1}\Big(\mathbb{E}_t\big[\phi\big(V(x_{t+1})\big)\big]\Big), $$
+with $\phi$ an increasing concave function encoding risk aversion, $\phi^{-1}$ its inverse, and $\mathbb{E}_t$ the conditional expectation given information at $t$. The difficulty is that $\mathcal{R}_t$ has no closed form for general $\phi$ and high-dimensional $x_{t+1}$. CEL introduces three networks — $V_\theta(x)$, policy $\pi_\psi(x)$, and certainty-equivalent $\mathcal{R}_\eta(x)$ — trained to jointly satisfy the Bellman equation by minimizing the squared <strong>Bellman residual</strong>
+$$ \mathcal{L}(\theta,\psi,\eta) = \mathbb{E}\Big[\big(V_\theta(x) - W(u(x,\pi_\psi(x)),\, \mathcal{R}_\eta(x))\big)^2\Big] $$
+over states $x$ drawn from simulated trajectories.</p>
+<p><strong>The method.</strong> This is <strong>simulation-based approximate dynamic programming with neural function approximation</strong>: sample state trajectories, evaluate the loss on those samples via stochastic gradient descent, and let the certainty-equivalent network absorb the intractable $\mathcal{R}_t$ so no numerical integration or Euler-equation derivation is needed. It is mesh-free (states sampled, not gridded), needs no differentiability of $g$, and reduces to standard expected-utility DP when $\phi$ is the identity.</p>
+<p><strong>Results with numbers.</strong> Against closed-form and <strong>value-function-iteration (VFI)</strong> benchmarks, CEL delivers accurate value and policy approximations, matches VFI accuracy in the small-noise robust-control case, and yields out-of-sample <strong>Bellman errors and Euler/first-order residuals of $1.0\times10^{-4}$ to $1.0\times10^{-3}$</strong> across most problems, while remaining effective in high-dimensional state and control spaces where VFI is infeasible.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Dynamic programming</strong> — solving a multi-period decision problem by relating today's best value to tomorrow's via the Bellman equation.</li>
+<li><strong>Recursive utility</strong> — a preference form (Epstein–Zin) that disentangles risk aversion from the willingness to substitute consumption across time.</li>
+<li><strong>Certainty equivalent</strong> — the single guaranteed payoff a person would accept in place of a given gamble; here, the risk-adjusted summary of an uncertain future value.</li>
+<li><strong>Bellman equation</strong> — the self-consistency condition a value function must satisfy: value now = best immediate reward plus (discounted, adjusted) value next period.</li>
+<li><strong>Value-function iteration (VFI)</strong> — the classical grid-based method of repeatedly updating a tabulated value function until it stops changing.</li>
+<li><strong>Curse of dimensionality</strong> — the explosion of computation as the number of state variables grows, which grid methods suffer and simulation methods largely evade.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Neural solvers give <em>approximate</em> solutions with no error certificate — a $10^{-3}$ Bellman residual is reassuring but not a proof, and training can be finicky (initialization, network size, convergence are all art). The test problems, while hard, are still stylized; genuinely messy real-world models with kinks and constraints may stress the method more. That said, for high-dimensional recursive-utility problems there has been essentially <em>nothing</em> that works, so this is a real capability jump.</p>
+<h3>Bottom Line</h3>
+<p>When your future happiness is defined by a risk you can't integrate in closed form, teach a third neural network to do exactly that and the whole intractable problem becomes trainable.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> A Limit Order Market with Uncertain Informed Trading Participation</h2>
+  <p class="meta">Umut Çetin, Mingwei Lin<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-05 &middot; <a href="http://arxiv.org/abs/2607.04221v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.04221v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When market makers don't know <em>how many</em> informed sharks are trading against them today, the way prices react to big orders follows a power law whose exponent depends on the entire distribution of shark counts — not just the average.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In any market there are two kinds of traders: <strong>informed</strong> ones who know something (an earnings surprise is coming), and <strong>noise</strong> traders shuffling for random reasons. The <strong>market makers</strong> who quote prices must set them to break even on average — but they can't tell a genuine informed order from noise, so every buy order makes them nervous it's a shark and they nudge the price up. This is why large orders "move the market": <strong>price impact</strong>. Classic theory (Kyle's model) assumes a <em>fixed, known</em> number of informed traders. Reality is murkier — on any given day there might be zero informed traders, or a swarm. Market makers know the long-run <em>odds</em> of each, but not today's realization.</p>
+<p><strong>The idea.</strong> The authors build a one-period market where the number of informed traders is itself <strong>random</strong>, drawn from a distribution the liquidity suppliers know only in aggregate. So market makers face two-layered uncertainty: are informed traders even <em>present</em> today, and if so, <em>how many</em>? They solve for the equilibrium — the self-consistent set of prices where market makers break even and informed traders trade optimally given those prices. The punchline concerns <strong>large orders</strong>: how does price impact behave when someone tries to buy a huge quantity? The answer is a <strong>power law</strong> (impact grows like order size raised to some exponent), and — the surprising part — that exponent is set by the <em>whole distribution</em> of how many informed traders there might be, together with the tail behavior of the asset's possible values. Two markets with the <em>same average</em> number of sharks but different distributions can have <em>different</em> impact exponents.</p>
+<p><strong>What they found.</strong> They prove an equilibrium exists (for bounded asset values) and characterize it through a fixed-point equation. For asset values with <strong>power-law tails</strong>, price impact is a power law whose exponent blends the value tail and the full shark-count distribution. For <strong>light-tailed</strong> asset values, impact is instead <strong>logarithmic</strong> (much gentler). This refines decades of microstructure theory: the <em>shape</em> of your uncertainty about informed participation, not just its mean, governs how markets absorb large trades.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A one-period market has a random asset value $v$, a random number $N$ of informed traders (with known distribution $\{p_n = \mathbb{P}(N=n)\}$), noise-trader order flow $u$, and competitive risk-neutral liquidity suppliers. Each informed trader observes $v$ and submits a demand; suppliers observe only aggregate order flow and set a price schedule to break even.</p>
+<p><strong>The key equations.</strong> Equilibrium is characterized by a <strong>fixed-point integral equation</strong> for the marginal cost (price-impact) function $C(\cdot)$. Competitive market-making imposes the zero-profit / rational-pricing condition
+$$ p(y) = \mathbb{E}\big[v \,\big|\, Y = y\big], \qquad Y = \sum_{i=1}^{N} x_i(v) + u, $$
+where $p(y)$ is the price set given total order flow $Y$, $x_i(v)$ is informed trader $i$'s demand as a function of the value $v$ they observe, $N$ is the random informed count, and $u$ is noise flow. Informed traders optimize against this schedule, giving a demand that satisfies a first-order condition involving the marginal cost $C(q) = \partial(q\,p)/\partial q$. The equilibrium marginal cost solves an integral fixed point of the schematic form
+$$ C(q) = \mathcal{F}\big[C\big](q) = \int \kappa\big(q, v, C\big)\, dF_v(v)\sum_{n} p_n\,(\cdots), $$
+where $F_v$ is the asset-value distribution and the sum over $n$ weights each possible informed-trader count. <strong>Large-order asymptotics:</strong> if $F_v$ has a power-law endpoint with index governing the tail, the price impact obeys
+$$ I(Q) \sim c\,Q^{\gamma}, \qquad Q \to \infty, $$
+with $Q$ the order size, $I(Q)$ its price impact, $c$ a constant, and the exponent $\gamma$ determined <em>jointly</em> by the asset-value tail index and the <em>full</em> distribution $\{p_n\}$ — provably <strong>not</strong> a function of $\mathbb{E}[N]$ alone. In the light-endpoint regime, $I(Q) \sim c\,\log Q$ instead.</p>
+<p><strong>The method.</strong> The analysis is <strong>fixed-point / equilibrium existence theory</strong> (Schauder-type arguments for bounded asset values) combined with <strong>asymptotic (extreme-value) analysis</strong> of the integral equation to extract the large-$Q$ behavior, backed by <strong>numerical solution</strong> of the fixed point across several $F_v$ and $\{p_n\}$ choices.</p>
+<p><strong>Results with numbers.</strong> Existence of equilibrium is established for bounded asset values. The large-order exponent $\gamma$ is shown analytically to depend on the whole informed-count distribution (a stated counterexample rules out dependence on the mean alone). Numerical fixed-point solutions across multiple value and count distributions are <strong>consistent with the theoretical power-law / logarithmic asymptotics</strong> and supply comparative statics beyond the regimes the theorems cover.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Price impact</strong> — how much the market price moves in response to a trade of a given size.</li>
+<li><strong>Informed trader</strong> — a market participant who possesses private information about the asset's true value.</li>
+<li><strong>Liquidity supplier / market maker</strong> — a trader who continuously quotes buy and sell prices, profiting from the spread while bearing inventory and adverse-selection risk.</li>
+<li><strong>Kyle model</strong> — the classic microstructure model in which one informed trader hides among noise traders and price impact is linear.</li>
+<li><strong>Fixed-point equation</strong> — an equation of the form $C = \mathcal{F}[C]$ whose solution is a function that maps to itself under $\mathcal{F}$; equilibria are found as such fixed points.</li>
+<li><strong>Power-law / heavy tail</strong> — a probability tail decaying polynomially, allowing extreme values far more often than a normal distribution.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a <em>one-period</em> model with competitive, risk-neutral market makers — real markets are dynamic, makers are inventory-averse, and information trickles out over time, none of which this captures. The headline result is qualitative (which regime, which exponent) rather than a calibrated number a desk could trade on tomorrow. Its worth is conceptual: it warns that estimating "average informed participation" is insufficient — the tails of that uncertainty drive the impact you'll actually pay on large orders.</p>
+<h3>Bottom Line</h3>
+<p>How badly a giant order moves the market is decided not by the <em>typical</em> amount of informed trading but by the full shape of your uncertainty about it.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
