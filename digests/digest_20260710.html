@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 10, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 10, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal Prediction of Resistance and Support Levels under Constant Elasticity of Variance Processes</h2>
+  <p class="meta">Ruibo Ma<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-09 &middot; <a href="http://arxiv.org/abs/2607.08531v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.08531v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you believe an asset is drifting toward some hidden "target" price you can't see, this paper computes the exact price levels at which you should stop waiting and act — and those levels turn out to be the "support" and "resistance" lines chart-watchers draw by hand.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Traders constantly talk about "support" (a price floor the asset keeps bouncing off) and "resistance" (a ceiling it keeps failing to break). These lines are folklore — drawn by eye, justified by hand-waving. But there's a real decision buried underneath: if you think a price is wandering toward some level you care about but can't observe directly, <em>when</em> should you commit? Wait too long and the price drifts away; act too early and you jump at noise. Think of trying to meet a friend who's walking through a crowd toward you but you can't see exactly where they'll end up — you have to guess when to start pushing forward.</p>
+<p><strong>The idea.</strong> The authors formalize the "hidden target" as an unknown level $\ell$ — an <em>aspiration level</em> — that you'll only learn about indirectly. Your goal is to stop the process at a moment when the current price is, on average, as close as possible to that hidden target. They model the price with a flexible diffusion (the "constant elasticity of variance" process, where volatility scales with the price level itself — a more realistic cousin of the textbook lognormal model). The math then produces <em>boundaries</em>: curves in (time, price) space. Cross a boundary and it's optimal to stop. Those boundaries are precisely what a chartist would call support and resistance — but now they're derived, not drawn.</p>
+<p><strong>What they found.</strong> They prove these optimal boundaries exist and are unique, and they characterize them by integral equations you can actually solve numerically. Crucially, the <em>shape</em> of the stopping region depends on the drift: when the asset trends upward, you get two boundaries (a band you stop inside of); when it trends downward, a single boundary suffices. So the old chart-reading intuition gets a rigorous backbone, with a clean explanation of <em>why</em> the geometry changes with market direction.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The asset price $X = (X_t)_{t\ge 0}$ follows a constant-elasticity-of-variance (CEV) diffusion,
+$$dX_t = \mu X_t\,dt + \sigma X_t^{\,\beta}\,dW_t,$$
+where $\mu$ is the drift, $\sigma>0$ a volatility scale, $\beta$ the elasticity exponent controlling how volatility grows with price, and $W_t$ a standard Brownian motion. The hidden aspiration level $\ell$ is a random variable independent of $X$, with some law (distribution) drawn from an admissible class.</p>
+<p><strong>The key problem.</strong> They solve the optimal-prediction problem
+$$V = \inf_{0\le \tau\le T}\ \mathbb{E}\,\bigl|X_\tau - \ell\bigr|,$$
+where the infimum runs over all stopping times $\tau$ of $X$ bounded by a horizon $T$. Here $\tau$ is a <em>stopping time</em> — a decision rule using only information available up to the moment you act — and $\mathbb{E}|X_\tau - \ell|$ is the expected absolute distance between where you stop and the hidden target. Because $\ell$ is independent of $X$, you can integrate it out: define $G(x) = \mathbb{E}|x - \ell| = \int |x-\ell|\,dF_\ell(\ell)$, the expected payoff of stopping at price $x$, where $F_\ell$ is the distribution of $\ell$. The problem becomes an ordinary optimal-stopping problem for $X$ with the smooth, convex cost $G$.</p>
+<p><strong>The method.</strong> Standard optimal-stopping machinery applies: the value function solves a free-boundary problem, and by the smooth-fit (smooth-pasting) principle the optimal boundaries $b(t)$ are where the value function meets the stopping cost $C^1$-smoothly. The authors reduce this to <strong>nonlinear integral equations</strong> of Volterra type that characterize the boundaries uniquely — the same technology used for American-option early-exercise boundaries. The convexity of $G$ around the median interval of $\ell$ is what pins the boundaries to sit relative to that median: the boundaries act as predictors of the resistance ($b_{\text{upper}}$) and support ($b_{\text{lower}}$) levels.</p>
+<p><strong>Results.</strong> The main theorems are structural rather than numerical: existence and uniqueness of the boundaries, plus the drift-dependent dichotomy. In the <strong>positive-drift</strong> case ($\mu>0$) the continuation region is squeezed between two curves, so the stopping set is bounded above and below. In the <strong>negative-drift</strong> case ($\mu<0$) a single boundary describes the stopping set. The boundaries are located relative to the median interval of the aspiration law $\ell$, giving a precise, computable meaning to "support" and "resistance."</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Constant elasticity of variance (CEV)</strong> — a stock-price model where volatility rises or falls with the price level via the exponent $\beta$, generalizing the classic constant-volatility lognormal model.</li>
+<li><strong>Stopping time $\tau$</strong> — a rule for <em>when to act</em> that is only allowed to use information observed up to that instant, never the future.</li>
+<li><strong>Optimal stopping problem</strong> — choosing a stopping time to minimize (or maximize) an expected payoff.</li>
+<li><strong>Free-boundary / smooth-fit</strong> — the technique where the unknown "stop here" boundary is found by demanding the value function join the payoff smoothly (matching value and slope).</li>
+<li><strong>Aspiration level $\ell$</strong> — a hidden target price the trader implicitly aims for, modeled as a random variable with its own distribution.</li>
+<li><strong>Volterra integral equation</strong> — an equation where the unknown (here, the boundary) appears inside an integral over past time, solved iteratively.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance is real, but it rests on the "aspiration level hypothesis": that a hidden target $\ell$ exists, is independent of the price, and has a known distribution class — none of which is directly observable, so calibration to live markets is the hard, unsolved part. It's a beautiful rationalization of chartist folklore rather than a plug-and-play trading signal, and the absolute-distance objective is a modeling choice, not an economic law. A practitioner gets intuition and structure here, not yet a backtest-ready rule.</p>
+<h3>Bottom Line</h3>
+<p>Support and resistance stop being superstition and become the smooth-fit boundaries of an optimal-stopping problem — with the market's direction dictating whether you get one line or two.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Estimating the Stochastic Discount Factor from Option Prices and Predicting the Equity Premium</h2>
+  <p class="meta">Kenichiro Shiraya, Tomohisa Yamakami, Akira Yamazaki<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-09 &middot; <a href="http://arxiv.org/abs/2607.08500v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.08500v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>By reading the prices of S&amp;P 500 options — bets on where the market will be later — this paper reconstructs the market's hidden "pricing yardstick" and uses it to forecast future stock returns better than the leading benchmark.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every asset's price today is really a bet about the future: a dollar paid off in a good economy is worth less to you than a dollar paid off in a crash (when you'd desperately want it). Finance encodes this with a single hidden object called the <strong>stochastic discount factor</strong> (SDF) — a rule that says, state by state of the world, how much a future dollar is worth right now. If you knew the SDF, you'd know how the market prices risk. The catch: you can't observe it. It's like trying to recover the exchange rate between "happiness now" and "happiness in every possible future" from nothing but market prices.</p>
+<p><strong>The idea.</strong> Options are the perfect data source, because an option pays off only in specific future scenarios (e.g., "S&amp;P above 5000"), so the whole menu of option prices traces out how the market values each scenario. The authors extract the SDF <em>purely</em> from S&amp;P 500 option prices — no historical return data, no macro assumptions — so it reflects the market's forward-looking expectations rather than backward-looking averages. Their twist is to <em>scale</em> the SDF by time-varying volatility: risk aversion feels different when markets are calm versus turbulent, so the yardstick should stretch and shrink with volatility.</p>
+<p><strong>What they found.</strong> The recovered SDF has a distinctive, economically meaningful shape: a "hump" on the mild-loss (shallow put) side that deepens into a "W" as you look further into the future. They show this shape falls naturally out of a stochastic-volatility model with a constant price of risk — so it's not a fitting artifact. Most usefully, the equity premium (expected excess return of stocks) implied by their volatility-scaled SDF <strong>beats existing benchmarks out-of-sample</strong>, including the well-known Martin bound, at forecasting actual returns.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work under a risk-neutral measure $\mathbb{Q}$ and the physical measure $\mathbb{P}$. The SDF $M_{t,T}$ links them: for any payoff $X$ at horizon $T$, today's price is
+$$P_t = \mathbb{E}_t^{\mathbb{P}}\!\left[ M_{t,T}\, X \right],$$
+and equivalently $M_{t,T} = e^{-r(T-t)}\,\dfrac{d\mathbb{Q}}{d\mathbb{P}}$, where $r$ is the risk-free rate and $d\mathbb{Q}/d\mathbb{P}$ is the Radon–Nikodym derivative (the "change-of-measure" ratio). The risk-neutral density is recovered from option prices via the classic Breeden–Litzenberger identity,
+$$q_t(K) = e^{r(T-t)}\,\frac{\partial^2 C_t(K,T)}{\partial K^2},$$
+where $C_t(K,T)$ is the price of a call with strike $K$ and maturity $T$, and $q_t(K)$ is the implied risk-neutral density at terminal level $K$.</p>
+<p><strong>The key object.</strong> The SDF as a function of the terminal index level $S_T$ is the ratio of risk-neutral to physical densities, scaled by the discount:
+$$M_{t,T}(S_T) = e^{-r(T-t)}\,\frac{q_t(S_T)}{p_t(S_T)},$$
+with $q_t$ the risk-neutral density (from options) and $p_t$ the physical density. The paper's innovation is to write the physical density / projection through a <strong>time-varying-volatility scaling</strong>, so that $M$ depends on the volatility state $\sigma_t$; under a constant market price of risk $\lambda$, stochastic-volatility dynamics generate the observed non-monotone (hump/W) profile.</p>
+<p><strong>The method.</strong> The pipeline is essentially nonparametric recovery plus a structural restriction: (1) fit the option-implied risk-neutral density $q_t$ from the strike-curvature of call prices; (2) impose the volatility-scaled SDF form and a constant price of risk to pin down the physical measure without needing long return histories; (3) derive the implied equity premium $\mathbb{E}_t^{\mathbb{P}}[R_{t,T}] - r$ and test it out-of-sample against benchmarks. The equity-premium forecast is evaluated with out-of-sample $R^2$ against, e.g., the Martin (2017) lower bound.</p>
+<p><strong>Results.</strong> The SDF is stable and non-monotonic — a hump on the shallow-put side that sharpens into a W-shape as maturity grows, with maturity identified as the key driver of the central hump's intensity. The volatility-scaled equity-premium estimate delivers <strong>superior out-of-sample predictive performance</strong> relative to standard benchmarks including the Martin bound (the paper reports higher out-of-sample forecasting accuracy for realized excess returns).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Stochastic discount factor (SDF)</strong> — the hidden state-by-state exchange rate that converts a future payoff into today's price, capturing how the market prices risk.</li>
+<li><strong>Risk-neutral measure $\mathbb{Q}$</strong> — a re-weighting of probabilities under which every asset earns the risk-free rate, so prices are just discounted expected payoffs.</li>
+<li><strong>Breeden–Litzenberger identity</strong> — the fact that the second derivative of call prices with respect to strike recovers the risk-neutral probability density.</li>
+<li><strong>Radon–Nikodym derivative $d\mathbb{Q}/d\mathbb{P}$</strong> — the ratio that reweights one probability measure into another; here it turns physical odds into pricing odds.</li>
+<li><strong>Equity premium</strong> — the expected return of stocks above the risk-free rate; the quantity everyone wants to forecast.</li>
+<li><strong>Martin bound</strong> — a well-known lower bound on the equity premium computable directly from option prices, used here as the benchmark to beat.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Option-implied recovery famously requires separating the <em>risk-neutral</em> density (which options give cleanly) from the <em>physical</em> density (which they don't), and this paper leans on a constant-market-price-of-risk assumption to bridge that gap — a strong restriction that may break in regimes where risk appetite itself shifts. The results are S&amp;P-500-specific and depend on clean option surfaces, so illiquid strikes and microstructure noise could erode the edge. Still, an out-of-sample win over the Martin bound is a meaningful, hard-to-fake bar to clear.</p>
+<h3>Bottom Line</h3>
+<p>Options are a window into the market's soul: read their prices carefully and the forward-looking pricing yardstick they reveal forecasts stock returns better than the field's toughest benchmark.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Volatility in Prediction Markets: A Structural Approach</h2>
+  <p class="meta">Weiye Xi, Ciamac C. Moallemi, Mallesh Pai, Shouqiao Want<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-09 &middot; <a href="http://arxiv.org/abs/2607.08199v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.08199v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Prediction-market prices (like "62% chance the Fed cuts rates") don't wiggle like stock prices, so this paper builds a volatility model from scratch that respects two forces — the ticking countdown to resolution and the trading of informed insiders — and it beats standard GARCH.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On a prediction market like Kalshi, a contract pays 1 dollar if some event happens (say, "it rains tomorrow") and 0 dollars if it doesn't, so its price sits between 0 and 1 and reads directly as a probability. Traders and market makers desperately want to forecast how much that probability will <em>bounce around</em> before the event resolves — that's volatility, and it drives spreads, hedging, and risk. But the usual volatility workhorses, ARCH and GARCH, were built for stock prices, which are positive, unbounded, and never "expire." A probability pinned between 0 and 1 with a hard deadline behaves completely differently: near resolution it <em>must</em> rush to 0 or 1. Bolting GARCH onto that is like using a ruler to measure temperature.</p>
+<p><strong>The idea.</strong> The authors build a volatility model <em>native</em> to binary markets by combining two economic mechanisms. First, a <strong>deadline-resolution force</strong>: as the clock runs out, the remaining uncertainty is forced to collapse toward the true outcome — they borrow the "Wright–Fisher" process from population genetics, which naturally describes a probability drifting to one of two absorbing endpoints. Second, an <strong>informed-trading force</strong>: some traders know more than others, and their order flow moves prices; they capture this with the classic Glosten–Milgrom idea that spreads and volume reveal how much informed activity is happening. Volatility, in their model, is manufactured by these two engines rather than assumed.</p>
+<p><strong>What they found.</strong> Using a large panel of Kalshi contracts, the structural variables (time-to-deadline, spreads, volume) carry real forecasting power. Plain ARCH/GARCH is <em>dominated</em> by the structural model, and the best forecasts of all come from combining the structural model with a GARCH residual term to mop up what's left — a hybrid that respects the market's binary, deadline-driven nature while keeping econometric flexibility.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A contract's price $p_t \in (0,1)$ is a bounded probability that resolves to $0$ or $1$ at a known deadline $T$. Model the price (or its latent driver) with a <strong>Wright–Fisher diffusion</strong>,
+$$dp_t = \mu(p_t,t)\,dt + \sqrt{\,\gamma\, p_t(1-p_t)\,}\;dW_t,$$
+where $p_t$ is the probability, $\gamma$ scales the diffusion, $W_t$ is Brownian motion, and the diffusion coefficient $\sqrt{p_t(1-p_t)}$ vanishes at the boundaries $0$ and $1$ — encoding that a near-certain contract barely moves while a coin-flip contract ($p_t=1/2$) is maximally volatile. The $\sqrt{p_t(1-p_t)}$ term is the signature of Wright–Fisher: variance is largest at $p=1/2$ and forced to zero at the absorbing endpoints.</p>
+<p><strong>The key decomposition.</strong> Instantaneous variance is written as the sum of a deadline component and an order-flow component:
+$$\sigma_t^2 \;=\; \underbrace{\gamma\,\frac{p_t(1-p_t)}{T-t}}_{\text{deadline resolution}} \;+\; \underbrace{\lambda\,\Phi(s_t, v_t)}_{\text{Glosten–Milgrom order flow}},$$
+where $T-t$ is time remaining, $\gamma$ the resolution intensity, $s_t$ the bid–ask spread, $v_t$ trading volume, $\Phi$ an informed-trading intensity function, and $\lambda$ its loading. The <strong>Glosten–Milgrom</strong> piece models the spread as compensation the market maker charges for the risk of trading against someone informed, so wider spreads and heavier volume signal more information-driven volatility.</p>
+<p><strong>The method.</strong> They <em>estimate</em> the structural parameters ($\gamma$, $\lambda$, and those inside $\Phi$) on a panel of Kalshi contracts and then run <strong>forecast-comparison tests</strong> (pairwise and multi-model, e.g. Diebold–Mariano-style) against ARCH/GARCH benchmarks. The winning specification augments the structural mean with a <strong>residual GARCH</strong> term $h_t = \omega + \alpha \varepsilon_{t-1}^2 + \beta h_{t-1}$ to capture leftover volatility clustering, giving a structural-plus-GARCH hybrid.</p>
+<p><strong>Results.</strong> Structural specifications <strong>dominate plain ARCH/GARCH</strong> in out-of-sample volatility forecasting on the Kalshi panel; the structural variables (time-to-resolution, spread, volume) are statistically significant predictors; and the hybrid structural + residual-GARCH model delivers the best overall forecasts across the panel.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Prediction market</strong> — an exchange where contracts pay 1 dollar if an event occurs and 0 otherwise, so the price literally reads as the market's probability of that event.</li>
+<li><strong>GARCH</strong> — the standard econometric model for volatility clustering, where today's variance depends on yesterday's shocks and variance.</li>
+<li><strong>Wright–Fisher process</strong> — a diffusion from genetics whose randomness dies at the endpoints 0 and 1, perfect for a probability forced to resolve.</li>
+<li><strong>Absorbing boundary</strong> — a value (here 0 or 1) that, once reached, is never left — the contract has resolved.</li>
+<li><strong>Glosten–Milgrom model</strong> — a microstructure model where the bid–ask spread compensates market makers for trading against better-informed counterparties.</li>
+<li><strong>Out-of-sample forecast test</strong> — comparing models on data they were <em>not</em> fitted to, the honest way to judge prediction.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Prediction markets are still thin and idiosyncratic, so a model tuned on Kalshi may not transfer to other venues or to contracts with fuzzy, information-trickle resolutions (elections dragging through recounts) rather than clean deadlines. The Glosten–Milgrom component assumes a stable informed/uninformed split that real, event-driven crowds may violate. But as these markets grow into serious hedging venues, having a volatility model built for their actual geometry — rather than one borrowed from stocks — is exactly the right move.</p>
+<h3>Bottom Line</h3>
+<p>Volatility in a market where prices are probabilities isn't stock volatility in disguise — model the countdown and the insiders directly, and you forecast it far better than GARCH ever could.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Exact conditional simulation of Point processes: Application to pathwise market impact estimation</h2>
+  <p class="meta">Joseph Leclère, Youssef Ouazzani Chahdi, Mathieu Rosenbaum, Grégoire Szymanski<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-03 &middot; <a href="http://arxiv.org/abs/2607.03239v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.03239v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To measure how much your own trading moved a price, you'd need to rerun history without your trades — this paper gives an exact algorithm to simulate that counterfactual market, using the <em>same</em> random luck that actually happened.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a big fund buys a lot of a stock, its own buying pushes the price up — that's "market impact," and it's a hidden cost that can dwarf commissions. But measuring it is philosophically nasty: impact is the gap between the price path you <em>saw</em> while trading and the path that <em>would have happened</em> if you'd sat on your hands. You never get to see that second path. It's like trying to measure how much a stone you threw disturbed a river — you'd need to watch the same river, on the same day, with the same currents, but without your stone. That "same currents" part is the whole difficulty.</p>
+<p><strong>The idea.</strong> Market events — trades, quote updates, order arrivals — arrive as a stream of random ticks, mathematically a <strong>point process</strong> whose rate of firing depends on the market's own recent history (busy begets busy). The trick is to freeze the underlying "luck" — the raw randomness driving when events <em>could</em> fire — and then replay history under a <em>different</em> trading strategy. The authors show how to reconstruct that hidden randomness from what you actually observed, then re-run the market forward with your trades removed or altered, driven by the identical random seed. Same dice, different bets. The difference between the two replays is a clean, honest estimate of your impact.</p>
+<p><strong>What they found.</strong> They derive an <em>exact</em> (not approximate) event-driven algorithm to do this conditional simulation. Given an observed sequence of events whose intensity depends on its own past (a self-exciting process), they characterize the conditional law of the latent randomness and use it to generate counterfactual paths that share the same randomness source. This works for aggressive, passive, and mixed execution strategies — so you can rigorously compare "what if I'd traded gently instead of aggressively" on a common footing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $N=(N_t)_{t\ge0}$ be a counting process (it jumps by 1 at each market event) with a history-dependent stochastic intensity $\lambda_t = \lambda(t, \mathcal{F}_{t^-})$, where $\mathcal{F}_{t^-}$ is the information generated by events strictly before $t$. Such a process (e.g. a Hawkes process) is built from a <strong>Poisson random measure</strong> on space–time via the <strong>thinning representation</strong>: candidate points arrive as a homogeneous Poisson field of rate $\bar\lambda$, and a candidate at time $t$ with mark $u$ is <em>kept</em> iff $u \le \lambda_t/\bar\lambda$.</p>
+<p><strong>The key construction.</strong> Writing the thinning representation,
+$$N_t \;=\; \int_0^t\!\!\int_0^\infty \mathbf{1}\{\,u \le \lambda_{s^-}\,\}\; \Pi(ds,du),$$
+where $\Pi$ is a Poisson random measure with intensity $ds\,du$ (Lebesgue) on $(0,\infty)\times(0,\infty)$, $\lambda_{s^-}$ is the pre-jump intensity, and $\mathbf{1}\{\cdot\}$ is the indicator that keeps a candidate point. The core result characterizes the <strong>conditional law of $\Pi$</strong> given the observed realization of $N$ — i.e., what the latent Poisson measure must have been (both the accepted points that became events and the rejected points below/above the intensity) consistent with what you saw. Perturbing the intensity to $\tilde\lambda_t$ (your alternative strategy) and re-thinning the <em>same</em> conditioned $\Pi$ yields the counterfactual path $\tilde N_t$.</p>
+<p><strong>The method.</strong> The result is an <strong>exact, event-driven Monte-Carlo algorithm</strong>: reconstruct the conditional Poisson random measure on the common randomness source, then replay under the perturbed intensity, generating $\tilde N_t$ without approximation or discretization bias. Market impact is then the pathwise difference between price functionals of $N$ (observed) and $\tilde N$ (counterfactual) under matched randomness — an honest, variance-reduced estimator because the shared seed cancels common noise.</p>
+<p><strong>Results.</strong> The contribution is methodological: an exact conditional-simulation scheme (rather than a numerical forecast), enabling rigorous pathwise market-impact estimation across aggressive, passive, and mixed execution strategies on a common randomness source. By construction it removes the confounding that plagues naive "compare to average day" impact estimates.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Point process / counting process</strong> — a random stream of discrete events in time; $N_t$ counts how many have occurred by time $t$.</li>
+<li><strong>Stochastic intensity $\lambda_t$</strong> — the instantaneous rate at which events fire, here allowed to depend on the process's own past (self-exciting).</li>
+<li><strong>Hawkes process</strong> — a self-exciting point process where each event temporarily raises the chance of further events (clustering).</li>
+<li><strong>Poisson random measure</strong> — the raw randomness: a scatter of points in space–time whose counts in disjoint regions are independent Poissons.</li>
+<li><strong>Thinning representation</strong> — building a complex point process by proposing candidate points at a high rate and randomly keeping a fraction determined by the intensity.</li>
+<li><strong>Counterfactual / pathwise estimation</strong> — computing what <em>would</em> have happened under a different action while holding the underlying randomness fixed.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance is that it's <em>exact</em> — but exactness is conditional on the model being right: if the true intensity isn't the assumed history-dependent form (e.g. there's a latent factor your $\lambda_t$ omits), the reconstructed randomness inherits that misspecification and the counterfactual quietly drifts from reality. Real order books also have queue priority, hidden liquidity, and cross-venue effects a univariate counting process doesn't capture. Still, for calibrated Hawkes-type execution models this is a genuinely principled upgrade over comparing your fill to a market average.</p>
+<h3>Bottom Line</h3>
+<p>Freeze the market's dice, remove your trades, and replay — this exact algorithm finally lets you measure your own footprint against the world that would have been.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Square-Root Price Impact Is Necessary for Endogenous Manipulation Cycles in Learning-Agent Markets</h2>
+  <p class="meta">Yang Zhou, Jianwen Chen, Ruipeng Wei<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-06 &middot; <a href="http://arxiv.org/abs/2607.05141v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.05141v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Let a single profit-seeking algorithm loose among 20,000 herding retail traders and it spontaneously teaches itself to manipulate the market in repeating boom–bust cycles — but only because real price impact grows like a square root, and the paper proves it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Does market manipulation require a scheming villain, or can it emerge on its own from ordinary profit-maximizing behavior? And what feature of markets makes predatory cycles possible in the first place? These aren't just ethics questions — regulators and exchange designers need to know whether the <em>structure</em> of price impact (how much a trade moves the price) invites manipulation. Think of a big fish in a pond of small fish: if the water pushes back a certain way, the big fish discovers it can herd the small ones, feast, retreat, and repeat.</p>
+<p><strong>The idea.</strong> The authors build a minimal simulated market: one "institutional" agent, tuned by an evolutionary algorithm to maximize its profit, swimming among 20,000 simple "herding" retail traders who chase trends. They don't program the institution to manipulate — they just let evolution optimize its strategy and watch. Then, crucially, they <em>reduce</em> the whole 20,001-agent swarm to a simple "mean-field" description — a single equation for the average behavior — and discover it's mathematically a <strong>nonlinear oscillator</strong>, the same kind of feedback system that produces heartbeats, predator–prey cycles, and pendulum swings. Manipulation cycles are just this oscillator ringing.</p>
+<p><strong>What they found.</strong> The evolved agent discovers a multi-cycle predatory strategy on its own: 8–11 complete pump-and-dump cycles over 2000 trading days, earning +51% in the best run (+37.7% on average). The oscillation switches on via a <strong>Hopf bifurcation</strong> — below a critical amount of institutional capital nothing happens; above it, self-sustaining cycles appear, with amplitude growing like the square root of how far past the threshold you are. The killer result: this all requires <strong>square-root price impact</strong> (a well-documented empirical law). Swap in <em>linear</em> impact and the cycles vanish entirely — the market becomes unconditionally stable. Manipulation, they argue, is baked into the geometry of how trades move prices.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state is the institutional agent's position and the aggregate retail position/price. Retail traders herd; the institution controls its trading rate to maximize terminal wealth. Price impact is modeled as a power law: a trade of signed size $Q$ moves the price by $\Delta p \propto \operatorname{sign}(Q)\,|Q|^{\psi}$, with the empirically observed exponent $\psi = 1/2$ (square-root law).</p>
+<p><strong>The key reduction.</strong> By <strong>mean-field reduction</strong>, the 20,000-agent system collapses to a low-dimensional dynamical system for the aggregate state $x$ (institutional position / price gap):
+$$\dot{x} \;=\; f(x;\,C,\beta),$$
+where $C$ is institutional capital, $\beta$ the herding-scale parameter, and $f$ a nonlinear feedback map inheriting the square-root impact. Linearizing about the fixed point, a pair of complex-conjugate eigenvalues $\alpha(C)\pm i\Omega$ crosses the imaginary axis as $C$ passes a critical value $C_c$ — the definition of a <strong>Hopf bifurcation</strong> — spawning a limit cycle whose amplitude obeys
+$$A \;\propto\; (C - C_c)^{\alpha}, \qquad \alpha \approx \tfrac{1}{2},$$
+the standard square-root scaling of a supercritical Hopf. Here $A$ is the oscillation amplitude, $C_c$ the critical capital threshold, and $\alpha$ the critical exponent. A separate <strong>fold (saddle-node) bifurcation</strong> appears in the herding-scale parameter, giving a <em>discontinuous</em> jump into cycling.</p>
+<p><strong>The method.</strong> Two layers: (1) <strong>evolutionary optimization</strong> (a genetic/evolution-strategy search over 20 random seeds) discovers the institution's predatory control policy directly from simulated profit; (2) <strong>dynamical-systems analysis</strong> — mean-field reduction plus linear stability / bifurcation theory — explains <em>why</em> the discovered strategy takes the form of self-sustained oscillations, and isolates square-root impact as the necessary ingredient by re-deriving the stability condition under linear ($\psi=1$) impact.</p>
+<p><strong>Results.</strong> Best seed: <strong>+51%</strong> total portfolio return with <strong>8–11 cycles</strong> over 2000 days; mean across seeds <strong>+37.7%</strong>. The Hopf amplitude exponent is consistent with the theoretical <strong>1/2</strong>. The limit cycle survives even at herding coupling $\beta=0$: position-tracking feedback plus square-root impact alone sustains it. Under <strong>linear impact the Hopf bifurcation disappears</strong> and the retail market is unconditionally stable — establishing square-root impact as <em>necessary</em> for endogenous manipulation cycles.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — how much your own trade moves the price against you; empirically it grows like the square root of trade size.</li>
+<li><strong>Square-root law</strong> — the robust empirical finding that price impact scales as $|Q|^{1/2}$, not linearly, in size $Q$.</li>
+<li><strong>Mean-field reduction</strong> — approximating a huge crowd of interacting agents by a single equation for their average, valid when each agent feels the aggregate.</li>
+<li><strong>Hopf bifurcation</strong> — the moment a steady state loses stability and gives birth to a self-sustained oscillation as a parameter crosses a threshold.</li>
+<li><strong>Fold (saddle-node) bifurcation</strong> — a threshold where two equilibria collide and annihilate, causing a sudden jump in behavior.</li>
+<li><strong>Limit cycle</strong> — a closed loop the system settles onto, repeating forever — here, the pump-and-dump cycle.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a stylized simulation, not evidence that real markets host these exact cycles: 20,000 identical herding bots are a cartoon of retail flow, and real markets have arbitrageurs, circuit breakers, and heterogeneous strategies that could damp the oscillator. The "necessity" of square-root impact is a statement about <em>this model's</em> stability, not a theorem about all markets. Still, the result is provocative and useful for regulators: it says the very impact law we observe empirically is the one that structurally permits self-taught manipulation — a warning worth taking seriously.</p>
+<h3>Bottom Line</h3>
+<p>Give a profit-maximizer a market with square-root impact and it evolves into a manipulator all by itself — flatten the impact to linear and the temptation mathematically disappears.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
