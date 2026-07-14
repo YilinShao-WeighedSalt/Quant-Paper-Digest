@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 14, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 14, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Minimizing Benchmark-Relative Drawdown Duration via Occupation Time Penalization</h2>
+  <p class="meta">Jun Sekine, Marcus Wunsch<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-13 &middot; <a href="http://arxiv.org/abs/2607.11335v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.11335v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of minimizing how <em>far</em> a fund falls behind its benchmark, this paper minimizes how <em>long</em> it stays behind — and shows the optimal strategy has a clean "project the aggressive bet onto a safe target" form.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Most professional money is judged not on its own returns but relative to a yardstick — the S&amp;P 500, a bond index, a peer group. What actually drives investors to yank their money isn't a single bad week; it's the <em>grind</em> of trailing the benchmark month after month. A fund that dips 5% below its index and bounces back in a fortnight keeps its clients; a fund that sits 3% behind for eighteen straight months bleeds redemptions even if the final gap is smaller. So "how deep did we fall" is the wrong risk to manage. "How much <em>time</em> did we spend underwater" is the one that matters, and almost no classical model targets it directly.</p>
+<p><strong>The idea.</strong> The authors build a strategy whose objective is to shrink the <em>expected time spent underperforming</em>, discounted so that being behind today hurts more than being behind in ten years. The catch is that "time spent behind" is a deeply path-dependent quantity — it depends on the entire history of your performance, not just where you are right now, which normally makes the optimization intractable. Their trick is to show the problem secretly collapses onto a single number: your current performance gap relative to the benchmark. Once it's one-dimensional, standard control theory takes over, and the optimal rule turns out to be a <em>projection</em> — take the greedy return-chasing bet and geometrically project it onto a direction that controls downside persistence, dialing risk up or down depending on how far underwater you are.</p>
+<p><strong>What they found.</strong> They derive an explicit formula for the optimal portfolio as a feedback rule (a function of your current gap), prove rigorously that this candidate really is optimal (a "verification theorem"), and pin down conditions under which the resulting wealth process is well-behaved. Compared to classical benchmark-tracking — which minimizes the <em>variance</em> of the gap and treats being ahead and behind symmetrically — this is a genuinely asymmetric, downside-focused alternative that stays mathematically tractable.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $V_t$ be the investor's wealth and $B_t$ the benchmark, which is <em>non-replicable</em> — it carries risk the investor cannot fully hedge with tradable assets. Track relative performance through
+$$X_t = \ln\!\left(\frac{V_t}{B_t}\right),$$
+so $X_t < 0$ means underperforming. The investor chooses a portfolio control $\pi_t$. Tradable assets follow $dS_t/S_t = \mu\,dt + \sigma\,dW_t$ and the benchmark $dB_t/B_t = \mu_B\,dt + \sigma_B\,dW_t^B$, where $W_t^B$ has a component orthogonal to $W_t$ — that orthogonal piece is the irreducible tracking noise.</p>
+<p><strong>The key equation.</strong> The objective is an <em>occupation-time</em> penalty:
+$$J(\pi) = \mathbb{E}\!\left[\int_0^\infty e^{-\rho t}\,\ell(X_t)\,dt\right],$$
+where $\ell(x)$ penalizes the underwater region (e.g. $\ell(x)=\mathbf{1}\{x<0\}$, so the integral literally counts discounted time spent behind), and $\rho>0$ is the discount rate. Under the controlled dynamics $dX_t = b(\pi_t)\,dt + a(\pi_t)\,dW_t + \varepsilon\,dW_t^{\perp}$ (with $\varepsilon$ the un-hedgeable benchmark noise), the value function $v(x)=\inf_\pi J$ solves the Hamilton–Jacobi–Bellman equation
+$$\rho\,v(x) = \ell(x) + \inf_{\pi}\Big\{ b(\pi)\,v'(x) + \tfrac12\,a(\pi)^2\,v''(x)\Big\},$$
+where $v'$ and $v''$ are the first and second derivatives in the gap $x$. The first-order condition in $\pi$ is linear, and solving it gives the optimal feedback control as a <strong>projection</strong>:
+$$\pi^*(x) = \Pi\!\left[\,\pi_{\text{track}} - \frac{v'(x)}{v''(x)}\,\theta\,\right],$$
+with $\theta$ a Sharpe-ratio-like vector, $\pi_{\text{track}}$ the pure benchmark-tracking allocation, and $\Pi[\cdot]$ the projection onto the feasible/hedgeable directions. The ratio $v'(x)/v''(x)$ is exactly what makes risk-taking gap-dependent.</p>
+<p><strong>The method.</strong> They reduce the path-dependent occupation-time functional to a one-dimensional Markovian problem, solve the resulting HJB ODE, prove optimality via a verification theorem, and show the closed-loop state $X_t$ is a <em>reflected diffusion</em> with a unique strong solution in identifiable geometric settings (a Skorokhod-type construction handles the reflection at the boundary).</p>
+<p><strong>Results with numbers.</strong> This is a structural/theoretical result: the payoff is a closed-form feedback control and existence-uniqueness guarantees, not a backtested Sharpe ratio. The headline is qualitative — a novel projection structure — rather than a numerical error reduction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Occupation time</strong> — the total (here, discounted) amount of time a random process spends in a specified region, such as below zero.</li>
+<li><strong>Hamilton–Jacobi–Bellman (HJB) equation</strong> — the differential equation whose solution is the best-achievable value of a continuous-time control problem.</li>
+<li><strong>Feedback control</strong> — a strategy expressed as a function of the current state rather than a pre-committed schedule.</li>
+<li><strong>Verification theorem</strong> — a proof that a guessed candidate solution to the HJB equation is genuinely the optimum.</li>
+<li><strong>Reflected diffusion / Skorokhod problem</strong> — a random process kept inside a region by a minimal "pushing" force at the boundary.</li>
+<li><strong>Non-replicable benchmark</strong> — an index carrying risk that no combination of tradable assets can perfectly hedge away.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a clean theory paper: infinite horizon, constant model parameters, no transaction costs, and a benchmark whose dynamics are assumed known. The occupation-time penalty is elegant but the discount rate $\rho$ and penalty shape $\ell$ are modeling choices a practitioner would have to justify and calibrate. The projection structure is a real conceptual contribution, but turning it into a deployable strategy would need estimation of $\varepsilon$, $\theta$, and robustness to the benchmark being mis-specified.</p>
+<h3>Bottom Line</h3>
+<p>Manage the <em>duration</em> of underperformance, not just its depth, and the optimal move is to project your greed onto what you can actually control.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Strategic OTC market making with reputation feedback</h2>
+  <p class="meta">Alexander Barzykin<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-13 &middot; <a href="http://arxiv.org/abs/2607.11328v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.11328v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A bank quoting prices to clients should treat its own reputation as inventory — sometimes quote tight to win business and build standing, sometimes quote wide to cash in — and the optimal policy naturally cycles between the two.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In over-the-counter (OTC) markets — think foreign exchange, corporate bonds, swaps — you don't trade on a public exchange. A client sends a <em>request for quote</em> (RFQ) to several dealers and picks the best price. A dealer earns the spread when it wins, but there's a hidden long game: platforms and clients remember who consistently shows up with good prices, and they route more flow to reliable dealers. So the price you quote today doesn't just win or lose today's trade — it shapes how much business walks through your door tomorrow. A dealer who always quotes greedily wide gets quietly demoted in the routing; one who quotes tight builds a franchise.</p>
+<p><strong>The idea.</strong> The paper models a dealer who explicitly tracks its own <em>reputation</em> — captured by things like its recent RFQ win ratio and streaming fill ratio — as a state it can steer. Quoting more aggressively (tighter spreads) sacrifices immediate profit but raises win rates, which improves standing, which "opens the gate" to more future flow. Quoting wide does the opposite. It's the same tension a contractor faces: bid low to win repeat customers and referrals, or bid high to squeeze margin from each job. The dealer's best strategy, it turns out, isn't a fixed spread but a <em>rhythm</em> — periods of <strong>reputation-building</strong> (quote tight, invest in standing) alternating with periods of <strong>franchise monetization</strong> (quote wide, harvest the flow you earned).</p>
+<p><strong>What they found.</strong> Even in a deliberately simple, single-dealer setup, this reputation feedback loop produces <em>multiple stable regimes</em> of client flow — the same dealer can settle into a low-flow or a high-flow operating point depending on history. That multiplicity, and the natural build-then-harvest cycling, are the paper's headline: rich strategic behavior emerges from a parsimonious model just by making reputation a state variable rather than an afterthought.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The dealer's state includes inventory $q_t$ (how much of the asset it's holding, which carries risk) and a reputation variable $r_t \in [0,1]$ summarizing standing — say a smoothed win/fill ratio. RFQs and streaming trades arrive as a marked point process whose intensity depends on both the quoted spread and current reputation. The control is the quoted spread (or skew) $\delta_t$.</p>
+<p><strong>The key equations.</strong> Flow arrives at intensity
+$$\lambda(\delta_t, r_t) = \lambda_0\,f(r_t)\,e^{-\kappa \delta_t},$$
+where $\delta_t$ is the quoted spread, $r_t$ the reputation, $\kappa>0$ the price sensitivity of clients, and $f(r_t)$ a <em>flow gate</em> that is increasing in reputation — better standing literally multiplies arrival intensity. Reputation itself mean-reverts toward recent performance:
+$$dr_t = \theta\big(\,\text{(fill/win outcome)} - r_t\,\big)\,dt,$$
+with $\theta>0$ the speed at which the market forgets and updates its opinion. The dealer maximizes discounted profit net of inventory risk,
+$$V(q,r) = \sup_{\delta}\ \mathbb{E}\!\left[\int_0^\infty e^{-\rho t}\Big(\underbrace{\delta_t\,dN_t}_{\text{spread PnL}} - \underbrace{\phi\, q_t^2\,dt}_{\text{inventory penalty}}\Big)\right],$$
+where $N_t$ counts filled trades, $\rho$ is the discount rate, and $\phi$ penalizes carrying inventory. The associated Hamilton–Jacobi–Bellman equation with jumps yields a first-order condition balancing marginal spread capture against the <em>shadow value of reputation</em> $\partial V/\partial r$:
+$$\frac{\partial}{\partial \delta}\Big[\lambda(\delta,r)\big(\delta + \Delta_q V + \Delta_r V\big)\Big] = 0,$$
+where $\Delta_q V$ and $\Delta_r V$ are the jumps in value from the inventory change and the reputation bump a win produces. When $\partial V/\partial r$ is large, the optimizer quotes tighter than the myopic spread — it's paying now for future flow.</p>
+<p><strong>The method.</strong> Dynamic programming / stochastic optimal control with intensity-modulated jumps (an RFQ-arrival extension of Avellaneda–Stoikov-style market making). The multiplicity of client-flow regimes appears as multiple stable fixed points of the closed-loop reputation–flow dynamics.</p>
+<p><strong>Results with numbers.</strong> The contribution is structural: the optimal policy provably alternates between reputation-building and monetization phases, and the model exhibits multiple stable flow equilibria. It is a mechanism paper rather than a calibrated numerical study, so the results are about <em>qualitative</em> policy shape, not reported Sharpe ratios.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>OTC (over-the-counter)</strong> — trading done bilaterally with dealers rather than on a centralized public exchange.</li>
+<li><strong>RFQ (request for quote)</strong> — a client asking several dealers for a price and trading with the best one.</li>
+<li><strong>Market making / spread</strong> — continuously offering to buy and sell, earning the gap between the two quotes.</li>
+<li><strong>Flow gate</strong> — a mechanism by which higher reputation increases the rate at which client trades arrive.</li>
+<li><strong>Stochastic optimal control</strong> — choosing actions over time to maximize expected reward when the state evolves randomly.</li>
+<li><strong>Shadow value</strong> — the marginal worth of an extra unit of a state variable (here, reputation) to the objective.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a single-dealer, stylized model — real OTC markets have competing dealers whose reputation games interact, which could dampen or amplify the cycling shown here. Reputation is compressed into a low-dimensional state with assumed mean-reversion, and the flow-gate function is posited rather than estimated from data. As a lens for why dealers behave in build-then-harvest cycles it's insightful; as a plug-and-play quoting engine it would need multi-dealer competition and empirical calibration.</p>
+<h3>Bottom Line</h3>
+<p>Treat your reputation as an asset on the balance sheet, and optimal quoting becomes a rhythm of investing in standing and then cashing it in.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Multidimensional stochastic liquidity in Kyle&#x27;s model of informed trading</h2>
+  <p class="meta">Ibrahim Ekren, Evangelos A. Nikitopoulos, Lu Vy<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-12 &middot; <a href="http://arxiv.org/abs/2607.10934v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.10934v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A modern re-derivation of the classic insider-trading model that lets market liquidity be random and handles many correlated assets at once — recasting the insider's problem as optimally "liquidating" secret information into prices.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose you know something the market doesn't — next quarter's earnings will crush expectations. If you buy everything at once, you move the price and give the game away before you've built your position. So you trade <em>gradually</em>, hiding inside the ordinary noise of other traders. The foundational description of this dance is Kyle's 1985 model: an informed insider, a crowd of random "noise" traders, and a market maker who watches only the <em>combined</em> order flow and sets prices to break even. Kyle's model is beautiful but rigid — liquidity (how much a trade moves the price) is constant, and there's only one asset. Real markets have liquidity that fluctuates and dozens of correlated assets whose information leaks into each other. Extending Kyle to that world is genuinely hard.</p>
+<p><strong>The idea.</strong> The authors reframe informed trading as a problem of <em>optimally releasing</em> private information over time — the insider is, in effect, liquidating a hidden inventory of knowledge, and the market's "depth" (its capacity to absorb trades) is the price of that release. They borrow machinery from <em>optimal transport</em> — the mathematics of moving one probability distribution to another at least cost — to derive the equilibrium. The key object is a matrix-valued "depth process": with many assets, price impact isn't a single number but a whole matrix describing how trading asset A nudges the price of asset B.</p>
+<p><strong>What they found.</strong> Under a precise technical condition (that a certain candidate process is a genuine martingale, not just locally one), they get a clean linear-Gaussian equilibrium with <em>stochastic, matrix-valued</em> price impact — a real generalization of Kyle. They fully verify it in the one-asset case and when assets share a common structure ("common eigenbasis"), and they isolate exactly what blocks the fully general multi-asset case: a coupled matrix forward–backward stochastic differential equation. Along the way they prove a new decomposition theorem for matrix-valued processes that's of independent mathematical interest.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A fundamental asset value $v$ (a Gaussian random vector for the multi-asset case) is observed by the insider but not the market. Total order flow is
+$$dY_t = dX_t + dB_t,$$
+where $X_t$ is the insider's cumulative position and $B_t$ is a Brownian motion representing noise traders. The market maker, seeing only $Y$, sets the efficient price $P_t = \mathbb{E}[\,v \mid \mathcal{F}^Y_t\,]$, the conditional expectation given the observed flow.</p>
+<p><strong>The key equations.</strong> Prices update through a (matrix-valued) <em>depth</em> or price-impact process $\Lambda_t$ — Kyle's lambda made stochastic:
+$$dP_t = \Lambda_t\,dY_t,$$
+where $\Lambda_t$ is the endogenous, possibly random matrix mapping order flow into price moves. The insider maximizes expected trading profit
+$$\sup_{X}\ \mathbb{E}\!\left[\int_0^T (v - P_t)^\top dX_t\right],$$
+with $v-P_t$ the mispricing the insider can still exploit and $T$ the horizon at which information becomes public. The equilibrium is characterized by requiring $\Lambda_t$ to be a <strong>matrix-valued martingale</strong> (the "martingale dual condition") arising from a primal–dual problem inspired by <em>causal</em> optimal transport, which pins down the endogenous speed at which the insider injects information. In equilibrium the insider's position behaves like a <strong>Brownian bridge</strong>, pinned so that all private information is exactly incorporated into the price by time $T$.</p>
+<p><strong>The method.</strong> A variational (primal–dual) formulation drawn from causal optimal transport characterizes the information-release rate; the equilibrium depth is the dual martingale. The construction is verified in the scalar and common-eigenbasis cases; the fully general matrix case reduces to a coupled matrix <strong>forward–backward SDE (FBSDE)</strong>, isolated as the remaining obstruction. A supporting result is a Doob–Meyer decomposition for general (non-symmetric) matrix-valued submartingales.</p>
+<p><strong>Results with numbers.</strong> This is a pure equilibrium-theory paper: the deliverables are the martingale characterization, the FBSDE reduction, and the decomposition theorem — structural results, not calibrated numerical performance figures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Kyle's lambda / price impact</strong> — the coefficient (here a matrix) measuring how much order flow moves the price; the inverse of market depth.</li>
+<li><strong>Linear-Gaussian equilibrium</strong> — a solution where prices are linear in order flow and all randomness is normally distributed, making everything explicitly computable.</li>
+<li><strong>Martingale</strong> — a process whose expected future value equals its current value; "fair game" dynamics with no predictable drift.</li>
+<li><strong>Causal optimal transport</strong> — optimal transport constrained so that decisions at each time use only information available up to that time.</li>
+<li><strong>Brownian bridge</strong> — a Brownian motion conditioned to hit a specified value at a fixed end time; the natural shape of information being fully revealed by $T$.</li>
+<li><strong>FBSDE</strong> — a stochastic differential equation with both an initial condition (forward) and a terminal condition (backward), coupled together.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean equilibrium holds only under the martingale dual condition — an assumption the authors are candid may fail (optimizers are in general only <em>local</em> martingales), and the fully general multi-asset case remains open, reduced to an FBSDE nobody has solved. It's a foundational modeling advance, not a trading tool: there are no transaction costs, the horizon and information structure are idealized, and empirical calibration isn't attempted. Its value is conceptual — a new, transport-flavored language for informed trading.</p>
+<h3>Bottom Line</h3>
+<p>Informed trading is the optimal liquidation of a secret, and in many correlated markets its price is a random matrix of market depth.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> optimal credit portfolio and consumption with regime switching and default contagion</h2>
+  <p class="meta">Fei Sun, Wenyuan Wang, Kaixin Yan<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-12 &middot; <a href="http://arxiv.org/abs/2607.10542v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.10542v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>How to invest and spend when you hold many defaultable bonds whose failures are contagious and the economy keeps switching regimes — solved by peeling the problem backward from the doomsday state where everything has already defaulted.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you hold a basket of corporate bonds or loans. Each can <em>default</em> — the borrower fails to pay — and when one goes down it drags the others with it: the 2008 crisis showed that defaults cluster, because a failure signals bad news and tightens funding for everyone still standing. On top of that, the whole economy flips between regimes — booms where defaults are rare, recessions where they cascade. As an investor you face two linked decisions at every moment: how to <em>allocate</em> your money across these risky securities, and how much to <em>consume</em> (spend) versus reinvest. Getting this right when defaults are contagious and the backdrop is regime-switching is a genuinely hard control problem — the risk of the assets you hold literally changes the instant a neighbor defaults.</p>
+<p><strong>The idea.</strong> The paper is a credit-market version of the classic Merton problem (optimal investing-and-consuming over time). Defaults are modeled as sudden <em>jumps</em>: when a name defaults, your wealth takes a loss <em>and</em> the default intensities — the arrival rates of the remaining defaults — jump up (that's the contagion). A finite Markov chain rides on top to model the boom/recession regime. The clever move is the choice of utility: with Cobb–Douglas (power) utility, the problem is <em>homogeneous</em> — scaling your wealth scales value predictably — so the daunting partial differential equation collapses into a tidy system of ordinary differential equations, one for each possible <em>default configuration</em> (which names are still alive). And you can solve that system <strong>backward</strong>, starting from the "all-defaulted" state where nothing can go wrong anymore, then working up to fuller portfolios.</p>
+<p><strong>What they found.</strong> They prove the backward ODE system has a genuine, positive, well-behaved (classical) solution — so the strategy is mathematically legitimate, not just a heuristic. From it they read off explicit feedback rules for how to invest and consume in each regime and each default state, and they prove a verification theorem confirming these rules are truly optimal.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Wealth $W_t$ evolves under a portfolio control $\pi_t$ and consumption rate $c_t$. There are $n$ defaultable names; the default state is a vector $z \in \{0,1\}^n$ recording who has failed. A finite-state Markov chain $\alpha_t$ models the macro regime. Each surviving name $i$ defaults with intensity $\lambda_i(\alpha_t, z_t)$ that depends on both the regime and <em>who has already defaulted</em> — the contagion channel.</p>
+<p><strong>The key equations.</strong> Wealth follows a jump-diffusion:
+$$dW_t = W_t\Big[\big(r(\alpha_t) + \pi_t^\top \eta(\alpha_t)\big)\,dt + \pi_t^\top \sigma(\alpha_t)\,dB_t\Big] - c_t\,dt - \sum_i \ell_i\, W_{t^-}\,dM_t^i,$$
+where $r$ is the risk-free rate, $\eta$ the excess-return (risk-premium) vector, $\sigma$ the volatility matrix, $B_t$ a Brownian motion, $\ell_i$ the fractional loss when name $i$ defaults, and $M_t^i$ the default-counting (point) process for name $i$. The investor maximizes discounted utility of consumption,
+$$V(w,z,\alpha) = \sup_{\pi,c}\ \mathbb{E}\!\left[\int_0^\infty e^{-\rho t}\,\frac{c_t^{\gamma}}{\gamma}\,dt\right],\qquad 0<\gamma<1,$$
+with $\rho$ the discount rate and $\gamma$ the risk-aversion parameter. <strong>Homogeneity</strong> lets you factor the value function,
+$$V(w,z,\alpha) = \frac{w^{\gamma}}{\gamma}\, f(z,\alpha),$$
+so the HJB partial differential equation collapses into a coupled system of ODEs (indeed algebraic-recursive relations) for the coefficients $f(z,\alpha)$, indexed by default state $z$ and regime $\alpha$.</p>
+<p><strong>The method.</strong> Backward recursion over default states: start at the absorbing all-defaulted state $z=(1,\dots,1)$, where no contagion remains and $f$ is immediate, then solve the ODE system for successively "healthier" states, each feeding on the ones below it. They establish existence and uniqueness of positive classical solutions, derive the optimal feedback controls $\pi^*(z,\alpha)$ and $c^*(z,\alpha)$ in closed feedback form, and prove a verification theorem.</p>
+<p><strong>Results with numbers.</strong> The paper's deliverable is analytic: an existence-and-uniqueness theorem for the recursive ODE system plus explicit optimal feedback controls. It is a rigorous structural result rather than a calibrated backtest, so there are no reported return or error figures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Default intensity</strong> — the instantaneous rate at which a borrower is expected to fail; the "hazard rate" of default.</li>
+<li><strong>Default contagion</strong> — the effect whereby one default raises the likelihood of others, making failures cluster.</li>
+<li><strong>Regime switching</strong> — modeling the economy as a Markov chain jumping between states (e.g. boom/recession) with different parameters.</li>
+<li><strong>Merton problem</strong> — the canonical continuous-time problem of optimally allocating wealth and consuming over time.</li>
+<li><strong>Cobb–Douglas / power (CRRA) utility</strong> — a utility of the form $c^\gamma/\gamma$ whose scale-invariance ("homogeneity") makes the math tractable.</li>
+<li><strong>Verification theorem</strong> — a proof that a candidate solving the HJB equation is genuinely the optimal strategy.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The tractability rests hard on two idealizations: power utility (so homogeneity holds) and a modest number of names (the ODE system has one equation per default configuration, which grows combinatorially — $2^n$ states for $n$ names). Intensities and losses are taken as known functions of the regime; estimating contagion structure from real data is notoriously fragile. It's a clean, honest theory contribution that clarifies the <em>structure</em> of optimal credit investing, but a desk running hundreds of names would hit the state-space explosion immediately.</p>
+<h3>Bottom Line</h3>
+<p>When defaults are contagious, solve for optimal behavior by starting at the end of the world and working backward.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Deep Learning for Dynamic Programming with Recursive Utility Using First-order Conditions</h2>
+  <p class="meta">Xianhua Peng, Wu Guo, Songyan Wang, Jianfei Zhu<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-10 &middot; <a href="http://arxiv.org/abs/2607.09461v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.09461v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A neural-network method that cracks hard dynamic-optimization problems with modern "recursive" preferences by giving the awkward certainty-equivalent term its own dedicated network and training everything to satisfy the first-order optimality conditions.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A huge amount of finance and macroeconomics boils down to <em>dynamic programming</em>: an agent chooses consumption, savings, or portfolios over time to maximize lifetime satisfaction, and you solve for the best rule at every possible state of the world. Two things make the modern version brutal. First, economists have moved past simple expected-utility to <em>recursive utility</em> (Epstein–Zin), which separates two things old models conflated — how much you dislike risk versus how much you dislike your consumption bouncing around over time. That realism inserts a nasty nonlinear gadget called the <em>certainty equivalent</em> into the core equation. Second, realistic models have many state variables, and the classic grid-based solver (value function iteration) drowns as dimensions grow — the "curse of dimensionality." Everyday stakes: these are the models central banks use to reason about interest rates and risk, so solving them faithfully matters.</p>
+<p><strong>The idea.</strong> The authors' CEFOL algorithm ("certainty-equivalent first-order learning") throws neural networks at the problem, but with a twist. Rather than only approximating the value and policy functions, it hands the troublesome certainty equivalent its <em>own</em> separate network. That lets the method lean on the <em>first-order conditions</em> — the calculus equations that must hold at an optimum — instead of laboriously maximizing at every point. It also learns the Lagrange multipliers (the shadow prices of constraints) directly, so it can handle real-world constraints like "you can't borrow beyond a limit" that switch on and off, without the usual hacks of adding penalty terms or hand-tailoring each problem.</p>
+<p><strong>What they found.</strong> Across a battery of hard test problems — risk-sensitive and Epstein–Zin consumption-saving, a robust-control problem, and a full DSGE macro model with recursive preferences and stochastic volatility — the learned solutions satisfy the optimality equations to an error of roughly $10^{-4}$ to $10^{-3}$, and match the gold-standard grid solver (value function iteration) wherever that benchmark can be computed. The errors are largest, as you'd expect, right where constraints kick in.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider a discrete-time agent with state $x_t$, control $c_t$, and <em>recursive utility</em> defined by an aggregator $W$ and a certainty equivalent $\mathcal{R}_t$:
+$$V_t = W\big(u(c_t),\ \mathcal{R}_t[V_{t+1}]\big),\qquad \mathcal{R}_t[V_{t+1}] = \phi^{-1}\!\Big(\mathbb{E}_t\big[\phi(V_{t+1})\big]\Big),$$
+where $V_t$ is lifetime value, $u(c_t)$ current felicity from consumption, $\phi$ the risk-adjustment function whose curvature encodes risk aversion, and $\mathbb{E}_t$ the conditional expectation given information at $t$. The nonlinear $\phi^{-1}(\mathbb{E}[\phi(\cdot)])$ sandwich is the certainty equivalent that makes everything hard.</p>
+<p><strong>The key equations.</strong> At an optimum, the controls must satisfy first-order / KKT conditions. Schematically, for the constrained problem $\max_{c}\, V$ subject to $g(x,c)\le 0$,
+$$\underbrace{\frac{\partial W}{\partial u}\,u'(c_t) + \frac{\partial W}{\partial \mathcal{R}}\,\frac{\partial \mathcal{R}_t}{\partial c_t} - \mu_t^\top \frac{\partial g}{\partial c_t} = 0}_{\text{stationarity}},\qquad \mu_t \ge 0,\ \ g \le 0,\ \ \mu_t^\top g = 0,$$
+where $\mu_t$ are Lagrange multipliers and the last block is <em>complementary slackness</em> (a constraint binds only when its multiplier is positive). CEFOL represents each unknown — the value function $V$, the policy $c$, the multipliers $\mu$, and crucially the certainty equivalent $\mathcal{R}$ — by a separate neural network $\{V_\theta, c_\theta, \mu_\theta, \mathcal{R}_\theta\}$, and trains them by minimizing a combined residual loss:
+$$\mathcal{L}(\theta) = \mathbb{E}_{x\sim\text{sim}}\Big[\, r_{\text{Bellman}}^2 + r_{\text{FOC}}^2 + r_{\text{KKT}}^2 \,\Big],$$
+where each $r$ is how badly the current networks violate the Bellman equation, the first-order conditions, and the KKT conditions respectively, and the expectation is over simulated states.</p>
+<p><strong>The method.</strong> Deep learning by residual minimization: simulate states across the relevant region, evaluate the Bellman and model-specific first-order/KKT residuals using the networks (with $\mathcal{R}_\theta$ standing in for the intractable certainty equivalent), and minimize their mean-squared sum by gradient descent. Because it uses KKT residuals rather than penalties, it accommodates occasionally-binding constraints natively.</p>
+<p><strong>Results with numbers.</strong> Out-of-sample Bellman diagnostics and optimality (Euler / first-order) residuals land generally in the $10^{-4}$–$10^{-3}$ range over the relevant state regions, degrading mainly near binding constraints; learned value and policy functions closely track value-function-iteration benchmarks where those exist. Expected utility is handled for free as the special case where $\phi$ is the identity.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Dynamic programming</strong> — solving a multi-period optimization by finding the best decision rule as a function of the current state.</li>
+<li><strong>Recursive (Epstein–Zin) utility</strong> — preferences that separately parameterize risk aversion and the willingness to substitute consumption across time.</li>
+<li><strong>Certainty equivalent</strong> — the guaranteed amount that would leave you as happy as a given risky prospect; here the nonlinear $\phi^{-1}(\mathbb{E}[\phi(\cdot)])$ term.</li>
+<li><strong>First-order / KKT conditions</strong> — the calculus equations (with multipliers and slackness) that characterize a constrained optimum.</li>
+<li><strong>Value function iteration (VFI)</strong> — the classic grid-based benchmark solver for dynamic programs, accurate but dimensionally limited.</li>
+<li><strong>DSGE model</strong> — a dynamic stochastic general-equilibrium model, the workhorse framework of quantitative macroeconomics.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Residuals of $10^{-4}$–$10^{-3}$ are good but not machine-precision, and they visibly worsen exactly where constraints bind — the regions practitioners often care about most. Neural-network solvers also carry the usual caveats: training stability, hyperparameter sensitivity, and the fact that "matches VFI" can only be checked in low dimensions where VFI itself runs. Still, natively handling occasionally-binding constraints without penalty hacks is a real practical win, and this looks genuinely usable for the medium-scale recursive-utility models that defeat grid methods.</p>
+<h3>Bottom Line</h3>
+<p>Give the hardest nonlinear term its own neural network and let the optimality conditions do the teaching — and Epstein–Zin dynamic programs become tractable at scale.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
