@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 16, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 16, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Ito-Wentzell Formula and Dupire Stochastic PDE</h2>
+  <p class="meta">Vladimir Lucic<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-14 &middot; <a href="http://arxiv.org/abs/2607.12479v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.12479v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>There is a hidden differential equation that tells you how an option-pricing surface must ripple as the market itself randomly moves, and this paper writes it down and puts it to work.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks price and hedge options — contracts that pay off depending on where a stock or currency ends up. To do that they need a <em>model</em> of how prices move, and modern models let the "wiggliness" (the volatility) itself be random and also depend on the price level. These are called local-stochastic-volatility (LSV) models. The catch: such a model has a free knob, the <strong>leverage function</strong>, that must be tuned so the model exactly reproduces the prices of simple options everyone already trades. Calibrating that knob is notoriously fiddly and noisy, and if you get it wrong every exotic option you price on top of it is wrong too. So a cleaner, more stable way to pin down the leverage function is worth real money.</p>
+<p><strong>The idea.</strong> Think of the whole <em>smile</em> of option prices — the price of every strike and maturity — as a landscape. There is a famous result, Dupire's equation, that says how this landscape must bend so it stays consistent with a diffusing stock price; it's essentially a heat-flow equation for option prices. But that classic version assumes the volatility surface is deterministic. In a real LSV model the surface itself is being kicked around by randomness. The author's move is to reach for a heavier tool from stochastic calculus, the <strong>Itô–Wentzell formula</strong> — which is Itô's chain rule generalized to the case where the function you're differentiating is <em>itself</em> random and time-varying — and use it to derive the correct "Dupire equation with noise in it," a stochastic partial differential equation (SPDE). Because it's derived honestly from that formula, it tells you exactly how the pricing surface must co-move with the random volatility.</p>
+<p><strong>What they found.</strong> Out of this machinery falls a better <em>estimator</em> for the leverage function: a "density-weighted Rao–Blackwell" estimator. Rao–Blackwellization is a classical statistics trick that takes a noisy estimate and replaces it with its conditional average, which is provably never worse and usually much smoother. Applying that idea here gives a lower-variance way to read the leverage function off simulated paths — steadier calibration from the same data. As a bonus the author derives an SPDE for a "rolling" option whose maturity is always, say, three months away, mirroring a well-known reformulation (the Musiela parametrization) used in interest-rate modeling.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space $(\Omega,\mathcal F,(\mathcal F_t),\mathbb Q)$ under a risk-neutral measure $\mathbb Q$. The asset follows a local-stochastic-volatility model
+$$dS_t = r S_t\,dt + \ell(t,S_t)\,\sqrt{V_t}\,S_t\,dW_t,$$
+where $S_t$ is the price, $r$ the rate, $V_t$ a <em>stochastic</em> variance process driven by its own Brownian motion, $W_t$ a Brownian motion, and $\ell(t,S)$ the <strong>leverage function</strong> to be determined. The consistency requirement is the Gyöngy/Dupire condition
+$$\ell^2(t,K)\,\mathbb E[V_t\mid S_t=K] = \sigma_{\text{loc}}^2(t,K),$$
+i.e. the local volatility $\sigma_{\text{loc}}$ implied by market prices equals the leverage squared times the variance <em>conditional on the price being at strike</em> $K$.</p>
+<p><strong>The key equations.</strong> The classic Dupire forward equation for the call price $C(T,K)$ as a function of maturity $T$ and strike $K$ is
+$$\partial_T C = \tfrac12\,\sigma_{\text{loc}}^2(T,K)\,K^2\,\partial_{KK} C - rK\,\partial_K C.$$
+The paper replaces this with a <strong>stochastic Dupire PDE</strong>: because the conditional density of $S_T$ is now itself an $(\mathcal F_t)$-adapted random field $p(t;T,K)$, its evolution picks up a martingale (noise) term. Schematically,
+$$dp = \mathcal L^{*} p\,\,dt + \mathcal M p\,\,dB_t,$$
+where $\mathcal L^{*}$ is the Fokker–Planck (forward) operator, $\mathcal M$ is a first-order operator capturing how the volatility shock perturbs the density, and $B_t$ is the driving Brownian motion of the variance. The Itô–Wentzell formula is what supplies the extra cross-term $\mathcal M p\,dB_t$ that a naïve application of Itô would miss.</p>
+<p><strong>The method.</strong> The derivation is pure stochastic analysis: apply the Itô–Wentzell formula to the random field (the conditional density / option surface), collect drift and martingale parts, and identify the forward SPDE. For calibration, the leverage estimator is built by <strong>Rao–Blackwellization</strong> — replacing a raw Monte-Carlo ratio estimator of $\mathbb E[V_t\mid S_t=K]$ by a conditional-expectation (density-weighted) version, which shrinks variance without adding bias.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper: the "results" are the derived objects — the conditional forward equation, the stochastic Dupire SPDE, the density-weighted Rao–Blackwell leverage estimator (lower variance by the Rao–Blackwell theorem), and the rolling-expiry vanilla SPDE in Musiela form. No empirical error bars are reported; the contribution is the mathematics and the estimator it yields.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Local-stochastic-volatility (LSV) model</strong> — a price model whose volatility depends both on a random factor and on the current price level.</li>
+<li><strong>Leverage function</strong> — the tuning factor $\ell(t,S)$ that forces an LSV model to reproduce today's quoted option prices exactly.</li>
+<li><strong>Dupire equation</strong> — a forward PDE giving option prices as functions of strike and maturity, the standard bridge from market smiles to local volatility.</li>
+<li><strong>Itô–Wentzell formula</strong> — the chain rule of stochastic calculus for functions that are themselves random and time-dependent.</li>
+<li><strong>Rao–Blackwell estimator</strong> — an estimator improved by replacing it with its conditional expectation, guaranteed to have no larger variance.</li>
+<li><strong>Musiela parametrization</strong> — re-expressing a term-structure in "time-to-maturity" coordinates so a fixed 3-month object evolves smoothly.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is elegant theory, not a plug-and-play tool: the SPDE is only as good as the LSV model it assumes, and turning the Rao–Blackwell estimator into robust production calibration will need careful discretization and variance-reduction engineering that the paper doesn't benchmark. Still, for quants already running LSV calibration, a provably lower-variance leverage estimator is a genuinely useful idea worth prototyping.</p>
+<h3>Bottom Line</h3>
+<p>It writes down the honest, noise-aware version of Dupire's equation and squeezes a steadier calibration estimator out of it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Is Deep Hedging Reinforcement Learning?</h2>
+  <p class="meta">Frédéric Godin<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-15 &middot; <a href="http://arxiv.org/abs/2607.13353v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.13353v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Whether "deep hedging" counts as reinforcement learning is really an argument about how wide you draw the boundaries of a field — and drawn correctly, it does.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A bank that sells you an option is on the hook for a payoff it must cover. To avoid getting hurt, it <em>hedges</em>: continually buys and sells the underlying stock so that, whatever the market does, its net loss is small. In textbooks this is done with tidy formulas (delta hedging) that assume frictionless markets. Real markets have trading costs, jumps, and no clean formula. "Deep hedging," introduced by Buehler and coauthors in 2019, throws a neural network at the problem: simulate millions of possible price paths, let the network decide how much to trade at each step, and adjust its parameters until the leftover risk at the end is as small as possible. It works well. But a surprisingly heated dispute has broken out over what to <em>call</em> it — and the author, whose own papers were dinged by referees for calling it "reinforcement learning," writes this piece to settle the taxonomy.</p>
+<p><strong>The idea.</strong> The objection from referees is: real reinforcement learning (RL) — the stuff that plays Go and Atari — has certain furniture. It has a <em>value function</em> estimating how good a situation is, a <em>Bellman equation</em> linking each step to the next, <em>temporal-difference learning</em> that updates guesses from later guesses, rewards arriving at <em>every</em> step, and deliberate <em>exploration</em>. Deep hedging has none of that: the only feedback is one number at the very end (your final profit or loss). So, the referees say, call it "a neural network for stochastic optimal control," not RL. The author's counter is essentially a dinner-table argument about definitions: open any standard RL textbook and you'll find that Monte-Carlo policy-gradient methods and "actor-only" direct policy search are described as <em>core members</em> of RL, not distant cousins. Those methods also learn only from end-of-episode returns and carry no value function. Deep hedging is exactly one of those methods. So the narrow, TD-centric definition the referees are using would, taken seriously, kick classic RL algorithms out of RL too.</p>
+<p><strong>What they found.</strong> There's no experiment here; the "finding" is a clarification. Once you accept the field's own broad self-definition, deep hedging sits <em>squarely inside</em> the RL umbrella — it's a policy-gradient / direct-policy-search method applied to hedging. The disagreement was never about the algorithm; it was about an unusually strict reading of one word.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Hedging is a discrete-time stochastic control problem. Over dates $t=0,1,\dots,T$, let $S_t$ be the (possibly multivariate) asset price, $\delta_t$ the position the agent holds, and $Z$ the payoff of the derivative to be hedged. The agent picks a <strong>policy</strong> $\delta_t = \pi_\theta(I_t)$, a neural network with parameters $\theta$ mapping the information $I_t$ available at time $t$ to a trade. The terminal <strong>hedging error</strong> (profit-and-loss) is
+$$\text{PnL}_\theta = -Z + \sum_{t=0}^{T-1}\delta_t\,(S_{t+1}-S_t) - \text{costs}.$$</p>
+<p><strong>The key equation.</strong> Deep hedging minimizes a convex <strong>risk measure</strong> $\rho$ of that terminal error,
+$$\min_\theta\ \rho\big(\text{PnL}_\theta\big),$$
+where $\rho$ might be an entropic risk measure or expected shortfall. Compare this with the RL objective, maximizing expected return
+$$\max_\theta\ \mathbb E\!\left[\sum_{t} r_t\right],$$
+with $r_t$ the per-step reward. Deep hedging is the special case where all intermediate rewards are zero and the entire (risk-adjusted) reward lands at the terminal step, $r_T = -\rho$-contribution. The gradient is estimated by the <strong>policy-gradient / pathwise</strong> estimator: differentiate the simulated PnL through the network and average over sampled paths,
+$$\nabla_\theta\, \mathbb E[\text{loss}] \approx \frac1N\sum_{i=1}^N \nabla_\theta\,\text{loss}(\omega_i),$$
+with $\omega_i$ a simulated market scenario.</p>
+<p><strong>The method.</strong> The training loop is Monte-Carlo simulation of price paths plus stochastic gradient descent — which is precisely the <strong>Monte-Carlo policy-gradient</strong> family (REINFORCE-style, or its pathwise-derivative cousin). The author's argument is definitional: he cites the canonical RL references (Sutton &amp; Barto and the broader literature) showing these actor-only, value-function-free, episode-return methods are catalogued as bona fide RL, so the classification follows by inclusion, not by adding new machinery.</p>
+<p><strong>Results with numbers.</strong> None — this is a position/clarification paper. Its "result" is the logical claim that under the standard-reference definition of RL, deep hedging qualifies, and that the two referee objections (no intermediate reward; no value function/Bellman/TD/exploration) fail because Monte-Carlo policy-gradient methods share those same "lacks" yet are universally counted as RL.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Deep hedging</strong> — using a neural-network policy trained on simulated paths to hedge a derivative under real-world frictions.</li>
+<li><strong>Policy</strong> — the rule $\pi_\theta$ mapping current information to an action (here, a trade size).</li>
+<li><strong>Value function</strong> — an estimate of expected future reward from a state; central to TD methods, absent in deep hedging.</li>
+<li><strong>Bellman equation</strong> — the recursive identity linking a state's value to its successors' values.</li>
+<li><strong>Temporal-difference (TD) learning</strong> — updating value estimates from other, later value estimates rather than only final outcomes.</li>
+<li><strong>Policy-gradient / actor-only method</strong> — an RL method that optimizes the policy directly from sampled returns, with no value function required.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's an argument about labels, not a new method, so a practitioner's hedging engine is unchanged either way. But the label matters for how a fast-moving literature borrows tools: if deep hedging is "RL," then baselines, variance-reduction tricks, and exploration ideas from RL become fair game to import — and that framing is the paper's real, if modest, payoff.</p>
+<h3>Bottom Line</h3>
+<p>Deep hedging is reinforcement learning, provided you use the field's own textbook definition rather than a Go-and-Atari caricature of it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> A Noise-Aware Quantum Algorithm for Credit Valuation Adjustments on Real Quantum Hardware</h2>
+  <p class="meta">Guillem Borràs Espert, Francisco Gómez Casanova, Luis de Pedro Sánchez, Senaida Hernández Santana, Pablo Serrano Molinero<br>
+    <span class="cat">quant-ph</span> &middot; 2026-07-14 &middot; <a href="http://arxiv.org/abs/2607.12990v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.12990v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper runs a full credit-risk pricing calculation on a real, noisy quantum computer and honestly accounts for exactly where every bit of the error comes from.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a bank trades a derivative with a counterparty, there's a risk the counterparty defaults before paying. The price adjustment for that risk is the <strong>Credit Valuation Adjustment (CVA)</strong> — a number banks must compute constantly, for huge portfolios. Computing it means averaging a payoff over thousands of simulated futures (a Monte-Carlo expectation), and doing that accurately is slow: to halve the error you must roughly quadruple the number of simulations. Quantum computers offer a theoretical shortcut called <em>amplitude estimation</em> that, in an ideal world, halves the error by merely doubling the work — a quadratic speedup. The open question is whether that advantage survives once you cram messy financial data into a quantum circuit and run it on today's error-prone hardware. This paper actually tries it end-to-end.</p>
+<p><strong>The idea.</strong> Imagine estimating what fraction of a dartboard is painted red by throwing darts and counting: classical Monte Carlo. Quantum amplitude estimation is like being able to "resonate" with the red region so its signal amplifies coherently, letting you read off the fraction with far fewer throws. The trouble is that on real hardware the resonance is muddied by noise, and each extra amplification step ("Grover iteration") also amplifies the noise. The authors build the whole pipeline — calibrate the model to market data, discretize it, encode a joint distribution over time and market states using a trained quantum circuit (a QCBM), rotate in the payoff, and run it on actual quantum hardware. Their key invention is <strong>CABIQAE</strong>: a Bayesian estimator that is <em>told, from calibration, how badly the hardware degrades each amplification step</em> ("Grover-contrast loss") and uses that knowledge to decide how deep to make the circuit and how to weigh the noisy measurements. In short, it's amplitude estimation that knows its own machine is sick and plans around it.</p>
+<p><strong>What they found.</strong> On hardware-calibrated experiments, this noise-aware estimator squeezes more useful signal out of the limited amplification the device can sustain than noise-ignoring methods do, and it finishes its classical post-processing much faster than the previous noise-aware baseline (BAE). They also do something unusually honest: they split the total CVA error into four labeled buckets — statistical (finite samples), encoding (imperfect data loading), discretisation (grid coarseness), and hardware (gate noise). The candid conclusion: the <em>full</em> CVA oracle is still bottlenecked by circuit depth and grid resolution, so this is a rigorous proof-of-concept, not a production win yet.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> CVA (ignoring wrong-way subtleties) is a risk-neutral expectation
+$$\text{CVA} = (1-R)\int_0^T \mathbb E^{\mathbb Q}\!\big[D_t\,E_t^{+}\big]\,d\text{PD}(t),$$
+where $R$ is the recovery rate, $D_t$ the discount factor, $E_t^{+}=\max(E_t,0)$ the positive exposure at time $t$, and $\text{PD}(t)$ the counterparty's default probability up to $t$. The model here couples <strong>two correlated assets</strong> for exposure with discount and default factors. To price it on a quantum device you encode the joint time-and-market distribution into a quantum state
+$$|\psi\rangle = \sum_x \sqrt{p(x)}\,|x\rangle,$$
+prepared by a <strong>Quantum Circuit Born Machine (QCBM)</strong>, then apply controlled rotations so that a target amplitude $a$ equals the quantity you want, e.g. $a = \mathbb E[f(x)]$.</p>
+<p><strong>The key equation.</strong> Amplitude estimation reads $a=\sin^2\theta_a$ off a Grover operator $Q$ whose repeated application sharpens $\theta_a$. On noisy hardware each of $k$ Grover iterations attenuates the usable signal by a <strong>contrast</strong> factor $c^{k}$ (with $0<c<1$), so the measured excitation probability behaves like
+$$P_k \approx \tfrac12\big(1 - c^{k}\cos((2k+1)\,2\theta_a)\big).$$
+CABIQAE folds the calibrated $c$ into a Bayesian posterior over $\theta_a$ and selects the circuit depth $k$ that maximizes information given that decay — instead of assuming $c=1$ as noise-agnostic methods do.</p>
+<p><strong>The method.</strong> The workflow is: market calibration → discretisation → QCBM distribution loading → controlled payoff rotations → hardware execution → <strong>contrast-aware Bayesian iterative quantum amplitude estimation</strong> (a Bayesian inference loop that jointly infers the amplitude and chooses amplification depth) → an <strong>error budget</strong> decomposing total error into statistical, encoding, discretisation, and hardware terms.</p>
+<p><strong>Results with numbers.</strong> The reported gains are comparative rather than a single headline error: CABIQAE extracts the limited amplification of current devices more effectively than noise-agnostic amplitude estimation, and achieves <em>much lower classical post-processing runtime</em> than the noise-aware BAE baseline. The error decomposition attributes the dominant remaining error to circuit depth (hardware noise) and discretisation resolution; the full CVA oracle stays depth-limited on present hardware.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CVA (Credit Valuation Adjustment)</strong> — the price adjustment for the chance a counterparty defaults before settling a trade.</li>
+<li><strong>Amplitude estimation</strong> — a quantum routine that estimates a probability with quadratically fewer samples than classical Monte Carlo, ideally.</li>
+<li><strong>Grover iteration / contrast</strong> — each amplification step that sharpens the estimate; "contrast" is how much real hardware preserves per step before noise washes it out.</li>
+<li><strong>QCBM (Quantum Circuit Born Machine)</strong> — a trainable quantum circuit that loads a target probability distribution into a quantum state.</li>
+<li><strong>Bayesian iterative amplitude estimation</strong> — inferring the unknown amplitude via a Bayesian posterior updated over successive circuit runs.</li>
+<li><strong>Error budget</strong> — an explicit breakdown of total error into its independent sources.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline caveat is the authors' own: the full CVA oracle is still bottlenecked by circuit depth and discretisation, so there is no practical speedup over classical Monte Carlo today — this is a carefully instrumented feasibility study, not a deployable pricer. Its lasting value is the honest error-budget methodology and a noise-aware estimator that will age well as hardware improves; a bank can't use it now, but a quantum-finance researcher should read how they did the accounting.</p>
+<h3>Bottom Line</h3>
+<p>A real quantum computer can compute a credit-risk adjustment end-to-end — but the machine's noise, not the math, is still the thing standing in the way.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> VAIOM: Continuous-Input, Discrete-Output Decoder-Only Financial Sequence Modeling</h2>
+  <p class="meta">Yiming Ma, Xinyu Chen<br>
+    <span class="cat">cs.LG</span> &middot; 2026-07-15 &middot; <a href="http://arxiv.org/abs/2607.13929v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.13929v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A GPT-style model can forecast the next hour of a currency's returns better than a strong classical baseline — if you feed it real numbers at the input but make it <em>guess a bucket</em> at the output.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The models behind ChatGPT are "decoder-only Transformers": they eat a sequence of <em>symbols</em> (words split into tokens) and predict the next symbol. Financial data isn't like that — a price bar is a bundle of continuous numbers (open, high, low, close, volume), heterogeneous and drowning in noise. If you naïvely chop returns into discrete tokens to feed such a model, you throw away the numerical structure that actually matters (a return of 0.11% and 0.12% become unrelated symbols). So can you get the forecasting muscle of a GPT-style architecture on genuinely numeric, noisy market data? That's the question, applied here to one-hour foreign-exchange bars.</p>
+<p><strong>The idea.</strong> The authors' trick is to <strong>split the input side from the output side</strong>. On the way <em>in</em>, they keep the numbers as numbers: each hour becomes a continuous vector of financial features, preserving the fact that nearby values are similar. On the way <em>out</em>, instead of predicting an exact number (which is hopeless given the noise), the model predicts a <strong>probability over buckets</strong> of the next volatility-normalized return — "there's a 30% chance the next return lands in the mildly-positive bucket," and so on. Bucketing lets them train with the same clean, well-behaved loss that language models use (cross-entropy) and get an honest <em>probability distribution</em>, not a single brittle point forecast. They bolt on extra machinery: a "Mixture-of-Market-States" output head (imagine the model keeping several sub-forecasts, one per market mood, and blending them), plus side-objectives that nudge it to also predict gaps, the volatility regime, and the <em>ordering</em> of return sizes. The whole thing is called VAIOM.</p>
+<p><strong>What they found.</strong> Trained only on pre-2024 data, tuned on late-2024, and then tested untouched on two 2025 periods, VAIOM beat a strong single-bar <strong>LightGBM</strong> gradient-boosting baseline in <em>every</em> test window across three random seeds — a gain of about <strong>0.029 and 0.043 bits per event</strong> in predictive likelihood. Controlled ablations show each design choice earns its keep: continuous input beats token input, supervising the whole sequence beats supervising only the last step, and the mixture-structured return head plus the auxiliary objectives improve likelihood. Notably, the <em>smallest</em> complete architecture (about 0.9M parameters) did best — bigger wasn't better on this dataset.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let the input at time $t$ be a continuous feature vector $x_t\in\mathbb R^d$ (returns, volatility features, plus categorical asset metadata). The target is the next return $r_{t+1}$, first <strong>volatility-normalized</strong> as $\tilde r_{t+1}=r_{t+1}/\hat\sigma_t$ and then mapped to one of $K$ ordered buckets $b(\tilde r_{t+1})\in\{1,\dots,K\}$. A decoder-only Transformer $f_\theta$ with causal self-attention produces, from the history $x_{\le t}$, a categorical distribution over the next bucket:
+$$p_\theta(b_{t+1}=k\mid x_{\le t}) = \operatorname{softmax}\big(g_\theta(x_{\le t})\big)_k.$$</p>
+<p><strong>The key equations.</strong> Training minimizes the <strong>cross-entropy</strong> (equivalently maximizes log-likelihood) of the true bucket, summed over the whole sequence (full-sequence supervision):
+$$\mathcal L_{\text{CE}} = -\sum_{t} \log p_\theta\big(b_{t+1}\mid x_{\le t}\big).$$
+The <strong>Mixture-of-Market-States</strong> head models the bucket distribution as a weighted mixture over $M$ latent regimes:
+$$p_\theta(b_{t+1}\mid x_{\le t}) = \sum_{m=1}^{M} \pi_m(x_{\le t})\;p_\theta(b_{t+1}\mid x_{\le t}, m),$$
+where $\pi_m$ are state-probabilities summing to one. The total loss adds auxiliary terms,
+$$\mathcal L = \mathcal L_{\text{CE}} + \lambda_{\text{gap}}\mathcal L_{\text{gap}} + \lambda_{\text{reg}}\mathcal L_{\text{regime}} + \lambda_{\text{ord}}\mathcal L_{\text{ordinal}},$$
+with $\lambda$'s weighting the gap, volatility-regime, and ordinal (size-ordering) objectives.</p>
+<p><strong>The method.</strong> Standard autoregressive Transformer training by stochastic gradient descent, but with a <em>continuous</em> input embedding replacing token embeddings and a <em>categorical</em> return head. Evaluation is strict walk-forward: fit on Train (pre-2024), select on 2024H2 Validation, and score <strong>without refitting</strong> on two 2025 Test halves, so there is no look-ahead leakage. Performance is measured in predictive likelihood (bits per event), the honest metric for a probabilistic forecaster.</p>
+<p><strong>Results with numbers.</strong> For the canonical 0.9M-parameter Hybrid Continuous Input checkpoint, paired gains over LightGBM are <strong>+0.029 and +0.043 bits per event</strong> on the two 2025 Test halves, consistent across three seeds. Ablations confirm continuous &gt; token input, full-sequence &gt; last-position supervision, and mixture head + auxiliaries &gt; plain head, all under matched objectives. A capacity study finds the smallest complete architecture rung gives the strongest validation likelihood.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Decoder-only Transformer</strong> — the GPT-style architecture that predicts the next element of a sequence using causal (past-only) attention.</li>
+<li><strong>Cross-entropy loss</strong> — the standard training loss that rewards putting high probability on the correct category.</li>
+<li><strong>Bits per event</strong> — a likelihood-based accuracy measure; more bits means the model's probabilities fit the data better.</li>
+<li><strong>Volatility normalization</strong> — dividing returns by a local volatility estimate so calm and turbulent periods are on a comparable scale.</li>
+<li><strong>Mixture-of-Market-States head</strong> — an output layer that blends several regime-specific forecasts weighted by inferred market mood.</li>
+<li><strong>LightGBM</strong> — a fast gradient-boosted-tree model, here the strong classical baseline being beaten.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The gains are real but modest — fractions of a bit per event on one-hour FX bars — and predictive likelihood improving does not automatically mean a profitable trading strategy once spreads and costs bite. The strict walk-forward evaluation is commendable, but results on a single asset class and horizon may not transfer; a practitioner would want to see whether the probability forecasts translate into economic edge before betting on the architecture.</p>
+<h3>Bottom Line</h3>
+<p>Keep the numbers numeric at the input and let the model bet on buckets at the output, and a small GPT-style forecaster edges out gradient boosting on hourly FX.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Herding and Liquidity in Order-Book Markets. I. A Robust Liquidity-Stress Crossover and its Reflexive Mechanism</h2>
+  <p class="meta">Jan Novotny<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-09 &middot; <a href="http://arxiv.org/abs/2607.08907v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.08907v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Herd behavior can make an order book suddenly dry up on one side, and this paper shows — with disciplined statistical tests — that the dry-up is a genuine collective effect, not a numerical mirage.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A market's <em>order book</em> is the list of everyone's standing offers to buy and sell. Its health is <em>liquidity</em>: can you trade without violently moving the price? Sometimes liquidity evaporates — the book goes one-sided, buyers vanish, and prices lurch. People build agent-based simulations (little artificial traders following rules) to study when this happens. But such simulations are treacherous: crank a knob and you'll always see <em>something</em> dramatic, yet it may be a fluke of the parameters or a numerical artifact rather than a real emergent phenomenon. The hard part is telling a genuine tipping point from a coincidence. This paper is a case study in doing that honestly.</p>
+<p><strong>The idea.</strong> The author builds a continuous-double-auction order book with two kinds of traders: "zero-intelligence" liquidity providers anchored to a fundamental value, and "chartist" herders who chase the recent mid-price and imitate each other. Two knobs control the herders — what <em>fraction</em> of traders herd and how <em>strongly</em>. Then, borrowing a discipline from physics (Bouchaud's "phase-diagram method"), he maps the entire landscape of outcomes across a grid of knob settings, and — crucially — runs a <strong>null test</strong> in every cell: scramble the signs of the herding signal so herders act incoherently, and check that the scary effect <em>disappears</em>. If a feature survives only when herding is coherent and vanishes under scrambling, it's real; if it shows up even in the scrambled version, it was an artifact. He also checks the effect holds under alternative rules and across a wide range of look-back windows before daring to call it a tipping point.</p>
+<p><strong>What they found.</strong> There's a robust <strong>liquidity-stress crossover</strong>: as herding fraction and strength rise, the fraction of moments when the book is one-sided climbs to about <strong>0.34</strong> at the extreme corner, while all 42 scrambled control runs give <strong>exactly zero</strong> — strong evidence it's a real collective effect. It's a smooth crossover, not a cliff-edge "dark corner." The dry-up is robust to changing the rule and to a 16× range of momentum windows. Decomposing the mechanism, <em>price-momentum</em> herding carries a big self-reinforcing (reflexive) push — buying begets buying, contributing about <strong>+0.29</strong> — whereas an order-flow-based rule contributes essentially nothing. A companion two-market check finds no directional contagion across a herding link.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The model is a continuous double auction (CDA) simulated event by event. Liquidity comes from zero-intelligence agents posting around a fundamental value; instability comes from a chartist layer anchored to the mid-price. Two control parameters define the phase space: $\varphi\in[0,1]$, the <strong>fraction</strong> of herders, and $\kappa\ge 0$, the <strong>strength</strong> of herding. The <strong>order parameter</strong> is
+$$\Phi(\varphi,\kappa) = \text{fraction of events with a one-sided book},$$
+the observable that signals liquidity stress.</p>
+<p><strong>The key equations.</strong> The phase diagram is mapped on a $7\times6$ grid — 336 runs — each paired with a <strong>scrambled-sign null</strong> in which the herding signal's sign is randomized, breaking coherence while preserving marginal magnitudes. A feature is deemed emergent only if $\Phi_{\text{real}}\gg 0$ while $\Phi_{\text{null}}\approx 0$. The onset boundary is a monotone curve $\varphi^{*}(\kappa)$ marking where the crossover switches on. The mechanism is decomposed at a <strong>matched directional-bias amplitude</strong>, controlling the mean absolute buy-imbalance
+$$\overline{|p_{\text{buy}}-\tfrac12|}\approx 0.269,$$
+so that momentum-herding and order-flow rules are compared at equal directional push. The reflexive component of each rule is the excess one-sidedness attributable to self-reinforcement at that matched amplitude.</p>
+<p><strong>The method.</strong> This is computational statistical physics applied to markets: <strong>phase-diagram mapping</strong> with <strong>null-model hypothesis testing</strong> (scrambled-sign controls), plus robustness sweeps over rules and time-horizons and a mechanism decomposition at matched bias. The point of the null is to rule out degenerate and numerical origins before labeling anything a tipping point — the methodological spine of the paper.</p>
+<p><strong>Results with numbers.</strong> Peak order parameter $\Phi\approx 0.34$ at $(\varphi,\kappa)=(0.9,1.0)$; all 42 scrambled cells give $\Phi=0$. The dry-up is horizon-robust at $\Phi\approx 0.32\text{–}0.35$ across a 16× range of momentum windows, with monotone onset boundary $\varphi^{*}(\kappa)=\{0.55,0.45,0.36\}$. Mechanism decomposition at matched amplitude ($\overline{|p_{\text{buy}}-0.5|}\approx 0.269$) gives a reflexive component of <strong>+0.29</strong> for price-momentum herding versus about <strong>0</strong> for the order-flow-imbalance rule; the RMS-mispricing gradient is shown to be a placement artifact, largest at $\kappa=0$. The two-market analysis finds no directional cross-market contagion.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Order book</strong> — the live list of outstanding buy and sell offers at each price in a market.</li>
+<li><strong>Continuous double auction (CDA)</strong> — the standard exchange mechanism where buy and sell orders arrive and match continuously over time.</li>
+<li><strong>Zero-intelligence agent</strong> — a trader that posts random orders around a value, used as a neutral liquidity baseline.</li>
+<li><strong>Order parameter</strong> — a single summary quantity (here, fraction of one-sided-book events) that flags a phase or regime.</li>
+<li><strong>Scrambled-sign null</strong> — a control where the signal's direction is randomized, so any effect that survives can't be a mere artifact.</li>
+<li><strong>Reflexivity</strong> — self-reinforcing feedback where an action (buying) makes more of the same action more likely.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a stylized agent-based model, so the exact numbers ($\Phi\approx 0.34$, boundary $\varphi^{*}$) are properties of <em>this</em> simulation, not calibrated predictions for a real exchange — you can't read off when a specific market will seize up. Its real contribution is methodological discipline: the scrambled-null and robustness protocol is a template every agent-based-market paper should copy, because it separates genuine emergence from parameter-tuning theater. A practitioner won't trade on it directly, but a modeler ignoring this hygiene is fooling themselves.</p>
+<h3>Bottom Line</h3>
+<p>When enough traders chase momentum and each other, one side of the book empties out — and here's how to prove that dry-up is real rather than a simulation artifact.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
