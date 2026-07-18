@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 18, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 18, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> NeuralChaos: Optimal Adapted Approximation of Square Integrable Predictable Processes</h2>
+  <p class="meta">Anastasis Kratsios, Giulia Livieri, Philipp Schmocker<br>
+    <span class="cat">math.PR</span> &middot; 2026-07-15 &middot; <a href="http://arxiv.org/abs/2607.14361v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.14361v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>There is a "correct" universe of all trading/hedging strategies that react to randomness as it unfolds, and this paper builds a neural network that can approximate essentially any of them — while the popular "neural SDE" models secretly only reach a vanishingly small corner of it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you are hedging an option — every day the market moves, and every day you adjust how much stock you hold. Your adjustment today can only use information available <em>up to today</em> (you can't peek at tomorrow), and over the whole life of the trade the total "energy" of your adjustments must stay finite. Mathematicians call such a rule a <em>square-integrable predictable process</em>, and it is the natural home for hedging strategies, optimal-control policies, and reinforcement-learning agents in continuous time. The practical question is: how do you actually <em>compute</em> with these objects on a machine? They are infinite-dimensional and depend on the entire random path of the market so far.</p>
+<p><strong>The idea.</strong> One classical tool is the <em>Wiener-chaos expansion</em> — think of it as a Fourier series, but instead of decomposing a sound into pure tones, it decomposes a random strategy into layered "iterated integrals" of the underlying noise. It is beautiful in theory but a computational nightmare: you need enormous dictionaries of these building blocks and high-order integrals. The authors' move is to replace the hand-built dictionary with a learned one. Their architecture, <strong>NeuralChaos</strong>, is a <em>neural operator</em>: feed it finitely many snapshots of the driving Brownian motion (the raw randomness), and it outputs a valid predictable, finite-energy strategy — by construction, never cheating by looking ahead. It's like teaching a network to compose the right "chaos chords" on demand rather than storing every chord in a giant lookup table.</p>
+<p><strong>What they found.</strong> Two things. First, NeuralChaos is <em>dense</em> — it can get arbitrarily close to any admissible strategy in this space, and it does so with near-optimal efficiency for strategies that are "compressible" (most of their content lives in a few components), which they show is the <em>typical</em> case. Second, and more provocatively, they prove that the fashionable <em>finite-dimensional Markovian neural-SDE</em> models — the workhorses of modern deep hedging — form a "meagre, measure-zero" sliver of the full space. In plain terms: those models are topologically tiny; almost every real strategy lies outside what they can represent, no matter how finely you discretize time.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a horizon $[0,T]$ and a $d$-dimensional Brownian motion $W = (W_t)_{t\in[0,T]}$ on a filtered probability space $(\Omega,\mathcal{F},(\mathcal{F}_t),\mathbb{P})$. The object of study is
+$$\mathcal{H}^2_T(\mathbb{R}^d) = \Big\{ X:[0,T]\times\Omega\to\mathbb{R}^d \ \text{predictable},\ \ \mathbb{E}\!\int_0^T \|X_t\|^2\,dt < \infty \Big\},$$
+the Hilbert space of $\mathbb{R}^d$-valued square-integrable predictable processes. Here <em>predictable</em> means $X_t$ depends only on information in $\mathcal{F}_{t^-}$ (no peeking ahead), and the integrability bound caps total energy.</p>
+<p><strong>The key idea — chaos.</strong> By the Wiener–Itô chaos decomposition, any such $X$ expands into iterated stochastic integrals against $W$; NeuralChaos approximates $X$ with an $N$-term "chaoslet" combination
+$$X \approx \widehat{X}^N = \sum_{k=1}^{N} c_k\,\Psi_k\big(W_{t_1},\dots,W_{t_m}\big),$$
+where each $\Psi_k$ is a learned neural building block evaluated at finitely many sampled times $t_1<\dots<t_m$, and $c_k$ are coefficients. Predictability and square-integrability are baked into the architecture, so $\widehat{X}^N\in\mathcal{H}^2_T(\mathbb{R}^d)$ for free.</p>
+<p><strong>The results.</strong> They prove <em>density</em>: for every $X\in\mathcal{H}^2_T$ and every $\varepsilon>0$ there is a NeuralChaos $\widehat{X}^N$ with $\|X-\widehat{X}^N\|_{\mathcal{H}^2_T}<\varepsilon$. They then establish <em>best $N$-term rates</em>: for compressible or Malliavin–Sobolev-regular $X$, the error decays at the optimal rate in $N$, and compressibility holds <em>generically</em> under non-degenerate sub-Gaussian sampling. The sharp negative result: the set of processes representable by finite-dimensional Markovian neural SDEs is <strong>meagre</strong> (first Baire category) and <strong>Gaussian-null</strong> in $\mathcal{H}^2_T$, while compressible processes are <em>generic</em>.</p>
+<p><strong>The method.</strong> A neural operator maps a finite noise vector to a chaos expansion; training minimizes the $\mathcal{H}^2_T$ (mean-squared) approximation error on sampled paths. Because the target lives in a Hilbert space, the whole thing is a projection/approximation problem, and the density and rate proofs use functional analysis plus Malliavin calculus regularity.</p>
+<p><strong>Numbers.</strong> On a stochastic optimal-control benchmark and a dynamic-hedging problem, NeuralChaos outperforms Markovian neural-SDE baselines in approximation quality; the paper's quantitative headline is the theoretical <em>best-$N$-term</em> optimality and the meagreness/genericity dichotomy rather than a single Sharpe or basis-point figure.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Predictable process</strong> — a strategy whose value at each instant uses only past-and-present information, never the future.</li>
+<li><strong>Square-integrable</strong> — the total expected "energy" $\mathbb{E}\int_0^T\|X_t\|^2dt$ is finite, so the strategy doesn't blow up.</li>
+<li><strong>Wiener chaos expansion</strong> — a Fourier-like series that writes any functional of Brownian motion as a sum of iterated stochastic integrals.</li>
+<li><strong>Neural operator</strong> — a neural network that maps functions (or paths) to functions, not just numbers to numbers.</li>
+<li><strong>Meagre / Gaussian-null set</strong> — a set so small it is topologically negligible (first category) and carries zero probability under natural Gaussian measures.</li>
+<li><strong>Malliavin–Sobolev regularity</strong> — a smoothness condition in the calculus of variations on Wiener space that controls how nicely a random functional can be differentiated.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The density and genericity theorems are elegant and genuinely reframe why deep-hedging models can systematically underfit. But "dense" and "measure-zero" are asymptotic, qualitative statements; a practitioner still needs finite $N$, finite samples, and stable training, and the experiments are proofs-of-concept, not production hedging books. Whether NeuralChaos beats a well-tuned Markovian model <em>at realistic budgets</em> — not in the limit — remains to be shown, and the iterated-integral machinery is costly.</p>
+<h3>Bottom Line</h3>
+<p>Most real hedging strategies live outside the neat Markovian box we usually train in, and NeuralChaos is a principled first attempt to reach the rest of that space.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Structure-Aware Variational State Preparation for Quantum Basket Option Pricing</h2>
+  <p class="meta">Dongwoo Kim, Zhenyu Cui, Daniel K. Park, Chihoon Lee<br>
+    <span class="cat">quant-ph</span> &middot; 2026-07-16 &middot; <a href="http://arxiv.org/abs/2607.14518v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.14518v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To price an option on a basket of stocks on a quantum computer, you first have to load the basket's probability distribution into qubits — and this paper makes that loading step shallow enough to actually be worth doing.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>basket option</em> pays off based on a weighted average of several stocks (say an index of ten tech names). Pricing it means computing an expected payoff over all the ways those stocks could jointly move — a high-dimensional integral usually done by <em>Monte Carlo</em>: simulate thousands of random scenarios and average. Quantum computers offer a tantalizing speed-up here via <em>quantum amplitude estimation</em> (QAE), which can, in principle, reach a given accuracy with quadratically fewer samples. But there's a catch that often erases the advantage: before QAE can run, you must <em>prepare</em> a quantum state that encodes the entire probability distribution of the basket — and doing that exactly can require a circuit whose depth grows exponentially with the number of assets. On today's noisy hardware, deep circuits are unusable.</p>
+<p><strong>The idea.</strong> The authors ask: do we really need to load the <em>full joint</em> distribution of all the stocks? For a basket option, the payoff only depends on the <em>weighted sum</em> — the basket value — not on the intricate joint fine structure. So they design a circuit that targets just the distribution of that sum. Their trick uses <em>tensor-train ranks</em>, a measure of how "entangled" or correlated the assets are. When assets are independent, the tensor-train reveals that many entangling gates are unnecessary and can be deleted, leaving a shallow circuit. When assets are correlated, they prepare each stock's individual distribution locally and then train a small "latent" quantum block whose only job is to bend those pieces until the <em>basket's</em> cumulative distribution matches. They call this the <em>Basket-CDF objective</em>: aim the state preparation directly at the quantity the option actually cares about.</p>
+<p><strong>What they found.</strong> The payoff: circuit depth that used to scale <em>exponentially</em> now scales <em>linearly</em> with problem size, while pricing errors stay in the low single-digit percent. In quantum-computing terms, that is the difference between "never runnable" and "runnable," and it keeps the whole pipeline compatible with standard QAE workflows.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider $n$ assets with terminal prices $S_1,\dots,S_n$ and basket value $B = \sum_{i=1}^n w_i S_i$, weights $w_i$. A European basket call pays $(B-K)^+ = \max(B-K,0)$ at strike $K$; its price is the discounted expectation $e^{-rT}\,\mathbb{E}[(B-K)^+]$ under the risk-neutral measure, with $r$ the risk-free rate and $T$ maturity. QAE estimates such an expectation by encoding it as an amplitude.</p>
+<p><strong>State preparation.</strong> Discretize the joint distribution onto a grid of probabilities $p_{x_1,\dots,x_n}$ and load it as
+$$|\psi\rangle = \sum_{x_1,\dots,x_n} \sqrt{p_{x_1,\dots,x_n}}\;|x_1,\dots,x_n\rangle,$$
+where $|x_1,\dots,x_n\rangle$ is a computational basis state indexing a grid cell and the amplitude is the square root of that cell's probability. Exact loading of this state generically needs circuit depth exponential in $n$.</p>
+<p><strong>The rank idea.</strong> Represent the amplitude tensor in <em>tensor-train (TT)</em> form,
+$$\sqrt{p_{x_1,\dots,x_n}} \approx G_1[x_1]\,G_2[x_2]\cdots G_n[x_n],$$
+a product of small matrices ("cores") $G_i[x_i]$ whose sizes are the TT <em>ranks</em>. Low ranks $\Rightarrow$ weak entanglement $\Rightarrow$ many two-qubit gates in a hardware-efficient ansatz can be pruned. In the correlated case they instead prepare marginals $|\psi_i\rangle=\sum_{x_i}\sqrt{p_i(x_i)}|x_i\rangle$ locally and variationally train a compact block so that the <em>pushforward</em> onto the basket matches the target basket CDF $F_B(b)=\mathbb{P}(B\le b)$.</p>
+<p><strong>The method.</strong> <em>Variational quantum state preparation</em>: parameterize a shallow circuit $U(\theta)$ and optimize $\theta$ to minimize a loss between the prepared basket distribution and the target CDF (the Basket-CDF objective), then feed the state into standard QAE. This is a hybrid quantum-classical training loop, and it also works with sampling-based (rather than exact) loss estimates.</p>
+<p><strong>Numbers.</strong> State-preparation depth drops from <em>exponential</em> to <em>linear</em> scaling in problem size, while basket-pricing errors remain "low-percent." An end-to-end QAE integration study confirms the shallow states plug into standard amplitude-estimation pricing without breaking the quadratic-speedup structure.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Basket option</strong> — an option whose payoff depends on a weighted average of several underlying assets, not one.</li>
+<li><strong>Quantum amplitude estimation (QAE)</strong> — a quantum algorithm that estimates an expectation with quadratically fewer samples than classical Monte Carlo.</li>
+<li><strong>State preparation</strong> — the circuit that loads a target probability distribution into the amplitudes of a quantum state before the algorithm runs.</li>
+<li><strong>Tensor-train (TT) rank</strong> — the size of the matrices in a compressed product representation of a high-dimensional array; small ranks mean low correlation/entanglement.</li>
+<li><strong>Variational ansatz</strong> — a tunable parameterized quantum circuit whose parameters are optimized to hit a target.</li>
+<li><strong>Pushforward distribution</strong> — the distribution you get by applying a function (here, the weighted-sum map) to a random input.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This attacks a real bottleneck — state preparation, not the algorithm itself, is where quantum pricing usually dies — and targeting the basket CDF instead of the full joint state is a genuinely clever narrowing. But the demonstrations are simulations at modest asset counts; "low-percent" error may be too coarse for a trading desk, and the whole thing still assumes fault-tolerant-ish QAE that current hardware can't deliver end-to-end. It's a promising primitive, not a pricing engine.</p>
+<h3>Bottom Line</h3>
+<p>Load only what the payoff needs, and quantum basket pricing goes from exponentially deep to plausibly shallow.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> A Noise-Robust Elicit-to-Optimize Framework for Distortion Riskmetrics via Inverse Reinforcement Learning</h2>
+  <p class="meta">Yang Liu, Yuhao Liu, Yunran Wei<br>
+    <span class="cat">cs.LG</span> &middot; 2026-07-15 &middot; <a href="http://arxiv.org/abs/2607.14373v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.14373v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Watch how someone actually makes noisy, imperfect decisions, and this framework can back out <em>which risk they were really trying to avoid</em> — then train an agent to optimize that same risk.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Two people offered the same gamble behave differently: one is terrified of rare disasters, the other shrugs. Quant finance encodes this with <em>risk measures</em> — mathematical functions that turn a random loss into a single number capturing how much you dread it. A rich, flexible family is the <em>distortion riskmetrics</em>, which re-weight the probabilities of outcomes (a nervous investor mentally inflates the odds of catastrophe). Two hard problems follow. First, <em>elicitation</em>: given only someone's observed choices — which are noisy, sometimes irrational — can you figure out <em>which</em> distortion risk measure they're using? Second, <em>optimization</em>: once you know the target risk, can you train a policy to actually minimize it?</p>
+<p><strong>The idea.</strong> They tackle both with a two-sided machine-learning loop. On the <em>elicitation</em> side they use <strong>inverse reinforcement learning</strong> — instead of learning the best actions given a goal (normal RL), IRL runs backwards: it watches the actions and infers the hidden goal. They make it <em>Bayesian</em> and <em>adaptive</em>, so it can ask a small number of cleverly chosen "distinguishing questions" (test gambles) that most efficiently pin down the person's risk preference, and it explicitly tolerates the fact that people act stochastically and suboptimally. On the <em>optimization</em> side, once the target risk is identified, they extend a standard RL workhorse (PPO) with an extra neural network that learns the <em>full quantile function</em> of the cost — because any distortion risk can be computed as a weighted integral over quantiles. Learn the quantiles, and you can optimize <em>any</em> distortion risk with one machinery.</p>
+<p><strong>What they found.</strong> The elicitation converges very fast — roughly exponentially in the number of questions — so only a handful of well-chosen questions identifies the preferred risk measure. And in complex simulated financial environments the optimizer handles a diverse menu of risk objectives that previously needed bespoke algorithms each.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> An agent acts in a Markov decision process; a policy $\pi$ induces a random cost $Z^\pi$. Preferences are modeled by a <em>distortion riskmetric</em> $\rho_g$ built from a distortion function $g:[0,1]\to[0,1]$ (nondecreasing, $g(0)=0,g(1)=1$). For a random cost $Z$ with quantile function $F_Z^{-1}$,
+$$\rho_g(Z) = \int_0^1 F_Z^{-1}(u)\,dg(u),$$
+i.e. the risk is a $g$-weighted average of all quantiles $F_Z^{-1}(u)$, where $u\in[0,1]$ is the probability level. Different $g$ recover expectation, CVaR, and many others.</p>
+<p><strong>Elicitation.</strong> Observed decisions are noisy, so the agent may pick suboptimal actions with positive probability. Adaptive Bayesian IRL maintains a posterior over the candidate distortion $g$ and selects questions to sharpen it. They prove a <em>finite</em> set of distinguishing questions identifies the correct $g$ within the candidate class, with convergence rate
+$$O\!\big(\exp(-cm + O(\sqrt{m\log m}))\big),$$
+where $m$ is the number of iterations/questions and $c>0$ a constant — essentially exponential decay of identification error.</p>
+<p><strong>Optimization.</strong> Rewrite the objective using the <em>conditional</em> cost quantile function $q(u\mid s)$ at state $s$:
+$$\rho_g^{\text{cond}}(Z^\pi) = \int_0^1 q(u\mid s)\,dg(u).$$
+Because this holds for <em>any</em> $g$, a single learned quantile function unifies all distortion objectives. They extend <strong>Proximal Policy Optimization (PPO)</strong> with three networks — policy, value, and <em>quantile</em> — where the quantile net estimates the whole $q(\cdot\mid s)$, enabling numerical evaluation of $\rho_g$ for arbitrary $g$.</p>
+<p><strong>The method.</strong> Model-free RL: sample trajectories, estimate quantiles via quantile regression, integrate against $dg$ to get the risk, and update the policy with PPO's clipped surrogate objective. Elicitation is Bayesian experimental design on top.</p>
+<p><strong>Numbers.</strong> The headline quantitative result is the identification rate $O(\exp(-cm+O(\sqrt{m\log m})))$ — exponentially fast elicitation — plus an empirical study reporting high elicitation accuracy and effective risk-sensitive policy optimization across diverse objectives in financial environments (the paper's tables give the per-environment error and risk numbers).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk measure</strong> — a function turning a random loss into one number quantifying how bad it feels.</li>
+<li><strong>Distortion riskmetric</strong> — a risk measure that re-weights outcome probabilities via a distortion function $g$; includes CVaR as a special case.</li>
+<li><strong>Quantile function</strong> — the inverse of the cumulative distribution; $F^{-1}(u)$ is the loss level exceeded with probability $1-u$.</li>
+<li><strong>Inverse reinforcement learning (IRL)</strong> — inferring an agent's hidden objective from its observed behavior, the reverse of standard RL.</li>
+<li><strong>Proximal Policy Optimization (PPO)</strong> — a widely used, stable policy-gradient RL algorithm with a clipped update.</li>
+<li><strong>CVaR (conditional value-at-risk)</strong> — the average loss in the worst $\alpha$-fraction of outcomes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Unifying all distortion objectives through a single learned quantile function is genuinely useful, and tolerating noisy, suboptimal humans is more honest than most elicitation work. But everything hinges on the true risk lying inside the assumed <em>candidate class</em> — misspecify that and the elegant convergence guarantee says nothing — and the experiments are simulated, so real clients (whose preferences drift and contradict themselves) are a harder test than the paper's environments.</p>
+<h3>Bottom Line</h3>
+<p>Given noisy human choices, you can now both <em>read off</em> the risk they fear and <em>train</em> an agent to respect it, all through the same quantile machinery.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> An Extreme Value Perspective on Learning Stress Laws</h2>
+  <p class="meta">Mantu Gupta, Anand Deo<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-12 &middot; <a href="http://arxiv.org/abs/2607.10700v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.10700v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>By splitting an extreme event into "how far out" and "in which direction," this method teaches an ordinary generative model to invent realistic disaster scenarios far beyond anything in the historical data.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks and insurers must answer questions like "what's the chance of a loss worse than anything we've ever seen?" and "what does a plausible once-in-a-century joint crash of these assets look like?" This is <em>tail risk</em>, and the frustration is that, by definition, you have almost no data in the tail — the interesting region is where observations are sparse or absent. Standard machine-learning generators (the same tech behind AI image models) are trained to reproduce the <em>bulk</em> of the data, so they're great at typical days and hopeless at the rare catastrophes that actually matter for stress testing.</p>
+<p><strong>The idea.</strong> The authors lean on a classical insight from <em>extreme value theory</em>: far out in the tail, multivariate extremes have a clean, universal geometry. Any extreme point can be described by two things — a <em>radius</em> (how severe the event is overall) and an <em>angle</em> (the direction, i.e. which assets crash together and in what proportion). Crucially, the theory says that as you go further into the tail, the radius and angle become <em>independent</em>, and the radius follows a simple, explicit law (a power law for heavy tails, a stretched-exponential for lighter ones). Their method, <strong>Self-Similar Generative Estimation (SS-GEN)</strong>, exploits this: it handles the radius with an explicit formula and only needs a generative model to learn the <em>angle</em>, which lives on a nice bounded domain (a sphere). Learning a shape on a sphere is a far easier, more stable job than learning an unbounded, data-starved tail directly — so you can use any off-the-shelf generator.</p>
+<p><strong>What they found.</strong> Because the radial law is exact asymptotically, SS-GEN can extrapolate <em>beyond the observed data</em>: sample new extreme scenarios and estimate probabilities of events more severe than anything in the training set, with mathematical guarantees that the error shrinks the further out you go. Unlike prior methods, it needs no specialized architecture and no parametric assumption about the exact tail shape.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $X\in\mathbb{R}^d$ be a random vector of losses. Switch to polar coordinates $X = R\,\Theta$, where $R=\|X\|$ is the <em>radius</em> (event magnitude) and $\Theta = X/\|X\|$ is the <em>angle</em> on the unit sphere $\mathbb{S}^{d-1}$ (the direction). The core structural assumption is <em>regular variation</em> / a domain-of-attraction condition: conditionally on $R$ being large, $R$ and $\Theta$ become asymptotically independent, and $R$ has a known tail form.</p>
+<p><strong>The decomposition.</strong> SS-GEN writes the tail density as
+$$f(x)\;\approx\;\underbrace{f_R(r)}_{\text{explicit radial law}}\;\cdot\;\underbrace{s(\theta)}_{\text{learned angular density}},\qquad x=r\theta,$$
+where $f_R$ is the parametric radial component (e.g. $f_R(r)\propto r^{-(\alpha+1)}$ for a regularly varying / heavy tail with index $\alpha$, or a Weibull-type form for light tails) and $s(\theta)$ is a <em>nonparametric</em> angular density on the compact sphere, fit by a standard deep generative model. Reducing tail learning to a compact-domain problem is what makes off-the-shelf generators work.</p>
+<p><strong>Guarantees.</strong> Under mild nonparametric tail assumptions they prove <em>asymptotic exactness</em>: the SS-GEN density matches the true tail with <strong>vanishing uniform relative error</strong> for regularly varying (heavy) tails, and <strong>vanishing uniform log-relative error</strong> for Weibull-type (light) tails, as one moves into the tail. So rare-event probability estimates
+$$\mathbb{P}(X\in A)\quad\text{for extreme sets } A$$
+are accurate even for $A$ far beyond the data range.</p>
+<p><strong>The method.</strong> Fit the angular generator on the empirical angles of the largest-radius observations; combine with the explicit radial law to <em>sample</em> extreme scenarios and to <em>estimate</em> tail probabilities by integration/Monte Carlo over the fitted density. No bespoke tail architecture, no full parametric tail model.</p>
+<p><strong>Numbers.</strong> Across multivariate synthetic processes and high-frequency/financial data, SS-GEN produces representative extreme samples and rare-event probability estimates; the theoretical headline is the <em>vanishing uniform (log-)relative error</em> rate, i.e. provable asymptotic exactness in the tail — stronger than the bulk-fidelity guarantees of standard generators.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Tail risk</strong> — the risk of rare, extreme outcomes in the far end of a loss distribution.</li>
+<li><strong>Extreme value theory</strong> — the branch of probability describing the universal behavior of maxima and rare exceedances.</li>
+<li><strong>Regular variation</strong> — a precise "power-law tail" condition: $\mathbb{P}(X>tx)/\mathbb{P}(X>t)\to x^{-\alpha}$ as $t\to\infty$.</li>
+<li><strong>Radial–angular (polar) decomposition</strong> — writing a random vector as magnitude $R$ times direction $\Theta$.</li>
+<li><strong>Angular (spectral) measure</strong> — the distribution of directions in which joint extremes occur.</li>
+<li><strong>Uniform relative error</strong> — approximation error measured as a fraction of the true value, controlled uniformly across the region.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The radial–angular factorization is the right classical idea, and offloading only the angle to a generic generator is a clean, deployable trick. But the guarantees are <em>asymptotic</em> — they hold "far enough" into the tail, and real stress tests often live in the awkward intermediate zone where the asymptotics haven't kicked in. It also assumes asymptotic $R$–$\Theta$ independence, which can fail when extremes cluster in time or when the tail index differs across directions; angular estimation from a handful of the largest points remains statistically delicate.</p>
+<h3>Bottom Line</h3>
+<p>Separate <em>how bad</em> from <em>which way</em>, hand the easy piece to a standard generator, and you can credibly simulate crashes worse than any you've recorded.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> (Early) AI Compute Asset Pricing</h2>
+  <p class="meta">Federico M. Bandi, Yinan Su<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-07-13 &middot; <a href="http://arxiv.org/abs/2607.12156v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.12156v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Computing power is becoming a traded financial asset, and this paper is an early attempt to figure out how to <em>price a futures contract on it</em> — which turns out to be surprisingly hard because you can't store compute.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The AI boom has made <em>compute</em> — GPU-hours, the raw processing power to train and run models — a scarce, hugely expensive input. Spending on it already exceeds 1% of U.S. GDP. Soon there will be <em>compute futures</em>: contracts that let you lock in a price today for compute delivered later, so a startup can hedge against GPU prices spiking, much as an airline hedges jet fuel. But how do you price such a contract? For most commodities, futures prices are tied to spot prices by a simple <em>no-arbitrage</em> argument: buy the thing now, store it, sell it later, and the futures price can't stray far from "spot plus storage cost." The problem with compute is that <strong>you cannot store it.</strong> A GPU-hour not used at 3pm today is gone forever — like a hotel room or an airline seat. That breaks the standard pricing link and forces a rethink.</p>
+<p><strong>The idea.</strong> The authors build the first asset-pricing framework for compute in three moves. First, they explain <em>why the textbook no-arbitrage bridge collapses</em>: non-storability means you can't carry compute from today to the delivery date, so spot and futures aren't mechanically tied. Second, they build a <em>synthetic</em> futures price from something that <em>does</em> exist — long-term rental contracts (reserve a block of GPUs for a year), which implicitly bundle future compute delivery. They argue these synthetic prices are an <em>upper bound</em> on true futures prices. Third, they say that once real markets exist, the futures price will settle at investors' <em>expected</em> future spot price minus a <em>risk premium</em> — the discount buyers demand for bearing uncertainty. To test the theory before the market is live, they assemble the first dataset of synthetic compute-futures returns, sorted by GPU generation and contract length.</p>
+<p><strong>What they found.</strong> Preliminary evidence points to a <em>positive</em> compute risk premium: compute providers appear to be under <em>hedging pressure</em> (eager to lock in revenue), which pushes prices in a way that rewards the investors willing to take the other side — much like the classic "normal backwardation" story in commodity markets.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $S_t$ be the <em>spot</em> price (rental rate) of compute at time $t$ and $F_{t,T}$ the futures price at $t$ for delivery at $T$. For a <em>storable</em> commodity, no-arbitrage gives the cost-of-carry relation
+$$F_{t,T} = S_t\,e^{(r+u-y)(T-t)},$$
+where $r$ is the risk-free rate, $u$ the storage cost, and $y$ the convenience yield. <strong>Compute is non-storable</strong>, so the arbitrage that enforces this — buy spot, store, deliver — is infeasible, and the equation <em>fails</em> as a pricing identity.</p>
+<p><strong>Synthetic bound.</strong> Instead they infer a synthetic futures price from observable term rental contracts. A contract delivering compute over a future window implies an <em>implied forward</em> $\widetilde{F}_{t,T}$, and they argue
+$$F_{t,T} \;\le\; \widetilde{F}_{t,T},$$
+i.e. synthetic prices from existing rentals are an <em>upper bound</em> on true futures prices (rentals bundle options/flexibility the buyer pays for).</p>
+<p><strong>Equilibrium pricing.</strong> Upon financialization, the futures price is the risk-adjusted expectation
+$$F_{t,T} = \mathbb{E}_t\big[S_T\big] - \pi_{t,T},$$
+where $\mathbb{E}_t[S_T]$ is the market's expected spot at expiration and $\pi_{t,T}\ge 0$ is the <em>risk premium</em> demanded for bearing compute-price risk. Equivalently $F_{t,T}=\mathbb{E}^{\mathbb{Q}}_t[S_T]$ under a risk-neutral measure $\mathbb{Q}$, with $\pi$ the wedge between physical and risk-neutral expectations.</p>
+<p><strong>The method.</strong> Empirical asset pricing: construct a <em>panel</em> of synthetic compute-futures returns sorted by GPU generation and maturity, then test for a risk premium by examining average returns and their sign/co-movement — the standard toolkit of sorting portfolios and measuring expected excess returns.</p>
+<p><strong>Numbers.</strong> The evidence is <em>preliminary</em> and qualitative-quantitative: the constructed return panel is consistent with a <strong>positive</strong> compute risk premium and with <strong>hedging pressure</strong> from compute providers (they pay to offload price risk). The paper does not yet report a fully calibrated premium magnitude, positioning itself explicitly as an "early" framework.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Spot vs. futures price</strong> — the price for immediate delivery versus a price agreed now for delivery at a fixed future date.</li>
+<li><strong>No-arbitrage / cost-of-carry</strong> — the principle that a futures price equals spot adjusted for financing, storage, and convenience, enforced by buy-and-store arbitrage.</li>
+<li><strong>Non-storable asset</strong> — one that cannot be inventoried across time (electricity, hotel rooms, compute), breaking cost-of-carry pricing.</li>
+<li><strong>Convenience yield</strong> — the implicit benefit of holding the physical good rather than a claim to it.</li>
+<li><strong>Risk premium</strong> — the extra expected return investors demand for bearing uncertainty; here the gap between expected spot and the futures price.</li>
+<li><strong>Hedging pressure</strong> — price distortion caused by one side of the market being systematically eager to hedge, rewarding the counterparty.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framing is timely and the non-storability point is exactly right — pricing compute is closer to electricity than to gold. But this is admittedly an <em>early</em> paper: there is no live futures market yet, so everything rests on <em>synthetic</em> proxies from rental contracts, which bundle flexibility and quality differences that muddy the "upper bound" claim. The risk-premium evidence is suggestive, not calibrated, and GPU generations obsolete so fast that the "underlying" itself keeps changing — a genuine modeling headache the framework doesn't fully resolve.</p>
+<h3>Bottom Line</h3>
+<p>Because a GPU-hour can't be stored, pricing compute futures means abandoning cost-of-carry and estimating a risk premium — and the early signs say that premium is positive.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
