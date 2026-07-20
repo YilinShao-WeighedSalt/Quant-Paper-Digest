@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 20, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 20, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Consistent pricing of bivariate interest rate exotics via constrained Schrödinger optimal transport</h2>
+  <p class="meta">Patrick Roome<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-17 &middot; <a href="http://arxiv.org/abs/2607.15952v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.15952v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can price a financial bet on the <em>gap</em> between two interest rates so that it never contradicts the prices of bets on each rate alone — by solving a "cheapest way to rearrange probability" problem.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Big interest-rate products are often built on <em>swap rates</em> — think of them as the market's agreed cost of borrowing for, say, 10 years versus 2 years. A <strong>CMS spread option</strong> pays off based on the <em>difference</em> between two such rates (the "spread"). Here's the catch: banks separately trade liquid options on the 10-year rate, liquid options on the 2-year rate, <em>and</em> options on their spread. If a bank prices the spread product in a way that quietly disagrees with what the single-rate options already imply, it has created an arbitrage — a free-money inconsistency that a competitor can exploit, or a hidden risk on its own books. So the practical question is: given the prices the market already shows you for the pieces, what joint behavior of the two rates is <em>consistent</em> with all of them at once?</p>
+<p><strong>The idea.</strong> Picture the possible pairs of future rate values as a pile of sand spread over a 2-D table. Each single-rate option market tells you the <em>silhouette</em> of that pile along one edge (how much sand sits at each 10-year value, and separately at each 2-year value). The spread option market adds a constraint about the diagonal. The paper asks: of all the ways to arrange the sand that respect these silhouettes and the diagonal constraint, which one is "most natural" — closest to a sensible reference guess? That "cheapest rearrangement to match given edges" is exactly <strong>optimal transport</strong>, and the "stay close to a reference" flavor with an entropy tilt is the <strong>Schrödinger</strong> version. Solving it gives you one coherent joint distribution — and, by asking for the <em>most</em> and <em>least</em> the product could be worth under those same constraints, honest <strong>no-arbitrage bounds</strong>.</p>
+<p><strong>What they found.</strong> A framework that prices bivariate rate exotics consistently with the liquid single-rate and spread markets, and that spits out no-arbitrage price bounds when a unique price isn't pinned down. They show it working on concrete numerical examples rather than just proving it exists.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let the two constant-maturity swap rates at the option's maturity be random variables $X$ and $Y$, with joint law $\pi$ on $\mathbb{R}^2$. Vanilla CMS option prices fix the marginals $\mu_X$ and $\mu_Y$ (each option surface encodes a full marginal density via the Breeden–Litzenberger identity, where a call price's second derivative in strike gives the risk-neutral density). A reference measure $q$ encodes prior modeling beliefs about the joint dynamics.</p>
+<p><strong>The key optimization.</strong> They solve a constrained Schrödinger optimal-transport problem:
+$$\min_{\pi}\; D_{\mathrm{KL}}(\pi \,\|\, q) \quad \text{s.t.}\quad \pi \text{ has marginals } \mu_X,\ \mu_Y,\ \ \mathbb{E}_\pi\big[(X-Y-K)^+\big]=c_K.$$
+Here $\pi$ is the sought joint distribution; $q$ the reference; $D_{\mathrm{KL}}(\pi\|q)=\int \log\frac{d\pi}{dq}\,d\pi$ is the Kullback–Leibler divergence measuring how far $\pi$ strays from $q$; $(z)^+=\max(z,0)$; $K$ is the spread strike; and $c_K$ is the market price of the spread option, which acts as an extra linear constraint on top of the two marginal constraints.</p>
+<p><strong>The method.</strong> Rather than attack this directly, they pass to the <strong>dual Lagrangian</strong>: attach multiplier functions to the marginal constraints and a scalar multiplier to the spread constraint, giving a smooth convex dual whose optimizer is found by iterating fixed-point (Sinkhorn-style) updates. For the no-arbitrage bounds they drop the entropy term and solve the resulting linear program, whose supremum and infimum over all $\pi$ consistent with the constraints are precisely the highest and lowest arbitrage-free prices of the exotic.</p>
+<p><strong>Results with numbers.</strong> The contribution is methodological — the abstract reports concrete numerical demonstrations of both the pricing and the computation of no-arbitrage bounds across the three linked markets, rather than a single headline error statistic. The payoff is qualitative but real: prices that are <em>guaranteed</em> consistent with liquid instruments, plus explicit price corridors when the market data underdetermine the exotic.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CMS spread option</strong> — a derivative paying off on the difference between two constant-maturity swap rates.</li>
+<li><strong>Marginal distribution</strong> — the standalone probability law of one variable, ignoring the other.</li>
+<li><strong>Optimal transport</strong> — the math of moving one probability distribution onto another at minimal total "cost."</li>
+<li><strong>Schrödinger problem</strong> — the entropy-regularized version of optimal transport, picking the most likely random evolution consistent with the endpoints.</li>
+<li><strong>KL divergence</strong> — a non-symmetric measure of how much one probability distribution differs from a reference one.</li>
+<li><strong>No-arbitrage bounds</strong> — the highest and lowest prices a product can have without creating a free-money opportunity.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framework is only as good as its liquid inputs: CMS spread and vanilla markets can be thin or stale, and the fitted joint law inherits any staleness. It's a static, single-maturity picture — it enforces consistency across the three markets <em>today</em>, not a dynamically hedgeable model through time. Still, for a desk that already marks these three markets, this is a genuinely usable consistency-and-bounds tool rather than a toy.</p>
+<h3>Bottom Line</h3>
+<p>Price the spread and the legs as one problem, and arbitrage between them simply has nowhere to hide.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Equilibrium analysis in a multi-agent reinsurance chain</h2>
+  <p class="meta">Kaizheng Wang, Wei Liu, Zhuo Jin, Wenyuan Wa<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-17 &middot; <a href="http://arxiv.org/abs/2607.15962v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.15962v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When insurers pass risk down a chain of reinsurers who all also invest in markets, you can write down — in closed form — exactly how much each layer charges and hedges once everyone competes.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Insurance companies don't keep all the risk they sell you. They buy <em>reinsurance</em> — insurance for insurers — passing on the scariest slices of their liabilities. And reinsurers themselves buy reinsurance, forming a chain: your car policy's tail risk may pass through three or four balance sheets before it lands somewhere willing to hold it. Every link charges a markup (a "safety loading") and, in the meantime, invests its float in markets. The real-world question is: when many insurers and many reinsurers all compete <em>and</em> all invest, what price does each layer settle on, and how much risky asset does each hold? Get this wrong and you either overpay for protection or under-reserve for a catastrophe.</p>
+<p><strong>The idea.</strong> Think of it as a stack of negotiations. At each link there's a buyer and a seller, and the seller moves first — it posts terms, anticipating how the buyer will react. That "I set the rules knowing you'll optimize against them" structure is a <strong>Stackelberg game</strong> (leader–follower). Layered on top, the insurers at the same level compete <em>against each other</em> — nobody wants to look worse than a rival — which is a <strong>non-zero-sum game</strong> where each player's best move depends on what everyone else does. The authors let each participant also split money between a safe bond and a risky stock, and they ask for the strategy where nobody can improve by deviating: the equilibrium.</p>
+<p><strong>What they found.</strong> By stacking dynamic programming and game theory, they derive <em>closed-form</em> equilibrium strategies — actual formulas, not just simulations — for both proportional reinsurance (share every claim) and excess-of-loss reinsurance (cover only claims above a threshold). The standout economic finding: the fiercer the competition among insurers, the <em>lower</em> the safety loadings at every layer of the chain — competition squeezes markups all the way down.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space $(\Omega,\mathcal{F},\{\mathcal{F}_t\},\mathbb{P})$ with $m$ insurers and $n$ reinsurers. Each agent's surplus $X_t$ evolves from premium inflow, claim outflow (a diffusion or jump approximation of aggregate claims), retained-versus-ceded risk, and investment in a risk-free asset paying rate $r$ plus a risky asset
+$$dS_t = \mu S_t\,dt + \sigma S_t\,dW_t,$$
+where $S_t$ is the stock price, $\mu$ its drift, $\sigma$ its volatility, and $W_t$ a Brownian motion. Each agent picks a control $u_t=(a_t,\pi_t)$: a reinsurance retention level $a_t$ and an investment amount $\pi_t$.</p>
+<p><strong>The criterion and equilibrium.</strong> Each agent uses the <strong>mean–variance</strong> objective over terminal wealth,
+$$\max_{u}\ \mathbb{E}[X_T] - \tfrac{\gamma}{2}\,\mathrm{Var}(X_T),$$
+with $X_T$ terminal surplus, $\gamma$ the risk-aversion coefficient, and $\mathrm{Var}$ the variance penalizing volatility of the outcome. Because mean–variance is <em>time-inconsistent</em> (the plan you'd choose today isn't the one you'd re-choose tomorrow), they seek a <strong>time-consistent equilibrium</strong> and characterize it through the <strong>extended Hamilton–Jacobi–Bellman (HJB) system</strong> — a coupled set of PDEs, one per agent, each depending on the others' equilibrium controls.</p>
+<p><strong>The method.</strong> Dynamic programming yields the extended HJB equations; the Stackelberg structure is solved by backward induction (follower's best response substituted into the leader's problem); the non-zero-sum competition among insurers is closed by matching each player's first-order condition simultaneously. The verification gives explicit equilibrium controls.</p>
+<p><strong>Results with numbers.</strong> The results are analytic formulas plus comparative-statics: numerically, increasing the number/intensity of competing insurers monotonically reduces equilibrium safety loadings at each chain layer, and the proportional versus excess-of-loss cases produce structurally different retention and investment responses to the same parameter shifts.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Reinsurance</strong> — insurance bought by insurers to offload part of the risk they underwrote.</li>
+<li><strong>Safety loading</strong> — the markup a (re)insurer adds to the fair expected-loss premium as its cushion and profit.</li>
+<li><strong>Stackelberg game</strong> — a leader–follower game where one player commits first and the other optimally responds.</li>
+<li><strong>Non-zero-sum game</strong> — a game where players' gains aren't mirror images, so competition can help or hurt all at once.</li>
+<li><strong>Mean–variance criterion</strong> — ranking strategies by expected payoff minus a penalty on its variance.</li>
+<li><strong>Extended HJB system</strong> — the coupled PDEs characterizing a time-consistent equilibrium under a time-inconsistent objective.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Closed form is bought with strong assumptions: Brownian/mean–variance surplus, a single risky asset, and rational agents who solve coupled HJBs — real reinsurers negotiate bilaterally with frictions, credit risk, and regulation the model omits. The "competition lowers loadings" conclusion is intuitive and useful directionally, but calibrating $m$, $n$, and each $\gamma$ to a live market is where it gets hard. Treat it as a clean equilibrium benchmark, not a pricing engine.</p>
+<h3>Bottom Line</h3>
+<p>Down a reinsurance chain, more rivals mean thinner markups — and now there's a formula that says exactly how much thinner.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Existence and convergence of discrete-time Kyle models with multiple insiders</h2>
+  <p class="meta">Jin Choi, Kasper Larsen<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-16 &middot; <a href="http://arxiv.org/abs/2607.15057v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.15057v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two decades of open questions about how <em>several</em> insider traders push prices around finally get answered: an equilibrium provably exists, and the clock-tick version converges to the smooth-time one.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Some traders know something the rest of the market doesn't — the true value of a stock, say, from private information. How do they trade to profit without giving the game away? The classic answer is Kyle's 1985 model: a single informed trader hides inside the flow of random "noise" traders, and a market maker, seeing only the <em>total</em> order, sets a fair price. But real markets have <em>many</em> informed players, each holding a <em>different piece</em> of the truth, all trying to exploit their edge before the others do. Foster and Viswanathan wrote down that multi-insider model back in 1996 — but two basic questions were left dangling for nearly thirty years: does a sensible equilibrium even <em>exist</em>, and if you take the trading rounds finer and finer, does it settle down to the continuous-time story people had assumed?</p>
+<p><strong>The idea.</strong> With one insider, the logic is clean: trade slowly, leak your information gradually, don't move the price too fast. With several insiders holding <em>overlapping partial</em> signals, it becomes a hall of mirrors — each insider must forecast not just the asset but <em>what the others will do with what they know</em>, and everyone races to cash in shared information first (a "rat race" that makes them trade more aggressively than a monopolist would). Proving a consistent equilibrium survives all that mutual second-guessing is the hard mathematical part. The authors nail down that it does, and that as trading rounds multiply toward continuous time, the discrete equilibrium doesn't blow up or oscillate — it converges to the continuous-time equilibrium already known to exist.</p>
+<p><strong>What they found.</strong> Two theorems closing two long-standing gaps: (1) an equilibrium <strong>exists</strong> in the Foster–Viswanathan multi-insider setting; (2) as the number of trading times $N\to\infty$, the discrete-time equilibrium <strong>converges</strong> to the Back–Cao–Willard (2000) continuous-time equilibrium. This puts the whole multi-insider microstructure literature on rigorous footing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A single risky asset has terminal dividend (liquidation value) $v$. There are several informed traders indexed $i=1,\dots,M$, each observing partial information about $v$ (e.g., a noisy or component signal, with the full $v$ recoverable only from all signals jointly). Trading happens at discrete dates $t_0<\dots<t_N=1$. At each date, noise traders submit a random order increment $\Delta u_t$ (Gaussian), each insider submits an order $\Delta x^i_t$, and a competitive market maker observes only the aggregate order flow $\Delta y_t = \sum_i \Delta x^i_t + \Delta u_t$.</p>
+<p><strong>The key relations.</strong> Pricing is linear in the observable flow and insiders trade linearly in their information gap:
+$$p_t = p_{t^-} + \lambda_t\,\Delta y_t, \qquad \Delta x^i_t = \beta_t\,\big(\mathbb{E}[v\mid \mathcal{F}^i_t] - p_{t^-}\big)\,\Delta t,$$
+where $p_t$ is the price, $\lambda_t$ is <strong>Kyle's lambda</strong> (price impact — how much the price moves per unit of net order flow, i.e. the inverse of market depth), $\Delta y_t$ the net order flow, $\beta_t$ the insiders' trading intensity, $\mathbb{E}[v\mid\mathcal{F}^i_t]$ insider $i$'s conditional expectation of value given their information $\mathcal{F}^i_t$, and $p_{t^-}$ the pre-trade price. Equilibrium requires each insider's strategy to maximize expected profit <em>given</em> the pricing rule, while $\lambda_t$ makes the market maker's price the conditional expectation of $v$ — a fixed point.</p>
+<p><strong>The method.</strong> They set up the equilibrium as a coupled system of backward recursions (a discrete Riccati-type difference system for the variance/impact coefficients $\lambda_t,\beta_t$ and the residual information) and prove a solution exists via careful monotonicity/compactness arguments, then establish convergence of the discrete recursions to the continuous-time ODE system as the mesh $\Delta t\to 0$.</p>
+<p><strong>Results with numbers.</strong> The contribution is two existence/convergence theorems rather than empirical statistics: existence in the $M$-insider discrete model, and $N\to\infty$ convergence to the known continuous-time equilibrium — filling gaps open since 1996 and 2000 respectively.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Kyle model</strong> — a market-microstructure model where an informed trader hides inside random noise-trader flow.</li>
+<li><strong>Insider / informed trader</strong> — a trader who holds private information about an asset's true value.</li>
+<li><strong>Market maker</strong> — the agent who sets prices from observed order flow, earning the bid–ask spread.</li>
+<li><strong>Kyle's lambda</strong> — the price-impact coefficient: how far the price moves per unit of net order flow.</li>
+<li><strong>Order flow</strong> — the aggregate signed volume of buy minus sell orders arriving in a period.</li>
+<li><strong>Equilibrium existence</strong> — a proof that a self-consistent set of strategies and prices actually exists.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is pure theory — it certifies that a widely-used model is well-posed, not that it fits any dataset. The linear-Gaussian, single-asset, risk-neutral-insiders scaffolding is a stylized cartoon of real trading (no fees, no inventory limits, symmetric information structure). Practitioners won't calibrate this directly, but anyone building on multi-insider price-impact models now knows the foundation doesn't collapse.</p>
+<h3>Bottom Line</h3>
+<p>The multi-insider Kyle model finally has its birth certificate: equilibrium exists, and the tick-by-tick version really does become the continuous-time one.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Anchored Geodesic Analysis for Multivariate Extremes</h2>
+  <p class="meta">Alberto Quaini, Chen Zhou<br>
+    <span class="cat">stat.ME</span> &middot; 2026-07-14 &middot; <a href="http://arxiv.org/abs/2607.13112v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.13112v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To understand which <em>directions</em> a portfolio's worst days point, you can do a kind of PCA that lives on a sphere and is pinned to a chosen benchmark direction.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When markets crash, the interesting question isn't <em>how big</em> the loss is but <em>which assets move together</em> on the way down. Two stocks might look mildly correlated in calm times yet plunge in lockstep during a panic — that co-crashing is <strong>extremal dependence</strong>, and it's exactly what blows up diversified portfolios precisely when you need diversification most. The trouble: with many assets, the geometry of "how extremes align" lives in a high-dimensional space that's hard to see, summarize, or simulate. You want a compact description of the handful of directions along which the tail risk actually concentrates.</p>
+<p><strong>The idea.</strong> Extreme events, once you rescale away their sheer size, live on a sphere — each big loss is mostly a <em>direction</em> (which assets got hit, in what proportion). Ordinary principal component analysis finds the main axes of variation in flat space, but a sphere isn't flat, and you often already have a natural reference direction in mind — like "everything crashes together equally." The authors' method, <strong>anchored geodesic component analysis (AGCA)</strong>, does PCA-on-a-sphere but <em>anchored</em> so its components all pass through your chosen reference direction, describing tail behavior as <em>departures from that benchmark</em>. Because it measures wiggle along great-circle arcs, the whole thing collapses to a familiar eigenvalue computation — the same workhorse under ordinary PCA — so it stays cheap and interpretable, and even lets you simulate new tail scenarios with error guarantees.</p>
+<p><strong>What they found.</strong> On daily equity-portfolio losses, <strong>ten components explain about 91% of the anchored tail variation</strong>, and low-rank reconstructions approximate capped-loss and value-at-risk summaries with about <strong>1.25% average relative error</strong> — a compact, benchmark-relative map of where the tail risk really lives.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Large multivariate observations $X\in\mathbb{R}^d_+$ are decomposed into radius and angle; conditional on being extreme, the <strong>angular component</strong> $\Theta = X/\|X\|$ lives on the positive unit sphere $\mathbb{S}^{d-1}_+$ and follows the limiting <strong>angular (spectral) measure</strong> that encodes extremal dependence. Fix a reference direction (anchor) $\theta_0$ — by default <em>balanced complete dependence</em>, the equal-weight point where all coordinates blow up together.</p>
+<p><strong>The key construction.</strong> AGCA approximates angular variation by <strong>great subspheres constrained to pass through $\theta_0$</strong>, minimizing a bounded geodesic loss. Writing the geodesic (great-circle) distance's squared-sine as the loss, the population problem reduces exactly to eigenanalysis of a second-moment matrix of <em>anchored tangent departures</em>:
+$$M = \mathbb{E}\big[\, t(\Theta)\, t(\Theta)^\top \,\big], \qquad t(\Theta) = \text{Log}_{\theta_0}(\Theta),$$
+where $t(\Theta)$ is the tangent vector at $\theta_0$ pointing toward $\Theta$ ($\text{Log}_{\theta_0}$ is the Riemannian logarithm map sending sphere points to the tangent plane at $\theta_0$), and $M$ is the resulting second-moment (covariance-like) matrix. The top-$k$ eigenvectors of $M$ are the loadings; scores, residual risks, and explained-variation summaries follow as in ordinary PCA.</p>
+<p><strong>The method.</strong> Estimation replaces $M$ by its empirical average over observed extreme angles (with a rank-Pareto standardization for the marginals), then takes an eigendecomposition — so the "learning" is one symmetric eigenproblem. They prove <strong>top-$k$ consistency</strong> of the empirical summaries and an <strong>oracle central limit theorem</strong> whose limiting covariance matches that of an independent sample from the true angular law, and they carry the AGCA residual risk through to explicit error bounds on bounded-Lipschitz tail functionals (capped excesses, value-at-risk).</p>
+<p><strong>Results with numbers.</strong> On daily equity-portfolio losses: 10 AGCA components capture ≈91% of anchored angular variation, and reconstructions hit capped-excess and normalized value-at-risk with ≈1.25% average relative error — with the theory supplying the guarantees behind those approximations.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Extremal dependence</strong> — the tendency of variables to hit extreme values together, distinct from ordinary correlation.</li>
+<li><strong>Angular (spectral) measure</strong> — the distribution of the <em>direction</em> of large multivariate observations on the unit sphere.</li>
+<li><strong>Geodesic</strong> — the shortest path between two points on a curved surface (a great-circle arc on a sphere).</li>
+<li><strong>Tangent / logarithm map</strong> — the tool that flattens sphere points into a plane so linear algebra applies locally.</li>
+<li><strong>Value-at-risk (VaR)</strong> — a loss threshold exceeded only with some small target probability.</li>
+<li><strong>Top-$k$ consistency</strong> — a guarantee that the estimated leading components converge to the true ones as data grow.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It rides on classical extreme-value assumptions (a well-defined limiting angular measure, regularly varying tails) that finite, non-stationary market data honor only approximately — and results hinge on picking a sensible anchor, with "equal co-crash" a convenient but debatable default. The 91%/1.25% numbers are from one equity dataset; robustness across asset classes and crisis regimes is unproven. For a risk desk that already thinks in EVT terms, though, this is a genuinely usable dimension-reduction and tail-simulation tool.</p>
+<h3>Bottom Line</h3>
+<p>Crashes have a shape — and AGCA draws it as a short list of directions your portfolio veers from the "everything falls together" benchmark.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Asymptotic fractional-order stochastic dominance with bounded relative risk aversion</h2>
+  <p class="meta">Jiehua Xie, Liulei Sun, Wei Zou<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-16 &middot; <a href="http://arxiv.org/abs/2607.15317v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.15317v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new rule for ranking long-horizon investments respects the fact that real investors' distaste for risk is bounded, and — unlike older rules — the "how risk-averse" dial actually changes the answer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> How do you say investment A is <em>better</em> than investment B for <em>everyone</em> in a reasonable class of investors, without knowing each person's exact preferences? That's what <strong>stochastic dominance</strong> does: it ranks prospects in a way all rational, risk-averse decision-makers would agree on. It's powerful precisely because it doesn't need you to pin down one utility function. But the classic versions are strict — often <em>neither</em> of two real investments dominates the other, so the rule stays silent — and over <em>long</em> horizons the existing "asymptotic" versions have an embarrassing quirk: a parameter meant to tune <em>how</em> risk-averse the consensus is turns out not to affect the verdict at all, and they need awkward technical restrictions (like the average log-return being non-negative) to work.</p>
+<p><strong>The idea.</strong> The authors loosen the all-or-nothing character with a <strong>fractional order</strong> — a continuous knob between the standard integer-order dominance rules — and, crucially, restrict attention to investors whose <strong>relative risk aversion has a floor</strong> (it can't be arbitrarily negative). Intuitively: don't try to please literally every conceivable investor, just the ones whose aversion to risk is bounded in a realistic band. Doing so lets them drop the non-negativity restriction on average log-return <em>and</em>, importantly, makes the fractional-order dial genuinely bite — different risk-aversion assumptions now give different rankings, as they should. Assuming returns are lognormal (a standard, tractable model for compounded returns), they turn these abstract conditions into concrete, checkable formulas on the return distribution's parameters.</p>
+<p><strong>What they found.</strong> A new <strong>asymptotic fractional-order stochastic dominance</strong> rule (and a more tractable "general" variant with bounded relative risk aversion) that (a) works without the usual non-negativity constraint, (b) makes the fractional-order parameter actually influence the ranking, and (c) reduces to explicit distributional conditions under lognormal returns. Empirical examples show it picks better long-horizon portfolios than the older asymptotic criterion.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Compare prospects (assets/portfolios) by their return distributions $F$ and $G$ over a long horizon. Decision-makers have increasing utility $U$ with <strong>relative risk aversion</strong> $R(w) = -\,w\,U''(w)/U'(w)$ (how sharply marginal utility falls as wealth $w$ rises, scaled by wealth). The consensus class is those with $R$ bounded below by some floor $\underline{R}$ (a "negative lower bound" — aversion can't sink past a threshold).</p>
+<p><strong>The key object.</strong> They build a <strong>fractional-order</strong> dominance of order $s$ (a real number interpolating the classical first/second/… integer orders), defined through repeated fractional integration of the distribution functions. Under <strong>lognormal</strong> returns — $\log$-return $\sim \mathcal{N}(m,\ \nu^2)$ with mean $m$ and variance $\nu^2$ — the asymptotic dominance of one prospect over another becomes an explicit inequality in the parameters, schematically
+$$A \succeq_s B \iff \Phi\!\big(m_A,\nu_A;\, s,\underline{R}\big) \ \ge\ \Phi\!\big(m_B,\nu_B;\, s,\underline{R}\big),$$
+where $\succeq_s$ denotes fractional-order-$s$ asymptotic dominance, $\Phi$ is an explicit function derived from the lognormal integrals, $m_\cdot,\nu_\cdot$ are the mean and volatility of each prospect's log-return, $s$ the fractional order, and $\underline{R}$ the lower bound on relative risk aversion. The point is that $s$ and $\underline{R}$ <em>both</em> appear in the criterion — so tuning them changes the ranking, curing the old rule's insensitivity.</p>
+<p><strong>The method.</strong> The analysis derives <strong>equivalent distributional characterizations</strong>: it proves that "dominance for the whole bounded-risk-aversion class" is <em>equivalent</em> to these parameter inequalities, so a verdict is a closed-form check, not a search over utilities. An extra condition on marginal utilities yields the more tractable "general" variant.</p>
+<p><strong>Results with numbers.</strong> The paper's evidence is characterization theorems plus empirical asset-selection examples showing the new rules distinguish long-term prospects the older asymptotic fractional criterion cannot, with the fractional order now materially altering selections (specific ranking tables are in the paper rather than the abstract).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Stochastic dominance</strong> — a ranking of risky prospects agreed on by every decision-maker in a specified preference class.</li>
+<li><strong>Relative risk aversion</strong> — how strongly an investor dislikes risk, measured relative to their wealth level.</li>
+<li><strong>Fractional order</strong> — a continuous interpolation between the classical integer-order dominance rules.</li>
+<li><strong>Lognormal returns</strong> — the assumption that log-returns are normally distributed, standard for compounded growth.</li>
+<li><strong>Marginal utility</strong> — the extra satisfaction from one more unit of wealth, which decreases for risk-averse investors.</li>
+<li><strong>Equivalent distributional conditions</strong> — closed-form inequalities on the return distribution that hold exactly when dominance holds.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Everything leans on lognormal returns and a bounded-below risk-aversion class — neither is guaranteed in real, fat-tailed markets, and "asymptotic / long horizon" quietly assumes you'll actually hold long enough for the limit to matter. It's a screening tool for narrowing a candidate set, not a full portfolio optimizer, and picking the order $s$ and floor $\underline{R}$ still takes judgment. Useful for long-horizon fund selection where a partial, defensible ordering beats a false-precision point forecast.</p>
+<h3>Bottom Line</h3>
+<p>Rank long-run investments for the investors who actually exist — those with realistically bounded risk appetite — and the risk-aversion dial finally changes what wins.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
