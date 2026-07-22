@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 22, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 22, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal Market Making in Prediction Markets</h2>
+  <p class="meta">Dominik Feil, Max Nendel<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-20 &middot; <a href="http://arxiv.org/abs/2607.17991v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17991v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you make markets on a "yes/no" bet whose price is really a probability, the smart way to set your buy and sell quotes is to worry not just about the inventory you're holding but about the cliff-edge payout when the question finally resolves.</p>
+<h3>Plain English</h3>
+<p>Imagine a betting market on a single yes/no question — "Will it rain in London on New Year's Day?" People trade contracts that pay 1 dollar if the answer turns out yes and 0 dollars if no. The current price of the contract behaves like the crowd's estimate of the probability: a price of 0.30 means "the market thinks there's a 30% chance." A <strong>market maker</strong> is the shop that always stands ready to buy or sell, quoting a slightly-lower buy price (the <em>bid</em>) and a slightly-higher sell price (the <em>ask</em>), pocketing the gap. Their job is to keep the market liquid so everyone else can trade whenever they want.</p>
+<p>The trouble is inventory. If a market maker keeps buying "yes" contracts, they accumulate a big directional bet without meaning to. In an ordinary stock market that's uncomfortable but survivable — the stock still has some value tomorrow. In a prediction market it's brutal, because on resolution day the contract snaps to either exactly 1 dollar or exactly 0 dollars. Hold a pile of "yes" contracts when the answer comes back "no," and your inventory evaporates instantly. That binary settlement is the whole reason ordinary market-making theory doesn't transfer.</p>
+<p>The idea here is to write down the market maker's problem as one of optimal control: at every instant, choose bid and ask quotes to maximize your expected end-of-day wealth, while being penalized both for carrying inventory along the way (mark-to-market risk) and, crucially, for the risk of still holding a lopsided position when the question resolves (settlement risk). The authors model the price as a squashed version of a hidden "belief" that wanders around like a diffusing particle, and then solve for the best quoting rule.</p>
+<p>What they find is that the optimal strategy leans against your inventory — quote to unload what you're overweight in — and, as resolution approaches, becomes far more cautious than a greedy maker who only chases the immediate spread. Compared to that greedy "myopic" benchmark, the optimal rule keeps almost all of the expected profit while dramatically shrinking the bad-case losses.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The market price of a "yes" contract is written as a conditional probability of the outcome, generated by transforming a latent belief process. Let $X_t$ be a latent belief diffusion and let the observable price be $p_t = \Phi(X_t)$ for a monotone squashing map $\Phi:\mathbb{R}\to(0,1)$ (so prices stay in the unit interval). The market maker's state is their cash and inventory $q_t$ (number of contracts held). The maker posts a bid at distance $\delta^b_t$ below and an ask at distance $\delta^a_t$ above the reference price; buy and sell orders arrive as point processes whose intensities $\lambda^{b},\lambda^{a}$ fall as the quotes get greedier (wider).</p>
+<p><strong>The objective.</strong> The maker chooses controls $(\delta^b_t,\delta^a_t)$ to maximize expected terminal wealth minus risk penalties,
+$$\sup_{\delta^b,\delta^a}\ \mathbb{E}\!\left[\,W_T \;-\; \gamma\!\int_0^T \psi(q_t,X_t)\,dt \;-\; \Gamma\,\rho(q_T,\,\text{outcome})\right],$$
+where $W_T$ is terminal wealth, $\gamma$ scales the running mark-to-market inventory penalty $\psi$, and $\Gamma\,\rho$ is the <strong>settlement-risk</strong> penalty on the position $q_T$ left when the binary outcome is revealed at horizon $T$. The two horizons of risk — continuous holding and the terminal cliff — are what make this different from classical inventory models.</p>
+<p><strong>The key equation.</strong> Writing $v(t,x,q)$ for the value function, dynamic programming gives the Hamilton–Jacobi–Bellman equation
+$$\partial_t v + \mathcal{L}_X v \;+\; \sup_{\delta^b}\lambda^b(\delta^b)\big[v(t,x,q{+}1)-v(t,x,q)+\text{(cash term)}\big] \;+\; \sup_{\delta^a}\lambda^a(\delta^a)\big[v(t,x,q{-}1)-v(t,x,q)+\text{(cash term)}\big] \;-\; \gamma\,\psi = 0,$$
+where $\mathcal{L}_X$ is the infinitesimal generator of the latent belief $X_t$ (its drift-and-diffusion operator), and the two supremum terms are the maker's optimal choice of ask and bid. The bracketed differences $v(t,x,q\pm1)-v(t,x,q)$ measure how much one more (or fewer) contract changes continuation value. The terminal condition encodes the payoff cliff at $t=T$.</p>
+<p><strong>The method.</strong> They transform the HJB equation into the latent belief space and use a <strong>fixed-point argument</strong> to prove there is a unique classical (smooth) solution, then run a verification theorem to confirm the candidate quotes are genuinely optimal — not just a formal guess. The optimal bid and ask distances come out in closed characterized form as functions of inventory, current belief, time-to-resolution, and risk aversion. Numerically they solve the PDE and compare against a myopic maker.</p>
+<p><strong>Results.</strong> Against the myopic benchmark that maximizes only instantaneous expected mark-to-market profit, the optimal strategy "substantially improves downside protection while preserving most of its expected profit." The quotes widen and skew more aggressively as $t\to T$ and as inventory grows, exactly the behavior a cliff-edge payout demands.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market maker</strong> — a trader who continuously posts both buy and sell quotes to provide liquidity, earning the spread between them.</li>
+<li><strong>Latent belief diffusion</strong> — an unobserved "true probability" quantity that drifts and jiggles randomly over time, which the observable price is a squashed function of.</li>
+<li><strong>HJB equation</strong> — the partial differential equation that a value function must satisfy in a continuous-time optimization problem; solving it gives the optimal control.</li>
+<li><strong>Mark-to-market inventory risk</strong> — the running risk of loss from holding a position whose value moves before you can offload it.</li>
+<li><strong>Settlement risk</strong> — here, the risk of holding a net position when the contract resolves to exactly 1 or 0, wiping out or doubling that inventory instantly.</li>
+<li><strong>Fixed-point argument</strong> — a proof technique showing a map has a stable point, used here to guarantee the PDE has one and only one smooth solution.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model assumes a single, clean latent-belief diffusion and Poisson-style order arrivals whose intensity depends only on quote distance — real prediction markets have adversarial informed traders, discrete tick sizes, and correlated resolution events the model doesn't capture. It's a one-question market; portfolios of related questions (which is where real platforms live) are out of scope. Still, the framework is a genuinely correct-shaped tool, and the qualitative lessons about steepening caution near resolution are directly usable.</p>
+<h3>Bottom Line</h3>
+<p>For binary markets, good market-making is less about the spread you earn and more about not being caught holding when the coin lands.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Pricing options on illiquid assets using liquid market benchmarks: an application to energy markets</h2>
+  <p class="meta">Federico Aluigi, Lucia Caramellino, Paolo Pigato, Edoardo Scrima<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-21 &middot; <a href="http://arxiv.org/abs/2607.19030v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.19030v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can price options on a thinly-traded fuel by borrowing the well-observed option prices of the crude oil it's refined from, plus a carefully estimated "spread" correction.</p>
+<h3>Plain English</h3>
+<p>An <strong>option</strong> is the right, but not the obligation, to buy or sell something at a fixed price later; its fair value depends heavily on how much the underlying thing's price bounces around — its <strong>volatility</strong>. To price options traders read off an <em>implied volatility surface</em>: a whole grid of volatilities across different strike prices and maturities, backed out from the prices at which options actually trade.</p>
+<p>The problem is that some markets barely trade. Gasoil (a refined diesel-type fuel) has an illiquid options market, so there simply aren't enough trades to build a reliable volatility surface directly — it's like trying to draw an accurate map of a town when only three houses have addresses. But Gasoil is refined from Brent crude oil, whose options are heavily traded and whose surface is crisp and reliable. The "crack spread" between crude and refined product is an old, well-understood relationship. So the natural question: can we take Brent's rich volatility information and translate it into Gasoil volatilities without needing Gasoil's own scarce option quotes?</p>
+<p>The idea is to model Brent and Gasoil futures prices jointly, as two correlated randomly-moving quantities, and then learn how Gasoil's volatility differs from Brent's as a function of the crack-spread level. When crude and product prices are far apart in a particular way, the volatility spread tends to sit in a particular regime; the authors detect these regimes from history by clustering. Once you know the typical volatility gap for the current spread regime, you apply it as a correction to Brent's implied volatilities and out pops a Gasoil surface.</p>
+<p>What they found: the surface produced this way closely matches the (sparse) Gasoil implied volatilities you <em>can</em> observe, and does so more faithfully than more direct approaches — good news for anyone pricing derivatives on refined petroleum products.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model Brent and Gasoil futures as a bivariate system in a <strong>correlated Bachelier local-volatility</strong> framework. Bachelier (normal) dynamics — as opposed to Black–Scholes lognormal — are natural in commodity/energy markets where prices can behave additively and even go negative. Let $F^B_t$ and $F^G_t$ be the Brent and Gasoil futures prices. The Brent factor follows a <strong>normal mixture diffusion</strong>: its increments are drawn from a mixture of Gaussians, which lets one thin model reproduce the smile/skew of the implied-vol surface.</p>
+<p><strong>The key equations.</strong> The two futures evolve as correlated Bachelier diffusions,
+$$dF^B_t = \sigma^B(t,F^B_t)\,dW^B_t, \qquad dF^G_t = \sigma^G(t,F^G_t)\,dW^G_t, \qquad d\langle W^B, W^G\rangle_t = \rho\,dt,$$
+where $F^B_t,F^G_t$ are the Brent and Gasoil futures prices, $\sigma^B,\sigma^G$ are their (state-dependent) local absolute volatilities, $W^B_t,W^G_t$ are Brownian motions, and $\rho$ is the instantaneous correlation between them. The core modeling object is the <strong>volatility spread</strong>
+$$s_t \;=\; \sigma^G(t,F^G_t) - \sigma^B(t,F^B_t),$$
+estimated as a function of the observed <strong>crack-spread level</strong> $c_t = F^G_t - \kappa\,F^B_t$ (with $\kappa$ a conversion factor). The mapping $c_t \mapsto s_t$ is fit by clustering historical $(c_t, s_t)$ pairs into regimes and estimating a representative spread per cluster.</p>
+<p><strong>The method.</strong> For the Brent leg, a <strong>normal mixture diffusion</strong> is calibrated to the liquid Brent surface. For the Gasoil–Brent volatility spread, a <strong>data-driven clustering procedure</strong> groups historical crack-spread levels and reads off the associated volatility spread — no Gasoil option prices used as inputs. Prices and the resulting Gasoil implied volatilities are then computed by <strong>Monte Carlo simulation</strong> of the bivariate system: simulate many correlated Brent/Gasoil paths, average discounted option payoffs, and invert to implied vols.</p>
+<p><strong>Results.</strong> Monte Carlo simulations show the reconstructed Gasoil implied volatilities "closely match observed Gasoil implied volatilities" and do so better than more direct approaches benchmarked against. The upshot is a practical pipeline: liquid Brent surface in, illiquid Gasoil surface out, with the crack-spread regime supplying the correction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the grid of volatilities, across strikes and maturities, inferred from observed option prices; the working object of options desks.</li>
+<li><strong>Bachelier (normal) model</strong> — a price model where changes, not percentage changes, are Gaussian; suited to commodities where additive moves and negative prices occur.</li>
+<li><strong>Local volatility</strong> — volatility allowed to depend on the current price level and time, rather than being a single constant.</li>
+<li><strong>Normal mixture diffusion</strong> — dynamics whose random increments come from a blend of Gaussians, letting one model fit the whole skewed volatility smile.</li>
+<li><strong>Crack spread</strong> — the price difference between a refined product (Gasoil) and the crude oil (Brent) it's made from; a standard energy-market quantity.</li>
+<li><strong>Monte Carlo simulation</strong> — pricing by generating many random price paths and averaging the resulting payoffs.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The whole edifice leans on the Brent–Gasoil relationship staying stable, and specifically on the crack-spread-to-volatility-spread mapping learned from history holding up out of sample — refinery shocks, regulatory changes, or a demand regime shift could break that link exactly when you need it. Clustering historical spreads is sensible but backward-looking. For a desk that already trades Brent, though, this is a genuinely deployable way to quote refined-product options where no direct surface exists.</p>
+<h3>Bottom Line</h3>
+<p>When your market is too quiet to price, listen to the louder market it's chained to — and learn the size of the gap between them.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Denoising Subordinated Probabilistic Models: Diffusion with a Tempered-Stable Volatility Clock, and What the Noise Mechanism Actually Controls</h2>
+  <p class="meta">Junchi Shen, Helin Zhao<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-21 &middot; <a href="http://arxiv.org/abs/2607.19218v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.19218v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A generative "denoising" model for financial data is engineered so its random noise clusters in time the way real market volatility does — and the paper proves exactly when that engineered clustering actually changes the output and when it's silently ignored.</p>
+<h3>Plain English</h3>
+<p>Modern generative AI often works by <em>denoising</em>: take real data, progressively drench it in random noise until it's pure static, then train a neural network to reverse the process step by step. Run the reverse from fresh static and you generate new, realistic-looking samples. This is how a lot of image and, increasingly, financial-data generators work.</p>
+<p>The catch for finance: standard denoising models use plain Gaussian (bell-curve) noise with no memory, but real financial returns have a stubborn signature called <strong>volatility clustering</strong> — calm days follow calm days, wild days follow wild days. Turbulence comes in streaks. A noise process with no temporal structure can't reproduce that streakiness on its own.</p>
+<p>The idea is to give the noise a memory. Instead of independent Gaussian kicks, the model drives its noise amplitude with a slowly-varying random "volatility clock" — a process that itself clusters — built from a well-known stochastic-volatility model (Barndorff–Nielsen–Shephard, driven by heavy-tailed "tempered-stable" jumps). Crucially, plain Gaussian denoising, an earlier heavy-tailed variant, and a Student-t variant all fall out as special cases of a single "memory" knob, so this is one unified family, not a bolt-on.</p>
+<p>Then comes the surprising, honest part. The authors prove a <strong>delimiting result</strong>: if the denoiser is told the noise amplitudes it's undoing (conditioned on the volatility clock), then in the ideal limit the generated distribution doesn't care what the clock's law was — you can crank up the volatility mechanism and nothing changes. The mechanism becomes a nuisance parameter the model launders away. Only when you <em>couple</em> the clock to the data through a learned volatility encoder does controlling the clock actually control the output. Experiments back both halves: a designed ×8 volatility shock moves a conditioned model's output by under 13%, while the coupled model responds properly and even recovers the hidden volatility (correlation 0.76).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Start from a denoising diffusion (DDPM) built on a Gaussian variance mixture: noise is $\varepsilon = \sqrt{V}\,Z$ with $Z\sim\mathcal N(0,I)$ and a mixing variable $V\ge 0$ controlling amplitude. Prior heavy-tailed models chose $V$ i.i.d. across coordinates (DLPM) or one shared $V$ per sample (Student-t EDM). Neither has <em>dynamics</em>. The new <strong>Denoising Subordinated Probabilistic Model (DSPM)</strong> makes the mixing vector a stationary process along the data axis.</p>
+<p><strong>The key construction.</strong> The mixing vector $(V_i)$ follows an AR(1) chain driven by tempered-stable subordinator increments — the discrete <strong>Barndorff–Nielsen–Shephard</strong> volatility process:
+$$V_i \;=\; e^{-\lambda}\,V_{i-1} \;+\; \eta_i, \qquad \eta_i \sim \text{tempered-stable subordinator increment},$$
+where $V_i$ is the noise variance at coordinate $i$, $\lambda>0$ is the memory/persistence parameter (mean-reversion rate of the volatility clock), and $\eta_i\ge 0$ are the non-negative heavy-tailed jumps that keep volatility positive and clustered. Conditional on the chain $(V_i)$, "the DDPM machinery survives verbatim" — the usual denoising loss and sampler apply unchanged. Kurtosis and the squared-noise autocorrelation are <strong>closed-form</strong> in the chain parameters, giving an exactly identified, analytically invertible calibration. DDPM ($\lambda\to\infty$-type limit), DLPM, and Student-t noise are boundary cases of the single memory parameter.</p>
+<p><strong>The delimiting result.</strong> Let the denoiser be conditioned on the mixing variables $V$. The theorem states that in the <strong>exact-denoiser limit</strong> the generated distribution is <em>invariant</em> to the law of $V$:
+$$p_{\text{gen}}(x) \;=\; \int p_{\text{gen}}(x\mid V)\,d\pi(V) \;=\; p_{\text{data}}(x)\quad\text{independently of } \pi,$$
+so interventions on the chain (changing $\pi$) do nothing — the mixing law is a nuisance. Control is restored only by coupling the chain to the data via a <strong>variational volatility encoder</strong>, trained with the stochastic-volatility likelihood whose log-determinant term the simplified denoising loss provably drops.</p>
+<p><strong>The method.</strong> Training uses standard denoising score-matching conditioned on the sampled volatility chain; the coupled variant adds an amortized variational encoder $q(V\mid x)$ optimizing the SV likelihood. Calibration of the chain is analytic via the closed-form moment maps.</p>
+<p><strong>Results.</strong> Conditioned models reproduce data clustering regardless of the mixing law, and a designed ×8 volatility shock moves the output envelope by under 13% (mechanism laundered away). The coupled model instead responds correctly — shock response 3.07 versus a naive 2.83 — recovers latent volatility at correlation 0.76, and learns the prior's memory toward the true persistence.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Denoising diffusion model (DDPM)</strong> — a generator that learns to reverse a gradual noising process, turning random static into realistic samples.</li>
+<li><strong>Gaussian variance mixture</strong> — noise built as a Gaussian scaled by a random amplitude, a standard way to produce heavy tails.</li>
+<li><strong>Volatility clustering</strong> — the empirical fact that large market moves bunch together in time, and calm periods likewise.</li>
+<li><strong>Barndorff–Nielsen–Shephard / tempered-stable subordinator</strong> — a stochastic-volatility model whose variance is driven by non-negative heavy-tailed jumps that produce persistent, clustered volatility.</li>
+<li><strong>AR(1) chain</strong> — a process where each value is a shrunk copy of the previous one plus fresh noise, giving short-range memory.</li>
+<li><strong>Nuisance parameter</strong> — a quantity in the model that, despite appearances, has no effect on the object you care about.</li>
+<li><strong>Variational encoder</strong> — a neural network that infers a hidden variable (here the volatility level) from observed data.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline caution is aimed inward: much of the "financial realism" people bolt onto conditioned diffusion models may be provably inert, which is a valuable negative result but also means the actually-useful architecture (the coupled encoder) is the more delicate, harder-to-train one. Results are on controlled experiments with designed shocks, not live trading data, and a correlation of 0.76 for recovered latent volatility is decent but not sharp. The message practitioners should take is diagnostic — check whether your noise mechanism does anything — more than "deploy this."</p>
+<h3>Bottom Line</h3>
+<p>Adding realistic-looking randomness to a generative model is worthless unless it's wired to the data — otherwise the model quietly throws your mechanism away.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Mean-field equilibrium price formation under single-default risk</h2>
+  <p class="meta">Masashi Sekine<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-20 &middot; <a href="http://arxiv.org/abs/2607.17502v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17502v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a huge crowd of differently-cautious investors all trade around the risk of a single company defaulting, you can pin down the market's equilibrium risk premium by solving one "mean-field" equation that averages the crowd together.</p>
+<h3>Plain English</h3>
+<p>Markets have prices, but where do those prices <em>come from</em>? Not from a coin flip — they come from a tug-of-war between many investors, each buying and selling until supply meets demand. Economists call the resting point of that tug-of-war an <strong>equilibrium</strong>. This paper asks: what is the equilibrium price of risk when there's a specific danger looming — a <strong>single default event</strong>, like one big issuer possibly going bust — and the market has a large population of investors who differ from one another?</p>
+<p>Here's the concrete picture. Thousands of investors hold positions in a stock. They differ in two ways: how much they hate risk (their <strong>risk aversion</strong>), and what future obligations they're carrying (their <strong>terminal liabilities</strong> — say, a pension fund that owes payouts later). Each investor tries to maximize their own satisfaction from end-of-day wealth. At any moment there might be a sudden default that jolts the stock's price. Everyone is bracing for it differently. The market price has to adjust until, across the whole crowd, everyone's desired holdings add up to what's actually available — the market clears.</p>
+<p>Tracking thousands of distinct investors is hopeless. The clever move is <strong>mean-field</strong> thinking, borrowed from physics: instead of following each particle, you replace the crowd with its average behavior and let each investor respond to that average. As the population grows large, individual idiosyncrasies wash out and a single representative equation governs the whole market's risk premium — the extra return demanded for bearing the default risk.</p>
+<p>What they found is a precise characterization of how three ingredients — how likely the default is, how big a price jump it causes, and how varied the investors are — combine to determine the default-risk slice of the risk premium. They also prove that solving the mean-field equation genuinely clears the real finite market in the large-population limit.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space carrying Brownian motions $W$ and a <strong>default event</strong> with a random default time $\tau$, encoded by a jump process whose compensated version $M$ is a martingale. There's a continuum (or large number $N$) of agents indexed by their type: risk-aversion parameter and terminal liability. Each agent has exponential (CARA) utility and maximizes expected utility of terminal net wealth $\mathbb{E}[-e^{-\gamma X_T}]$, where $\gamma>0$ is risk aversion and $X_T$ is terminal wealth.</p>
+<p><strong>Each agent's problem.</strong> The optimal trading strategy is characterized by a <strong>quadratic-growth backward stochastic differential equation (BSDE)</strong> driven by the Brownian motions and the compensated default martingale:
+$$dY_t = -f(t, Z_t, U_t)\,dt + Z_t\,dW_t + U_t\,dM_t, \qquad Y_T = \xi,$$
+where $Y_t$ is the value/adjustment process, $Z_t$ is the Brownian-risk sensitivity (control on the diffusion part), $U_t$ is the jump sensitivity to the default, $\xi$ is the terminal liability, and the driver $f$ grows quadratically in $Z$ — the signature of exponential-utility problems. The compensated default martingale $M$ is what injects the single-default risk into the dynamics.</p>
+<p><strong>Market clearing and the mean field.</strong> Aggregate the individual optimal demands and impose the <strong>market-clearing condition</strong> (total demand equals supply). This yields a <strong>mean-field quadratic-growth BSDE</strong> for the equilibrium risk premium $\theta_t$:
+$$\theta_t \;=\; \Psi\big(\text{aggregate of agents' } (Z,U)\big),$$
+i.e. the risk premium is determined self-consistently by the crowd's averaged sensitivities. The solution quantifies how default intensity $\lambda$ (how likely default is per unit time), jump size (how far the price gaps on default), and agent heterogeneity jointly shape the default-risk component of the premium.</p>
+<p><strong>The method.</strong> Under a <strong>Markovian factor model</strong>, the mean-field BSDE is linked to a coupled semilinear PDE system, and <strong>short-time solvability</strong> is established via a fixed-point argument using a-priori estimates for that PDE system. Finally, an asymptotic argument shows the risk premium from the mean-field BSDE <strong>approximately clears the finite market as $N\to\infty$</strong> — the mean-field object is the right limit of the real economy.</p>
+<p><strong>Results.</strong> The paper delivers a characterization theorem (existence and short-time uniqueness) plus the market-clearing asymptotics, rather than numerical performance figures — the deliverable is the equation for $\theta_t$ and the proof that it governs the large-market equilibrium premium under single-default risk.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Equilibrium price formation</strong> — determining prices as the outcome where all agents' optimal demands collectively balance supply, rather than assuming prices exogenously.</li>
+<li><strong>Risk premium</strong> — the extra expected return investors demand for holding a risky asset instead of a safe one.</li>
+<li><strong>Mean-field</strong> — an approximation replacing a large population of interacting agents by their average, so each agent optimizes against the aggregate.</li>
+<li><strong>BSDE (backward stochastic differential equation)</strong> — an equation solved backward from a known terminal condition, whose solution encodes an optimal strategy and its risk sensitivities.</li>
+<li><strong>Compensated default martingale</strong> — the default jump process with its predictable drift subtracted, leaving a pure-surprise (martingale) component.</li>
+<li><strong>Quadratic-growth driver</strong> — a BSDE whose nonlinearity grows like the square of the control, the hallmark of exponential-utility optimization.</li>
+<li><strong>Default intensity</strong> — the instantaneous rate at which the default event is expected to occur.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Solvability is only established <strong>short-time</strong> and under a Markovian factor structure — global existence for long horizons and richer default structures is left open, which matters because default risk premia are precisely a long-horizon concern. "Single default" is a strong simplification; real credit markets have many correlated potential defaulters. This is a foundational equilibrium result, valuable for understanding what drives default risk premia, not a calibrated tool a desk plugs in tomorrow.</p>
+<h3>Bottom Line</h3>
+<p>Replace a market's unruly crowd with its average and a single backward equation tells you the price of dreading one big default.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> A General Model for Continuous Time Principal-Agent Problem Under Hidden Action</h2>
+  <p class="meta">Jaeyoung Sung, Jianfeng Zhang, Zimu Zhu<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-19 &middot; <a href="http://arxiv.org/abs/2607.17212v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17212v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a boss can't see how hard a worker is actually working, this paper gives a cleaner mathematical recipe for designing the pay contract — including a continuously-adjusting, performance-linked component — and a shortcut that skips the usual tedious verification step.</p>
+<h3>Plain English</h3>
+<p>A classic problem in economics is the <strong>principal–agent</strong> problem: a principal (say, a company or an investor) hires an agent (a manager or trader) to act on their behalf, but can't directly observe how much effort the agent puts in — only the noisy outcomes. This is <strong>hidden action</strong>, or <em>moral hazard</em>. If the agent is paid a flat salary they may slack off; if paid purely on results they bear all the randomness and demand a premium. The art is designing a contract that motivates effort while sharing risk sensibly.</p>
+<p>This version is richer than the textbook one in two ways. First, it runs in <strong>continuous time</strong> — the agent chooses effort <em>and</em> consumption moment by moment over a stretch of time, not just once. Second, the contract can pay in two flavors at once: a smoothly-flowing continuous payment stream <em>and</em> lump-sum payments at certain dates. And the continuous stream isn't fixed — it's allowed to be a <strong>controlled diffusion</strong>, meaning its size can be dialed up or down in response to performance. That knob corresponds directly to something empirical labor economists actually measure: <strong>pay-to-performance sensitivity</strong> (PPS), i.e. how much a manager's pay moves when firm value moves.</p>
+<p>The contribution is partly technical craftsmanship. Solving the agent's side of these problems usually goes through a "first-order approach" that produces a <em>candidate</em> optimal strategy, which then needs a separate, often painful <strong>verification</strong> step to confirm it's truly optimal. The authors propose a new <strong>sufficient condition</strong> that hands you a genuine solution to the agent's problem directly — no separate verification needed. They also work through an example that can be solved in closed form, which is rare and pedagogically valuable in this literature.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a filtered probability space with a Brownian motion $W$. The firm's output (or the agent's controlled state) follows a diffusion whose drift the agent influences through hidden effort $a_t$:
+$$dX_t = \mu(X_t, a_t)\,dt + \sigma(X_t)\,dW_t,$$
+where $X_t$ is the observable output/state, $a_t$ is the agent's unobserved effort at time $t$, $\mu$ is the effort-dependent drift (more effort $\Rightarrow$ higher expected output), and $\sigma$ is the volatility — the noise that hides effort from the principal.</p>
+<p><strong>The contract.</strong> The agent receives a continuous payment process together with lump-sum payments. The continuous payment $c_t$ is itself a <strong>controlled diffusion</strong>,
+$$dc_t = \alpha_t\,dt + \beta_t\,dW_t,$$
+where $\alpha_t$ sets the drift of the pay stream and $\beta_t$ is the <strong>pay-to-performance sensitivity</strong> — the loading of pay on the same shocks $W$ that drive output. A large $\beta_t$ ties the agent's wallet tightly to firm performance.</p>
+<p><strong>The agent's objective.</strong> The agent chooses effort and consumption to maximize expected utility of consumption net of effort cost,
+$$\sup_{a,\,\text{consumption}}\ \mathbb{E}\!\left[\int_0^T U(c^{\text{cons}}_t) \, dt \;-\; \int_0^T g(a_t)\,dt \;+\; \text{(lump-sum utility)}\right],$$
+where $U$ is the agent's utility from consumption, $g(a_t)$ is the increasing cost of effort, and $T$ is the horizon. The principal then designs the contract $(\alpha,\beta,\text{lumps})$ anticipating the agent's best response — a <strong>Stackelberg</strong> (leader–follower) game.</p>
+<p><strong>The method — the new sufficient condition.</strong> Rather than deriving a candidate via the first-order (necessary) conditions and then separately proving optimality, the authors state a <strong>sufficient condition</strong> whose satisfaction <em>directly certifies</em> a solution to the agent's optimization. In effect they supply a verification-free route: if the condition holds, the constructed effort/consumption pair is optimal, no additional verification theorem required. They then exhibit an <strong>explicitly solvable example</strong>, obtaining the optimal contract and effort in closed form.</p>
+<p><strong>Results.</strong> This is a theory paper: the deliverables are the general model admitting controlled-diffusion continuous pay (connecting cleanly to empirical PPS), the streamlined sufficient condition that removes the separate verification step, and a worked closed-form example demonstrating the machinery. There are no benchmark performance numbers — the "result" is the sharper solution method and the tractable example.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Principal–agent problem</strong> — a setup where one party hires another whose actions it cannot fully observe, creating an incentive-design challenge.</li>
+<li><strong>Hidden action / moral hazard</strong> — the agent's effort is unobservable, so the contract must motivate effort indirectly through outcomes.</li>
+<li><strong>Controlled diffusion</strong> — a randomly-evolving quantity whose drift and volatility can be steered by chosen controls.</li>
+<li><strong>Pay-to-performance sensitivity (PPS)</strong> — how strongly an agent's compensation responds to the performance of what they manage.</li>
+<li><strong>First-order approach</strong> — replacing the agent's optimization by its first-order optimality condition to make the problem tractable; usually needs a separate check that the resulting candidate is truly optimal.</li>
+<li><strong>Sufficient condition</strong> — a criterion whose truth guarantees a desired conclusion (here, optimality) outright, without further verification.</li>
+<li><strong>Stackelberg game</strong> — a game where a leader (principal) commits first and a follower (agent) best-responds, and the leader optimizes anticipating that response.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a methodological/theoretical advance — a cleaner sufficient condition and a tractable example — not an empirical or calibrated result, so a practitioner won't lift a ready-made contract from it. The explicitly solvable example almost certainly relies on convenient functional forms (utility, cost, dynamics) that real compensation settings won't match, and the continuous-consumption, continuous-effort idealization abstracts from taxes, contracting frictions, and renegotiation. Its value is in the toolkit: a smoother path to optimal contracts that others can build calibrated models on.</p>
+<h3>Bottom Line</h3>
+<p>If you can't watch the worker, design the paycheck to watch the results — and this paper makes the math of doing so a step less painful.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
