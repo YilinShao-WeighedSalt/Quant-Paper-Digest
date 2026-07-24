@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 24, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 24, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Path-Space Model Risk via Signature-Induced Optimal Transport</h2>
+  <p class="meta">Tomoyuki Ichiba, Qijin Shi<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-22 &middot; <a href="http://arxiv.org/abs/2607.20343v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.20343v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A way to put honest, guaranteed error bars on a financial model's answer by measuring how far reality could realistically drift from it — using a compact mathematical "fingerprint" of the price paths the model produces.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every number a quant reports — the price of an option, the probability a loan defaults, the capital a bank must set aside — comes out of a <em>model</em>: an equation describing how prices wiggle over time. The trouble is that the model is never exactly right. So the honest question is not "what does my model say?" but "if my model is slightly wrong, how wrong could my answer be?" This is called <strong>model risk</strong>. Imagine an insurer who prices a contract assuming interest rates follow one particular random process. If the true process differs a little, the reserve they set aside could be off — and they would much rather have a guaranteed bound ("no matter what, the loss is at most X") than a hopeful point estimate.</p>
+<p><strong>The idea.</strong> Comparing two whole random <em>paths</em> — two years of daily prices, say — is awkward, because a path is a huge, wiggly object. So the authors first squash each path into a short list of summary numbers called its <strong>signature</strong>. Think of a signature the way you think of a fingerprint: a compact code that captures the essential shape of the path — its net drift, its curvature, the order in which it turned up and down — without storing every point. Once every path is a fingerprint, "how different are two models?" becomes "how different are their fingerprints?" To measure how far the baseline model's fingerprints could be <em>pushed</em> toward some rival model's, they borrow <strong>optimal transport</strong> — the mathematics of the cheapest way to shovel a pile of sand into a new shape. They let reality live anywhere within a fixed "budget" of shovelling cost away from the baseline, and then ask: across all those nearby possible worlds, what is the worst value my quantity could take?</p>
+<p><strong>What they found.</strong> Because they restrict attention to summary numbers that enter <em>linearly</em>, the messy "search over all nearby worlds" collapses into a clean formula. For a broad family of quantities — expected values, and probabilities of events like "the loss exceeds a threshold" — the correction to the baseline answer is controlled by a single number they call the <strong>effective budget</strong>, which depends only on the baseline model and the size of your uncertainty. You do not have to simulate thousands of alternative universes. For messier, data-driven quantities they add a "sparse signature surrogate" that keeps only the few fingerprint coordinates that matter. They demonstrate it on controlled stress tests and standard model-misspecification benchmarks in finance and insurance.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> Fix a time horizon and work with continuous paths $X:[0,T]\to\mathbb{R}^d$ on a probability space with baseline law $\mathbb{P}$. The <strong>signature</strong> $S(X)$ is the (truncated) collection of iterated integrals of the path,
+$$S(X) = \Big(1,\ \int dX,\ \iint dX\otimes dX,\ \dots\Big),$$
+a graded vector of numbers that characterizes the path up to reparametrization. Let $S_\#\mathbb{P}$ denote the <em>pushforward</em> — the distribution of the fingerprint $S(X)$ when $X\sim\mathbb{P}$. The <strong>ambiguity set</strong> is the set of alternative laws whose fingerprints sit within an optimal-transport budget of the baseline's:
+$$\mathcal{U} = \big\{\, \mathbb{Q} : \mathrm{OT}_c\big(S_\#\mathbb{P},\, S_\#\mathbb{Q}\big) \le \delta \,\big\},$$
+where $\mathrm{OT}_c$ is the optimal-transport cost with per-unit cost $c$, and $\delta$ is the budget.</p>
+<p><strong>Key result.</strong> For an <strong>affine signature score</strong> $\phi(x) = a_0 + \langle a, S(x)\rangle$ — a quantity that reads off the fingerprint linearly — the worst-case expectation over the whole ambiguity set is the baseline value plus one explicit correction:
+$$\sup_{\mathbb{Q}\in\mathcal{U}} \mathbb{E}_{\mathbb{Q}}\big[\phi(X)\big] \;=\; \mathbb{E}_{\mathbb{P}}\big[\phi(X)\big] \;+\; \kappa(a,b).$$
+Here $a$ is the vector of weights on the signature coordinates, $a_0$ a constant, $\langle\cdot,\cdot\rangle$ the inner product, and $\kappa(a,b)$ the <strong>effective budget</strong> — a number built from the affine score $a$ and the budget vector $b$ of the ambiguity set, and <em>nothing else</em>. The same effective budget governs robust <strong>probability</strong> bounds for affine half-space events $\{\, x : \langle a, S(x)\rangle \le t \,\}$, giving worst-case tail probabilities in closed form.</p>
+<p><strong>The method.</strong> The engine is convex duality for optimal transport, applied after an <em>ambient feature-space relaxation</em>: rather than optimizing over path laws directly, they optimize over distributions of the signature features, where the transport cost is convex and its dual is explicit. This turns "maximize over a whole family of models" into evaluating one dual expression at the baseline. For general, possibly implicit or data-driven functionals, they project onto a small set of signature terms — a <strong>budget-aware sparse signature surrogate</strong> — so the same closed-form machinery applies approximately.</p>
+<p><strong>Results with numbers.</strong> The contribution is structural rather than a single benchmark score: the worst-case correction depends <em>only on the baseline model</em>, so no re-simulation of alternative worlds is needed. They validate the bounds on controlled stress tests and model-misspecification problems in finance and insurance, showing the signature-OT bounds track the true worst case while remaining cheap to compute.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Signature (of a path)</strong> — a compact list of iterated integrals that summarizes a path's shape, playing the role of a fingerprint.</li>
+<li><strong>Iterated integral</strong> — an integral of the path against itself repeatedly ($\iint dX\,dX$, etc.), the building block of the signature.</li>
+<li><strong>Optimal transport</strong> — the minimum total cost of moving one probability distribution onto another, given a per-unit moving cost.</li>
+<li><strong>Coupling</strong> — a joint distribution whose two margins are the two laws being compared; the "transport plan."</li>
+<li><strong>Ambiguity set</strong> — the collection of alternative models considered plausible, here all laws within a transport budget of the baseline.</li>
+<li><strong>Affine (score / half-space)</strong> — depending on the variables linearly plus a constant; affine events are regions like "$\langle a, S(x)\rangle \le t$."</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean closed forms live in the affine regime; real risk quantities (path-dependent option payoffs, default cascades) are often nonlinear in the signature, so you lean on the sparse surrogate and inherit its approximation error. Choosing the transport budget $\delta$ is a modelling decision, not data-given — too small understates risk, too large is useless. Still, for stress testing and reserving, a bound that needs only the baseline model and a budget dial is genuinely usable.</p>
+<h3>Bottom Line</h3>
+<p>Turn a wiggly price path into a fingerprint, and the worst case a slightly-wrong model can hide shrinks to a single number you can actually compute.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Quantum Kernels and the Cross-Section of Stock Returns: Anatomy of a Vanishing Advantage</h2>
+  <p class="meta">Junchi Shen<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-07-22 &middot; <a href="http://arxiv.org/abs/2607.20168v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.20168v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you test quantum machine-learning fairly against ordinary methods for predicting stock returns, the "quantum advantage" evaporates — and the paper shows exactly which sloppy shortcuts make it falsely reappear.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A recurring hope in quant finance is that quantum computers will predict markets better than classical ones. Concretely: given each stock's characteristics (size, momentum, valuation), can you rank which stocks will out-return others next month? A popular quantum approach is the <strong>quantum kernel</strong> — a way of measuring "how similar are two stocks" by encoding their features into a quantum state and comparing those states. Many papers report that quantum kernels beat classical ones. But machine-learning results in finance are notoriously easy to fool yourself with: tiny differences in how you set up the test can flip the conclusion. So the real question is whether the advantage survives an <em>honest</em> comparison.</p>
+<p><strong>The idea.</strong> The authors run a controlled "horse race." Every runner shares the same training data, the same solver, the same tuning budget — the <em>only</em> thing that changes is the similarity measure (the kernel). One runner is a quantum fidelity kernel, one a projected quantum kernel, one a plain classical kernel (the workhorse "RBF"). Then they run it the careful way: on a <strong>point-in-time</strong> universe (using only information you would actually have had on each date, never peeking at the future) across 170 rolling test windows from 2012 to 2025. Crucially, they <em>also</em> re-run it the sloppy way — screening the stock universe using full-sample information the future would reveal — to show how the illusion of quantum dominance is manufactured.</p>
+<p><strong>What they found.</strong> Done honestly, there is no quantum advantage. The quantum kernel is statistically indistinguishable from its classical control, and simple penalized linear regressions are as good as or better than everything, including the quantum models. Done sloppily — with a look-ahead-contaminated universe and only 60 windows — the very same quantum kernel suddenly looks dominant and "significantly better than neural baselines." The lesson: the advantage was an artifact of the test design, not the physics. They propose a checklist of protocol standards for anyone claiming quantum advantage in finance.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> For stocks $i$ with feature vectors $x_i\in\mathbb{R}^p$ and next-period returns $r_i$, a kernel method predicts returns as a weighted sum of similarities $k(x_i,x_j)$ to training points. A <strong>fidelity quantum kernel</strong> encodes features into a quantum state $|\psi(x)\rangle$ via a parametrized circuit and measures overlap:
+$$k_{\mathrm{fid}}(x,x') = \big|\langle \psi(x)\,|\,\psi(x')\rangle\big|^2,$$
+where $|\psi(x)\rangle$ is the feature-map state and $\langle\cdot|\cdot\rangle$ the quantum inner product. The classical control is the <strong>RBF kernel</strong>
+$$k_{\mathrm{RBF}}(x,x') = \exp\!\big(-\gamma\,\|x-x'\|^2\big),$$
+with $\|x-x'\|$ the distance between feature vectors and $\gamma>0$ a bandwidth tuned on data.</p>
+<p><strong>Key metric.</strong> Predictive skill is the <strong>information coefficient</strong> $\mathrm{IC}$ — the cross-sectional correlation between predicted and realized returns — and the headline comparison is $\Delta\mathrm{IC}$, quantum minus classical, tested for statistical significance.</p>
+<p><strong>The method.</strong> A <em>kernel-swap controlled experiment</em>: identical training subsamples, solver, and tuning grids, changing only $k$. Evaluation is <em>walk-forward</em> (train on the past, test on the next window, roll) over 170 windows. To reach the full ~38,000-observation windows they use the <strong>Nyström extension</strong> (a low-rank approximation that lets kernel methods scale to large samples). Comparisons across eleven models use <strong>family-wise error correction</strong> — inflating the significance bar to account for many simultaneous tests. They also examine the <strong>geometric difference</strong> $g$, a theoretical quantity that measures how much a quantum kernel's geometry departs from classical, and ask whether it predicts real gains.</p>
+<p><strong>Results with numbers.</strong> On the honest evaluation, the fidelity kernel is indistinguishable from its RBF control: $\Delta\mathrm{IC} = +0.005$ with $p = 0.42$. In a $2\times 2$ design crossing kernel type with training budget, quantum kernels <em>match but never beat</em> equal-budget linear models; after family-wise correction, none of the eleven models differ significantly, with point estimates favoring penalized linear regression throughout. The mirage: a 60-window evaluation on a <strong>full-sample-screened</strong> universe makes the same quantum kernel look dominant and beat neural baselines. Meanwhile the geometric difference stays large everywhere ($g \gg 1$) yet fails to predict out-of-sample gains — its rank correlation with realized improvement is $\rho = -0.20$ (wrong sign).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Kernel</strong> — a function measuring similarity between two data points, the core of many prediction methods.</li>
+<li><strong>Fidelity / projected quantum kernel</strong> — similarity measures computed from quantum states encoding the features; fidelity uses state overlap, projected uses measured observables.</li>
+<li><strong>RBF kernel</strong> — the standard classical "radial basis function" similarity, $\exp(-\gamma\|x-x'\|^2)$.</li>
+<li><strong>Information coefficient (IC)</strong> — correlation between predicted and actual returns; the standard scorecard for a return signal.</li>
+<li><strong>Walk-forward / point-in-time</strong> — testing only on future data using only information available at each date, with no look-ahead.</li>
+<li><strong>Nyström extension</strong> — a low-rank trick that lets kernel methods run on very large datasets.</li>
+<li><strong>Family-wise correction</strong> — raising the significance threshold to avoid false positives when many hypotheses are tested at once.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a negative result done rigorously, which is exactly what the field needs — but it is one market (Chinese A-shares), one feature set, and today's small quantum feature maps; it cannot rule out advantage from future circuits or richer encodings. Its most durable contribution is the <em>protocol</em> — kernel-swap controls, budget equalization, point-in-time universes, multiplicity-robust inference — which any honest claim, quantum or classical, should now clear.</p>
+<h3>Bottom Line</h3>
+<p>The quantum edge in stock prediction was made of look-ahead bias and unequal budgets; hold the test fair and it disappears.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Quantifying Sub-Optimality in Routing for Automated Market Makers</h2>
+  <p class="meta">Weiye Xi, Ciamac C. Moallemi<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-22 &middot; <a href="http://arxiv.org/abs/2607.20762v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.20762v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you trade one crypto token for another on a decentralized exchange, the automatic "router" that splits your order across pools leaves real money on the table — about 2 basis points per trade, tens of millions of dollars a year — and this paper measures exactly where it goes.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On a decentralized exchange (a "DEX") there is no order book and no human market maker. Instead there are <strong>liquidity pools</strong> — pots holding two tokens (say WETH and USDC) that quote a price purely from a formula based on how much of each token is in the pot. When you swap, a <strong>router</strong> decides how to split your trade across the many pools for that pair to get you the most tokens out. The question this paper asks is brutally practical: how good is that router, really? If it is even slightly suboptimal, every trader overpays a little, and across millions of trades that "little" becomes a fortune. Everyday analogy: it is like changing money at an airport with ten currency booths of different rates and queue lengths — do you actually walk to the best combination, or does your travel app quietly send you to a worse mix?</p>
+<p><strong>The idea.</strong> The authors audit 2.98 million real WETH-USDC swaps on Ethereum and compare each <em>realized</em> route against what an optimal router <em>should</em> have done. To make "should" precise they build three yardsticks: the <strong>Support-Constrained Optimum</strong> (best possible split given only the pools you actually touched), the <strong>Full-Venue Optimum</strong> (best split if you could use every pool), and a <strong>Gas-Aware</strong> version that subtracts the transaction ("gas") cost of using more pools. Computing the truly optimal split across many pools at this scale needs a fast algorithm, which they supply via bisection.</p>
+<p><strong>What they found.</strong> Realized routes fall short by an average of <strong>2.02 basis points</strong> per trade — about <strong>USD 24 million</strong> in aggregate. Two patterns stand out. First, <em>timing</em> matters enormously: much of the shortfall is a mismatch between the market state the router optimized against and the state at execution; against the same stale snapshot, realized routes look nearly optimal. Second, the losses are <em>heavy-tailed and uneven</em>: small trades lose more in percentage terms, while a handful of giant outliers dominate the total dollar loss. And a meaningful slice of the shortfall is caused by <strong>sandwich attacks</strong>, where a predator trades just before and just after you to skim value.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> A pool for a token pair quotes prices via a <strong>constant-function market maker</strong>. The canonical form is the constant-product rule: reserves $(x,y)$ of the two tokens satisfy
+$$x\cdot y = k,$$
+where $x$ is the reserve of token A, $y$ of token B, and $k$ a constant. Adding $\Delta$ of token A to pool $i$ returns an amount of token B given by a concave, increasing output function $f_i(\Delta)$ determined by that pool's reserves and fee.</p>
+<p><strong>Key optimization.</strong> Given a total trade size $\Delta$, the router chooses a split $(\Delta_1,\dots,\Delta_n)$ across $n$ pools to maximize total output:
+$$\max_{\Delta_1,\dots,\Delta_n \ge 0}\ \sum_{i=1}^{n} f_i(\Delta_i)\quad\text{subject to}\quad \sum_{i=1}^{n}\Delta_i = \Delta.$$
+Because each $f_i$ is concave, the optimum equalizes <strong>marginal outputs</strong>: there is a common shadow price $\lambda$ with
+$$f_i'(\Delta_i) = \lambda \ \text{ for every active pool } i,$$
+where $f_i'$ is the marginal token-B received per extra unit of token A into pool $i$, and $\lambda$ is the Lagrange multiplier on the budget constraint. The Gas-Aware objective subtracts a fixed cost $g$ for each additional pool activated, trading off marginal price improvement against gas spent.</p>
+<p><strong>The method.</strong> Since marginal outputs $f_i'$ are monotone in $\lambda$, the single equation $\sum_i (f_i')^{-1}(\lambda) = \Delta$ is solved by <strong>bisection</strong> on $\lambda$ — halving the search interval until the allocations sum to the trade size. This gives the exact optimal multi-pool split fast enough to run over millions of trades, yielding the SCO, FVO, and G-FVO benchmarks. Shortfall is realized output minus benchmark output, expressed in basis points.</p>
+<p><strong>Results with numbers.</strong> Across 2.98 million swaps, mean shortfall is <strong>2.02 bps per trade</strong>, roughly <strong>USD 24 million</strong> aggregate. Moving from execution-time state to one-block-lagged state optimization raises measured shortfall substantially, with further delays adding less (diminishing increments) — evidence that <em>timing mismatch</em>, not routing logic alone, drives much of the gap. Losses are heavy-tailed: small trades bear higher percentage losses; a few extreme trades dominate total dollars. Sandwich attacks account for a significant fraction of the suboptimality.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Automated market maker (AMM)</strong> — an exchange that prices trades from a fixed formula on pool reserves instead of an order book.</li>
+<li><strong>Constant-function / constant-product market maker</strong> — the pricing rule $x\cdot y=k$ that keeps a function of the reserves constant across trades.</li>
+<li><strong>Routing / split</strong> — dividing one order across several pools to get the best overall price.</li>
+<li><strong>Basis point (bps)</strong> — one hundredth of a percent; 2 bps = 0.02%.</li>
+<li><strong>Gas</strong> — the transaction fee paid to the Ethereum network, here per pool touched.</li>
+<li><strong>Sandwich attack</strong> — a predatory trade placed immediately before and after yours to extract value from the price you move.</li>
+<li><strong>Bisection</strong> — repeatedly halving a search interval to solve a monotone equation to high precision.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is an audit, not a new router: it quantifies and attributes the loss beautifully but does not deploy a better production router, and building a genuinely <em>information-timely, gas-aware</em> one online is the hard, unsolved part. The 2.02 bps figure is specific to one deep, liquid pair (WETH-USDC); thin pairs likely bleed far more. Still, the benchmark protocol and bisection algorithm give the field a reproducible ruler it previously lacked.</p>
+<h3>Bottom Line</h3>
+<p>Decentralized routing is quietly leaving about 2 basis points a trade unclaimed — and most of it is a clock problem and a predator problem, not a math problem.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Robust Control for Marked Point Processes under Transition-Rate Uncertainty</h2>
+  <p class="meta">Sascha Desmettre, Philipp C. Hornung<br>
+    <span class="cat">math.OC</span> &middot; 2026-07-18 &middot; <a href="http://arxiv.org/abs/2607.16935v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.16935v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A rigorous way to plan and price long-term life-and-health insurance when you do not trust your estimate of how often people fall ill or die — by optimizing against the worst plausible scenario Nature could throw at you.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A life or health insurer promises decades of payments that depend on random events — you get sick, recover, become disabled, die. To price a contract and hold the right reserve, the insurer needs the <em>rates</em> at which people move between these states (healthy → sick, sick → recovered, and so on). But those rates are estimated from data and are genuinely uncertain, and they may drift over time in ways history did not show — think of a new disease, or medicine that changes recovery odds. If you plan using a single best-guess set of rates and reality is worse, you are underfunded. Everyday analogy: budgeting a road trip using the average traffic you have seen before, when what you actually need is a budget that survives the <em>worst</em> traffic you could plausibly hit.</p>
+<p><strong>The idea.</strong> Treat it as a game against an adversary. You (the insurer) choose your strategy — how to consume, invest, and insure — to maximize your satisfaction. Then imagine a malicious "Nature" who, within believable limits, picks the <em>worst</em> set of transition rates to hurt you: more illness, less recovery, whatever damages your position most. You optimize assuming Nature will do its worst. Because the states are discrete (healthy, sick, dead) and events arrive at random times, the underlying randomness is a <strong>marked point process</strong> — a stream of dated jumps, each tagged with which transition happened. The clever, realistic twist is that Nature's allowed rates can depend on the whole path so far and are boxed in by an upper and a lower bound at every instant.</p>
+<p><strong>What they found.</strong> They prove the game has a well-defined solution: there is a best strategy for you and a genuine worst case for Nature, characterized by a special equation. From this they get worst-case (and best-case) <strong>reserves</strong> for life-and-health contracts whose payments themselves depend on the reserve. And for a concrete robust "consume and buy insurance" problem with standard preferences, they find an <em>explicit</em> closed-form solution — rare and valuable in this robust, path-dependent setting.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> A policyholder moves on a finite state space $\mathcal{S}$ (e.g. active, disabled, dead) driven by a non-Markovian <strong>marked point process</strong> on a probability space with filtration $(\mathcal{F}_t)$. Transitions occur at random times, each carrying a mark naming the jump. The baseline dynamics are governed by <strong>cumulative transition rates</strong>; the uncertainty is that the true path-dependent cumulative rates $\Lambda$ are only known to lie between bounds
+$$\underline{\Lambda}_t \ \le\ \Lambda_t \ \le\ \overline{\Lambda}_t,$$
+where $\underline{\Lambda}_t,\overline{\Lambda}_t$ are predictable (path-dependent) lower and upper bounds — the admissible "biometric scenarios" Nature may choose.</p>
+<p><strong>Key problem.</strong> The insurer maximizes expected utility while Nature minimizes it over admissible rates — a robust (max–min) control problem:
+$$V \;=\; \sup_{\alpha\in\mathcal{A}}\ \inf_{\Lambda\in[\underline{\Lambda},\,\overline{\Lambda}]}\ \mathbb{E}\Big[\, U\big(\text{outcome under control } \alpha,\ \text{rates } \Lambda\big)\,\Big],$$
+where $\alpha$ is the admissible control (consumption / investment / insurance choices), $\mathcal{A}$ the admissible set, $U$ the utility, and the inner infimum is Nature's worst-case choice of rates. The worst case is pinned down by a <strong>backward stochastic differential equation (BSDE)</strong> of a non-standard form whose driver encodes the min over the rate interval.</p>
+<p><strong>The method.</strong> They establish a <strong>martingale optimality principle</strong>: a process that is a supermartingale under any admissible strategy and a martingale under the optimal one, so that finding the optimum reduces to solving the associated BSDE. Their technical core is a <em>new existence-and-uniqueness theorem</em> for this non-standard worst-case BSDE, from which existence and uniqueness of worst-case and best-case <strong>prospective reserves</strong> (with reserve-dependent payments) follow. For <strong>power utility</strong> $U(c) = \dfrac{c^{1-\gamma}}{1-\gamma}$ — where $c$ is consumption and $\gamma>0$ the risk-aversion coefficient — they solve the robust consumption-insurance problem explicitly.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper: the deliverables are proofs — a martingale optimality principle, a novel BSDE existence/uniqueness result, and well-defined worst-case/best-case reserves — plus a <em>closed-form</em> optimal robust consumption-insurance rule under power utility, rather than a numerical error reduction or Sharpe ratio.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Marked point process</strong> — a random stream of events at random times, each labeled ("mark") with what happened.</li>
+<li><strong>Transition rate</strong> — the instantaneous propensity to jump from one state to another (e.g. healthy to sick).</li>
+<li><strong>Robust / max–min control</strong> — optimizing your decision against the worst case an adversary ("Nature") can choose within limits.</li>
+<li><strong>BSDE (backward stochastic differential equation)</strong> — an equation solved backward from a terminal condition, the standard tool for characterizing optimal stochastic-control solutions.</li>
+<li><strong>Martingale optimality principle</strong> — the rule that the value process is a martingale exactly under the optimal strategy, turning optimization into solving one equation.</li>
+<li><strong>Prospective reserve</strong> — the expected present value of future net liabilities an insurer must hold now.</li>
+<li><strong>Power utility</strong> — the preference $c^{1-\gamma}/(1-\gamma)$ with constant relative risk aversion $\gamma$.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The uncertainty is a <em>box</em> of transition rates — simple to state but crude: it treats every scenario inside the bounds as equally admissible and says nothing about how likely each is, so worst-case reserves can be conservative. Calibrating the bounds $\underline\Lambda,\overline\Lambda$ is where the real modelling judgment (and disputes) will live. That said, for regulated life-and-health reserving, a mathematically watertight worst case with an explicit consumption-insurance rule is exactly the kind of tool actuaries can defend.</p>
+<h3>Bottom Line</h3>
+<p>Price the policy for the worst illness-and-recovery scenario Nature can plausibly deal you, and the math still hands back a clean, explicit rule.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Mixing-Law Uncertainty in Multivariate Normal Mean-Variance Mixtures: Semi-parametric Estimation and Robust Cumulative-Prospect Decisions</h2>
+  <p class="meta">Nuerxiati Abudurexiti<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-21 &middot; <a href="http://arxiv.org/abs/2607.18813v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.18813v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of committing to one guess about the hidden "volatility clock" behind asset returns, keep every guess that fits the data equally well and make the portfolio decision that is safe against all of them.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Asset returns are not the neat bell curve textbooks assume — real returns have fat tails and calm-then-stormy volatility. A popular way to capture this is to say returns are a bell curve <em>whose spread is itself random</em>: on quiet days the spread is small, on turbulent days it is large, governed by a hidden "activity level." The catch is that you must specify <em>how</em> that hidden activity level is distributed — its "mixing law" — and different plausible choices fit the data almost equally well yet imply different tail risks. Pick one and you are quietly betting the whole analysis on a guess you cannot verify. Everyday analogy: you know the weather is "sometimes calm, sometimes wild," but several different climate stories match last year's record equally well, and each predicts a different chance of next month's storm.</p>
+<p><strong>The idea.</strong> Rather than crown one mixing law, the authors fit several — six named parametric shapes plus a flexible "let the data draw the shape" nonparametric estimate — all under the same fairness constraint. Then they keep <em>every</em> model that the data cannot reliably tell apart from the best one. That surviving group is the <strong>ambiguity set</strong>: an honest confession of what we do not know. When it is time to actually decide a portfolio, they do not average or pick a favorite; they choose the exposure that maximizes the <em>worst-case</em> value across the whole ambiguity set — the decision that cannot be badly hurt no matter which surviving model is true. And "value" here is not naive expected return but a <strong>cumulative-prospect</strong> value that reflects how real people overweight losses and rare extremes.</p>
+<p><strong>What they found.</strong> On 30 real stocks, the flexible mixture models fit meaningfully better than a plain multivariate Gaussian — fat tails are real and matter. But crucially, <em>several</em> mixing laws remain in the ambiguity set: the data do not anoint a winner. So the "worst-case" model is not chosen up front from a fit score; it emerges only at the decision stage, and it can differ depending on which portfolio direction you are evaluating. They prove the robust decision problem has a solution and build an algorithm that certifies the optimum.</p>
+<h3>The Math</h3>
+<p><strong>Setup.</strong> A <strong>normal mean-variance mixture (NMVM)</strong> models a return vector $X\in\mathbb{R}^d$ as a Gaussian whose mean and covariance are scaled by a positive hidden variable $Z$:
+$$X \;=\; \mu \;+\; m\,\beta\, Z \;+\; \sqrt{Z}\; A\,W,$$
+where $\mu$ is a location vector, $\beta$ a skewness/drift direction, $A$ a matrix with $AA^\top=\Sigma$ the dispersion, $W\sim\mathcal{N}(0,I)$ a standard Gaussian independent of $Z$, and $Z>0$ the <strong>mixing variable</strong> with law $F_Z$ and mean $m=\mathbb{E}(Z)$ — <em>estimated</em>, not fixed at one. The whole distribution of $X$ is determined by the mixing law $F_Z$, which is what is uncertain.</p>
+<p><strong>Estimation and the ambiguity set.</strong> They compare six parametric families for $F_Z$ against a <strong>grid nonparametric maximum-likelihood estimator (NPMLE)</strong>, all under a common determinant identification constraint (so $\Sigma$ and $m$ are separately pinned down). Models are ranked by out-of-sample multivariate <strong>holdout log scores</strong>, compared with a <strong>paired block bootstrap</strong>. The models statistically indistinguishable from the top scorer form a finite ambiguity set $\mathcal{M}$.</p>
+<p><strong>Robust decision.</strong> For a portfolio direction (exposure) $\theta$, each model $M\in\mathcal{M}$ gives a scalar projected return whose <strong>cumulative-prospect value</strong> is a function $v_M(\theta)$ — an S-shaped value with loss aversion and probability weighting. The distributionally robust choice maximizes the lower envelope:
+$$\theta^\star \;=\; \arg\max_{\theta}\ \min_{M\in\mathcal{M}}\ v_M(\theta).$$
+Here the inner $\min$ is the worst surviving model for that exposure, and the outer $\max$ is the best robust exposure. They prove a solution exists, identify the candidate optimizers for this piecewise-smooth problem, derive a <strong>reference-gap scaling</strong> result, and build an <strong>interval branch-and-bound certificate</strong> guaranteeing the finite-scenario optimum.</p>
+<p><strong>Results with numbers.</strong> On 30 stock returns, all mixture models beat the multivariate Gaussian on holdout density scores. But several parametric and semi-parametric models <em>remain</em> in the ambiguity set — the data do not select one — so the worst-case model is determined at the optimization stage, not fixed in advance from a point estimate of the holdout score.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Normal mean-variance mixture (NMVM)</strong> — a Gaussian whose mean and variance are scaled by a positive random "activity" variable, producing fat tails and skew.</li>
+<li><strong>Mixing law / mixing variable</strong> — the distribution of that hidden positive scaling variable $Z$; the source of the model uncertainty here.</li>
+<li><strong>NPMLE (nonparametric maximum likelihood)</strong> — estimating the mixing distribution as a flexible grid rather than a named formula.</li>
+<li><strong>Holdout log score</strong> — how well a fitted model predicts fresh, unseen data; higher is better.</li>
+<li><strong>Ambiguity set</strong> — the collection of models the data cannot reliably separate from the best.</li>
+<li><strong>Distributionally robust decision</strong> — the choice maximizing the worst-case outcome over that whole set of models.</li>
+<li><strong>Cumulative prospect theory</strong> — a model of choice where losses loom larger than gains and rare outcomes are over-weighted.</li>
+<li><strong>Branch-and-bound certificate</strong> — an algorithm that provably brackets the true optimum by splitting and bounding the search region.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The honesty is the point — but a robust "max the worst case" rule can be conservative, and the ambiguity set's contents depend on the holdout-score test's power, which with 30 assets and limited history is modest. It also inherits cumulative-prospect theory's free parameters (loss aversion, weighting curvature), which are themselves contested. For a risk-conscious allocator who distrusts point estimates, though, the framework is a principled upgrade over "fit one distribution and pray."</p>
+<h3>Bottom Line</h3>
+<p>When the data can't tell your candidate models apart, don't pick one — build the portfolio that survives whichever one turns out to be true.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
