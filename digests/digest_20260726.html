@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — July 26, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">July 26, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Pathwise Portfolio Theory and Market Viability</h2>
+  <p class="meta">Ioannis Karatzas, Donghan Kim<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-21 &middot; <a href="http://arxiv.org/abs/2607.18705v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.18705v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can build the entire theory of "smart investing" — growth, no-arbitrage, market survival — from a single price path, without ever assuming randomness or probability.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Almost all of modern finance starts by declaring that prices are random and obey some probability model — a coin-flip machine that spits out tomorrow's stock price with certain odds. Concepts like "you can't get rich from nothing" (no arbitrage), "there is a best long-run portfolio" (growth optimality), and "the market is viable, i.e. not secretly a money-printing machine" are all proved <em>inside</em> that probabilistic world. But the world only ever hands us <strong>one</strong> price history, not a probability distribution. Nobody re-runs 2008. So a natural, slightly subversive question is: how much of this theory survives if you throw away the dice entirely and reason about the single realized path of prices you actually observed?</p>
+<p><strong>The idea.</strong> The authors rebuild portfolio theory pathwise. Instead of splitting a price into "predictable drift plus random noise" — the standard probabilistic decomposition — they split each observed path into a <strong>trend</strong> (extracted by a smoothing operation) and a leftover <strong>residual wiggle</strong>, purely as a property of that one curve. The magic ingredient is a piece of 1980s mathematics by Hans Föllmer showing that you can do calculus — integrate, apply a chain rule (Itô's formula) — along an individual rough path, provided the path has a well-defined "accumulated wiggle" called quadratic variation. Think of it as measuring how much a jagged mountain trail zig-zags without ever asking what random process generated the mountain. With that toolkit, "how fast does my wealth grow along this path" and "can this path be exploited for free money" become deterministic geometric questions about the curve itself.</p>
+<p><strong>What they found.</strong> Most of the familiar equivalences carry over: the growth-optimal portfolio, the "numéraire" benchmark portfolio, and market viability all have clean pathwise analogues. But there's a twist. In the probabilistic theory these ideas famously collapse into essentially one condition — they're all the same thing. Pathwise, they <strong>don't</strong> always coincide. Growth-optimality, the numéraire property, and viability can genuinely come apart, and the paper gives two explicit examples where they do. That separation is new information the probabilistic lens was hiding.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix continuous asset-price paths $S(t) = (S^1(t),\dots,S^d(t))$ on $[0,T]$, each of finite quadratic variation. A trend extractor $\mathcal{T}$ maps a path to a smooth trend $A(t)$, leaving a residual $M(t) = S(t) - A(t)$. No probability space, no filtration of "information sets," no expectation — everything is a functional of the one observed curve.</p>
+<p><strong>Föllmer integration.</strong> For a path $X$ of finite quadratic variation $[X]$, the pathwise Itô formula reads
+$$f(X(t)) = f(X(0)) + \int_0^t f'(X(s))\,dX(s) + \tfrac{1}{2}\int_0^t f''(X(s))\,d[X](s),$$
+where $f$ is $C^2$, $f'$, $f''$ its derivatives, and $[X]$ the quadratic variation — the limit of $\sum (X(t_{k+1})-X(t_k))^2$ along a refining partition. The first integral is the Föllmer integral, defined as a limit of left-endpoint Riemann sums; it exists path-by-path, no randomness required.</p>
+<p><strong>Portfolios and wealth.</strong> A portfolio is a vector $\pi(t)$ of holdings; the self-financing wealth $V^\pi$ evolves as
+$$dV^\pi(t) = \sum_{i=1}^d \pi_i(t)\,dS^i(t),$$
+interpreted as a Föllmer integral. The <strong>growth rate</strong> along the path is $\frac{1}{T}\log V^\pi(T)$. The <strong>numéraire portfolio</strong> $\rho$ is the one making every other portfolio's <em>relative</em> wealth $V^\pi/V^\rho$ non-increasing in the pathwise sense. <strong>Viability</strong> (boundedness) means: no portfolio starting from arbitrarily small capital can finance a nontrivial liability along this path — the pathwise analogue of "no free lunch."</p>
+<p><strong>The method.</strong> They translate each probabilistic proof into a pathwise one, replacing the semimartingale decomposition $S = A + M$ (drift plus martingale) with the trend/residual decomposition and swapping stochastic integrals for Föllmer integrals. The key equivalences are then established as deterministic statements about the trend $A$, the residual $M$, and the quadratic variation $[S]$. Because there is no probability measure forcing the drift and the "risk-neutral" structure to align, the implications that classically run both ways can run only one way — hence the equivalence classes fail to collapse.</p>
+<p><strong>Results with numbers.</strong> This is a structural-theory paper, so the "results" are theorems and counterexamples rather than error bars. The headline deliverable: pathwise growth-numéraire and viability-boundedness equivalences that mirror the semimartingale ones, plus <strong>two explicit examples</strong> where the classical single-equivalence-class result breaks and the notions genuinely separate.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Quadratic variation</strong> — a number measuring how much a path wiggles at fine scales, the sum of squared increments in the limit.</li>
+<li><strong>Föllmer integration</strong> — a way to integrate against a rough path directly, without probability, using left-endpoint sums.</li>
+<li><strong>Semimartingale</strong> — the standard "drift plus random noise" object stochastic finance is usually built on.</li>
+<li><strong>Numéraire portfolio</strong> — the benchmark portfolio against which every other portfolio's relative value only shrinks.</li>
+<li><strong>Market viability</strong> — the condition that you can't finance real future obligations starting from near-zero capital.</li>
+<li><strong>Trend extractor</strong> — an operator that pulls a smooth trend out of a jagged price path, leaving a residual.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational mathematics, not a trading recipe: it tells you <em>which</em> classical results survive without probability, but it won't hand a practitioner a new signal or a better hedge tomorrow. The reliance on a chosen trend extractor is a real modeling degree of freedom — different extractors give different residuals and potentially different conclusions — and finite quadratic variation is an assumption real, jumpy prices may violate. Its value is conceptual clarity: knowing that "growth-optimal" and "viable" can diverge is a genuine caution against treating them as interchangeable.</p>
+<h3>Bottom Line</h3>
+<p>Strip away the dice and portfolio theory still stands — but some of its cherished "these are all the same thing" identities quietly fall apart.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Gaussian Boson Sampling for Asset Clustering in Statistical Arbitrage Portfolios</h2>
+  <p class="meta">Dayne Marcus Lopena, Daniel Buguks, Zhenghao Li, Ewan Mer, Shana H. Winston, Shang Yu et al.<br>
+    <span class="cat">quant-ph</span> &middot; 2026-07-21 &middot; <a href="http://arxiv.org/abs/2607.19279v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.19279v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A photonic quantum device that samples "clumps" out of a network can group co-moving stocks better than classical methods when markets get wild.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A classic hedge-fund strategy called statistical arbitrage looks for baskets of stocks that tend to move together, bets that any temporary drift apart will snap back, and stays market-neutral (immune to the overall market rising or falling). The hard part is the <em>grouping</em>: given 500 stocks and all their pairwise co-movements, which handful truly belong to the same hidden cluster? This is a combinatorial needle-in-a-haystack problem — the number of possible groupings explodes far faster than any computer can check one by one.</p>
+<p><strong>The idea.</strong> Picture the stocks as dots on a graph, with a thick thread between two dots when they move together. A tightly co-moving cluster is a <em>dense subgraph</em> — a knot where lots of thick threads bunch up. Finding the densest knots is exactly the kind of search that a special quantum gadget, a <strong>Gaussian Boson Sampler (GBS)</strong>, is naturally good at. A GBS shoots squeezed pulses of light through a mesh of beam-splitters; where the photons land is biased, by the physics itself, toward the dense parts of whatever network you encoded into the optics. So instead of a classical algorithm grinding through the combinatorics, you let light "fall into" the clusters and read them off. The authors encode S&amp;P 500 correlations into such a device (in simulation), test the standard quantum recipe ("GBS Boost") and a new one they invent ("GBS Roots"), and compare against the classical gold standards Spectral and SPONGE clustering.</p>
+<p><strong>What they found.</strong> During calm markets the quantum and classical methods are comparable — no free lunch. But in <strong>high-volatility regimes and large stock universes</strong>, the quantum clustering isolated the genuine structural co-movements better and produced superior alpha (excess return). Even better, the edge survived when they simulated realistic photon loss (light leaking out of the device), and could be partly restored in heavy-loss conditions by nudging the light with a "coherent displacement." That robustness matters because photon loss is the main thing that cripples real photonic hardware.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Start with residual returns after removing common market factors, forming a correlation matrix $C$. Turn it into a symmetric adjacency matrix $A$ of a weighted graph $G=(V,E)$ whose vertices are stocks. A GBS device is programmed via the matrix $A$: its output samples are subsets $S \subseteq V$ (which detectors clicked), with probability
+$$\Pr(S) \propto \frac{|\mathrm{Haf}(A_S)|^2}{\prod_i \bar{n}_i!},$$
+where $A_S$ is the submatrix of $A$ on the clicked modes, $\mathrm{Haf}(\cdot)$ is the <strong>matrix hafnian</strong>, and $\bar n_i$ mean photon numbers. The hafnian counts perfect matchings of a graph and grows so fast it is #P-hard to compute classically — which is precisely why the physical device offers leverage.</p>
+<p><strong>The key equations.</strong> The device's quantum state is Gaussian, described by a covariance matrix
+$$\Sigma = \tfrac{1}{2}\big(I - X A_{\text{enc}}\big)^{-1} - \tfrac{1}{2}I, \qquad X = \begin{pmatrix} 0 & I \\ I & 0\end{pmatrix},$$
+with $A_{\text{enc}}$ the rescaled encoding of $A$ and $I$ the identity. The bias toward dense subgraphs comes from $|\mathrm{Haf}(A_S)|^2$ being large exactly when $S$ is densely connected. Photon loss is modeled by a channel with transmission $\eta \in [0,1]$ that shrinks amplitudes; <strong>coherent displacement</strong> applies $\hat D(\alpha)$ to re-inject amplitude $\alpha$ and compensate.</p>
+<p><strong>The method.</strong> Repeatedly sample subsets from the (simulated) GBS, keep the densest ones, and post-process them into candidate clusters — "GBS Boost" uses the standard densest-subgraph heuristic; <strong>GBS Roots</strong> is their new aggregation of samples into cluster "seeds." Portfolios are rebuilt on a rolling one-year window across macroeconomic regimes, held market-neutral, and scored by realized alpha against Spectral and SPONGE.</p>
+<p><strong>Results with numbers.</strong> The reported qualitative findings: quantum clustering yields <strong>superior alpha in large universes during high-volatility regimes</strong>, the advantage <strong>persists under low-loss simulation</strong>, and <strong>extends into high-loss regimes</strong> once coherent displacement compensates for lost photons. (Exact alpha and Sharpe figures per regime are given in the paper's tables; the paper's central claim is the <em>direction and persistence</em> of the quantum edge under realistic loss, not a single headline number.)</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Gaussian Boson Sampling</strong> — a photonic quantum process whose measurement outcomes are biased toward dense parts of an encoded network.</li>
+<li><strong>Hafnian</strong> — a matrix function counting a graph's perfect matchings; hard to compute classically, which powers GBS's advantage.</li>
+<li><strong>Dense subgraph</strong> — a cluster of nodes with unusually many strong connections among them, here a set of tightly co-moving stocks.</li>
+<li><strong>Statistical arbitrage</strong> — betting that temporarily diverged, normally co-moving assets will revert, while hedging out market direction.</li>
+<li><strong>Photon loss</strong> — light leaking out of a real device before detection, the dominant error source degrading GBS quality.</li>
+<li><strong>Coherent displacement</strong> — shifting a light mode's amplitude to partly restore signal lost to photon leakage.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Everything here is <em>simulated</em> GBS, not a run on real photonic hardware, so the practical quantum advantage remains a promissory note rather than a demonstrated one. The alpha edge appears specifically in high-volatility, large-universe regimes — precisely where transaction costs and execution slippage also spike, and those frictions aren't the paper's focus. A practitioner can't buy a 500-mode loss-tolerant photonic sampler today, so this is best read as evidence that the <em>problem shape</em> fits quantum sampling, not that quant desks should retool now.</p>
+<h3>Bottom Line</h3>
+<p>When correlations turn to spaghetti in a crisis, letting quantum light fall into the tangle may find the real clusters classical eigenvectors miss.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Uniform-Loss Automated Market Making for Prediction Markets</h2>
+  <p class="meta">Ciamac C. Moallemi, Dan Robinson, Brian Zhu<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-07-19 &middot; <a href="http://arxiv.org/abs/2607.17428v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17428v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It shows how to design a prediction-market bookie so that the unavoidable cost of subsidizing the market is spread evenly, instead of piling up at awkward prices or moments.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In a prediction market ("Will candidate X win? — trades at 63 cents") an automated market maker (AMM) always stands ready to take the other side of any bet. That service isn't free: to keep prices meaningful, the operator effectively <em>subsidizes</em> trading and eats a loss as prices move around. Prior work obsessed over one number — the worst-case <em>total</em> loss the subsidizer could suffer. But two markets with the same total loss can feel wildly different: one might bleed almost all its subsidy in a narrow price band near 50/50, another might dump the pain right before resolution. Nobody had studied the <strong>shape</strong> of that loss across prices and across time. If you're the one funding the market, that shape is what you actually care about.</p>
+<p><strong>The idea.</strong> Borrow a concept from decentralized-finance research called <strong>loss-versus-rebalancing (LVR)</strong> — essentially, the instantaneous rate at which an automated market maker loses to better-informed traders as the price drifts. The authors ask: can we design the AMM's pricing rule so the loss rate is <em>uniform</em> — always proportional to how much money is in the pool and, crucially, <strong>independent of the current price</strong>? A uniform AMM never has a "danger zone" price where losses concentrate; the cost drips out at a steady, controllable rate. They then go further and let the operator adjust the pool's liquidity over time to hit any <em>prescribed schedule</em> of expected cumulative loss — spend the subsidy early, late, or evenly, by design.</p>
+<p><strong>What they found.</strong> For a broad and natural class of belief processes — "win-martingales," random price paths that must eventually snap to 0 (event didn't happen) or 1 (it did) at resolution — there <strong>exists</strong> a pricing function making LVR uniform. And the relationship is two-way: essentially any well-behaved pricing rule <em>induces</em> some win-martingale under which it looks uniform. So uniformity isn't an exotic special case; it's the flip side of ordinary pricing rules. On top of that, they show liquidity can be scheduled through time to realize any target loss profile — turning the subsidy from an uncontrolled leak into a dial.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A prediction market resolves at fixed time $T$ to an outcome in $\{0,1\}$. The market price/belief is a process $p_t \in (0,1)$ that is a <strong>win-martingale</strong>: a martingale with $p_T \in \{0,1\}$ almost surely. An AMM is specified by a pricing (or cost) function; holding a pool of value $V_t$, its exposure to price moves generates a loss rate.</p>
+<p><strong>The key equation — LVR.</strong> For an AMM with pricing function $p(x)$ (price as a function of inventory $x$) and pool value $V_t$, the instantaneous loss-versus-rebalancing has the form
+$$\text{LVR}_t \;=\; \tfrac{1}{2}\,\sigma_t^2\, \Gamma(p_t),$$
+where $\sigma_t^2$ is the instantaneous variance of the price process, $\Gamma(p)$ is a curvature term determined by the marginal-liquidity of the pricing function (how much inventory must change to move the price), and $p_t$ is the current price. <strong>Uniform AMM</strong> is the condition that instantaneous LVR is proportional to pool value and <em>independent of $p_t$</em>:
+$$\text{LVR}_t \;=\; c\,V_t \quad \text{for a constant } c,\ \text{for all } p_t.$$</p>
+<p><strong>The method.</strong> The core is a matching argument. Given a win-martingale with variance structure $\sigma_t^2(p)$, they solve for the curvature profile $\Gamma(p)$ that cancels the price-dependence, yielding a pricing function with uniform LVR — an ODE-type construction. The converse takes a regular pricing function and constructs the win-martingale (via its induced variance) under which it is uniform. For <strong>dynamic liquidity management</strong>, they treat pool liquidity $L_t$ as a control and show it can be steered so that the expected cumulative loss $\mathbb{E}\!\int_0^t \text{LVR}_s\,ds$ tracks any prescribed schedule $\Lambda(t)$.</p>
+<p><strong>Results with numbers.</strong> As a theory paper, the deliverables are existence/characterization theorems plus <strong>canonical worked examples</strong> of win-martingales (e.g. specific belief dynamics) paired with the pricing functions that make them uniform, illustrating how a chosen target loss schedule is realized by a time-varying liquidity path rather than reporting empirical error metrics.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Automated market maker (AMM)</strong> — an algorithm that always quotes buy/sell prices from a formula, so traders can transact without a human counterparty.</li>
+<li><strong>Loss-versus-rebalancing (LVR)</strong> — the rate at which an AMM loses value to informed traders as the true price drifts away from its quote.</li>
+<li><strong>Win-martingale</strong> — a fair-game price process that must converge to 0 or 1 at a fixed resolution time.</li>
+<li><strong>Martingale</strong> — a process whose expected next value equals its current value; no predictable drift.</li>
+<li><strong>Pricing function</strong> — the rule mapping the AMM's inventory to the price it quotes; its curvature sets how loss accrues.</li>
+<li><strong>Liquidity (pool depth)</strong> — how much trading it takes to move the price; the operator's tunable subsidy dial.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean uniform-LVR result leans on idealized continuous, arbitrage-free belief dynamics with no fees, discrete-tick effects, or strategic manipulation — real prediction markets have all three. "Uniform loss" reshapes <em>when and where</em> the subsidizer bleeds but doesn't reduce the total cost, so it's a control tool, not a savings. Still, for a platform actually funding markets, having a principled knob to schedule losses across price and time is a concrete, usable design lever.</p>
+<h3>Bottom Line</h3>
+<p>You can't avoid paying to run a prediction market, but this shows you can choose exactly how the bill is spread across prices and time.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Determining Insolvency Regions in Banks: A Stochastic Dynamic Approach Integrating Liquidity and Credit Risk</h2>
+  <p class="meta">Nader Karimi, Davood Ahmadian<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-19 &middot; <a href="http://arxiv.org/abs/2607.17381v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17381v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It draws the exact line in a bank's balance-sheet where liquidity trouble and loan losses combine to tip it into insolvency — and gives supervisors a fast formula to check where a bank sits relative to that line.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks fail in two ways that textbooks usually treat separately. <strong>Liquidity risk</strong>: even a healthy bank can collapse if depositors flee faster than it can raise cash — a bank run. <strong>Credit risk</strong>: borrowers default and the loan book takes losses. In real crises these feed each other viciously — a funding squeeze forces a bank to dump assets at fire-sale prices, which realizes losses, which scares more funding away. Regulators want to know: for a given bank, exactly what combination of a funding shock and a wave of defaults pushes it over the edge into insolvency? Drawing that boundary precisely, with the feedback loop included, is genuinely hard.</p>
+<p><strong>The idea.</strong> Model the bank's balance sheet as a system evolving continuously through time, buffeted by two random shocks — one to funding, one to credit. The bank isn't passive: it actively adjusts its balance sheet (raising funds, shedding assets) to survive, but it's boxed in by <strong>Basel III</strong> regulatory rules — the Liquidity Coverage Ratio (LCR, "hold enough liquid assets to survive 30 days of stress") and Net Stable Funding Ratio (NSFR, "fund long-term assets with stable money"). This is a control problem: the bank steers optimally, and you compute the region of shock-states from which <em>no</em> steering keeps it solvent. That region's edge is the <strong>insolvency boundary</strong>. Because solving this exactly is heavy, they also fit a simple <strong>surrogate formula</strong> — a lightweight approximation a supervisor can evaluate in real time without re-solving the whole model.</p>
+<p><strong>What they found.</strong> The interaction is dangerously <strong>non-linear</strong>: liquidity stress <em>and</em> credit defaults hitting together don't just add up — they multiply, accelerating the slide into insolvency far faster than either shock alone would suggest. There are sharp threshold effects. Calibrated to granular balance-sheet data from the Iranian banking sector, the model locates concrete insolvency regions, and the surrogate approximation reproduces the true boundary well enough to serve as an early-warning and stress-testing tool.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The bank's state is captured by balance-sheet variables — e.g. a liquidity/funding buffer $L_t$ and a credit-quality or capital variable $K_t$ — driven by stochastic shocks. A representative dynamic:
+$$dL_t = \mu_L(L_t,K_t,u_t)\,dt + \sigma_L\,dW_t^L, \qquad dK_t = \mu_K(L_t,K_t,u_t)\,dt + \sigma_K\,dW_t^K,$$
+where $u_t$ is the bank's control (balance-sheet adjustments), $\mu_L,\mu_K$ are drifts capturing funding and default dynamics, $\sigma_L,\sigma_K$ volatilities, and $W_t^L, W_t^K$ (possibly correlated) Brownian motions.</p>
+<p><strong>The key equation — HJB.</strong> The bank chooses $u_t$ to maximize survival (a value function $V$), leading to the Hamilton–Jacobi–Bellman equation
+$$\sup_{u \in \mathcal{U}} \Big\{ \mathcal{L}^u V(L,K) + f(L,K,u) \Big\} = 0,$$
+subject to Basel III constraints $\text{LCR}(L,K)\ge 1$ and $\text{NSFR}(L,K)\ge 1$, where $\mathcal{L}^u$ is the second-order differential (infinitesimal generator) of the controlled diffusion, $V$ the value function, $f$ a running payoff/cost, and $\mathcal{U}$ the admissible controls. The <strong>insolvency region</strong> is the set of states from which $V$ cannot be kept above the solvency threshold — its boundary is the object of interest.</p>
+<p><strong>The method.</strong> They solve the constrained HJB equation (a nonlinear PDE) for the value function and extract the insolvency boundary as a free boundary of that solution. Because full PDE solution is too slow for supervisory use, they <strong>derive and validate a surrogate analytical approximation</strong> $\hat{B}(L,K)$ to the boundary — a closed-form-ish function fit to the numerical solution — enabling real-time monitoring. Calibration uses granular Iranian bank balance-sheet data.</p>
+<p><strong>Results with numbers.</strong> The model exhibits <strong>significant non-linear threshold effects</strong>: the <em>joint</em> occurrence of liquidity stress and credit defaults "disproportionately accelerates" the transition to insolvency relative to the sum of the individual effects. The surrogate function is reported as accurately reproducing the true boundary, offering a "computationally efficient" tool for stress testing and early warning (the paper's tables give the calibrated boundary and approximation-error figures).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Insolvency boundary</strong> — the exact frontier in balance-sheet space separating states a bank can survive from states it cannot.</li>
+<li><strong>Hamilton–Jacobi–Bellman (HJB) equation</strong> — the master equation of optimal control, describing the best achievable value at every state.</li>
+<li><strong>Stochastic optimal control</strong> — choosing actions over time to steer a randomly evolving system toward the best outcome.</li>
+<li><strong>LCR / NSFR</strong> — Basel III rules requiring banks to hold enough liquid assets (LCR) and stable funding (NSFR) to withstand stress.</li>
+<li><strong>Surrogate approximation</strong> — a fast, simple formula fit to a slow, exact model so it can be evaluated in real time.</li>
+<li><strong>Free boundary</strong> — a solution-determined dividing line in a PDE, here where solvency turns to insolvency.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The vicious liquidity–credit feedback is real, but the sharp insolvency boundary depends on a stylized two-factor diffusion and correlations that are notoriously unstable exactly during the crises that matter most. Calibration to one banking sector (Iran, with its particular structure and data quirks) means the specific numbers may not transfer to other systems without recalibration. That said, the surrogate-function idea is genuinely practical: supervisors can't solve a PDE per bank per day, and a validated fast approximation for early warning is the kind of thing a stress-testing team could actually adopt.</p>
+<h3>Bottom Line</h3>
+<p>Liquidity trouble and loan losses don't add — they multiply, and this maps the exact point where their product sinks a bank.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Risk Measures on Lipschitz Spaces</h2>
+  <p class="meta">Henrik Karlholm, Marlon Moresco, Marcelo Righi<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-19 &middot; <a href="http://arxiv.org/abs/2607.17020v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.17020v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It rebuilds the theory of "how risky is this position" for a world where payoffs live on an abstract space of states connected by distances, using optimal-transport duality instead of the usual bookkeeping.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>risk measure</em> is a rule that reads a financial position — a random payoff — and outputs a single number: how much safety capital you must set aside. The industry standards (Value-at-Risk, Expected Shortfall) and the elegant theory behind them ("coherent" and "convex" risk measures) were built assuming payoffs live in nice, standard spaces of random variables with a natural notion of "add one dollar of cash." But many modern risks don't fit that mold cleanly: payoffs that depend on the <em>entire path</em> of a process, risks spread across a <em>network</em> of interconnected institutions, or uncertainty about <em>which model</em> is even correct. In these settings the states of the world naturally come with a <em>distance</em> (how far apart two scenarios are), and the classical toolkit — which leans hard on adding constants and lattice ordering — doesn't apply directly.</p>
+<p><strong>The idea.</strong> Change the home of the payoffs. Instead of ordinary random variables, take payoffs to be <strong>Lipschitz functions</strong> on a metric space of states — functions that can't change too fast as you move between nearby scenarios, and that are pinned to zero at one chosen reference state (the benchmark, "nothing happens"). Lipschitz functions come with a beautiful piece of machinery: their natural dual object is the <strong>Lipschitz-free space</strong>, whose elements behave like <em>redistributions of mass</em> — flows of probability from one scenario to another, exactly the language of <strong>optimal transport</strong> (the math of moving piles of sand at least cost). So the "price of risk" becomes a transport problem: risk is measured by how mass can be shuffled around the benchmark. The authors rebuild convex and coherent risk measures in this world, working around the fact that this space has no constants to add and isn't a nice lattice.</p>
+<p><strong>What they found.</strong> They obtain clean <strong>dual representations</strong> — the "risk equals worst-case over a set of scenarios" formula that's the crown jewel of risk theory — for both convex and coherent risk measures on Lipschitz spaces, with the dual variables interpreted as transport plans redistributing mass around the benchmark. And the framework is genuinely unifying: it covers temporal cash flows, path-dependent payoffs, network/systemic risk, and model uncertainty within one metric-space picture.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $(X,d)$ be a metric space of states with a distinguished reference point $x_0$ (the benchmark). Financial positions are elements of $\mathrm{Lip}_0(X)$, the space of <strong>Lipschitz functions</strong> $f:X\to\mathbb{R}$ with $f(x_0)=0$, normed by the Lipschitz constant
+$$\|f\|_L = \sup_{x\ne y}\frac{|f(x)-f(y)|}{d(x,y)}.$$
+Here $f(x)$ is the payoff in state $x$; anchoring at $x_0$ removes the ambiguity of an additive constant.</p>
+<p><strong>The key structure — Lipschitz-free predual.</strong> The space $\mathrm{Lip}_0(X)$ is the dual of the <strong>Lipschitz-free space</strong> $\mathcal{F}(X)$, the completion of finitely-supported "molecules" $\frac{\delta_x - \delta_y}{d(x,y)}$ (unit dipoles of mass), with duality
+$$\langle f, \mu\rangle = \int f\,d\mu,\qquad f\in\mathrm{Lip}_0(X),\ \mu\in\mathcal{F}(X),$$
+and $\|\mu\|_{\mathcal F}$ equal to the optimal-transport (Kantorovich–Rubinstein) cost of the signed measure $\mu$. A monetary risk measure $\rho:\mathrm{Lip}_0(X)\to\mathbb{R}$ is monotone and, since constants aren't available, satisfies <strong>additivity along benchmark-deviation instruments</strong> — a substitute for cash-additivity built from moves away from $x_0$.</p>
+<p><strong>The key result — dual representation.</strong> For a convex risk measure they establish
+$$\rho(f) = \sup_{\mu \in \mathcal{Q}}\Big\{ \langle -f,\mu\rangle - \alpha(\mu)\Big\},$$
+where $\mathcal{Q}\subseteq\mathcal{F}(X)$ is a set of transport-type dual variables (redistributions of mass around $x_0$), $\alpha$ is a penalty function, and $\langle-f,\mu\rangle$ evaluates the loss under redistribution $\mu$. Coherent measures are the sublinear case where $\alpha$ collapses to the indicator of a convex set.</p>
+<p><strong>The method.</strong> The engine is convex duality (Fenchel–Moreau) transported into the Lipschitz-free setting: because $\mathrm{Lip}_0(X)$ is a dual Banach space with predual $\mathcal{F}(X)$, weak-* lower-semicontinuous convex functionals admit dual representations, and the dual variables inherit the optimal-transport interpretation. The authors handle the missing constants and missing lattice structure by working with benchmark-deviation additivity rather than cash-additivity.</p>
+<p><strong>Results with numbers.</strong> This is pure functional-analytic theory, so the outputs are representation theorems rather than empirical metrics; the "validation" is the <strong>breadth of coverage</strong> — the single framework instantiates to temporal cash flows, path-dependent payoffs, network risk, and model-uncertainty risk measures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk measure</strong> — a rule assigning to a random payoff the amount of safe capital needed to make it acceptable.</li>
+<li><strong>Coherent / convex risk measure</strong> — risk measures satisfying sensible axioms (diversification never hurts) that guarantee a worst-case dual form.</li>
+<li><strong>Lipschitz function</strong> — a function whose output can't change faster than a fixed multiple of the distance between inputs.</li>
+<li><strong>Lipschitz-free space</strong> — the canonical predual of Lipschitz functions, whose elements are mass redistributions (transport plans).</li>
+<li><strong>Optimal transport</strong> — the mathematics of moving a distribution of mass to another at least total cost.</li>
+<li><strong>Dual representation</strong> — writing a risk measure as a worst-case expectation over a set of scenario weightings.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is deep, elegant, and firmly at the theory end — it hands you a rigorous language for path-dependent and network risks, but no calibration recipe, estimator, or numbers a desk could run tomorrow. Choosing the metric $d$ and the benchmark $x_0$ is a substantive modeling decision that the theory leaves open, and the transport-based penalties would need to be specified and estimated before any practical use. Its real payoff is conceptual unification: seeing systemic, temporal, and model risk as one transport problem is the kind of structural insight that later begets usable tools.</p>
+<h3>Bottom Line</h3>
+<p>Measure risk not by adding dollars but by how you'd shuffle probability mass around a benchmark — and optimal transport hands you the worst-case formula for free.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
