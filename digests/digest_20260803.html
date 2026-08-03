@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 03, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 03, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> A Policy Iteration Scheme for Semilinear Stochastic Hamilton-Jacobi-Bellman Equations with Exponential Convergence</h2>
+  <p class="meta">Hasib Uddin Molla, Jinniao Qiu<br>
+    <span class="cat">math.OC</span> &middot; 2026-07-31 &middot; <a href="http://arxiv.org/abs/2607.29024v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.29024v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you want to steer something optimally when the <em>rules of the game themselves</em> are random and depend on the whole past, you can solve it by guessing a strategy, improving it, and repeating — and the guesses close in on the true answer twice as fast each round.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you run a trading desk and want to decide, second by second, how much stock to hold to maximize a payoff while random shocks keep hitting the market. This is a <em>control</em> problem: you pick actions over time, chance intervenes, and you want the best possible expected result. The classical way to solve such problems is a famous equation named after Hamilton, Jacobi and Bellman (HJB) — solve it once and it hands you the optimal strategy for every situation you could be in. But there's a catch. The standard theory assumes the world is "Markovian": tomorrow depends only on today's state, not on the road that got you here. Real markets aren't so tidy. Volatility clusters, regimes persist, and the <em>coefficients</em> driving the randomness can themselves be random and history-dependent. When that happens the HJB equation becomes a <em>stochastic</em> PDE — its very solution is a random object, not a fixed surface — and it's genuinely hard to compute.</p>
+<p><strong>The idea.</strong> The authors revive an old, beautiful trick called <strong>policy iteration</strong> and make it work in this harder, non-Markovian world. Think of it like improving a recipe. You start with any reasonable cooking strategy. You <em>evaluate</em> it: given that fixed strategy, how good is the outcome? Crucially, with the strategy held fixed, the nasty nonlinear equation collapses into a <em>linear</em> one — far easier to solve. Then you <em>improve</em>: use that evaluation to pick a better action at every moment. Evaluate the new strategy, improve again, and repeat. Each pass is a linear solve, and the strategies march steadily toward the optimum.</p>
+<p><strong>What they found.</strong> Two guarantees. First, the strategies improve <em>monotonically</em> — every round is genuinely at least as good as the last, never worse. Second, and this is the headline, they converge at an <strong>exponential rate</strong>: the error shrinks by a fixed multiplicative factor each iteration (in fact, the classic "quadratic" doubling-of-accuracy behavior of Newton-type methods), so you need only a handful of rounds. Turning one intractable nonlinear stochastic equation into a short sequence of tractable linear ones — with a proof that it converges fast — is the contribution.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> We work on a filtered probability space $(\Omega,\mathcal{F},\{\mathcal{F}_t\},\mathbb{P})$ carrying a Brownian motion. The controlled state is a diffusion, and because the model is non-Markovian the value function is not a deterministic function but a <strong>random field</strong> $V(t,x,\omega)$. It is characterized by a <em>stochastic</em> HJB equation, which pairs with a second adapted process to keep everything measurable with respect to the flow of information — this is the backward SPDE / stochastic-HJB formulation. Because the diffusion (integration) coefficients are <em>not</em> controlled, the equation is <strong>semilinear</strong>: linear in the highest-order terms, nonlinear only through a Hamiltonian $H$.</p>
+<p><strong>The key equation.</strong> Schematically the SHJB equation reads
+$$-dV_t = H\big(t,x,V_t,DV_t,\dots\big)\,dt - Z_t\,dW_t,\qquad V_T = g,$$
+where $V_t$ is the (random) value field at time $t$, $DV_t$ its spatial gradient, $H$ the Hamiltonian encoding the optimization over controls, $Z_t$ the auxiliary adapted "martingale-representation" field that absorbs the randomness, $W_t$ the Brownian motion, and $g$ the terminal reward. Policy iteration replaces the maximizing $H$ with a <em>frozen-control</em> version. Given the $k$-th policy $u^{(k)}$, define the linearized Hamiltonian $H^{u^{(k)}}$ and solve the linear SPDE
+$$-dV_t^{(k)} = H^{u^{(k)}}\big(t,x,V_t^{(k)},DV_t^{(k)}\big)\,dt - Z_t^{(k)}\,dW_t,\qquad V_T^{(k)}=g,$$
+then set the improved policy $u^{(k+1)}(t,x)=\arg\max_u\,\mathcal{H}(t,x,DV_t^{(k)},u)$.</p>
+<p><strong>The method.</strong> This is <strong>successive linearization</strong> — the stochastic-control cousin of Newton's method (often called Howard's policy iteration). Each step is a <em>linear</em> backward SPDE, solvable by standard BSDE/SPDE machinery, sidestepping the nonlinearity entirely.</p>
+<p><strong>Results with numbers.</strong> The paper's results are theorems rather than benchmarks. They prove the iterates $V^{(k)}$ are monotone and converge to the true value $V$ in the <strong>mean-square sense</strong>, $\mathbb{E}\!\int \|V^{(k)}_t-V_t\|^2\,dt \to 0$, at an <strong>exponential (geometric) rate</strong> in $k$ — i.e. $\|V^{(k)}-V\|\le C\rho^{k}$ with $\rho<1$, the fast contraction that makes only a few iterations necessary.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>HJB equation</strong> — the master equation whose solution gives the optimal value and strategy of a control problem for every starting state.</li>
+<li><strong>Non-Markovian</strong> — the future depends on the whole history, not just the present state.</li>
+<li><strong>Semilinear (S)PDE</strong> — a PDE that is linear in its highest derivatives and nonlinear only through a lower-order term.</li>
+<li><strong>Policy iteration</strong> — evaluate a fixed strategy, then greedily improve it, and repeat until it stops changing.</li>
+<li><strong>Backward SPDE / BSDE</strong> — an equation solved from a known terminal condition backward in time, carrying an extra process to stay adapted to the information flow.</li>
+<li><strong>Mean-square convergence</strong> — the expected squared error between approximation and truth shrinks to zero.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theory paper: the payoff is a convergence proof, not a runnable pricing engine, and each "linear solve" of a backward SPDE is itself nontrivial to discretize in high dimensions. The exponential rate is proved under regularity and monotonicity assumptions that real, jumpy markets may violate. Still, it gives a principled, provably fast scaffold that numerical schemes for path-dependent control can be built on.</p>
+<h3>Bottom Line</h3>
+<p>Freeze the strategy, solve something easy, improve, repeat — and a proof says you'll reach the optimal control of a history-dependent random system in just a few doubling-accuracy steps.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Discrete dividends after maturity adjust the stock and strike prices</h2>
+  <p class="meta">Kevin W. Lu<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-07-27 &middot; <a href="http://arxiv.org/abs/2607.24973v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.24973v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a stock pays dividends <em>after</em> your option has already expired, the textbook Black–Scholes shortcut quietly breaks — and the fix is to nudge <em>both</em> the stock price and the strike price, not just the stock.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A call option is the right to buy a stock at a fixed "strike" price on some future date. To price it, traders lean on the Black–Scholes formula. But real stocks pay dividends — cash handed to shareholders on scheduled dates — and each payout mechanically drops the share price. Option holders don't receive dividends, so dividends matter to pricing. The standard patch is simple: subtract the present value of all upcoming dividends from today's stock price, then feed that lower number into Black–Scholes. Everyday version: if a company will pay you 2 dollars next month, pretend the stock is worth 2-dollars-less today, and price the option on that. Neat — but people apply it sloppily. What about dividends paid <em>after</em> the option expires? Intuitively those shouldn't touch a call that's already dead. Yet the popular "escrowed dividend" model, if you take it literally, keeps dragging those later dividends into the calculation, and doing it the naive way makes the model <em>internally inconsistent</em> — different maturities stop fitting together.</p>
+<p><strong>The idea.</strong> The author shows the right bookkeeping. In the escrowed-dividend world, a dividend that lands <em>after</em> maturity shouldn't just be stripped off the stock price — it must adjust the <strong>strike price too</strong>, in a matched way, so that calls of <em>every</em> maturity are priced consistently under one coherent model. It's like realizing that if you shift the finish line, you also have to shift the starting blocks by the same amount, or the race stops making sense.</p>
+<p><strong>What they found.</strong> A clean extension of Black–Scholes that stays model-consistent across all maturities once post-maturity dividends adjust both stock and strike. As a bonus, the author revisits <em>American</em> calls (which can be exercised early). Textbooks say you almost never exercise a call early — but with a single dividend before maturity there's a neglected corner case where early exercise is <em>always</em> optimal, and he derives the matching extension of the classic Roll–Geske–Whaley formula, fully characterizing when to pull the trigger.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Under Black–Scholes the stock follows a geometric Brownian motion under the risk-neutral measure $\mathbb{Q}$,
+$$dS_t = r S_t\,dt + \sigma S_t\,dW_t,$$
+where $S_t$ is the price, $r$ the risk-free rate, $\sigma$ the volatility, and $W_t$ a $\mathbb{Q}$-Brownian motion. Discrete dividends $D_1,\dots,D_n$ are paid at times $t_1<\dots<t_n$. In the <strong>escrowed dividend model</strong> one writes the observed price as a diffusive "escrowed" part plus the present value of remaining dividends.</p>
+<p><strong>The key equation.</strong> A European call of strike $K$ and maturity $T$ is $C = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}[(S_T-K)^+]$. The naive adjustment prices it as Black–Scholes on the reduced spot $\tilde S_0 = S_0 - \sum_{t_i\le T} D_i e^{-rt_i}$. The paper's correction handles a dividend at $t_i>T$ by adjusting <strong>both</strong> legs:
+$$\tilde S_0 = S_0 - \sum_{i} D_i e^{-r t_i},\qquad \tilde K = K - \sum_{t_i > T} D_i e^{-r(t_i-T)}\!\cdot(\text{escrow factor}),$$
+so that $C = \mathrm{BS}(\tilde S_0,\tilde K,\sigma,r,T)$ remains consistent as $T$ varies. Here $\tilde S_0$ is the adjusted spot, $\tilde K$ the adjusted strike, and the sum over $t_i>T$ isolates <em>post-maturity</em> dividends. For the American call with one pre-maturity dividend, the value is the Roll–Geske–Whaley expression, a combination of univariate and <strong>bivariate normal</strong> terms $\mathrm{BS}(\cdot)$ and $M(a,b;\rho)$ that prices the option as a portfolio of European claims plus an early-exercise premium, extended here to carry the post-maturity strike adjustment.</p>
+<p><strong>The method.</strong> Pure <strong>no-arbitrage / risk-neutral pricing</strong>: compute discounted expected payoffs under $\mathbb{Q}$, and pin down the American early-exercise boundary by comparing the immediate-exercise value against the continuation value, which yields a critical stock threshold above which exercising just before the dividend is optimal.</p>
+<p><strong>Results with numbers.</strong> The contribution is analytic (closed-form formulas), not a benchmark table: the corrected formula restores <strong>maturity-consistency</strong> that the naive escrowed method violates, and the extended Roll–Geske–Whaley formula <em>fully characterizes</em> the optimal exercise policy, including the overlooked regime where early exercise is <em>always</em> optimal.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>European / American call</strong> — a call exercisable only at expiry (European) versus at any time up to expiry (American).</li>
+<li><strong>Strike price</strong> — the fixed price at which the option lets you buy the stock.</li>
+<li><strong>Escrowed dividend model</strong> — a pricing convention that treats known future dividends as a set-aside present value carved out of the stock.</li>
+<li><strong>Risk-neutral measure $\mathbb{Q}$</strong> — the artificial probabilities under which discounted asset prices are fair (martingales), used for pricing.</li>
+<li><strong>Roll–Geske–Whaley formula</strong> — the classic closed-form price for an American call on a stock paying one discrete dividend.</li>
+<li><strong>Early-exercise boundary</strong> — the stock-price threshold above which exercising an American option now beats waiting.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a careful correction to a widely-misapplied convention rather than a new market model — it lives entirely inside Black–Scholes with its constant-volatility, no-jumps assumptions, which real dividend-paying equities routinely break. But the fix is exact, closed-form, and directly usable by anyone whose pricing library mishandles dividends straddling expiry, and the American-call edge case is a genuine trap worth knowing.</p>
+<h3>Bottom Line</h3>
+<p>Dividends after expiry still matter — but only if you shift the strike as well as the stock, and getting that bookkeeping right keeps every maturity honest.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Decoupled Probabilistic Forecasting and Arbitrage-Aware Refinement of Implied Volatility Surfaces</h2>
+  <p class="meta">Lifeng Hao, Shaolin Ji<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-07-31 &middot; <a href="http://arxiv.org/abs/2607.29220v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.29220v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To forecast tomorrow's whole map of option prices, first let a generative AI dream up a range of plausible maps, then run a second module that scrubs out the impossible, money-printing shapes.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every option on a stock has an "implied volatility" — the market's guess of how wildly the stock will move, backed out from the option's price. Plot that across all strike prices and expiry dates and you get the <strong>implied volatility surface</strong>: a rolling landscape that traders use to price, hedge, and manage risk on thousands of contracts at once. Forecasting how this surface will look tomorrow is hard for two clashing reasons. First, it's <em>stochastic</em> — the future genuinely is a spread of possibilities, not one number. Second, any surface you actually quote must obey <strong>no-arbitrage</strong> shape rules: certain slopes and curvatures are forbidden, because if the surface bent the wrong way, a trader could assemble options into a guaranteed-profit machine. So you need both realistic randomness <em>and</em> rigid geometric discipline — and those pull against each other.</p>
+<p><strong>The idea.</strong> The authors stop trying to do both jobs with one model and <strong>decouple</strong> them into two stages. Stage one is a <strong>conditional diffusion model</strong> — the same family of generative AI behind image generators — but here it "paints" future volatility surfaces. Feed it today's conditions and it produces an <em>ensemble</em> of plausible tomorrow-surfaces; the spread captures genuine uncertainty, and the middle-of-the-pack (median) surface is a robust single best guess. Stage two is a <strong>Surface-Aware Attention Module (SAAM)</strong>: a refinement operator that takes that representative surface and gently reshapes it to fit the real market quotes <em>and</em> to erase leftover arbitrage violations. Think of the diffusion model as an imaginative sketch artist and SAAM as the meticulous editor who makes the sketch physically legal.</p>
+<p><strong>What they found.</strong> On CSI 300 index options (China's blue-chip index) from 2020–2024, the diffusion stage produced sharper forecasts with honest, situation-dependent uncertainty bands — wider where the market is genuinely less predictable across moneyness, maturity, and sampling frequency. The refinement stage improved the fit to observed prices and measurably cut no-arbitrage violations, with the biggest gains at the fast, <strong>minute-level</strong> frequency. Diagnostics showed SAAM does <em>adaptive</em> reshaping — attending to the right regions — rather than blunt smoothing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $\sigma_t(k,\tau)$ denote the implied-volatility surface at date $t$, a function of log-moneyness $k$ and time-to-maturity $\tau$. The forecasting target is the conditional law of the future surface $\sigma_{t+1}$ given an information set $c_t$ (recent surfaces and market covariates). No-arbitrage imposes static shape constraints — roughly, monotonicity in total variance across maturities (no <em>calendar</em> arbitrage) and convexity in strike (no <em>butterfly</em> arbitrage).</p>
+<p><strong>The key equation.</strong> A <strong>conditional diffusion model</strong> learns $p_\theta(\sigma_{t+1}\mid c_t)$ by reversing a noising process. Forward, noise is added over steps $s=1,\dots,S$:
+$$q(x_s\mid x_{s-1}) = \mathcal{N}\!\big(x_s;\sqrt{1-\beta_s}\,x_{s-1},\,\beta_s I\big),$$
+and a network $\epsilon_\theta$ is trained to predict the injected noise, minimizing
+$$\mathcal{L}(\theta)=\mathbb{E}_{s,x_0,\epsilon}\big[\;\lVert \epsilon-\epsilon_\theta(x_s,s,c_t)\rVert^2\;\big].$$
+Here $x_0=\sigma_{t+1}$ is the clean surface, $x_s$ its noised version at step $s$, $\beta_s$ the noise schedule, $\epsilon\sim\mathcal{N}(0,I)$ the true noise, $\epsilon_\theta$ the learned denoiser, and $c_t$ the conditioning. Sampling the reverse chain yields an ensemble; the median gives the representative surface $\bar\sigma$. SAAM then solves a refinement that trades off market fit against arbitrage residuals,
+$$\min_{\hat\sigma}\; \lVert \hat\sigma-\sigma^{\text{mkt}}\rVert^2 \;+\; \lambda\,\mathcal{R}_{\text{arb}}(\hat\sigma),$$
+where $\hat\sigma$ is the refined surface, $\sigma^{\text{mkt}}$ the observed quotes, $\mathcal{R}_{\text{arb}}$ a penalty measuring calendar/butterfly violations, and $\lambda$ its weight, implemented through a cross-sectional attention operator.</p>
+<p><strong>The method.</strong> A denoising diffusion probabilistic model for distributional forecasting, followed by an attention-based, constraint-penalized refinement — distribution learning and arbitrage control handled by <em>separate</em> learners so neither compromises the other.</p>
+<p><strong>Results with numbers.</strong> Against baselines, the diffusion stage improved forecasting accuracy and produced predictive intervals whose width adapts across moneyness, maturity, and frequency; the SAAM stage improved fit to market observations and reduced measured static no-arbitrage residual violations, with the strongest gains at the minute level.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the map of option-implied volatilities across strikes and maturities.</li>
+<li><strong>No-arbitrage constraints</strong> — shape rules a surface must obey so no risk-free profit is possible.</li>
+<li><strong>Diffusion model</strong> — a generative AI that creates samples by learning to reverse a gradual noising process.</li>
+<li><strong>Conditional / ensemble forecast</strong> — a prediction of the full distribution (many samples) given current information, not a single point.</li>
+<li><strong>Attention module</strong> — a neural component that weights which parts of the input to focus on when producing each output.</li>
+<li><strong>Calendar / butterfly arbitrage</strong> — free-lunch trades that appear when the surface violates monotonicity in maturity or convexity in strike.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's evaluated on one market (CSI 300 index options), so cross-market and cross-asset generalization is unproven, and the refinement <em>reduces</em> rather than provably <em>eliminates</em> arbitrage violations — a residual-minimizer, not a hard guarantee. Diffusion sampling is also compute-heavy for minute-level use. Still, decoupling "imagine the distribution" from "enforce the geometry" is a clean, sensible design a quant desk could realistically prototype.</p>
+<h3>Bottom Line</h3>
+<p>Let a diffusion model dream the range of tomorrow's volatility surfaces, then let an attention module make the best guess arbitrage-legal — two specialists beating one overloaded generalist.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Robust Hedging Valuation Adjustment for Deep Hedging Policies under Market Frictions</h2>
+  <p class="meta">Takayuki Sakuma<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-28 &middot; <a href="http://arxiv.org/abs/2607.25258v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.25258v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Training a neural network to hedge is only half the job — this paper adds the accountant who tells you whether the desk can actually <em>afford</em> to run that hedge once trading costs, funding, and margin are on the bill.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> If you sell someone an option, you're on the hook for a payoff that swings with the market, so you continuously buy and sell the underlying stock to stay protected — that's <strong>hedging</strong>. In a frictionless textbook you can hedge perfectly. In reality every trade costs money (bid–ask spreads, fees), you must <em>fund</em> your positions, and you post <em>margin</em> as collateral. A hedging rule that looks brilliant on a pnl chart can quietly be a cash-bleeding disaster once those costs land. Recently people have used <strong>deep hedging</strong> — train a neural network on simulated markets to learn a trading policy that adapts to conditions. It often hedges well. But, the author stresses, training tells you the policy <em>tracks</em> the option; it does <em>not</em> tell you whether a real trading desk can <em>afford</em> to run it.</p>
+<p><strong>The idea.</strong> Bolt on a valuation layer <em>after</em> training called a <strong>Hedging Valuation Adjustment (HVA)</strong> — a reserve, a cushion of money you set aside to cover the hedge's residual risk and costs. The twist: make it <strong>robust</strong>, meaning it doesn't trust your simulator's probabilities completely. It stress-tests the policy against a whole <em>neighborhood</em> of alternative market scenarios and prices the reserve against a pessimistic tilt of that neighborhood. And it computes the three worries — tracking risk, funding, and margin — from <em>one shared stress</em>, so the desk gets a single, internally consistent reserve number instead of three inconsistent add-ons stapled together.</p>
+<p><strong>What they found.</strong> Comparing classical rule-of-thumb hedges (trade only when your exposure drifts outside a band) against learned deep-hedging policies across three markets of differing liquidity: <strong>no single method wins everywhere.</strong> Under a strict risk budget, wide classical bands were chosen in high- and medium-liquidity markets, while sparse <em>learned</em> execution was chosen in the low-liquidity market. Loosen the budget and wide classical bands tend to win again. The honest message: the fancy neural policy earns its keep mainly where liquidity is thin and adaptivity matters.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A hedging policy $\pi$ generates a portfolio whose <strong>tracking loss</strong> $L^\pi$ is the shortfall between the hedge and the liability it's meant to offset, net of transaction costs. Rather than average loss, risk is measured by <strong>Conditional Value-at-Risk (CVaR)</strong>: the expected loss in the worst $\alpha$-tail. Robustness is imposed by not fixing the scenario measure $\mathbb{P}$ but allowing any measure $\mathbb{Q}$ within a <strong>Kullback–Leibler (KL) ball</strong> around it.</p>
+<p><strong>The key equation.</strong> The robust HVA is a worst-case tail reserve over the uncertainty set,
+$$\mathrm{HVA}(\pi) = \sup_{\mathbb{Q}\,:\,D_{\mathrm{KL}}(\mathbb{Q}\Vert\mathbb{P})\le \eta}\; \mathrm{CVaR}^{\mathbb{Q}}_{\alpha}\!\big(L^\pi\big),$$
+where $\pi$ is the policy, $L^\pi$ its tracking loss, $\mathrm{CVaR}_\alpha$ the average loss beyond the $\alpha$-quantile, $\mathbb{P}$ the reference (simulated) measure, $\mathbb{Q}$ a candidate stressed measure, $D_{\mathrm{KL}}(\mathbb{Q}\Vert\mathbb{P})$ their KL divergence, and $\eta$ the radius setting how far you distrust the model. By convex duality this KL-robust CVaR admits an <strong>exponential (entropic) tilt</strong>: the worst-case $\mathbb{Q}$ reweights scenarios by $\propto e^{L^\pi/\theta}$ for a temperature $\theta$ tied to $\eta$. The same single tilt is then reused to compute the funding and margin add-ons, so all three reserves share one common stress and stay mutually consistent.</p>
+<p><strong>The method.</strong> Deep hedging (a neural policy trained by stochastic gradient descent on simulated paths) supplies the trading rule; on top sits a <strong>distributionally-robust optimization</strong> layer that evaluates KL-robust CVaR via its entropic dual, producing HVA plus funding and margin from one common-stress tilt.</p>
+<p><strong>Results with numbers.</strong> No specification dominated across all three liquidity environments. Under the strict tracking-risk budget: gamma-wide classical bands were selected in High and Middle Liquidity, sparse learned execution in Low Liquidity; at looser validation budgets, wider classical bands were generally selected — a regime-dependent selection rather than a universal winner.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Deep hedging</strong> — training a neural network on simulated markets to learn an adaptive trading/hedging policy.</li>
+<li><strong>Hedging Valuation Adjustment (HVA)</strong> — a reserve set aside to cover a hedge's residual risk and costs.</li>
+<li><strong>CVaR (Conditional Value-at-Risk)</strong> — the average loss in the worst $\alpha$% of outcomes, a tail-risk measure.</li>
+<li><strong>KL divergence / KL ball</strong> — a measure of how different two probability distributions are; the "ball" is all distributions within a set distance of the model.</li>
+<li><strong>Distributionally-robust optimization</strong> — optimizing against the worst probability distribution in an uncertainty set, not a single assumed one.</li>
+<li><strong>Funding / margin add-ons</strong> — extra reserves for the cost of financing positions and posting collateral.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Everything runs on <em>simulated</em> market environments, so the ranking of classical-versus-learned hedges is only as trustworthy as those simulators, and the KL uncertainty set is a modeling choice whose radius $\eta$ is essentially a dial the user must justify. But the core message is refreshingly unhyped: deep hedging isn't a free win, and giving a desk <em>one</em> consistent, stress-based reserve for risk, funding and margin is exactly the kind of thing a real risk manager needs.</p>
+<h3>Bottom Line</h3>
+<p>A neural hedger you can't afford to run is worthless — this bolts on a single, stress-tested price tag for risk, funding, and margin so you find out before the desk does.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Approximation of stochastic insurer balance-sheet results using signatures of economic scenarios</h2>
+  <p class="meta">Hervé Andrès, Alexandre Boumezoued, Arthur Bourdon, Benjamin Jourdain<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-07-27 &middot; <a href="http://arxiv.org/abs/2607.24150v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2607.24150v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of re-running a slow, full insurance-balance-sheet simulation thousands of times, summarize each economic scenario by its mathematical "signature" and read the answer off a fast linear formula.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A life insurer's balance sheet is a tangled machine: interest rates, equity returns and inflation wander over decades, and those paths feed complex rules governing assets, policyholder guarantees and profit-sharing. To satisfy regulators (computing the <strong>Solvency Capital Requirement</strong>) or to optimize how they invest, insurers run heavy <strong>Asset–Liability Management (ALM)</strong> simulations that project the whole balance sheet forward under thousands of economic scenarios. Each run is expensive, and you need many — one for every stress test and every tweak of the portfolio. It's like needing to know your car's fuel use for thousands of different routes, but the only tool you have is actually driving each route.</p>
+<p><strong>The idea.</strong> Build a cheap <strong>surrogate</strong> — a stand-in model that mimics the slow simulator's output but runs in a blink. The clever ingredient is the <strong>path signature</strong>, a tool from rough-path mathematics. A signature takes an entire wiggly trajectory — the full time-path of rates, stocks and inflation — and distills it into a structured list of numbers (iterated integrals) that captures its shape: its overall drift, how its components co-move, the order in which things happened. The remarkable fact is that a <em>linear</em> combination of these signature terms can approximate essentially <em>any</em> reasonable function of the path. So the authors express complex ALM outputs — like the <strong>Value In Force</strong> or the <strong>Best Estimate</strong> of liabilities — as a simple weighted sum of signature features of the input economic scenario. Calibrating it is just regularized linear regression, and evaluating a new scenario is instant.</p>
+<p><strong>What they found.</strong> The surrogate is easy to fit and predicts ALM outputs accurately while <em>drastically</em> cutting compute cost. They also stress its <strong>robustness</strong>: freeze the surrogate, then change the economic model's parameters (shift the distribution of scenarios) and see whether it still holds up — important because a surrogate is only useful if it survives the stress tests it's meant to accelerate. It does so well, making it fit for large-scale sensitivity analyses.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> An economic scenario is a continuous path $X:[0,T]\to\mathbb{R}^d$ (the joint trajectory of $d$ risk factors — rates, equity, inflation). The slow ALM model is a functional $F$ mapping a path to a scalar output $Y = F(X)$ (e.g. Value In Force or Best Estimate).</p>
+<p><strong>The key equation.</strong> The <strong>signature</strong> of a path is the infinite collection of iterated integrals
+$$S(X)_{0,T} = \Big(1,\;\int_{0<t\le T}\!dX_t,\;\iint_{0<s<t\le T}\!dX_s\otimes dX_t,\;\dots\Big),$$
+where each term of level $k$ is a $k$-fold iterated integral of the increments $dX_t$, and $\otimes$ denotes the tensor product that records the <em>order</em> of moves. By the <strong>universal approximation</strong> property of signatures, any continuous functional $F$ can be approximated arbitrarily well by a <em>linear</em> map on the (truncated) signature:
+$$\widehat{Y} = \langle \ell,\; S^{\le N}(X)\rangle = \sum_{w} \ell_w\, S(X)^{w},$$
+where $S^{\le N}$ is the signature truncated at level $N$, $S(X)^w$ its coordinate indexed by a word $w$ over the $d$ channels, $\ell_w$ the learned coefficients, and $\widehat Y$ the surrogate prediction of the ALM output $Y$. The coefficients solve a <strong>ridge-regularized least squares</strong>
+$$\hat\ell = \arg\min_{\ell}\;\sum_{i=1}^{M}\big(Y_i - \langle \ell, S^{\le N}(X_i)\rangle\big)^2 + \lambda\lVert\ell\rVert^2,$$
+with $M$ training scenarios $(X_i,Y_i)$ from the full simulator and $\lambda$ the regularization strength.</p>
+<p><strong>The method.</strong> <strong>Feature extraction via truncated path signatures + regularized linear regression</strong> — the nonlinearity is entirely front-loaded into the signature features, so learning the input-output map reduces to a convex, closed-form ridge regression, and prediction is a single dot product.</p>
+<p><strong>Results with numbers.</strong> The paper reports strong predictive accuracy of the signature surrogate against the full ALM simulator with a <em>drastic</em> reduction in computational cost, plus demonstrated robustness: the fixed surrogate retained predictive quality under perturbations of the risk-factor model parameters (shifts in the scenario distribution), supporting its use for large-scale sensitivity and fast balance-sheet evaluation.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Asset–Liability Management (ALM)</strong> — modeling an insurer's assets and liabilities jointly over time to manage solvency and strategy.</li>
+<li><strong>Solvency Capital Requirement (SCR)</strong> — the regulatory capital an insurer must hold to survive a 1-in-200-year shock.</li>
+<li><strong>Path signature</strong> — a hierarchy of iterated integrals that uniquely and linearly summarizes the shape of a trajectory.</li>
+<li><strong>Iterated integral</strong> — an integral of increments nested inside earlier increments, recording the order in which a path moves.</li>
+<li><strong>Universal approximation (of signatures)</strong> — the fact that linear functions of the signature can approximate any continuous path-functional.</li>
+<li><strong>Ridge regression</strong> — least-squares fitting with a penalty on coefficient size to prevent overfitting.</li>
+<li><strong>Value In Force / Best Estimate</strong> — the present value of future profits on existing policies / the expected present value of liabilities.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Signatures grow combinatorially — the number of terms explodes with dimension $d$ and truncation level $N$ — so for many risk factors the feature vector can get unwieldy, and the surrogate is only as good as the training scenarios spanning the region you later query. The robustness tests are encouraging but bounded to parameter shifts of <em>one</em> underlying model; a genuinely new risk regime could still fool it. For routine sensitivity sweeps within a calibrated world, though, this is a practical, well-grounded accelerator.</p>
+<h3>Bottom Line</h3>
+<p>Turn each economic scenario into its signature and the insurer's balance sheet becomes a fast dot product — thousands of stress tests for the price of a linear regression.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
