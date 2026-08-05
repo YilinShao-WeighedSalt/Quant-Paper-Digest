@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 05, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 05, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Option Pricing with Time-Changed Fractional Brownian Motion: A Fractional Variance Gamma Model</h2>
+  <p class="meta">Robert Jarrow, Jayen Tan<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-04 &middot; <a href="http://arxiv.org/abs/2608.03925v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.03925v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>By running fractional Brownian motion on a randomly-ticking "business clock," you can keep its realistic roughness and memory while quietly restoring the arbitrage-free structure that option pricing needs.</p>
+<h3>Plain English</h3>
+<p>Here is the real problem. To price an option — the right to buy a stock later at a fixed price — you need a mathematical model of how the stock wiggles over time. The industry standard treats price changes like the jittery, memoryless path of a pollen grain in water: where it goes next depends only on where it is now, never on where it has been. That assumption is clean and it makes the math solvable, but real markets are not memoryless. A quiet week tends to stay quiet; a turbulent one tends to stay turbulent. Returns show <em>long-range dependence</em>, where today still feels the pull of last month.</p>
+<p>There is a beautiful object that captures exactly this memory, called <em>fractional Brownian motion</em>. Think of it as a random walk with a stubborn personality: instead of forgetting its past at every step, it leans on the trend it has been following. It also produces the jagged, "rough" price paths we actually see. The trouble is that this memory is a poison pill for option pricing. The entire no-arbitrage machinery — the promise that you cannot build a money-printing trading strategy out of thin air — quietly assumes the price process is a <em>semimartingale</em>, a technical class that fractional Brownian motion falls outside of. Use it naively and your model hands out free money, which means it is wrong.</p>
+<p>The authors' trick is to change the clock. Instead of running fractional Brownian motion on ordinary wall-clock time, they run it on <em>trading time</em> — a clock that ticks fast when lots of shares are changing hands and crawls when the market is asleep. That business clock is itself random (a gamma process). The remarkable result: viewed on this stretched-and-squeezed clock, the process keeps fractional Brownian motion's memory and roughness, yet regains the semimartingale property. The poison is neutralized. They call the resulting model the <em>fractional Variance Gamma</em> model, a memory-aware cousin of a well-known jumpy pricing model.</p>
+<p>What they found: fitting this to the S&amp;P 500, they estimate a "roughness dial" (the Hurst exponent) of about 0.45 — just below the memoryless value of 0.5, meaning returns are <em>mildly anti-persistent</em> and their fluctuations grow slightly slower than a naive random walk predicts. Small number, but it says the market's memory is real and measurable, and now it lives inside a model you are actually allowed to price options with.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $B^H_t$ denote a fractional Brownian motion with Hurst exponent $H \in (0,1)$: a Gaussian process with mean zero and covariance
+$$\mathbb{E}[B^H_t B^H_s] = \tfrac{1}{2}\left(|t|^{2H} + |s|^{2H} - |t-s|^{2H}\right).$$
+Here $H$ is the roughness/memory parameter: $H=1/2$ recovers ordinary Brownian motion (independent increments); $H>1/2$ gives persistence (trends), $H<1/2$ anti-persistence (mean reversion in the increments). The catch is that for $H \neq 1/2$, $B^H_t$ is <em>not a semimartingale</em>, so no equivalent martingale measure exists and no-arbitrage pricing breaks.</p>
+<p><strong>The key construction.</strong> Introduce a <em>gamma activity-time</em> process $\Gamma_t$: an increasing Lévy process (a subordinator) with stationary independent increments, where $\Gamma_t$ represents cumulative executed trading time. The price is driven by the <em>time-changed</em> process
+$$X_t = \mu \Gamma_t + B^H_{\Gamma_t},$$
+and the asset is modeled as $S_t = S_0 \exp(X_t)$, with $\mu$ a drift. Evaluating fractional Brownian motion at the random clock $\Gamma_t$ is what restores tractability: the composition recovers a semimartingale while inheriting $B^H$'s scaling. When $H=1/2$ this collapses to the classical <em>Variance Gamma</em> model, so $H$ is the genuine new degree of freedom — the fractional generalization.</p>
+<p><strong>The method.</strong> Because moments of the log-return under this model are available in closed form, the authors estimate parameters by the <em>Generalized Method of Moments</em> (GMM): they choose $(\mu, \sigma, H, \text{gamma-clock parameters})$ so that model-implied moment conditions
+$$\mathbb{E}[\,g(X_{t+\Delta}-X_t;\ \theta)\,] = 0$$
+match their sample analogues, minimizing a quadratic form $\hat g(\theta)^\top W \hat g(\theta)$ in the empirical moment errors $\hat g$, with weighting matrix $W$. No likelihood needed — just matching how return moments scale with the horizon $\Delta$.</p>
+<p><strong>Results with numbers.</strong> On S&amp;P 500 data the estimated Hurst exponent is $\hat H \approx 0.45$, i.e. mildly <em>sublinear</em> temporal scaling of return moments (below the $H=0.5$ random-walk benchmark). The parameter is identified from real data and sits inside a model that — unlike a raw fractional Brownian motion — admits legitimate no-arbitrage option prices.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Semimartingale</strong> — the technical class of "well-behaved" random processes for which stochastic integration and no-arbitrage pricing are defined.</li>
+<li><strong>Hurst exponent ($H$)</strong> — a single number measuring a process's roughness and memory; $0.5$ means memoryless, higher means trending, lower means mean-reverting.</li>
+<li><strong>Subordinator / gamma activity time</strong> — an increasing random clock (jumps only upward) that stretches or compresses calendar time into trading time.</li>
+<li><strong>Variance Gamma model</strong> — a classic option-pricing model built by running Brownian motion on a gamma clock, producing realistic jumps and fat tails.</li>
+<li><strong>Generalized Method of Moments (GMM)</strong> — an estimation technique that fits parameters by matching theoretical moments to sample moments rather than maximizing a likelihood.</li>
+<li><strong>Long-range dependence</strong> — the property that correlations between distant time points decay so slowly they never really vanish.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clock-change is elegant, but restoring the semimartingale property means you have partly tamed the very memory you wanted — the long-range dependence survives in a subtler, subordinated form rather than in the raw returns, and whether that captures the market's memory practitioners actually trade on is an open question. GMM on moments is also less sharp than full likelihood, and a single point estimate of $H \approx 0.45$ on one index is suggestive, not settled. Usable as a research model; not yet a desk's pricing engine.</p>
+<h3>Bottom Line</h3>
+<p>Change the clock, and fractional Brownian motion's memory becomes a feature you can price instead of a paradox that prints free money.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Hawkes-Driven OTC Market Making: Volterra-Riccati Approximation</h2>
+  <p class="meta">Alexander Barzykin<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-03 &middot; <a href="http://arxiv.org/abs/2608.02002v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.02002v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a dealer's incoming order requests have memory — bursts breed more bursts — the smart quote is not to react to the last request but to forecast the whole future stream, and this paper builds a tractable way to do exactly that.</p>
+<h3>Plain English</h3>
+<p>Imagine you run a currency exchange desk. All day, clients send you <em>requests for quote</em> — "what's your price on ten million euros?" — and you decide the price you offer. Quote too aggressively and you win the trade but take on risky inventory; quote too wide and the client goes elsewhere. This is the <em>market maker's dilemma</em>: earn the spread while not drowning in unwanted positions.</p>
+<p>The classic way to model when requests arrive is to assume they fall like raindrops at a steady average rate, each independent of the last. But real foreign-exchange request flow does not behave like rain. It behaves like earthquakes: one request tends to trigger aftershocks. A flurry of "buy euro" requests today makes more "buy euro" requests likely in the next minutes and even hours. The authors show this directly in spot-FX data — the flow is <em>self-exciting</em> and its memory stretches across multiple time scales, from seconds to a slow, long tail.</p>
+<p>The mathematical tool for self-exciting bursts is a <em>Hawkes process</em>. The problem is that once flow has long memory, the dealer's optimal decision depends on the <em>entire history</em> of requests, not just the current state — and that makes the control problem enormous, effectively infinite-dimensional. Their idea is a clever ladder of approximations. Rather than track infinite history, replace the messy random future with your best <em>forecast</em> of it — the expected curve of future request intensity — and quote against that. Then add a correction for how uncertain that forecast is, and finally let the realized bursts update the forecast on the fly. The analogy: instead of memorizing every raindrop, you carry a running weather forecast and adjust your umbrella as the sky changes.</p>
+<p>What they found: this forecast-based quoting rule tracks the truly-optimal policy remarkably closely — validated against a special case they can solve exactly — while a naive "memoryless" dealer racks up substantial regret. A directional burst of requests gets converted into a <em>persistent skew</em> in the dealer's quotes that decays with the same long memory as the flow, giving better control of inventory and profit-and-loss.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Request arrivals follow a multivariate <em>Hawkes process</em> $N_t$ with conditional intensity
+$$\lambda_t = \lambda_\infty + \int_0^t \phi(t-s)\,dN_s,$$
+where $\lambda_t$ is the instantaneous arrival rate, $\lambda_\infty$ a baseline, and $\phi$ the <em>excitation kernel</em> measuring how much a past event at time $s$ lifts the current rate. A large integral of $\phi$ (branching ratio near 1) means strong self-excitement and long memory. Fills are <em>controlled thinnings</em>: the dealer's quote sets the probability that a given request converts to a trade. Inventory $q_t$ accumulates filled trades, and the dealer maximizes expected utility of terminal wealth penalized for inventory risk.</p>
+<p><strong>The key equations.</strong> For general kernels the value function is <em>path-dependent</em> — its state is the whole forward curve of conditional future intensities $\{\mathbb{E}[\lambda_u \mid \mathcal{F}_t]\}_{u\ge t}$, not a finite vector. For the special <em>exponential</em> kernel $\phi(t)=\beta e^{-\kappa t}$ the process admits a <em>Markovian lifting</em>: $\lambda_t$ itself becomes a finite-dimensional state solving an ODE, and the Hamilton–Jacobi–Bellman equation
+$$\partial_t V + \sup_{\text{quote}}\ \mathcal{L}^{\text{quote}} V = 0$$
+can be solved numerically — this is their exact benchmark ($V$ the value function, $\mathcal{L}$ the controlled generator). For long-memory kernels no such finite lifting exists.</p>
+<p><strong>The method.</strong> They build a hierarchy of <em>Volterra–Riccati approximations</em>. Level 1 replaces the random future flow by its conditional <em>Volterra forecast</em> (the deterministic expected-intensity curve). Level 2 adds a covariance correction for forecast uncertainty. Level 3 updates the quote with realized Hawkes memory — the post-request forecast curve. The name comes from solving a <em>Volterra integral equation</em> of Riccati (quadratic) type for the value function's coefficients, the memory-laden generalization of the ordinary Riccati ODEs that appear in linear-quadratic control.</p>
+<p><strong>Results with numbers.</strong> In the exponential-kernel benchmark, where the exact lifted HJB is solvable, the state-feedback Volterra–Riccati policy closely tracks the exact optimum, especially in <em>directional regimes</em>, while a memory-free <em>Poisson</em> policy suffers substantial regret. Applied to a power-law-like (long-memory) RFQ model, a directional burst produces a persistent quote skew whose decay inherits the long-memory of the forecast response, improving inventory and P&amp;L risk control relative to the no-conditioning Poisson benchmark.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Request for quote (RFQ)</strong> — a client asking a dealer for a firm price on a trade, which the dealer chooses whether to fill.</li>
+<li><strong>Hawkes process</strong> — a "self-exciting" point process where each event temporarily raises the chance of further events, modeling bursts and clustering.</li>
+<li><strong>Excitation kernel / branching ratio</strong> — the function (and its integral) measuring how strongly past events breed future ones; near 1 means near-critical, long-lasting memory.</li>
+<li><strong>Markovian lifting</strong> — rewriting a history-dependent process as a memoryless one by enlarging the state space, possible for exponential kernels but not long-memory ones.</li>
+<li><strong>HJB equation</strong> — the partial differential equation whose solution is the optimal value function in a continuous-time control problem.</li>
+<li><strong>Volterra–Riccati equation</strong> — a memory-carrying (integral) version of the Riccati equations that describe optimal quadratic controllers.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The approximation hierarchy is only validated exactly where an exact solution exists (exponential kernels); for the genuinely long-memory case there is no ground truth, so "closely tracks" becomes an act of faith. It also assumes the Hawkes structure and the utility penalties are correctly specified, and real FX desks face adverse selection and latency the model abstracts away. Still, the qualitative lesson — forecast the flow, don't just react to it — is directly actionable.</p>
+<h3>Bottom Line</h3>
+<p>Quote against your forecast of the order flow, not its last tick, and long memory turns from a computational nightmare into a persistent, profitable skew.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> An Information-Geometric Framework for Bayesian Credit Risk Monitoring</h2>
+  <p class="meta">Lorenzo Quirini<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-02 &middot; <a href="http://arxiv.org/abs/2608.01294v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.01294v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Treat a bank's evolving belief about a borrower as a point on a curved map of probability distributions, and the distance a borrower "travels" on that map becomes a rigorous measure of changing credit risk.</p>
+<h3>Plain English</h3>
+<p>A bank lending you money never truly knows how creditworthy you are. It holds a <em>belief</em> — a fuzzy guess with error bars — about hidden qualities like your ability to repay and your financial fragility. Every time it observes new behavior (a missed payment, a raise, a maxed-out card), it should update that belief. The everyday problem is: how do you <em>quantify</em> how much a borrower's risk profile has shifted? If customer A's picture changed a little and customer B's changed a lot, by how much? "A lot" needs a number, and a bank monitoring millions of loans needs that number to be principled, not ad hoc.</p>
+<p>The paper's idea is to borrow a beautiful concept from geometry. Picture every possible belief the bank could hold — every bell-curve of "how risky is this borrower" — as a <em>point on a landscape</em>. Beliefs that are easy to confuse sit close together; beliefs that are easy to tell apart sit far apart. This turns the space of beliefs into a curved surface with a genuine notion of distance, called a <em>statistical manifold</em>. As the bank watches a borrower over time, its belief traces a path across this landscape, and the length of that path measures how much its assessment has genuinely moved.</p>
+<p>The elegant payoff: under a natural set of assumptions, this abstract "information distance" collapses into a familiar workhorse of statistics — the <em>Mahalanobis distance</em>, which measures how far apart two profiles are while accounting for how variables scatter together. But the geometric version is richer: it can also weigh <em>how confident</em> the bank is. A shift in belief that comes with high certainty counts differently from the same shift made while the bank is still unsure. Two divergence measures — <em>Kullback–Leibler</em> and <em>Jeffreys</em> — let the bank compare whole segments of its loan book, asking "how different, informationally, is the risk of these borrowers from those?" Compared to plain scorecards that output one risk number, this frames monitoring as <em>movement of beliefs through a geometric space</em>, uncertainty included.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Each borrower's creditworthiness is a latent vector $\theta \in \mathbb{R}^d$ (dimensions of creditworthiness and financial fragility). The bank's knowledge is a <em>posterior distribution</em> $p(\theta \mid x)$ after observing behavioural scores $x$. Under a <em>linear-Gaussian</em> specification, the prior is Gaussian and the likelihood linear-Gaussian, so Bayesian updating yields a Gaussian posterior
+$$\theta \mid x \sim \mathcal{N}(\mu(x),\ \Sigma),$$
+with posterior mean $\mu(x)$ and covariance $\Sigma$. The family of all such Gaussians forms a <em>statistical manifold</em> $\mathcal{M}$, each point a belief.</p>
+<p><strong>The key equations.</strong> The manifold is endowed with the <em>Fisher information metric</em>, whose components are
+$$g_{ij}(\theta) = \mathbb{E}\!\left[\frac{\partial \log p}{\partial \theta_i}\,\frac{\partial \log p}{\partial \theta_j}\right],$$
+the natural Riemannian metric on probability distributions ($g_{ij}$ the metric tensor; the expectation is over the data given $\theta$). In the <em>common-covariance</em> case ($\Sigma$ shared across borrowers), the induced distance between two posterior means reduces to the <em>Mahalanobis distance</em>
+$$d_M(\mu_1,\mu_2) = \sqrt{(\mu_1-\mu_2)^\top \Sigma^{-1} (\mu_1-\mu_2)},$$
+where $\Sigma^{-1}$ down-weights directions of high variance. With borrower-specific $\Sigma_i$, informational distance also reflects <em>assessment uncertainty</em>, not just expected risk. To compare portfolio segments, they use the <em>Kullback–Leibler divergence</em>
+$$D_{\mathrm{KL}}(p\,\|\,q)=\int p(\theta)\log\frac{p(\theta)}{q(\theta)}\,d\theta,$$
+and its symmetrized <em>Jeffreys</em> form $D_J = D_{\mathrm{KL}}(p\|q)+D_{\mathrm{KL}}(q\|p)$, both of which have closed forms for Gaussians in terms of the means and covariances.</p>
+<p><strong>The method.</strong> The engine is <em>Bayesian updating</em> mapping observed scores $x$ into posterior beliefs, combined with <em>information geometry</em> to equip the belief space with the Fisher metric. Distances and divergences are then evaluated in closed form under the Gaussian assumption. Validation is via <em>simulation exercises</em> illustrating how KL and Jeffreys divergences separate portfolio segments.</p>
+<p><strong>Results with numbers.</strong> The contribution is structural rather than an empirical horse-race: the paper proves the reduction of Fisher-metric distance to Mahalanobis distance in the common-covariance case, shows the borrower-specific-covariance case incorporates assessment uncertainty, and demonstrates in simulation how KL/Jeffreys divergences compare segments. No benchmark accuracy figures are reported — the deliverable is the geometric framework itself.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Posterior distribution</strong> — the bank's updated belief about a borrower after combining prior assumptions with observed data.</li>
+<li><strong>Statistical manifold</strong> — the curved space whose points are probability distributions, with nearby points being hard-to-distinguish distributions.</li>
+<li><strong>Fisher information metric</strong> — the natural way to measure distance on that space, capturing how sharply data distinguishes one belief from a neighbor.</li>
+<li><strong>Mahalanobis distance</strong> — a distance between points that rescales each direction by how much the data varies there, so noisy directions count less.</li>
+<li><strong>Kullback–Leibler / Jeffreys divergence</strong> — asymmetric (and symmetrized) measures of how different one probability distribution is from another.</li>
+<li><strong>Linear-Gaussian model</strong> — a setup where priors are Gaussian and observations depend linearly on the hidden state, keeping every posterior Gaussian and tractable.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a conceptual and geometric contribution, not a validated predictor — there are no default-prediction accuracy numbers, no real portfolio, and the whole edifice leans on the linear-Gaussian assumption, which real credit behavior (fat tails, regime shifts, discrete events) routinely violates. A practitioner would get an elegant vocabulary for "how much did our view of this borrower move," but would still need to prove it beats a plain scorecard on real defaults before trusting it.</p>
+<h3>Bottom Line</h3>
+<p>Credit monitoring becomes geometry: a borrower's risk isn't a number but a moving point on a curved map of belief, and the distance it travels is the risk that changed.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Amortizing the Calibration Triple: A Projection-Consistent Neural Operator for Local-Stochastic Volatility</h2>
+  <p class="meta">Xiaozhen Wang, Anaïs Després, Martin Dureau, Francois Buet-Golfouse<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-02 &middot; <a href="http://arxiv.org/abs/2608.01217v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.01217v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A slow, iterative volatility-calibration that used to take a hundred milliseconds of particle simulation is replaced by a single neural-network evaluation that respects all the no-arbitrage rules and runs in under a millisecond.</p>
+<h3>Plain English</h3>
+<p>Banks price and hedge exotic options using a model of how a stock's <em>volatility</em> — the size of its wiggles — behaves. One popular family, <em>local-stochastic volatility</em> (LSV), is prized because it can simultaneously match today's plain-vanilla option prices <em>and</em> produce realistic dynamics for how the volatility "smile" moves. The price of this flexibility is a brutal calibration step: you must solve a self-referential fixed-point problem where the answer depends on the distribution of paths, which depends on the answer. In practice that means a slow, noisy <em>particle simulation</em> run sequentially through time — think of it as a swarm of thousands of simulated price paths that you nudge, re-measure, and nudge again until everything is consistent. It is expensive and it has to be redone whenever the market moves.</p>
+<p>The authors' idea is <em>amortization</em>: pay the expensive cost once, offline, by training a neural network to learn the <em>whole map</em> from market quotes to the calibrated model, so that at trading time calibration becomes a single fast lookup. But a naive network would cheat — it would produce volatility surfaces that violate the iron laws of options, letting you construct riskless profit (arbitrage). So they hard-wire the laws into the learning. The network is forced to jointly output a self-consistent bundle — the implied-volatility surface, its local-volatility counterpart, and the "leverage" that couples the two — all obeying the no-arbitrage constraints and the internal consistency identity that ties LSV together. The analogy: instead of solving a fresh Sudoku every morning, you train a solver that already knows the rules so tightly it can only ever produce valid grids, and it answers instantly.</p>
+<p>What they found is striking. On controlled synthetic tests, the network's prices for path-dependent exotics (forward-starts and cliquets) land within a couple tenths of a percentage point of the gold-standard particle method — while calibration time drops from about 98.5 milliseconds to 0.6 milliseconds, more than a hundredfold speedup. It also cuts the error in the recovered local-volatility function by over a third versus tested baselines.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Under LSV the asset follows
+$$dS_t = \sigma_{\text{LSV}}(t,S_t)\, \alpha_t\, S_t\, dW_t,\qquad \sigma_{\text{LSV}}(t,S)=\ell(t,S)\,\sigma_{\text{loc}}(t,S),$$
+where $S_t$ is the price, $\alpha_t$ a <em>stochastic-volatility backbone</em> (e.g. a mean-reverting SV process), $\sigma_{\text{loc}}$ the Dupire <em>local volatility</em> implied by vanilla prices, and $\ell(t,S)$ the <em>leverage function</em> that makes the SV model reproduce those vanillas. Calibration must satisfy the <em>Gyöngy projection identity</em>
+$$\sigma_{\text{loc}}^2(t,K)=\ell^2(t,K)\,\mathbb{E}\!\left[\alpha_t^2 \mid S_t=K\right],$$
+a McKean–Vlasov fixed point: the conditional expectation on the right depends on the law of $S_t$, which depends on $\ell$, which is what you are solving for. Here $K$ is strike, and $\mathbb{E}[\cdot\mid S_t=K]$ is the conditional second moment of the backbone on the strike level.</p>
+<p><strong>The key equations.</strong> They learn a <em>projection-consistent operator</em> on the "calibration triple." From option-price marginals they derive a <em>division-free Dupire residual</em> in log-implied-variance coordinates $w=\sigma_{\text{IV}}^2 t$ (avoiding unstable division by small numbers), and, after the Gyöngy projection, a <em>quotient Fokker–Planck equation</em> for the density. The network is trained to drive to zero a residual system
+$$\mathcal{R}(\text{IV},\sigma_{\text{loc}},\ell,m)=0,$$
+bundling four constraints: quote fit, static-arbitrage (butterfly/calendar) admissibility, the Dupire relation, and the projection identity — where $m=\mathbb{E}[\alpha_t^2\mid S_t]$ is the <em>conditional moment</em> required by the identity.</p>
+<p><strong>The method.</strong> Two neural-operator architectures are used — a <em>DeepONet</em> (Deep Operator Network) and a <em>Fourier Neural Operator</em> (FNO) — trained to map finite quotes plus an SV backbone to the constrained triple. For the <em>witness-augmented</em> residual system they prove <em>conditional identification</em> and empirical consistency under LSV existence and inverse-residual stability. The expensive McKean–Vlasov solve moves offline into training; online calibration is one forward evaluation.</p>
+<p><strong>Results with numbers.</strong> In controlled synthetic tests, forward-start and cliquet pricing errors differ from a particle method by <strong>0.1</strong> and <strong>0.2 percentage points</strong>; calibration latency falls from <strong>98.5 ms to 0.6 ms</strong>. Against tested baselines, local-volatility RMSE drops <strong>36%</strong> and leverage RMSE drops <strong>7–16%</strong>.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Local-stochastic volatility (LSV)</strong> — a model where volatility is both a function of price/time (local) and its own random process (stochastic), combining fit and realistic dynamics.</li>
+<li><strong>Leverage function</strong> — the multiplier $\ell(t,S)$ that scales stochastic volatility so the model still reproduces today's vanilla option prices.</li>
+<li><strong>Dupire local volatility</strong> — the unique volatility-as-a-function-of-price/time that exactly matches an observed surface of vanilla option prices.</li>
+<li><strong>McKean–Vlasov fixed point</strong> — an equation whose solution depends on the probability distribution of its own solution, requiring iteration to resolve.</li>
+<li><strong>Static arbitrage constraints</strong> — no-free-lunch conditions (butterfly and calendar) that a valid option-price surface must obey.</li>
+<li><strong>Neural operator (DeepONet / FNO)</strong> — a neural network that learns a mapping between whole functions, not just between numbers, ideal for surface-to-surface problems.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline numbers come from <em>controlled synthetic tests</em>, so the model is essentially being graded on data drawn from its own assumed world — real market surfaces are noisier, sparser, and can violate the arbitrage-free idealization the network is trained to enforce. Amortization also means the network is only trustworthy inside the regime it was trained on; a genuinely novel market state could push it off-manifold. Promising for speeding up a known bottleneck, but it needs live-market validation before a desk leans on it.</p>
+<h3>Bottom Line</h3>
+<p>Bake the no-arbitrage laws into a neural operator and the LSV calibration that took a noisy particle swarm becomes a single, sub-millisecond, rule-abiding evaluation.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Exactly solvable model for the diffusive price-dynamics paradox under long-range correlated market-order flow</h2>
+  <p class="meta">Yuki Sato, Shunta Fujiwara, Kiyoshi Kanazawa<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-02 &middot; <a href="http://arxiv.org/abs/2608.00988v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.00988v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Market orders are predictable and each one pushes the price, so prices <em>should</em> trend — yet they diffuse like a random walk, and the resolution is that price impact grows as the square root, not linearly, exactly cancelling the predictability.</p>
+<h3>Plain English</h3>
+<p>Here is a genuine paradox that has nagged market microstructure for years. Two facts are both extremely well established. First, over long horizons a stock's price wanders like a drunkard — <em>Brownian motion</em>, no predictable direction, the hallmark of an efficient market. Second, the <em>flow of market orders</em> is highly predictable: big buyers slice one giant order into thousands of small child-orders drip-fed over hours, so a buy now strongly predicts more buys soon. This <em>long-range correlation</em> in order flow is rock-solid in the data.</p>
+<p>Now put them together and something breaks. Every market buy order nudges the price up a little (that is what <em>price impact</em> means). If buy orders come in long, predictable streaks, then the price nudges should also come in long, predictable streaks — the price should <em>trend</em>, not wander randomly. Predictable pushes on the price seem to flatly contradict the observed random-walk behavior. Somebody standing at the order book should be able to see the streak coming and make money, which efficient markets say you can't. So which "well-known fact" is wrong?</p>
+<p>The paper's answer: neither. The missing ingredient is <em>how</em> impact scales with size. Real markets don't push the price in proportion to how much you trade — they push it in proportion to the <em>square root</em> of how much you trade. This <em>square-root law</em> is one of the most robust empirical regularities in finance, and the authors show it is precisely the escape hatch. When a predictable streak of buys arrives, the square-root damping means the cumulative push grows just slowly enough — sublinearly — that the predictability in the <em>flow</em> never translates into predictability in the <em>price</em>. The trend energy gets bled away exactly. They prove this rigorously by mapping the whole thing onto a model from physics: the <em>Lévy walk</em>, a well-studied kind of random motion made of long directed flights. In that language they can show, as a theorem, that the price is diffusive at long times even though the order flow is predictable.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> They extend the <em>Lillo–Mike–Farmer (LMF)</em> model, which explains long-range-correlated order flow via order splitting. Let $\epsilon_t \in \{+1,-1\}$ be the sign of the market order at event time $t$ (buy or sell). The LMF mechanism produces a sign sequence with <em>long-range autocorrelation</em>, $\langle \epsilon_t \epsilon_{t+\tau}\rangle \sim \tau^{-\gamma}$ with $\gamma \in (0,1)$ — i.e. correlations that decay so slowly they are effectively persistent. Naively, if price increments equal a constant times $\epsilon_t$, this persistence forces the price variance to grow <em>superdiffusively</em> (faster than linearly), contradicting the observed diffusion.</p>
+<p><strong>The key equations.</strong> The fix is the <em>square-root price-impact law</em>. Instead of a fixed increment per trade, the impact of executing a run of same-signed volume $V$ scales as
+$$\Delta p \ \propto \ \operatorname{sgn}(\text{flow})\,\sqrt{V},$$
+so within a predictable directed streak of length $\ell$ the price displacement grows like $\sqrt{\ell}$ rather than $\ell$. Encoding this nonlinearity turns the price process into a <em>Lévy walk</em>: a walker takes directed "flights" whose durations follow a heavy-tailed distribution (inherited from the order-splitting statistics), moving at finite speed during each flight. For a Lévy walk with flight-time exponent in the right range, the mean-squared displacement satisfies
+$$\langle x^2(t)\rangle \ \sim \ t^{1} \qquad (\text{normal diffusion}),$$
+where $x(t)$ is the cumulative price and the exponent $1$ (rather than $>1$) is exactly the diffusive scaling. The sublinear $\sqrt{V}$ impact is what pulls the superdiffusion of the raw correlated flow back down to linear.</p>
+<p><strong>The method.</strong> They build an <em>exactly solvable nonlinear time-series model</em> by inserting the square-root law into LMF, then <em>map it onto the Lévy-walk framework</em> — a class of non-Markovian processes with known closed-form long-time asymptotics from statistical physics. Using those results they <strong>prove</strong> the long-time diffusive scaling analytically, rather than merely simulating it. The nonlinearity ($\sqrt{\cdot}$) is essential; a linear-impact version would remain superdiffusive.</p>
+<p><strong>Results with numbers.</strong> The central result is a theorem: under the square-root law, price dynamics are <em>diffusive at long times</em> ($\langle x^2(t)\rangle \propto t$) even under long-range-correlated, predictable market-order flow — resolving the diffusive price-dynamics paradox. The work identifies the square-root law as the microstructural mechanism reconciling predictable flow with the Efficient Market Hypothesis, giving it a first-principles foundation rather than an empirical coincidence.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market microstructure</strong> — the study of how prices actually form from the mechanics of orders, quotes, and the order book.</li>
+<li><strong>Long-range correlation</strong> — statistical memory that decays as a slow power law, so distant events stay meaningfully linked.</li>
+<li><strong>Price impact / square-root law</strong> — the empirical rule that trading a volume $V$ moves the price by roughly a constant times $\sqrt{V}$, not proportionally to $V$.</li>
+<li><strong>Lillo–Mike–Farmer (LMF) model</strong> — a model deriving persistent order-flow correlations from large traders splitting orders into many small pieces.</li>
+<li><strong>Lévy walk</strong> — a random-motion model built from long directed flights of heavy-tailed duration at finite speed, exactly solvable in statistical physics.</li>
+<li><strong>Diffusive vs. superdiffusive</strong> — whether squared displacement grows like $t$ (normal random walk) or faster than $t$ (persistent trending).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean explanatory result, not a trading tool — it tells you <em>why</em> markets can be both predictable in flow and unpredictable in price, but it won't by itself generate a strategy or a calibration. The model idealizes impact as a pure square-root and inherits LMF's stylized order-splitting assumptions, so real markets with mixed impact regimes, cancellations, and mean reversion may only partly fit. Its value is conceptual clarity: it pins the efficient-market appearance on a specific, measurable mechanism.</p>
+<h3>Bottom Line</h3>
+<p>The square-root law isn't a curiosity — it's the exact damping that turns predictable order flow into an unpredictable price, saving market efficiency from its own microstructure.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
