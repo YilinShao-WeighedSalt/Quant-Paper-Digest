@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 09, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 09, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Amortizing the Calibration Triple: A Projection-Consistent Neural Operator for Local-Stochastic Volatility</h2>
+  <p class="meta">Xiaozhen Wang, Anaïs Després, Martin Dureau, Francois Buet-Golfouse<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-02 &middot; <a href="http://arxiv.org/abs/2608.01217v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.01217v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of slowly re-solving a hard fixed-point equation every time you tune an option-pricing model to the market, train a neural network once so that calibration collapses to a single lightning-fast evaluation.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A bank that sells exotic options needs a model of how volatility behaves, and that model has to <em>agree with the prices you can see in the market right now</em> — the quoted prices of plain "vanilla" options. Getting the model to agree is called <em>calibration</em>. The gold-standard model here, called <em>local-stochastic volatility</em> (LSV), is powerful because it matches today's option prices exactly while still producing realistic wiggles in future volatility. The catch: calibrating it means solving a self-referential equation — the model's behaviour depends on its own probability distribution, which depends on its behaviour — by simulating a swarm of "particles" and iterating until things stop changing. It is slow, noisy, and has to be redone every time the market moves. If you are repricing a large book of trades many times a day, those milliseconds add up to real money and real risk.</p>
+<p><strong>The idea.</strong> The authors train a machine that has <em>already seen</em> how the answer depends on the inputs, so that at run time it just reads off the answer. Think of it like the difference between solving a maze from scratch every morning versus memorizing a map of every maze you might face. Technically they learn an <em>operator</em> — a function whose input is itself a function (the market's quote curve) and whose output is another function (the whole calibrated volatility surface plus its internal pieces). They force this machine to respect the no-arbitrage rules that any legitimate volatility surface must obey (prices can't imply a money pump), so it never hands back a nonsensical surface.</p>
+<p><strong>What they found.</strong> The learned operator produces essentially the same answers as the slow particle method — prices of forward-start and cliquet options land within 0.1 to 0.2 percentage points — while cutting calibration time from about 98.5 milliseconds to 0.6 milliseconds, a roughly 160x speed-up. Against other baselines, the error in the key "local volatility" quantity drops by 36%.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> LSV models the asset price $S_t$ by
+$$dS_t = \sigma(t,S_t)\,\ell(t,S_t)\,S_t\,dW_t,$$
+where $\sigma(t,S_t)$ is a <em>stochastic-volatility (SV) backbone</em>, $\ell(t,S_t)$ is the <em>leverage function</em> to be found, and $W_t$ is a Brownian motion. The calibration constraint is the <em>Gyongy projection identity</em>: the LSV model must reproduce the same one-dimensional marginals as <em>Dupire local volatility</em> $\sigma_{\text{Dup}}$, which requires
+$$\ell^2(t,K)\,\mathbb{E}\!\left[\sigma^2(t,S_t)\,\middle|\,S_t=K\right] = \sigma_{\text{Dup}}^2(t,K).$$
+Here $K$ is a strike level and the conditional expectation is the troublesome term — it depends on the model's own distribution, making this a <em>McKean-Vlasov fixed point</em>.</p>
+<p><strong>The key equations.</strong> Dupire's formula ties local variance to option prices,
+$$\sigma_{\text{Dup}}^2(K,\tau)=\frac{\partial_\tau C}{\tfrac{1}{2}K^2\,\partial_{KK}C},$$
+with $C(K,\tau)$ the price of a call of strike $K$ and maturity $\tau$. The authors recast this in <em>log-implied-variance coordinates</em> to get a "division-free" residual (avoiding the unstable division by $\partial_{KK}C$), and derive a <em>quotient Fokker-Planck equation</em> for the density after the Gyongy projection. The network's loss enforces four things at once: fit to quotes, static-arbitrage constraints (positivity, calendar monotonicity, the butterfly inequality), the Dupire residual, and the projection identity.</p>
+<p><strong>The method.</strong> They implement the operator two ways — a <em>Deep Operator Network (DeepONet)</em> and a <em>Fourier Neural Operator (FNO)</em> — with output "heads" that structurally enforce the arbitrage constraints. Training happens offline over many synthetic markets; at run time one forward pass returns the <em>calibration triple</em> (implied surface, its Dupire local vol, and the leverage). They prove <em>conditional identification</em> and <em>empirical consistency</em> under assumptions of LSV existence and inverse-residual stability.</p>
+<p><strong>Results with numbers.</strong> Forward-start and cliquet pricing errors versus a particle benchmark: 0.1 and 0.2 percentage points. Latency: 98.5 ms to 0.6 ms. Local-volatility RMSE down 36%; leverage RMSE down 7-16%.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Local-stochastic volatility (LSV)</strong> — a model where volatility is a random process <em>and</em> an explicit function of price/time, chosen so it exactly matches today's vanilla option prices.</li>
+<li><strong>Calibration</strong> — tuning a model's free parameters so its output prices match the prices quoted in the market.</li>
+<li><strong>McKean-Vlasov fixed point</strong> — an equation whose solution's dynamics depend on the solution's own probability distribution, so it must be solved self-consistently.</li>
+<li><strong>Dupire local volatility</strong> — the unique volatility-as-a-function-of-price-and-time that reproduces all observed option prices.</li>
+<li><strong>Gyongy projection</strong> — a result letting you replace a complicated process with a simpler one having the same one-time-slice distribution.</li>
+<li><strong>Neural operator (DeepONet/FNO)</strong> — a neural network that learns a mapping from whole input functions to whole output functions, not just number-to-number.</li>
+<li><strong>Static arbitrage constraints</strong> — inequalities a price surface must satisfy so no riskless profit can be extracted from options alone.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The impressive numbers come from <em>controlled synthetic tests</em>, not live trading books, so the real question — does it stay accurate on messy, sparse, fast-moving market quotes — remains open. It also assumes you already have a fitted SV backbone, and its guarantees are conditional on LSV actually existing for the inputs. As an offline-training / online-evaluation pattern for a repriced book, though, it is exactly the kind of thing a quant desk could adopt.</p>
+<h3>Bottom Line</h3>
+<p>Do the painful volatility solve once, offline, and every future calibration becomes a keystroke.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Optimal Trading of Microstructure Mean Reversion</h2>
+  <p class="meta">Lucas Rabechini Amaral<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-01 &middot; <a href="http://arxiv.org/abs/2608.00885v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.00885v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>At the scale of seconds, the price you see on screen jitters around the "true" price like a stretched spring, and the smartest trader doesn't act when they <em>can</em> — they wait until the spring stretches far enough to pay for the spread.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Zoom into any liquid market at the seconds-and-milliseconds scale and the quoted mid-price is not the "real" value of the asset. It bounces above and below a hidden <em>efficient price</em> because of the mechanics of the order book itself — who happened to buy or sell last. A trader who wants to profit from this tiny, temporary mispricing faces a cost every time they trade: the <em>bid-ask spread</em>, the gap between what you pay to buy and receive to sell. Trade too eagerly and the spread eats everything; trade too rarely and you leave money on the table. Everyday analogy: imagine a scale at a busy deli that always reads a little high or low depending on how the last customer set it down. If it costs you a penny each time you use the scale, when is the reading wrong <em>enough</em> to bother correcting?</p>
+<p><strong>The idea.</strong> The authors build a small model of the order book whose own trading flow <em>creates</em> this wobble, then solve for the best possible trading rule. They show the whole problem collapses to a single number: the <em>gap</em> between the mid-price and the hidden efficient price. That gap behaves like a mass on a spring — pull it away and it tends to snap back. The optimal rule is a patience rule: hold still while the gap is small, buy when it stretches to $-\theta$, sell when it stretches to $+\theta$, for a carefully chosen band width $\theta$.</p>
+<p><strong>What they found.</strong> They derive a clean closed-form answer for the best band width and the resulting profit rate. The punchline is counterintuitive and elegant: <em>trading as soon as the gap merely covers the spread earns exactly zero</em>. All the profit lives in the <em>option value of waiting</em> — holding out for a bigger stretch that more than pays for the round-trip cost.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The efficient price $P_t$ is an exogenous Brownian <em>martingale</em> (a fair-game process with no predictable drift). The observed mid $M_t$ is a <em>pure-jump process</em> living on a half-tick grid, whose jump intensities lean toward $P_t$. The single state variable is the gap
+$$G_t = M_t - P_t,$$
+which is observable. In a large-tick asset the spread is one or two ticks, set by the <em>parity</em> of the mid on the half-tick grid: tight at a half-integer, open at an integer.</p>
+<p><strong>The key equations.</strong> Under a <em>balanced-response condition</em> (the book's corrective drift is equalized across parities), the gap's conditional mean and stationary covariance are exactly those of an <em>Ornstein-Uhlenbeck (OU)</em> process:
+$$\mathbb{E}[G_{t+s}\mid G_t] = G_t\,e^{-\alpha s},\qquad \operatorname{Var}_\infty(G)=s_G^2,$$
+where $\alpha$ is the <em>reversion rate</em> (how fast the spring snaps back) and $s_G$ is the <em>stationary standard deviation</em> of the gap. The optimal symmetric band half-width $\theta^\ast$ and profit rate $R^\ast$ solve
+$$\theta^\ast\!\left(\theta^\ast-\varphi\right)=s_G^2,\qquad R^\ast=\alpha\,s_G\sqrt{\tfrac{2}{\pi}}\;e^{-\theta^{\ast 2}/(2 s_G^2)},$$
+where $\varphi$ is the tight-book <em>half-spread</em> (the per-trade cost). The relation "threshold times margin equals the stationary variance of the gap," $\theta^\ast(\theta^\ast-\varphi)=s_G^2$, is the heart of it.</p>
+<p><strong>The method.</strong> The paths of $G_t$ are jumps, not a smooth diffusion, so exact passage-time calculations are hard. The authors evaluate first-passage times on a <em>Gaussian diffusion surrogate</em> that shares the OU mean and variance, bounding the error on the reward side and leaving the timing side heuristic. On that surrogate, the symmetric band is provably optimal among all admissible strategies; on the true jump process this optimality remains a stated conjecture.</p>
+<p><strong>Results with numbers.</strong> The results are closed-form rather than empirical: the band $\theta^\ast$ scales with $s_G$ and the cost $\varphi$; the profit rate $R^\ast$ falls off as a Gaussian in $\theta^\ast/s_G$. Setting $\theta=\varphi$ (trade the moment the gap covers the spread) yields $R=0$.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Mid-price</strong> — the midpoint between the best buy and best sell quotes on the order book.</li>
+<li><strong>Efficient price</strong> — the hidden "fair" value the mid fluctuates around; not directly observable.</li>
+<li><strong>Bid-ask spread / half-spread</strong> — the round-trip cost of trading; the half-spread $\varphi$ is half of it.</li>
+<li><strong>Martingale</strong> — a process with no predictable trend, so its best forecast of the future is its current value.</li>
+<li><strong>Ornstein-Uhlenbeck process</strong> — the canonical "mean-reverting" random process, a mathematical spring pulled back toward its average.</li>
+<li><strong>First-passage time</strong> — the random time at which a fluctuating quantity first reaches a chosen level.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance rests on two soft spots: the reduction to a Gaussian surrogate is only bounded on the reward side, and the band's optimality on the actual jump process is a conjecture, not a theorem. It also leans on the <em>balanced-response condition</em> and a single-asset, large-tick setting that real fragmented markets may not honor. Still, the qualitative lesson — patience has quantifiable value — is robust and directly usable as intuition.</p>
+<h3>Bottom Line</h3>
+<p>In fast markets the edge is not trading when you <em>can</em>, but the disciplined patience to wait until the wobble is worth the spread.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Hawkes-Driven OTC Market Making: Volterra-Riccati Approximation</h2>
+  <p class="meta">Alexander Barzykin<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-03 &middot; <a href="http://arxiv.org/abs/2608.02002v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.02002v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A dealer who quotes prices on demand can trade far more shrewdly by treating today's flurry of client requests as a forecast of tomorrow's — and this paper builds the math to turn that memory into a live pricing rule.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In <em>over-the-counter</em> (OTC) markets — think large foreign-exchange trades between banks and their clients — you don't buy from an anonymous order book. You send a <em>request for quote</em> (RFQ): "what's your price for 10 million euros?" A <em>market maker</em> answers with a price and, if you accept, takes the other side. The maker's problem is delicate: quote too aggressively and you win unwanted inventory that can move against you; quote too shyly and you win no business. Crucially, these requests are not random and independent — they arrive in <em>bursts</em>. A wave of clients all wanting to buy euros tends to be followed by more of the same. Ignoring that clustering is like a shopkeeper pricing umbrellas the same on a sunny day and mid-storm.</p>
+<p><strong>The idea.</strong> The authors model request arrivals with <em>Hawkes processes</em> — "self-exciting" arrival models where each event temporarily raises the chance of the next, capturing bursts and long memory. The trouble is that with realistic long memory, the optimal quoting problem becomes <em>path-dependent</em>: the right price depends on the entire history of past requests, which is too much to track exactly. So they build a <em>ladder of approximations</em> that summarize the relevant history by the <em>forecast curve of future request intensity</em>, and convert that forecast into a quote skew. Analogy: instead of remembering every raindrop, you keep a running weather forecast and price accordingly.</p>
+<p><strong>What they found.</strong> Tested against an exactly solvable benchmark (exponential Hawkes, where the true answer is computable), their <em>state-feedback</em> rule closely tracks the optimum — especially in trending, directional regimes — while a naive "memoryless" rule that ignores clustering suffers large regret. Applied to realistic <em>power-law</em> memory, a directional burst of requests produces a <em>persistent quote skew</em> and measurably better inventory and profit-and-loss risk control.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> RFQ arrivals follow a <em>Hawkes process</em> with intensity
+$$\lambda_t = \mu + \int_0^t \phi(t-s)\,dN_s,$$
+where $\mu>0$ is the baseline rate, $\phi(\cdot)\ge 0$ is the <em>memory kernel</em>, and $N_t$ counts arrivals. <em>Fills</em> are <em>controlled thinnings</em> of this exogenous flow: the maker sets quotes that determine the probability an arriving request is executed. The maker holds inventory $q_t$ and cash, and maximizes expected utility of terminal wealth net of inventory risk.</p>
+<p><strong>The key equations.</strong> For general kernels the value function depends on the whole <em>forward curve</em> of conditional future intensities $\{\mathbb{E}[\lambda_u\mid \mathcal{F}_t]\}_{u\ge t}$, giving a path-dependent HJB (Hamilton-Jacobi-Bellman) equation. Only for <em>exponential kernels</em> $\phi(t)=\beta e^{-\kappa t}$ is there an exact finite-dimensional <em>Markovian lifting</em>. The authors instead approximate the value function through a <em>Volterra-Riccati</em> hierarchy: the first level replaces random future flow by its conditional <em>Volterra forecast</em>, the second adds a covariance correction for intensity uncertainty, and the third updates the quote rule with realized Hawkes memory. The optimal quote skew emerges as a <em>continuation-value shadow price</em> applied to the forecast curve.</p>
+<p><strong>The method.</strong> They solve the exponential-kernel benchmark by numerically integrating the exact lifted HJB, then validate the Volterra-Riccati state-feedback policy against it, and finally transport the same rule to a long-memory power-law kernel where no exact solution exists. The <em>branching ratio</em> (fraction of events triggered by prior events) is fitted from seasonality-adjusted spot-FX RFQ data and comes out large, justifying the self-exciting model.</p>
+<p><strong>Results with numbers.</strong> In the exponential benchmark the Volterra-Riccati policy tracks the exact HJB closely, most tightly in directional regimes, whereas a memory-free Poisson policy incurs <em>substantial regret</em>. Under power-law memory the endogenous quote impact inherits the <em>long-memory decay</em> of the forecast response and improves inventory and P&amp;L risk versus the no-conditioning Poisson baseline.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Over-the-counter (OTC) / request-for-quote (RFQ)</strong> — bilateral trading where a client asks a dealer for a price rather than hitting a public order book.</li>
+<li><strong>Market maker</strong> — a dealer who continuously offers to buy and sell, earning the spread while managing inventory risk.</li>
+<li><strong>Hawkes process</strong> — a "self-exciting" arrival model where each event raises the short-term probability of further events, producing bursts.</li>
+<li><strong>Memory kernel / branching ratio</strong> — the function setting how long past events keep influencing arrivals, and the fraction of events that are self-triggered.</li>
+<li><strong>HJB equation</strong> — the differential equation characterizing the optimal control in a stochastic optimization problem.</li>
+<li><strong>Volterra-Riccati approximation</strong> — a way to handle non-Markovian (history-dependent) dynamics by propagating a forecast curve through Riccati-type equations.</li>
+<li><strong>Quote skew</strong> — asymmetrically shading buy vs. sell quotes to steer inventory.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean validation is against an <em>exponential</em> benchmark; the genuinely interesting long-memory case is judged by plausibility and risk metrics, not against a known optimum, since none exists. The approach assumes the Hawkes description and its fitted kernels are stable, which stress and regime shifts routinely violate. That said, the three-level hierarchy is a practical, implementable recipe, and "condition your quotes on your flow forecast" is advice a real FX desk can act on.</p>
+<h3>Bottom Line</h3>
+<p>Treat the burst of requests you just saw as a weather forecast for the next one, and skew your quotes before the storm hits.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Low-rank and graphon limits for dynamic threshold distress contagion in heterogeneous financial networks</h2>
+  <p class="meta">Pengbin Feng<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-05 &middot; <a href="http://arxiv.org/abs/2608.04529v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.04529v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A sprawling web of banks that can infect each other with financial distress can be shrunk — exactly, not approximately — to a handful of summary numbers you can track with a small system of equations.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Financial institutions are wired together: bank A lends to bank B, which owes bank C, and so on across a dense web of <em>exposures</em>. When one institution falls into distress, the losses ripple outward and can knock over others — a <em>contagion cascade</em>, the mechanism behind 2008. Regulators want to understand and stress-test this, but a realistic system has hundreds or thousands of banks, each affecting every other, and simulating the full tangle is expensive and opaque. Everyday analogy: a room full of dominoes wired in a complicated mesh — you'd love to predict the collapse without tipping every single one.</p>
+<p><strong>The idea.</strong> The authors show that if the giant exposure matrix has <em>low rank</em> — meaning the web, however large, is really driven by a few common patterns of connection — then the whole cascade collapses <em>exactly</em> to a small number of "macroscopic coordinates." Instead of tracking every bank, you track $K$ summary factors, and their evolution obeys a compact system of equations. They also take the limit of <em>infinitely many</em> banks, where the network becomes a smooth object called a <em>graphon</em>, and prove the small model still describes it faithfully. Importantly, their notion of distress uses <em>occupation time</em> — how long an institution has been under stress — so recovery is allowed, unlike simpler "once dead, always dead" default models.</p>
+<p><strong>What they found.</strong> They prove the reduction is exact for low-rank networks and <em>stable</em>: small changes in the mix of bank types produce only small changes in outcomes (in a precise <em>Wasserstein</em> sense). They separate the error into two clean pieces — finite-population noise and kernel-approximation error — and show the finite-population error shrinks like $N^{-1/2}$ with the number of banks $N$. A worked illustration using the 2025 European Banking Authority transparency data (117 banks) computes factor loadings and sensitivity bounds straight from public disclosures, and the observed resampling errors match the predicted $N^{-1/2}$ scale.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider $N$ institutions connected by a weighted directed <em>exposure matrix</em> $A=(a_{ij})$. Each institution carries a distress state; the loss term and sign convention encode a <em>default cascade with partial recovery and interest servicing</em>. Distress is recorded through <em>occupation time</em>, so the state can heal. The core dynamical object is a system
+$$\dot{x}_i(t) = F_i\big(x_i(t),\,\textstyle\sum_j a_{ij}\,g(x_j(t))\big),$$
+where $x_i(t)$ is institution $i$'s state and $g$ is a bounded <em>Lipschitz loss</em> function.</p>
+<p><strong>The key equations.</strong> A <em>rank-$K$ factorization</em> $A = \sum_{k=1}^{K} u_k v_k^\top$ lets the network coupling be written through $K$ scalar <em>feedback coordinates</em>
+$$m_k(t) = \sum_j (v_k)_j\, g(x_j(t)),$$
+reducing the $N$-dimensional system to a <em>nonautonomous $K$-dimensional ODE</em> in the $m_k$. In the infinite-population limit the coupling becomes a <em>directed-kernel (graphon) equation</em> on a latent type space, shown to be well-posed and $L^1$-stable. For the sharp <em>indicator loss</em> $g=\mathbf{1}\{\cdot>\text{threshold}\}$, they establish fixed-rank well-posedness under threshold regularity and a <em>Vapnik-Chervonenkis-type</em> estimate controlling sampled measurable selections.</p>
+<p><strong>The method.</strong> The tools are dynamical-systems reduction plus measure-transport: a <em>transport representation</em> for the joint state-factor distribution, <em>Wasserstein stability</em> with respect to the type law, and a <em>quantitative bridge theorem</em> that cleanly separates finite-$N$ error from kernel-approximation error. The graphon results add well-posedness for factorized kernels and for piecewise-$C^1$ kernel-profile pairs under <em>uniform transversality</em>, with a perturbation theorem for approximating families.</p>
+<p><strong>Results with numbers.</strong> On the empirical 117-bank EBA population, resampling errors are <em>consistent with the predicted $N^{-1/2}$ scale</em>; the illustration computes factor loadings and a-priori sensitivity bounds purely from public disclosures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Contagion cascade</strong> — the chain reaction by which one institution's distress inflicts losses that push others into distress.</li>
+<li><strong>Exposure matrix</strong> — the table of who owes how much to whom across the financial network.</li>
+<li><strong>Low-rank factorization</strong> — expressing a big matrix as a sum of a few simple building blocks, revealing that few underlying patterns drive it.</li>
+<li><strong>Graphon</strong> — the limiting object of a growing network: a smooth kernel describing connection strength between "types" of nodes.</li>
+<li><strong>Occupation time</strong> — how long a quantity has spent above a threshold, used here so distressed institutions can recover.</li>
+<li><strong>Wasserstein distance</strong> — a way to measure how far apart two probability distributions are by the "cost" of transporting one into the other.</li>
+<li><strong>Vapnik-Chervonenkis (VC) dimension</strong> — a measure of a family of sets' complexity, controlling how well samples approximate the whole.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a <em>deterministic</em> contagion model with bounded-Lipschitz (or indicator) losses — real cascades involve fire sales, funding runs, and strategic behaviour it doesn't capture. The low-rank assumption is doing heavy lifting; genuinely idiosyncratic bilateral links break the exact reduction. And the EBA piece is an <em>illustration</em> of the machinery, not a validated stress test. As a way to make systemic-risk models tractable <em>and</em> interpretable, though, the exact reduction is genuinely valuable.</p>
+<h3>Bottom Line</h3>
+<p>If a financial network's tangle is secretly driven by a few patterns, its whole collapse can be watched through a few dials — provably.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Non-concave Corporate Management with Option Incentives under Value-at-Risk Constraint</h2>
+  <p class="meta">Wenyuan Li, Haoqi Lyu, Pengyu Wei<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-06 &middot; <a href="http://arxiv.org/abs/2608.05623v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.05623v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A manager paid partly in stock options and forced to cap the firm's tail risk will reshape the company's future — smoothing out bad outcomes — unless the risk cap is set so loosely that it instead invites reckless gambling.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> How you pay a company's boss changes how the boss behaves. Give a manager stock <em>options</em> — the right to buy shares cheaply later — and you hand them a lottery ticket: options pay off big if the firm soars but cost nothing extra if it sinks, so the manager is tempted to crank up risk. Regulators and boards try to counter this with a <em>Value-at-Risk (VaR) constraint</em>: a rule saying "the chance of the firm's value falling below some floor must stay small." The question this paper asks is precise and consequential: given a manager who exerts costly <em>effort</em> and <em>chooses how much risk to take</em>, and who is paid a fixed salary plus options, how does bolting on a VaR limit actually change what they do and the resulting spread of possible firm values? This matters for bank regulation, executive-pay design, and understanding when safeguards backfire.</p>
+<p><strong>The idea.</strong> The manager's reward as a function of firm value is <em>non-concave</em> — it has a kink and a flat region (the options only start paying above the strike), which makes standard "diminishing-returns" optimization tools fail. The authors use <em>concavification</em>: they replace the jagged reward with its smallest concave "lid" (the <em>concave envelope</em>) and optimize against that, a standard trick for exactly this kind of lottery-loving payoff. Then they use the <em>quantile formulation</em> — reframing the problem as choosing the <em>distribution</em> of the firm's terminal value directly — to get explicit answers. Analogy: instead of steering the car moment by moment, you decide directly what the finish-line photo should look like, then back out the driving.</p>
+<p><strong>What they found.</strong> The optimal terminal firm value splits into <em>nine distinct cases</em> depending on the VaR floor and tail probability. The headline: a VaR-constrained manager <em>smooths</em> firm value across states — pulling it down in good states and propping it up in bad ones — which improves downside protection and cuts bankruptcy probability <em>when the floor is low or moderate</em>. But when the floor is set <em>too high</em>, the constraint perversely <em>raises</em> bankruptcy risk and triggers <em>gambling for recovery</em> in bad states. More option incentives make managers more responsible (smoother outcomes); a high fixed salary makes them less so.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> In a complete market with a pricing kernel (<em>state-price density</em>) $\xi_T$, the manager chooses terminal firm value $X_T$ and effort to maximize a non-concave objective
+$$\max\; \mathbb{E}\big[U(X_T)\big]-\text{(effort cost)}\quad\text{s.t.}\quad \mathbb{E}[\xi_T X_T]\le x_0,$$
+where $U$ is the manager's payoff (fixed salary plus option payoff, hence non-concave), $x_0$ is initial resources, and the budget constraint uses the martingale/state-price approach. The <em>VaR constraint</em> is
+$$\mathbb{P}(X_T < L)\le \varepsilon,$$
+with $L$ the VaR <em>floor</em> and $\varepsilon$ the allowed <em>tail probability</em>.</p>
+<p><strong>The key equations.</strong> Because $U$ is non-concave, the pointwise optimizer uses the <em>concave envelope</em> $\hat U=\text{conc}(U)$; the optimal terminal value takes the form
+$$X_T^\ast = I\big(\lambda \xi_T\big)$$
+on the region where $\hat U$ coincides with $U$, where $I=(\hat U')^{-1}$ is the inverse marginal utility and $\lambda$ is the Lagrange multiplier enforcing the budget. The VaR constraint adds a <em>floor region</em>: in adverse states (large $\xi_T$) the manager either supports value at $L$ or abandons it, and matching the tail probability $\varepsilon$ splits the solution into nine cases.</p>
+<p><strong>The method.</strong> The engine is the <em>martingale (dual) approach</em> to optimal terminal wealth combined with <em>concavification</em> for the non-concave payoff and the <em>quantile formulation</em> to handle the distributional constraint — yielding <em>closed-form</em> expressions for optimal effort, terminal firm value, and project (risk) choice rather than numerical policies.</p>
+<p><strong>Results with numbers.</strong> The results are structural: a nine-case classification of the optimal terminal value by $(L,\varepsilon)$; comparative statics showing VaR <em>smooths</em> value (down in good states, up in adverse ones), <em>reduces</em> bankruptcy probability for low/moderate $L$, and <em>increases</em> it with gambling-for-recovery for sufficiently high $L$; greater effort uniformly raises firm value; more options give smoother value; higher fixed salary gives more dispersed value.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Value-at-Risk (VaR) constraint</strong> — a rule capping the probability that value falls below a chosen floor.</li>
+<li><strong>Non-concave objective</strong> — a payoff that doesn't have diminishing returns everywhere (here, because options create a flat-then-rising region), breaking standard optimization.</li>
+<li><strong>Concavification / concave envelope</strong> — replacing a jagged payoff with the tightest concave function sitting above it, which shares the optimum for lottery-type choices.</li>
+<li><strong>Quantile formulation</strong> — reformulating the problem as directly choosing the probability distribution (quantile function) of the terminal outcome.</li>
+<li><strong>Martingale (dual) approach</strong> — solving for the best terminal wealth using the market's state-price density and a budget constraint, instead of dynamic programming.</li>
+<li><strong>Gambling for recovery</strong> — taking on extreme risk in bad states hoping to leap back above a threshold.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean closed forms come from a <em>complete-market, single-period-terminal</em> idealization with specific effort- and risk-cost structures; real firms face incomplete markets, frictions, and multi-period dynamics that could blur the nine-case picture. The conclusions are <em>qualitative</em> comparative statics, not calibrated to actual firms. Still, the sharp warning — a poorly-set VaR floor can <em>induce</em> the gambling it was meant to prevent — is a genuinely useful cautionary result for anyone designing risk limits or option-heavy pay.</p>
+<h3>Bottom Line</h3>
+<p>A risk cap only tames a lottery-loving manager if it's set low enough; aim it too high and it becomes the very dare that sinks the firm.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
