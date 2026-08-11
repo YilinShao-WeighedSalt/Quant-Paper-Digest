@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 11, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 11, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Microstructural Foundation for the Rough Hawkes--Heston Model</h2>
+  <p class="meta">Yingli Wang, Yinhao Wu, Lingjiong Zhu<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-07 &middot; <a href="http://arxiv.org/abs/2608.07709v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.07709v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you build a market out of tiny buy-and-sell events that trigger one another like earthquake aftershocks, then zoom out, you get exactly the jagged "rough volatility" models options traders already use — and this paper proves it, crashes included.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you price an option — say the right to buy Apple at USD 200 in three months — the single most important input is <em>volatility</em>: how much the stock is expected to jitter. For decades people modeled that jitter with smooth mathematics. But when researchers looked at real high-frequency data, volatility turned out to be <em>rough</em>: extraordinarily jagged, spiking and collapsing in a way no smooth model captures. Practitioners responded by bolting "rough" behavior onto their pricing models by hand, because it fit the data — but nobody had a clean bottom-up story for <em>why</em> volatility should look that way. It's like knowing a river is turbulent without understanding the physics of the water molecules.</p>
+<p><strong>The idea.</strong> The authors start from the individual orders hitting the market and ask what happens in the aggregate. They model order arrivals as a <em>Hawkes process</em> — a stream of events where each event makes further events more likely, exactly like aftershocks following an earthquake: one trade begets more trades. They tune this to be "nearly unstable," meaning each order almost, but not quite, spawns one more on average, and they give it a long memory so the echoes fade slowly. Then they add a second, rarer channel: occasional "marked" shock events that jolt the price and its volatility <em>simultaneously</em> — the mathematical fingerprint of a crash, where the market plunges and panic (volatility) explodes together. When you rescale this microscopic swarm and let the number of events go to infinity, the whole thing converges to the rough Hawkes–Heston model — the very object practitioners had been using top-down.</p>
+<p><strong>What they found.</strong> They prove the entire rescaled system — price, variance, <em>and</em> the common jumps — converges to the target model, and they write the model's parameters explicitly in terms of the microscopic ingredients. So the "roughness" and the price–volatility co-jumps are not modeling fiction; they emerge inevitably from clustered, near-critical order flow. This extends earlier work (El Euch, Rosenbaum and others) that derived rough Heston from Hawkes flow, by additionally explaining the shared price–volatility jump mechanism.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Order arrivals are a marked Hawkes point process $N_t$ with stochastic intensity $\lambda_t$ — the instantaneous arrival rate that itself depends on past arrivals:
+$$\lambda_t = \mu + \int_0^t \varphi(t-s)\,dN_s$$
+Here $\mu>0$ is the baseline (exogenous) arrival rate, $\varphi$ is the <em>excitation kernel</em> saying how strongly a past event at time $s$ raises the rate now, and $dN_s$ counts events. The crucial choices are two: the process is <em>nearly unstable</em>, $\int_0^\infty \varphi(t)\,dt \to 1$ from below (each event triggers on average almost exactly one child — the branching ratio approaches its critical value 1), and the kernel is <em>heavy-tailed</em>,
+$$\varphi(t) \sim C\, t^{-(1+\alpha)}, \qquad \alpha \in (\tfrac12, 1),$$
+so memory decays only polynomially, not exponentially.</p>
+<p><strong>The key equation.</strong> Under a joint scaling of time, event size, and the distance-to-instability, the rescaled variance converges to a <em>fractional</em> (Volterra) equation of rough-Heston type:
+$$V_t = V_0 + \frac{1}{\Gamma(\alpha)}\int_0^t (t-s)^{\alpha-1}\Big(\kappa(\theta - V_s)\,ds + \nu\sqrt{V_s}\,dB_s\Big) + \text{(jump terms)}$$
+where $V_t$ is the instantaneous variance, $\Gamma$ the Gamma function, $(t-s)^{\alpha-1}$ the Riemann–Liouville fractional kernel that injects the roughness, $\kappa$ the mean-reversion speed toward long-run level $\theta$, $\nu$ the vol-of-vol, and $B$ a Brownian motion correlated with the price to produce <em>leverage</em>. The roughness is governed by the Hurst parameter $H = \alpha - \tfrac12 \in (0, \tfrac12)$; empirically $H\approx 0.1$ means very rough.</p>
+<p><strong>The method.</strong> The engine is a <em>nearly-unstable scaling limit</em> (functional weak convergence of point processes). They use a Poisson embedding of the marked Hawkes process, impose reduced-form admissibility conditions, and exploit the Hawkes <em>renewal</em> structure, which yields a Mittag–Leffler resolvent — the natural fractional-calculus object — that they rewrite in Riemann–Liouville form. In one line: they take a critical branching process with long memory and show its law of large numbers <em>is</em> a rough affine diffusion.</p>
+<p><strong>Results with numbers.</strong> The result is a convergence theorem rather than an error metric: they establish convergence <em>along the full sequence</em> to the unique complete canonical weak solution, with the limiting coefficients ($\kappa,\theta,\nu$, jump intensities) expressed explicitly as functions of the microscopic parameters. Numerical experiments confirm the microstructural model converging to the rough Hawkes–Heston limit as the scaling parameter grows.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hawkes process</strong> — a random stream of events in which each event temporarily raises the chance of more events, producing clusters.</li>
+<li><strong>Nearly unstable / critical branching ratio</strong> — the regime where each event spawns on average almost exactly one successor, so activity barely sustains itself and long cascades appear.</li>
+<li><strong>Rough volatility (Hurst parameter $H$)</strong> — volatility whose paths are far more jagged than Brownian motion; small $H$ (≈0.1) means very rough.</li>
+<li><strong>Riemann–Liouville / fractional kernel</strong> — the $(t-s)^{\alpha-1}$ weighting that gives a process long memory and its rough, non-smooth character.</li>
+<li><strong>Mittag–Leffler function</strong> — the fractional-calculus cousin of the exponential; it is the natural relaxation function for these long-memory renewal systems.</li>
+<li><strong>Leverage effect</strong> — the empirical tendency of volatility to rise when prices fall, encoded by negative price–volatility correlation.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a rigorous foundational result, not a trading tool: it explains <em>why</em> a popular model is well-founded, which builds confidence but doesn't by itself improve calibration or hedging. The heavy-tailed, exactly-critical Hawkes assumptions are idealizations — real order flow is only approximately near-critical, and the "common jump" mechanism is stylized. Still, for anyone using rough Heston in production, knowing it descends cleanly from order-flow microstructure is genuinely reassuring.</p>
+<h3>Bottom Line</h3>
+<p>Rough volatility and crash co-jumps aren't fudge factors — they fall out inevitably from clustered, near-critical order flow when you zoom out.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> High-Frequency Exponential-Utility Maximization under Fractional Brownian Motion</h2>
+  <p class="meta">Yan Dolinsky<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-05 &middot; <a href="http://arxiv.org/abs/2608.05357v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.05357v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If prices have long memory instead of being pure coin-flips, a high-frequency trader's best strategy and its long-run payoff can be pinned down exactly using the frequency spectrum of the noise.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A trader who buys and sells many times a second wants to grow wealth while controlling risk. Classic theory assumes prices move like a <em>random walk</em> — each tiny move independent of the last, no memory. But lots of evidence says real prices have <em>memory</em>: a nudge up today subtly influences moves far in the future, either reinforcing (trending) or reversing (mean-reverting). Once you allow memory, the tidy classical answers stop applying, because today's optimal trade now depends on the entire history and future correlation structure. The question: in such a world, what is the best a high-frequency trader can do, and how fast does wealth grow?</p>
+<p><strong>The idea.</strong> Model the price with <em>fractional Brownian motion</em> (fBm) — a cousin of the random walk with a single dial, the Hurst parameter $H$, controlling memory: $H=1/2$ is the classic memoryless case, $H>1/2$ means trending (moves persist), $H<1/2$ means anti-persistent (moves tend to reverse). The trader maximizes <em>exponential utility</em>, a standard way to encode "more money is good but I hate risk." Rather than wrestle the correlated-in-time problem head-on, the author reaches for a physicist's trick: translate everything into the <em>frequency domain</em>. A stationary Gaussian sequence is fully described by its <em>spectral density</em> — how much energy sits at each frequency — and in that language the messy time-correlations become a clean multiplication.</p>
+<p><strong>What they found.</strong> Using these spectral methods he derives the <em>asymptotic growth rate</em> of the optimal certainty equivalent — essentially the guaranteed-equivalent rate at which the trader's risk-adjusted wealth compounds as trading gets faster. He also shows that the optimal positions, once suitably rescaled, converge to a Gaussian <em>white-noise-type field</em> — meaning that at the finest scale the optimal holdings look like fresh, uncorrelated random noise even though the price driving them has long memory. It's a sharp, closed characterization in a setting (fBm) that usually resists exact answers.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Trading happens on a grid of $n$ times per unit interval; the log-price is a discretized fractional Brownian motion $B^H$ with Hurst index $H\in(0,1)$, whose increments form a <em>stationary Gaussian sequence</em> with autocovariance $\gamma(k)$. The agent has exponential utility
+$$U(x) = -e^{-\beta x}$$
+where $x$ is terminal wealth and $\beta>0$ is the <em>absolute risk-aversion</em> coefficient (bigger $\beta$ = more cautious). The value of the problem is summarized by the <em>certainty equivalent</em> $\mathrm{CE}$ — the sure amount of money the trader would accept in place of the risky strategy, defined by $U(\mathrm{CE}) = \mathbb{E}[U(\text{wealth})]$.</p>
+<p><strong>The key objects.</strong> The stationary increments are handled through the <em>spectral density</em> $f(\theta)$, defined via
+$$\gamma(k) = \int_{-\pi}^{\pi} e^{ik\theta} f(\theta)\,d\theta,$$
+where $\gamma(k)=\mathbb{E}[\Delta B_j \,\Delta B_{j+k}]$ is the autocovariance at lag $k$ and $\theta$ ranges over frequencies. For fBm the increments (fractional Gaussian noise) have a spectral density with the characteristic $|\theta|^{1-2H}$ behaviour near zero that encodes long memory. The main results are (i) an explicit limit for the growth rate of the optimal certainty equivalent,
+$$\frac{1}{n}\,\mathrm{CE}_n \;\longrightarrow\; c(H,\beta,\sigma),$$
+and (ii) a functional limit: the rescaled optimal positions $\pi^{(n)}$ converge in finite-dimensional distributions to a Gaussian white-noise field.</p>
+<p><strong>The method.</strong> The technical core is <em>spectral / Toeplitz theory</em> for stationary Gaussian sequences: covariance matrices of the increments are Toeplitz (constant along diagonals), and their large-$n$ behaviour — determinants, inverses, quadratic forms — is governed by the spectral density through Szegő-type limit theorems. This converts the high-dimensional Gaussian utility integral into an analyzable frequency integral, from which the growth rate and the white-noise limit fall out. In one line: diagonalize the time-correlation in frequency space, then take $n\to\infty$.</p>
+<p><strong>Results with numbers.</strong> The paper's deliverables are exact asymptotic statements rather than empirical percentages: a closed-form asymptotic growth rate for the optimal certainty equivalent as trading frequency $n\to\infty$, and convergence of the rescaled optimal positions in finite-dimensional distributions to a Gaussian white-noise-type field — both parameterized by $H$, $\beta$, and volatility.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Fractional Brownian motion (Hurst $H$)</strong> — a random-walk generalization whose single parameter $H$ tunes memory: $1/2$ = memoryless, $>1/2$ = trending, $<1/2$ = mean-reverting.</li>
+<li><strong>Exponential utility / risk aversion $\beta$</strong> — a preference function that rewards wealth but penalizes uncertainty, with $\beta$ setting how much risk stings.</li>
+<li><strong>Certainty equivalent</strong> — the guaranteed sum a trader would swap for a risky payoff; maximizing it is the trader's real objective.</li>
+<li><strong>Spectral density</strong> — the recipe telling you how much of a stationary process's variance sits at each frequency; the Fourier transform of its autocovariance.</li>
+<li><strong>Toeplitz matrix / Szegő theorem</strong> — covariance matrices with constant diagonals and the theorems describing their behaviour as they grow, the workhorse for stationary Gaussian asymptotics.</li>
+<li><strong>White-noise field</strong> — a collection of independent, identically distributed Gaussian shocks with no correlation across time.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean asymptotic theory, not a plug-in strategy: it assumes a purely Gaussian, frictionless fBm world with no transaction costs, no price impact, and known parameters — precisely the frictions that dominate real high-frequency trading. Its value is conceptual, showing exactly how long memory reshapes achievable performance and that optimal holdings decorrelate at the finest scale. A practitioner would treat it as a benchmark and a warning against naively porting random-walk intuition, not as code to deploy.</p>
+<h3>Bottom Line</h3>
+<p>Give prices memory and the high-frequency trader's best-possible payoff still has a clean closed form — read off from the spectrum of the noise.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Non-linear optimal stopping with Bermudan strategies: the infinite horizon case</h2>
+  <p class="meta">Miryana Grigorova, Ohood Aldalbahi<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-08 &middot; <a href="http://arxiv.org/abs/2608.08299v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.08299v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you can only cash out on certain permitted dates and "value" is measured by a nonlinear, risk-aware yardstick, there is still a precise best moment to stop — and it's the first time your option's value drops to its immediate payoff.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A huge class of finance questions is really "when should I stop?" When do I exercise an option, abandon a project, sell an asset, quit a losing position? These are <em>optimal stopping</em> problems. Two features make the realistic version hard. First, you often can't act at literally any instant — an American option is theoretically exercisable anytime, but a <em>Bermudan</em> one only on a fixed schedule of dates (say the third Friday each month). Second, classical theory measures a future payoff by its plain expected value, which ignores risk and ambiguity; modern risk management instead uses <em>nonlinear evaluations</em> that penalize uncertainty, so USD 100 "expected" in a risky way is worth less than USD 100 for sure. The paper tackles both at once, over an <em>infinite</em> time horizon (no fixed expiry).</p>
+<p><strong>The idea.</strong> Think of a game against nature stretching indefinitely, where you may only call "stop!" on allowed dates, and your reward is scored by a nonlinear, time-consistent risk measure rather than a simple average. The authors ask the natural questions: can you break this daunting infinite problem into a step-by-step recursion (a <em>dynamic programming principle</em>)? Is there actually a best stopping time, or only near-best ones? Their central, satisfyingly concrete answer: watch the "value" of continuing versus the payoff you'd grab by stopping now, and the moment the value first sinks to equal that immediate payoff, stop — that instant is optimal, <em>provided it ever happens</em>.</p>
+<p><strong>What they found.</strong> They prove the dynamic programming principle does hold in this nonlinear Bermudan setting; that a near-optimal ($\varepsilon$-optimal) stopping rule always exists; and that the intuitive "hitting" rule — stop the first time value meets payoff — is genuinely optimal exactly when that hitting time is finite. They also establish a Doob-type convergence theorem for the associated nonlinear supermartingales, and connect the whole framework to <em>backward stochastic differential equations</em> (BSDEs) with infinite horizon, the modern engine behind nonlinear pricing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space with a family of <em>nonlinear evaluations</em> $\rho_{S,\tau}$ carrying two indices: $S$, the time at which you evaluate, and $\tau$, the (random) time the payoff $\xi_\tau$ is revealed. Payoffs are non-negative, the horizon is infinite, and admissible stopping strategies are restricted to the set $\Theta$ of <em>Bermudan stopping times</em> (values in a permitted grid of dates). Each $\rho$ is assumed monotone and time-consistent, generalizing conditional expectation.</p>
+<p><strong>The key equation.</strong> The object of interest is the <em>value family</em>
+$$V_S = \operatorname*{ess\,sup}_{\tau \in \Theta,\; \tau \ge S} \rho_{S,\tau}(\xi_\tau),$$
+where $V_S$ is the best achievable nonlinear value seen from time $S$, $\xi_\tau \ge 0$ is the payoff revealed at $\tau$, and the essential-supremum ranges over all Bermudan stopping times no earlier than $S$. The dynamic programming principle they establish says this value can be computed recursively across the permitted dates,
+$$V_S = \max\Big\{\, \rho_{S,S}(\xi_S),\ \rho_{S,\,S^+}\!\big(V_{S^+}\big) \Big\},$$
+i.e. at each allowed date you either take the payoff now or roll the nonlinearly-evaluated continuation value forward to the next date $S^+$. The headline optimality result: the first hitting time
+$$\tau^\star = \inf\{\, t \in \Theta : V_t = \xi_t \,\}$$
+is optimal <strong>iff</strong> $\tau^\star < \infty$ almost surely.</p>
+<p><strong>The method.</strong> The proof machinery is the theory of <em>nonlinear (($\Theta,\rho$)-)supermartingales</em>: the value family is shown to be the smallest such supermartingale dominating the payoff (a nonlinear Snell envelope), and the authors prove a <em>Doob-type convergence theorem</em> for non-negative such supermartingales in the case $\rho_{S,\tau}=\rho_S$ depends on the evaluation time only. Existence of $\varepsilon$-optimal times comes from approximating the essential supremum; the BSDE connection realizes $\rho$ concretely as the solution operator of an infinite-horizon backward SDE.</p>
+<p><strong>Results with numbers.</strong> As a pure probability paper the deliverables are theorems, not statistics: (i) the dynamic programming principle holds; (ii) an $\varepsilon$-optimal Bermudan stopping time always exists; (iii) the value-hits-payoff time $\tau^\star$ is optimal precisely when it is finite; (iv) a Doob-type convergence result for the relevant supermartingales; illustrated on an infinite-horizon BSDE example.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal stopping</strong> — choosing the moment to halt a random process so as to maximize (or minimize) an expected reward, e.g. when to exercise an option.</li>
+<li><strong>Bermudan stopping time</strong> — a stopping decision allowed only on a prescribed discrete set of dates, between American (any time) and European (one fixed date).</li>
+<li><strong>Nonlinear evaluation $\rho$</strong> — a risk-aware generalization of expected value that need not be additive, so it can penalize uncertainty and ambiguity.</li>
+<li><strong>Snell envelope / supermartingale</strong> — the smallest value process that dominates a payoff and never expects to rise; the classical solution object of stopping problems.</li>
+<li><strong>Essential supremum</strong> — the correct notion of "largest" for an uncountable family of random variables, defined up to null sets.</li>
+<li><strong>BSDE (backward stochastic differential equation)</strong> — an equation solved backward from a terminal condition; its solution operator is the modern way to build nonlinear, time-consistent evaluations.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is deep, abstract probability whose payoff is structural clarity, not a number a desk can trade on tomorrow; the results confirm that intuitive stopping rules survive in nonlinear, risk-aware, restricted-timing settings. The assumptions (time-consistency of $\rho$, non-negative payoffs, the specific admissibility structure) are strong, and turning the framework into actual prices requires solving the underlying infinite-horizon BSDEs, itself nontrivial. Its real users are quants building rigorous nonlinear pricing and risk engines, who need to know the theory is sound before they compute.</p>
+<h3>Bottom Line</h3>
+<p>Even with risk-aware valuation and only certain days to act, the age-old rule survives: stop the first time your position is worth no more than cashing out now.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> On a Simple Relationship Between Order Imbalance, Skew and Width in Over-The-Counter Trading</h2>
+  <p class="meta">Peter Cotton<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-07 &middot; <a href="http://arxiv.org/abs/2608.07690v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.07690v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A dealer facing lopsided customer flow can handle it with one clean move — tilt your prices and widen them by a rule that collapses the messy imbalanced problem onto the simple balanced one.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Picture a dealer — a market maker — in a market with no public order book, where the only way she gets or sheds inventory is by answering <em>sealed-bid enquiries</em>: a customer asks "what's your price?", she quotes, and she never sees competitors' quotes, only whether she won. Now suppose her customers are lopsided: far more want to sell to her than buy from her (or vice versa). Every trade drags her inventory the same direction, piling up risk she must be paid to bear. How should she adjust her quotes — where to center them (<em>skew</em>) and how wide to make them (<em>width</em>) — to handle this imbalance optimally? This is the daily reality of corporate-bond, FX, and swap dealers, and the intuition ("if everyone's selling to me, shade my prices down") is easy to state but hard to get exactly right.</p>
+<p><strong>The idea.</strong> The author makes one clean assumption: the best <em>competing</em> quote the dealer is bidding against is spread <em>exponentially</em> around a commonly understood fair price. Under that assumption a hidden symmetry appears. The hard, imbalanced problem turns out to be the easy, perfectly balanced problem <em>in disguise</em> — you can map one onto the other exactly. Concretely, all the effect of customer imbalance is absorbed by three simple adjustments: a <em>translation of the skew</em> (recenter your quotes), a <em>widening of the quotes</em>, and a <em>multiplication of your effective cost of carrying inventory</em>. Nothing else changes, and — remarkably — the adjustment introduces no new free parameter beyond the market <em>width</em> you can already observe.</p>
+<p><strong>What they found.</strong> Several sharp, testable consequences drop out. First, a dealer holding <em>zero</em> inventory should <em>still skew</em> her quotes if flow is imbalanced — contradicting the naive "flat book, symmetric quotes" instinct. Second, skew reacts to imbalance at <em>first order</em> (immediately, linearly) while width reacts only at <em>second order</em> (weakly), so imbalance mostly moves <em>where</em> you quote, not <em>how wide</em>. Third, the popular industry heuristic of "constant width, linear skew" is recovered exactly as the small-skew limit in the balanced case with quadratic holding costs — giving a rigorous home to a rule traders already trust. The exponential assumption, importantly, is only needed <em>locally</em>, right at the quotes actually made, which makes it far more defensible.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A market maker responds to a sequence of sealed-bid enquiries. Customers arrive with an <em>imbalance</em>: sell-enquiries with probability $p$ and buy-enquiries with $1-p$, where $p\neq \tfrac12$. Against each enquiry the best competing response is modeled as <em>exponentially distributed</em> about a commonly discerned fair price $m$, with local scale set by the <em>width</em> $w$. The dealer's win probability for a quote at distance $\delta$ from fair value is therefore of exponential/logistic form, and she carries inventory $q$ subject to a holding (risk) cost.</p>
+<p><strong>The key relationships.</strong> Writing the dealer's quote through a <em>skew</em> $s$ (center offset) and half-<em>width</em> $w$, the paper's central claim is a change of variables under which the imbalanced steady state equals the balanced one after
+$$s \;\mapsto\; s + \Delta s(p,w), \qquad w \;\mapsto\; \kappa(p)\, w, \qquad \gamma \;\mapsto\; \eta(p)\,\gamma,$$
+where $\Delta s$ is an imbalance-induced skew translation, $\kappa(p)\ge 1$ a width-inflation factor, $\gamma$ the cost of carry and $\eta(p)$ its multiplier — each depending on the imbalance $p$ and the <em>observable</em> local width $w$ only. Expanding for small skew reproduces the heuristic
+$$s \approx a\,q, \qquad w \approx \text{const},$$
+i.e. skew linear in inventory $q$ with essentially constant width — the "constant width, linear skew" rule — as the special case of balanced flow with a quadratic holding cost. The asymmetry in reaction orders is the statement that $\partial s/\partial(\text{imbalance})$ is $O(1)$ while $\partial w/\partial(\text{imbalance})$ is $O(\text{imbalance}^2)$.</p>
+<p><strong>The method.</strong> The tool is a <em>steady-state (stationary) analysis</em> of the dealer's inventory-and-quote problem under the exponential competing-quote assumption, exploiting a translation/scaling <em>symmetry</em> that compresses the two-sided imbalanced problem onto the one-sided balanced solution. Because the exponential form is invoked only locally at the executed quotes, the mapping uses just the locally observed width — no global distributional commitment.</p>
+<p><strong>Results with numbers.</strong> This is an analytic, closed-form result rather than a benchmark study: the imbalance is absorbed <em>exactly</em> by the three named adjustments with <em>no</em> free parameter beyond observable width; skew responds at first order and width at second order; and the "constant width, linear skew" heuristic emerges precisely as the small-skew, balanced, quadratic-cost limit.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market maker / dealer</strong> — a trader who continuously offers to buy and sell, earning the spread while managing the inventory she accumulates.</li>
+<li><strong>Skew</strong> — how far a dealer shifts the center of her quotes away from fair value, typically to offload unwanted inventory.</li>
+<li><strong>Width (spread)</strong> — the gap between a dealer's bid and ask; her compensation for risk and adverse selection.</li>
+<li><strong>Order imbalance</strong> — a persistent tilt in customer flow toward buying or selling, which pushes the dealer's inventory one way.</li>
+<li><strong>Cost of carry / holding cost</strong> — the risk-based penalty a dealer assigns to holding inventory, driving her to skew it away.</li>
+<li><strong>Sealed-bid enquiry (RFQ)</strong> — a request-for-quote the dealer answers without seeing competitors' prices, learning only whether she won.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean result leans on one modeling choice — exponentially distributed best competing quotes — and although the author argues it's only needed locally, real competition can be fat-tailed or strategic in ways that bend the mapping. It's a steady-state, single-asset picture that omits inventory limits, correlated flow across instruments, and gaming by informed customers. That said, because it rigorously reproduces a heuristic dealers already use and adds only observable width, it is unusually close to something an RFQ desk could actually calibrate.</p>
+<h3>Bottom Line</h3>
+<p>Lopsided customer flow isn't a new problem — it's the old balanced one wearing a shift in skew and a touch more width.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Neural Networks with Local Converging Inputs for Efficient Options Pricing Models</h2>
+  <p class="meta">Harris Cobb, Wenbo Hao, Yingjie Liu<br>
+    <span class="cat">cs.LG</span> &middot; 2026-08-03 &middot; <a href="http://arxiv.org/abs/2608.02778v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.02778v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of running an expensive fine-grid PDE solver to price an option, run a cheap coarse one and let a small neural network correct the error locally — cutting the pricing error several-fold for almost no extra data.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many options can't be priced with a neat formula; you have to solve a partial differential equation (PDE) numerically on a grid, like simulating heat spreading across a plate. Accuracy demands a <em>fine</em> grid, and for options on several assets at once the grid explodes in size — the notorious "curse of dimensionality" — so an accurate price can be slow to compute. That's a problem for real-time trading and risk desks, which need thousands of prices, fast. The tempting fix, "just train a neural network to output prices," usually needs mountains of expensive high-accuracy training data and generalizes poorly to option parameters it hasn't seen.</p>
+<p><strong>The idea.</strong> The authors use a scheme called <em>Neural Networks with Local Converging Inputs</em> (NNLCI). The clever move: don't ask the network to price the option from scratch. Instead, solve the PDE cheaply <em>twice</em> — once on a coarse grid and once on a mesh that's merely refined <em>relative</em> to the coarse one (still far cheaper than a truly fine grid) — and train a small network to predict the <em>local correction</em> between those cheap solutions and the accurate answer, point by point. It's like sketching a rough draft and a slightly-less-rough draft and training an assistant who has learned, from a handful of fully-polished examples, exactly how such drafts differ from the finished piece. Because both inputs "locally converge" toward the true solution, the network only has to learn a small, well-behaved correction — so it needs very little high-fidelity training data and generalizes well. They even introduce the most compact input format yet for NNLCI, making it more convenient and efficient.</p>
+<p><strong>What they found.</strong> Across several genuine pricing problems — cash-or-nothing (digital) options under Black–Scholes in one, two, and three dimensions, and a single-asset down-and-out barrier call under the Heston stochastic-volatility model — NNLCI cut the root-mean-square error of the refined-grid solution by roughly <em>4× to 12×</em>, even when trained on only a small subset of parameter combinations. That's a large accuracy gain for very low training cost and strong generalization, which is exactly what real-time pricing and risk management need.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Option prices $u(x,t)$ solve a pricing PDE. Under Black–Scholes for a cash-or-nothing option in $d$ spatial dimensions the value satisfies
+$$\frac{\partial u}{\partial t} + \tfrac12 \sum_{i,j} \sigma_i \sigma_j \rho_{ij}\, S_i S_j \frac{\partial^2 u}{\partial S_i \partial S_j} + r\sum_i S_i \frac{\partial u}{\partial S_i} - r u = 0,$$
+where $u$ is the option value, $S_i$ the $i$-th asset price, $\sigma_i$ its volatility, $\rho_{ij}$ the correlation between assets $i$ and $j$, and $r$ the risk-free rate. For the barrier option they use the Heston model, whose pricing PDE is two-dimensional in the spot price $S$ and the instantaneous variance $v$:
+$$\frac{\partial u}{\partial t} + \tfrac12 v S^2 u_{SS} + \rho\sigma v S\, u_{Sv} + \tfrac12 \sigma^2 v\, u_{vv} + rS\,u_S + \kappa(\theta - v)u_v - r u = 0,$$
+with $\kappa$ the variance mean-reversion speed, $\theta$ the long-run variance, $\sigma$ the vol-of-vol, and $\rho$ the price–variance correlation.</p>
+<p><strong>The key idea (the correction map).</strong> Let $u_c$ and $u_f$ be the numerical solutions on the <em>coarse</em> and <em>refined</em> grids and $u^\star$ the accurate solution. NNLCI learns a local map
+$$u^\star(x,t) \;\approx\; \mathcal{N}_\phi\big(u_c(\mathcal{S}), \, u_f(\mathcal{S})\big),$$
+where $\mathcal{N}_\phi$ is a neural network with weights $\phi$ and $\mathcal{S}$ is a <em>local stencil</em> of grid values near the target point $(x,t)$. Because both $u_c$ and $u_f$ converge to $u^\star$ under mesh refinement, the input pair carries the local rate and direction of convergence, so the network extrapolates to the limit — like Richardson extrapolation, but learned and nonlinear. The paper contributes the most concise such input format.</p>
+<p><strong>The method.</strong> Cheap numerical PDE solves (finite differences) produce the two coarse-ish inputs; a compact feed-forward network is trained on a <em>small</em> set of parameter combinations, using a modest amount of high-fidelity (very-fine-grid) data as the target, to output the local correction. In one line: <em>learn the extrapolation from two cheap grids to the true price.</em></p>
+<p><strong>Results with numbers.</strong> On cash-or-nothing options (Black–Scholes, $d=1,2,3$) and a down-and-out barrier call (Heston, 2-D PDE in $S$ and $v$), NNLCI reduced the refined-mesh solution's RMSE by a factor of roughly <strong>4–12</strong> on held-out test sets, while training on only a small subset of parameter combinations — evidence of low training cost and strong generalization.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Pricing PDE</strong> — a partial differential equation whose solution is an option's fair value across price and time; solving it numerically is how many options are priced.</li>
+<li><strong>Finite-difference grid (coarse/refined mesh)</strong> — approximating a PDE by values on a lattice of points; finer lattices are more accurate but costlier.</li>
+<li><strong>Curse of dimensionality</strong> — the exponential blow-up in grid size (and cost) as the number of underlying assets grows.</li>
+<li><strong>Cash-or-nothing / barrier option</strong> — a digital option paying a fixed amount if in-the-money, and an option that knocks out if the price crosses a barrier, respectively.</li>
+<li><strong>Heston model</strong> — a stochastic-volatility model in which variance itself follows a mean-reverting random process.</li>
+<li><strong>RMSE (root-mean-square error)</strong> — a standard aggregate measure of numerical error; smaller is better.</li>
+<li><strong>Richardson-type extrapolation</strong> — combining approximate solutions at different resolutions to cancel error and estimate the exact limit.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The gains are demonstrated on low-dimensional, well-understood test cases (up to 3-D Black–Scholes and 2-D Heston); whether the same small-network, low-data recipe holds for genuinely high-dimensional basket options — the case that actually hurts — remains to be shown. The method still needs a reliable PDE solver and some high-fidelity data to train against, so it accelerates rather than replaces classical numerics, and barrier/exotic payoffs with sharp features can stress any local correction scheme. For a desk already running finite-difference pricers, though, a 4–12× error cut for little extra cost is a very practical upgrade.</p>
+<h3>Bottom Line</h3>
+<p>Two cheap grids plus a small neural network beat one expensive grid — accurate option prices for a fraction of the compute.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
