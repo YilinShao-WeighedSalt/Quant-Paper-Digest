@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 15, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 15, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Beyond the Skew-Stickiness Ratio: Transport Geometry of Spot-Driven Variance Surface Dynamics</h2>
+  <p class="meta">Charlie Che, Pradeepta Das<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-12 &middot; <a href="http://arxiv.org/abs/2608.12493v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.12493v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When the stock market moves, the entire "map" of option prices shifts in a predictable way, and this paper writes down the exact geometry of that motion.</p>
+<h3>Plain English</h3>
+<p>Start with the problem. An option is a contract that pays off depending on where a stock ends up — say, the right to buy the S&amp;P 500 at a fixed level next month. Traders summarize the prices of thousands of these contracts (all the different strike prices and expiry dates) in a single object called the <strong>implied volatility surface</strong> — think of it as a landscape whose height at each point tells you how expensive options are for that strike and maturity. The practical headache is that when the underlying index jumps, this whole landscape moves, and a trader hedging a book of options needs to know <em>how</em> it moves — does the smile slide sideways with the spot price, or stay pinned to fixed strike levels? Get this wrong and your hedge leaks money every day.</p>
+<p>For decades practitioners used crude rules of thumb ("sticky-strike," "sticky-delta") and a single number called the skew-stickiness ratio (SSR) to capture "when spot moves 1%, how much does the at-the-money slope move?" The idea here is to stop treating these as separate folk rules and instead see them all as special cases of one thing: a <strong>flow</strong>. Imagine the surface as a fluid, and each 1% move in the index as a gust of wind that pushes every point of the surface along a velocity field. If you know the velocity field, you know everything — the SSR is just the leading term, and the higher-order terms tell you how the curvature and the wings of the smile respond. The authors borrow the mathematics of <em>optimal transport</em> (the theory of how to move a pile of sand from one shape to another most efficiently) to describe this motion while guaranteeing the surface never develops an arbitrage (a free-money inconsistency).</p>
+<p>What they found: applying this to five years of S&amp;P 500 options, they discovered the market's behavior is richer than the standard single number suggests. Short-dated options are "super-skewed" (their stickiness coefficient is 1.44, well above the naive value of 1), and this decays smoothly to about 1.01 for two-year options. Crucially, the popular assumption that the surface moves the same way at all maturities is flatly rejected — the skew response even <em>flips sign</em> somewhere between six and nine months.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $k = \log(K/S_t)$ be log-moneyness (strike $K$ relative to spot $S_t$) and consider the total implied variance surface $w(k,\tau)$ for tenor $\tau$. The admissible set $\mathcal{A}$ is the collection of surfaces free of <em>static</em> arbitrage — satisfying butterfly convexity (in $k$) and calendar monotonicity (in $\tau$). This set is a manifold, and surface dynamics are curves living inside it.</p>
+<p><strong>The key object.</strong> A spot move induces a transport of the surface. Writing the response of the surface to an infinitesimal spot shock $d\log S$, the smile is displaced by a <strong>transport velocity field</strong> $v(k)$:
+$$\frac{\partial w(k,\tau)}{\partial \log S}\Big|_{\text{along the flow}} = -v(k)\,\frac{\partial w(k,\tau)}{\partial k},$$
+a transport (advection) equation: the surface is carried along $k$ at speed $v(k)$. Here $w$ is total implied variance, $k$ log-moneyness, and $v(k)$ the (moneyness-dependent) velocity that says how far the smile slides for a unit spot move.</p>
+<p><strong>Unifying the regimes.</strong> Expanding $v(k)$ around the money as a Taylor jet,
+$$v(k) = v_0 + v_1 k + \tfrac{1}{2} v_2 k^2 + \cdots,$$
+the zeroth coefficient $v_0$ is exactly the skew-stickiness ratio (SSR); $v_1, v_2, \dots$ govern how the ATM skew, curvature, and higher smile derivatives respond. Special choices recover the classics: $v(k)\equiv 0$ is sticky-strike, $v(k)\equiv 1$ is sticky-delta, and local- and rough-volatility models correspond to particular $v(k)$ profiles.</p>
+<p><strong>The method.</strong> The theory is a "local jet transport" — under explicit regularity (smoothness plus the no-arbitrage inequalities holding strictly), the transport flow preserves butterfly and calendar arbitrage-freeness <em>locally in time</em>, so a hedge built from $v(k)$ stays consistent. Empirically they identify $v(k)$ nonparametrically with a <strong>sequential forward-substitution estimator</strong>: march tenor by tenor, at each step solving for the velocity coefficients that best reproduce the observed surface response, using the already-estimated shorter tenors as inputs.</p>
+<p><strong>Results with numbers.</strong> On SPX across seven tenors (1 month to 2 years) over five years: (1) the SSR coefficient $v_0$ declines monotonically from <strong>1.44 at 1M toward 1.01 at 2Y</strong> ("super-skew"); (2) self-similarity — the hypothesis that $v(k)$ has the same shape at every tenor — is <strong>rejected at all tenors</strong>, with the skew-transport coefficient changing sign between the 6M and 9M tenors; (3) the velocity profile varies materially with moneyness at intermediate tenors rather than being flat.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the map giving each option's market-implied volatility as a function of its strike and maturity.</li>
+<li><strong>Static arbitrage</strong> — a pricing inconsistency (violating butterfly or calendar constraints) that would let you lock in risk-free profit today.</li>
+<li><strong>Skew-stickiness ratio (SSR)</strong> — a single number measuring how much the at-the-money volatility slope moves when the spot moves 1%.</li>
+<li><strong>Optimal transport</strong> — the mathematics of moving a mass distribution from one shape to another as efficiently as possible; here it models how the smile is carried by spot moves.</li>
+<li><strong>Jet / Taylor expansion</strong> — writing a function near a point as a polynomial in its derivatives; the coefficients here are the successive stickiness responses.</li>
+<li><strong>Log-moneyness $k$</strong> — the logarithm of strike divided by spot, a scale-free way to locate an option on the smile.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a descriptive and geometric framework: it beautifully unifies existing stickiness rules and measures them cleanly, but it does not itself forecast future surfaces or produce a full generative model of returns. The no-arbitrage preservation is only <em>local</em>, so over longer horizons a naively-applied flow could still drift into inconsistency. Still, for a desk hedging an SPX options book, an empirically-fitted $v(k)$ is directly usable and clearly better than a one-number SSR.</p>
+<h3>Bottom Line</h3>
+<p>The volatility smile doesn't just wobble — it flows, and this paper hands you the velocity field.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Term structure shapes in the Hull-White model with Svensson-parameterized initial yield curves</h2>
+  <p class="meta">Felix Sachse<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-12 &middot; <a href="http://arxiv.org/abs/2608.12016v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.12016v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A workhorse interest-rate model can only ever draw yield curves in three natural shapes — normal, inverted, or humped — and this paper proves exactly when each one appears.</p>
+<h3>Plain English</h3>
+<p>The problem is about the <strong>yield curve</strong> — the graph showing what interest rate you earn for locking up money for 1 year, 2 years, 10 years, and so on. Usually it slopes upward (you demand more for lending longer), sometimes it inverts (short rates above long rates, a classic recession warning), and sometimes it humps (rising then falling). Banks, pension funds, and central banks build models of how this curve evolves so they can price bonds and manage risk. A hugely popular one is the <strong>Hull–White model</strong>, prized because it can be calibrated to <em>exactly</em> match today's observed curve. But once you plug in a realistic starting curve and let the model run, which shapes can the curve actually take, and when? Surprisingly, nobody had fully catalogued this.</p>
+<p>The idea is to treat the question the way a geometer treats a family of curves: enumerate every possible shape and carve up the space of model parameters into regions, labeling each region by the shape it produces. Think of it like a weather map, but instead of "rain/sun" the regions are labeled "normal/inverted/humped." To do this rigorously the authors reach for two classical tools. One is the theory of <strong>Tchebycheff systems</strong> — a branch of approximation theory that puts hard ceilings on how many times a curve built from certain building-block functions can wiggle (cross zero, have peaks). The other is the <strong>envelope method</strong>, a geometric trick for finding the boundaries where one shape morphs into another.</p>
+<p>What they found: for the simplest realistic starting curves (Nelson–Siegel), they give a <em>complete</em> classification — a full atlas of which parameters and which market states give which shape. For richer starting curves (Bliss and Svensson, which add extra bumps), a complete atlas is out of reach, but they bound how many humps and dips can appear. And they prove a clean long-run fact: as time marches on, only three shapes survive with positive probability — normal, inverted, and humped. The exotic multi-wiggle curves wash out.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> In the Hull–White short-rate model the instantaneous short rate $r_t$ follows a mean-reverting Gaussian (Ornstein–Uhlenbeck) diffusion
+$$dr_t = \big(\theta(t) - a\, r_t\big)\,dt + \sigma\, dW_t,$$
+where $a>0$ is the mean-reversion speed, $\sigma$ the volatility, $W_t$ a Brownian motion, and $\theta(t)$ a deterministic function chosen so the model reproduces today's forward curve. Because $r_t$ is Gaussian, zero-coupon bond prices $P(t,T)$ are exponential-affine and the whole curve is known in closed form.</p>
+<p><strong>The key equation.</strong> The initial forward curve is parameterized. For <strong>Nelson–Siegel</strong>,
+$$f(0,T) = \beta_0 + \beta_1 e^{-T/\lambda} + \beta_2 \frac{T}{\lambda} e^{-T/\lambda},$$
+and <strong>Svensson</strong> adds a second hump term $\beta_3 \frac{T}{\lambda_2} e^{-T/\lambda_2}$. Here $f(0,T)$ is today's instantaneous forward rate for maturity $T$; $\beta_0$ is the long-run level, $\beta_1$ the slope, $\beta_2$ (and $\beta_3$) the curvature/hump amplitudes, and $\lambda,\lambda_2>0$ decay scales. The realized forward and yield curves at a later time $t$ are these shapes shifted by the model's stochastic evolution.</p>
+<p><strong>The method.</strong> The shape of the curve is read off from the sign pattern of its derivatives $\partial_T f$ and $\partial_T y$. The number of extrema equals the number of sign changes of these derivatives, and each derivative is a linear combination of functions like $\{1, e^{-T/\lambda}, T e^{-T/\lambda}\}$. A <strong>Tchebycheff (Chebyshev) system</strong> guarantees such a combination has at most a fixed number of zeros — this caps the number of humps. The <strong>envelope method</strong> then locates the parameter boundaries where two zeros merge (a hump being born or dying), partitioning parameter space into shape-regions. For Bliss/Svensson the building-block set is larger, so only upper/lower bounds on the extrema count are obtained.</p>
+<p><strong>Results with numbers.</strong> For Nelson–Siegel initial curves the classification is <em>complete</em>: the parameter space and state space are fully partitioned by attainable shape. For Bliss and Svensson, explicit lower and upper bounds on the number of local extrema are derived. Asymptotically, as $t\to\infty$, the yield curve attains <strong>only three shapes — normal, inverse, and humped — with positive probability</strong>, the richer multi-extremum shapes having vanishing probability in the limit.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Yield curve</strong> — the plot of interest rate versus how long you lend the money.</li>
+<li><strong>Hull–White model</strong> — a Gaussian short-rate model that mean-reverts and can be fit exactly to today's curve, giving closed-form bond prices.</li>
+<li><strong>Forward rate $f(0,T)$</strong> — the interest rate agreed today for a loan starting in the future at maturity $T$, the derivative building-block of the yield curve.</li>
+<li><strong>Nelson–Siegel / Svensson parameterization</strong> — compact formulas (3 or 4 shape parameters) that fit real yield curves well; Svensson adds a second hump.</li>
+<li><strong>Tchebycheff system</strong> — a family of functions whose linear combinations can change sign only a bounded number of times, capping how much a curve can wiggle.</li>
+<li><strong>Envelope method</strong> — a geometric technique for finding the boundary in parameter space where a curve's feature (like a hump) appears or disappears.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a rigorous shape-taxonomy, not a trading signal — it tells you what the model <em>can</em> draw, not what rates will do. Its cleanest results assume Nelson–Siegel starting curves; the market-standard Svensson case yields only bounds, not a full atlas. Still, for a quant validating a Hull–White implementation it's genuinely useful: it tells you which observed curve shapes are inside the model's expressive range and which are not.</p>
+<h3>Bottom Line</h3>
+<p>Give the most popular rate model a realistic starting curve, and mathematics guarantees it can only ever draw normal, inverted, or humped — no more, no less.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Non-linear optimal stopping with Bermudan strategies: the infinite horizon case</h2>
+  <p class="meta">Miryana Grigorova, Ohood Aldalbahi<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-08 &middot; <a href="http://arxiv.org/abs/2608.08299v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.08299v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper works out the exact rules for "when should I quit?" when you can only quit on certain allowed dates and your notion of value isn't a plain average.</p>
+<h3>Plain English</h3>
+<p>The problem is one of <strong>optimal stopping</strong>: you hold something whose value fluctuates randomly, and you get to choose the moment to cash out — but once you stop, it's over. Deciding when to exercise an American-style option, when to sell a house, or when to abandon a research project are all this problem. The classic version assumes you can stop at <em>any</em> instant and that you value future payoffs by their expected (average) value. Reality violates both. Many real contracts — <strong>Bermudan</strong> options — only let you exercise on a preset schedule (say the first of each month), not continuously. And investors don't value uncertain payoffs by a naive average: they're risk-averse, ambiguity-averse, worried about model error, so the "value" of a future payoff is a <em>nonlinear</em> function of the possible outcomes, not a simple mean.</p>
+<p>The idea is to build the whole theory of optimal stopping from scratch with both features baked in, over an <em>infinite</em> time horizon (no fixed deadline — you could wait forever). The authors replace the usual expectation with an abstract <strong>nonlinear evaluation</strong> $\rho$ that can encode risk- or ambiguity-aversion, and they restrict the player to Bermudan stopping times. The friendly analogy: instead of "what's the average of what happens next," you have a cautious accountant who systematically shades uncertain futures downward, and you're only allowed to hand in your resignation on paydays. They ask: does the standard "work backwards from the end" logic still work when there is no end and the accountant is nonlinear?</p>
+<p>What they found: yes, a <strong>dynamic programming principle</strong> still holds — you can still characterize the best strategy recursively. They prove you can always get within any tiny margin $\varepsilon$ of the best possible value with an allowed (Bermudan) stopping rule, and they pin down exactly when a truly <em>optimal</em> (not just near-optimal) rule exists: the natural "stop the first moment the value equals the payoff" rule is optimal precisely when that moment is guaranteed to be finite. They also extend a classical convergence theorem (Doob's) to their nonlinear setting, and connect the whole thing to backward stochastic differential equations.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a filtered probability space carrying the information flow $(\mathcal{F}_t)$. The payoff is a non-negative process, revealed at a stopping time $\tau$. Instead of expectation, value is measured by a family of <strong>nonlinear evaluations</strong> $\rho_{S,\tau}$ indexed by two times: $S$ (the time at which you evaluate) and $\tau$ (the time the payoff is revealed). Strategies are restricted to the set $\Theta$ of <strong>Bermudan stopping times</strong> — those taking values in a prescribed discrete grid of allowed exercise dates. The horizon is infinite.</p>
+<p><strong>The value family.</strong> Define the value at evaluation time $S$ as
+$$V_S = \operatorname*{ess\,sup}_{\tau \in \Theta,\ \tau \ge S} \rho_{S,\tau}(\xi_\tau),$$
+where $\xi_\tau$ is the payoff revealed at $\tau$, and the essential supremum runs over all admissible Bermudan strategies no earlier than $S$. The central structural result is a <strong>dynamic programming principle</strong>: for an intermediate allowed time $\theta \in \Theta$,
+$$V_S = \operatorname*{ess\,sup}_{\tau \ge S}\, \rho_{S,\theta}\!\big(\, \mathbf{1}_{\{\tau=S\}}\xi_S + \mathbf{1}_{\{\tau>S\}} V_\theta \,\big),$$
+i.e. you either stop now for $\xi_S$ or continue and inherit the future value $V_\theta$, evaluated through the nonlinear $\rho$. Symbols: $V$ the value family, $\rho$ the nonlinear evaluation, $\xi$ the payoff, $\Theta$ the Bermudan strategy set, $\mathbf{1}$ the indicator.</p>
+<p><strong>The method.</strong> The proofs use the theory of <strong>$(\Theta,\rho)$-supermartingales</strong> — the nonlinear analogue of supermartingales adapted to Bermudan times — together with monotonicity and time-consistency assumptions on $\rho$. They establish existence of $\varepsilon$-optimal stopping times constructively, and characterize genuine optimality via the <em>hitting time</em> $\tau^* = \inf\{t \in \Theta : V_t = \xi_t\}$: $\tau^*$ is optimal <strong>if and only if it is finite</strong>. For the case $\rho_{S,\tau} = \rho_S$ (depending only on the evaluation time) they prove a <strong>Doob-type convergence</strong> theorem for non-negative $(\Theta,\rho)$-supermartingales. A worked example comes from <strong>infinite-horizon backward stochastic differential equations (BSDEs)</strong>, whose solution generates a concrete nonlinear evaluation.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper, so the "results" are theorems rather than statistics: (i) the dynamic programming principle holds under the stated assumptions; (ii) an $\varepsilon$-optimal Bermudan stopping time always exists; (iii) the value-hits-payoff time is optimal iff finite; (iv) Doob convergence holds in the single-index case; (v) a BSDE example instantiates the framework.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal stopping</strong> — choosing the best random time to take an irreversible action (exercise, sell, quit) to maximize value.</li>
+<li><strong>Bermudan stopping time</strong> — a stopping decision restricted to a fixed discrete set of allowed dates, between American (any time) and European (one date).</li>
+<li><strong>Nonlinear evaluation $\rho$</strong> — a way of valuing uncertain payoffs that is not a plain expectation, capturing risk- or ambiguity-aversion or model uncertainty.</li>
+<li><strong>Dynamic programming principle</strong> — the recursive statement that today's optimal value equals the best of "act now" versus "continue optimally," solved backward.</li>
+<li><strong>$(\Theta,\rho)$-supermartingale</strong> — a process that, under the nonlinear evaluation and along Bermudan times, tends to decrease in expectation; the object whose limits control optimality.</li>
+<li><strong>BSDE</strong> — a stochastic differential equation solved backward from a terminal condition; its solutions define nonlinear evaluations naturally.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational mathematics, not a plug-and-play pricing engine — there are no market datasets or numerical benchmarks, and the assumptions on $\rho$ (monotonicity, time-consistency) rule out some real-world preferences. What it buys you is rigor: it tells engineers building nonlinear/robust Bermudan pricers that dynamic programming is <em>justified</em> and when a clean stopping rule truly exists, which is exactly the kind of guarantee numerical schemes silently assume.</p>
+<h3>Bottom Line</h3>
+<p>Even with a cautious, nonlinear sense of value and only certain days to act, "quit the first day it's worth as much as staying" is the right rule — provided that day ever comes.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> An Optimal Energy Production Problem with Energy Source Switching and Load Following Nuclear Power Plants</h2>
+  <p class="meta">Fabio Baschetti, Alessandro Gnoatto, Athena Picarelli<br>
+    <span class="cat">math.OC</span> &middot; 2026-08-10 &middot; <a href="http://arxiv.org/abs/2608.10197v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.10197v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper computes the optimal way to ramp a nuclear plant up and down to plug the gaps left by wind and solar, treating each ramp as a costly, deliberate switch.</p>
+<h3>Plain English</h3>
+<p>The problem is a very modern one for power grids. Wind and solar are cheap but weather-dependent, so the <em>residual</em> demand — total demand minus renewable output — jerks around unpredictably. Something dispatchable has to fill the gap in real time. A nuclear plant <em>can</em> "load-follow" (raise and lower its output), but not freely: reactors have ramp-rate limits, and changing operating regime stresses equipment and costs money and fuel. So the operator faces a genuine trade-off — chase the fluctuating demand closely and pay lots of switching/ramping costs, or hold steady and pay for backup generation when you fall short (or waste output when you overshoot).</p>
+<p>The idea is to frame this as an <strong>optimal switching problem</strong>. At each moment the operator picks one of three actions — ramp up, ramp down, or hold — knowing that each <em>change</em> of regime incurs a fixed cost, and that residual demand evolves randomly. It's like driving in stop-and-go traffic where every press of the accelerator or brake costs you a little: you don't react to every twitch of the car ahead, you decide when a regime change is worth it. They study two worlds. In the <strong>closed economy</strong>, you can't sell surplus power and shortfalls force expensive backup — you're an island balancing yourself. In the <strong>open economy</strong>, you can buy and sell electricity on a market whose price is driven by the <em>aggregate</em> system's residual demand — so you're both balancing and trading.</p>
+<p>What they found: by solving the control problem numerically they map out the optimal load-following policy and show how it shifts with the key economic knobs — how expensive shortages are, how costly switching is, how fast the plant can ramp, and whether market access exists. The upshot is a quantitative picture of the <em>economic value of controllable low-carbon capacity</em> in a renewable-heavy grid, with concrete implications for how flexibility should be paid for and how balancing markets and interconnectors should be designed.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Residual demand $D_t$ (demand net of renewables) is a stochastic process, e.g. a mean-reverting diffusion
+$$dD_t = \kappa(\bar{D}_t - D_t)\,dt + \sigma\, dW_t,$$
+with $\kappa$ the reversion speed, $\bar{D}_t$ a (possibly seasonal) mean level, $\sigma$ volatility, and $W_t$ a Brownian motion. The plant's operating regime $\iota_t \in \{-1,0,+1\}$ (ramp down / hold / ramp up) is a controlled, piecewise-constant process; the actual output obeys ramping limits. A control strategy is a sequence of switching times $\{\tau_n\}$ and target regimes $\{\iota_n\}$.</p>
+<p><strong>The objective.</strong> The producer maximizes expected discounted profit over a finite horizon $T$:
+$$J(t,D,\iota) = \mathbb{E}\!\left[\int_t^T e^{-r(s-t)} \pi(D_s, \iota_s)\,ds \;-\; \sum_{n} e^{-r(\tau_n-t)} C(\iota_{\tau_n^-}, \iota_{\tau_n}) \right],$$
+where $\pi$ is the instantaneous profit (revenue minus shortage/backup or plus market sales), $C(i,j)$ the cost of switching from regime $i$ to $j$, and $r$ the discount rate. The value function is $V = \sup J$ over admissible strategies.</p>
+<p><strong>The key equations.</strong> $V$ is characterized as the (viscosity) solution of a system of <strong>Hamilton–Jacobi–Bellman quasi-variational inequalities</strong> (HJB-QVI), one per regime $\iota$:
+$$\min\Big\{\, r V^\iota - \mathcal{L} V^\iota - \pi(\cdot,\iota),\ \ V^\iota - \max_{j\neq \iota}\big(V^{j} - C(\iota,j)\big) \Big\} = 0,$$
+where $\mathcal{L}$ is the generator of $D_t$ (the second-order differential operator $\mathcal{L}f = \kappa(\bar D - D)f' + \tfrac12\sigma^2 f''$). The first branch says "if not switching, satisfy the pricing PDE"; the second says "never let holding be worse than the best switch net of its cost." Symbols: $V^\iota$ value in regime $\iota$, $C$ switching cost, $r$ discount rate, $\mathcal{L}$ the diffusion generator.</p>
+<p><strong>The method.</strong> Because the value function need not be smooth at switching boundaries, solutions are taken in the <strong>viscosity</strong> sense (a weak notion that handles kinks). They compute $V$ and the optimal switching regions with a <strong>monotone semi-Lagrangian scheme</strong> — a numerical method that follows the diffusion's characteristics and preserves the monotonicity needed for convergence to the viscosity solution.</p>
+<p><strong>Results with numbers.</strong> The paper reports numerical experiments (rather than a single headline statistic) showing how the optimal load-following policy — the shape and location of the ramp-up/hold/ramp-down regions in $D$-space — responds to shortage cost, switching cost, ramping capability, and market access, and quantifies the value gap between the closed- and open-economy settings.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Residual demand</strong> — total electricity demand minus what renewables supply; the part dispatchable plants must cover.</li>
+<li><strong>Load-following</strong> — adjusting a power plant's output up and down to track changing demand rather than running flat-out.</li>
+<li><strong>Optimal switching problem</strong> — a control problem where you choose when to jump between discrete operating modes, each switch costing a fixed amount.</li>
+<li><strong>HJB quasi-variational inequality</strong> — the equation characterizing the value function when control includes costly discrete switches; "min of a PDE and an obstacle" form.</li>
+<li><strong>Viscosity solution</strong> — a generalized solution concept for PDEs that allows non-differentiable value functions, standard in stochastic control.</li>
+<li><strong>Semi-Lagrangian scheme</strong> — a numerical method that discretizes by following the random dynamics' trajectories, keeping the scheme stable and monotone.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model idealizes a single plant facing an exogenous demand process; real grids have many interacting units, network constraints, and strategic bidding that feed back into prices, none of which are fully captured. Reactor physics is also compressed into three regimes and a ramp limit. That said, the framework is exactly the right shape for the flexibility-remuneration debate, and the numerics give planners a defensible, quantitative handle on what controllable low-carbon capacity is worth.</p>
+<h3>Bottom Line</h3>
+<p>Load-following a reactor is a stop-and-go driving problem, and solving the HJB obstacle equation tells you precisely when the ramp is worth its cost.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Fee Implied Volatility on Uniswap v3: A DEX Native Proxy and Its Limits</h2>
+  <p class="meta">Amy Oumayma Khaldoun<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-13 &middot; <a href="http://arxiv.org/abs/2608.13340v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.13340v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can squeeze a volatility-like number out of a decentralized crypto exchange's fee data, but this paper proves it's a fee-activity gauge, not a true option implied volatility.</p>
+<h3>Plain English</h3>
+<p>The problem lives at the frontier of decentralized finance (DeFi). On <strong>Uniswap v3</strong>, a decentralized exchange, people supply liquidity into narrow price "ranges." If you provide liquidity in a tight band around the current price, your position behaves eerily like having <em>sold a short-dated option</em>: you earn steady fees (like collecting option premium), but you lose money when the price moves against your range (like an option seller's exposure). A related protocol, Panoptic, makes this option analogy even more explicit with a streaming premium. Now, in traditional markets, the single most important number traders extract from option prices is <strong>implied volatility</strong> — the market's forecast of how much an asset will jiggle. So the tantalizing question is: can we read an implied volatility straight off the blockchain, using only publicly observable on-chain data (fees, volume, liquidity), with no oracle or external price feed?</p>
+<p>The idea, explained plainly: the paper tries the naive identification — "fees earned = the option's time-decay (theta)" — and shows it's too optimistic. Earning fees is only <em>half</em> of what a liquidity provider experiences. The other half is the hidden cost of the position's negative convexity: as the price drifts, arbitrageurs pick off your position, a drain known as "loss-versus-rebalancing." That cost depends on how prices actually move and when arbitrageurs strike — and it simply isn't visible in the fee data. So instead of overclaiming, the authors <em>reformulate</em> the target: they define a clean, observable quantity built only from fee rate, trading volume, and active liquidity, and they're honest that it measures <strong>fee activity</strong>, not Black–Scholes volatility.</p>
+<p>What they found: a simple, closed-form proxy you can compute from on-chain observables alone, plus a sharp negative result — recovering a true structural volatility from pool data is <em>not identified</em> in general, because aggregate volume mixes informed and uninformed trades and the missing hedging-cost term depends on external price dynamics. What the data genuinely support is a <strong>fee-implied activity index</strong>, useful as a native DeFi signal, but not a stand-in for a real implied vol.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A concentrated-liquidity position on Uniswap v3 supplies liquidity $L$ over a tick (price) range. Locally, a narrow range around strike-like price resembles a short option: the streaming fee income plays the role of option premium/theta, while the position's payoff is concave in price (negative convexity / gamma). Observables are the pool fee rate, cumulative trading volume, and the active liquidity at the current tick $L_{\text{tick}}$.</p>
+<p><strong>The key equation.</strong> The paper's central object is a DEX-native fee-implied volatility proxy,
+$$\sigma_{\text{fee}} = 2 \cdot \text{feeRate} \cdot \sqrt{\frac{\text{Volume}}{L_{\text{tick}}}},$$
+where $\text{feeRate}$ is the pool's per-trade fee fraction, $\text{Volume}$ the traded notional over the window, and $L_{\text{tick}}$ the active liquidity at the current tick. Intuitively $\sqrt{\text{Volume}/L_{\text{tick}}}$ scales trade flow by how thick the book is, and the fee rate converts flow into fee income; the factor 2 comes from matching the short-option premium structure.</p>
+<p><strong>Why it isn't true implied vol.</strong> A liquidity provider's PnL decomposes as
+$$\text{LP PnL} = \underbrace{\text{fee income}}_{\text{observable}} \;-\; \underbrace{\text{LVR}}_{\text{loss-versus-rebalancing, unobservable}},$$
+where LVR (loss-versus-rebalancing, a.k.a. predictable loss) is the cost of hedging the position's negative convexity through arbitrage-aligned trades. Since fees capture only the compensation leg and LVR depends on the <em>external</em> price process and arbitrage timing — neither visible on-chain — the mapping from pool data to a structural latent volatility $\sigma$ is <strong>not identified</strong>. Compounding this, $\text{Volume}$ pools together informed and uninformed order flow, which a Black–Scholes-consistent $\sigma$ would need to separate.</p>
+<p><strong>The method.</strong> The analysis is derivation-and-identification: match the narrow-range LP position to Black–Scholes short-option quantities (theta near the strike), derive $\sigma_{\text{fee}}$ in closed form, then argue via the PnL decomposition and the informed/uninformed flow mixture that the inverse problem (pool data $\to$ structural $\sigma$) lacks a unique solution. The conclusion reframes $\sigma_{\text{fee}}$ as a <strong>fee-implied activity index</strong> rather than an implied volatility.</p>
+<p><strong>Results with numbers.</strong> The headline "result" is the explicit formula $\sigma_{\text{fee}} = 2\cdot\text{feeRate}\cdot\sqrt{\text{Volume}/L_{\text{tick}}}$ together with the non-identification argument; the paper is deliberately cautionary rather than reporting a fitted-vs-baseline accuracy statistic, its main quantitative contribution being the closed-form proxy and the precise statement of its limits.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Uniswap v3 / concentrated liquidity</strong> — a decentralized exchange where liquidity providers commit funds to a chosen price range rather than the whole curve.</li>
+<li><strong>Implied volatility</strong> — the volatility figure the market's option prices imply; the key forward-looking risk number in options.</li>
+<li><strong>Theta</strong> — an option's time decay, the rate at which it loses value as expiry approaches; here matched to fee income.</li>
+<li><strong>Negative convexity (gamma)</strong> — a payoff that curves downward, so you lose from large moves in either direction, like a short option.</li>
+<li><strong>Loss-versus-rebalancing (LVR)</strong> — the systematic loss a liquidity provider suffers to arbitrageurs as the price moves; the unobservable hedging-cost leg.</li>
+<li><strong>Identification</strong> — whether a model parameter can be uniquely recovered from the available data; "not identified" means many parameter values fit equally.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a healthy dose of skepticism aimed at a fashionable idea: it does <em>not</em> give you a tradable implied vol from DeFi, and it explicitly says the tempting fee-to-theta shortcut is wrong. The proxy is still handy as an on-chain activity signal, but a practitioner hoping to arbitrage DeFi against listed options should read this as a warning about what the on-chain numbers can and cannot tell them.</p>
+<h3>Bottom Line</h3>
+<p>On-chain fees hand you a clean activity gauge for free — just don't mistake it for the market's true implied volatility.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
