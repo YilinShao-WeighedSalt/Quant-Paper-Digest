@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 17, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 17, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> On the First Hitting Time Problems for Diffusion Processes: Local Time-Space Approach</h2>
+  <p class="meta">Jerome Detemple, Yerkin Kitapbayev, Danila Shabalin<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-13 &middot; <a href="http://arxiv.org/abs/2608.13732v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.13732v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper gives a fast, reliable way to compute the odds that a randomly wandering quantity (like a stock price) crosses a moving finish line for the first time at any given moment.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you own an option that pays off — or gets destroyed — the instant a stock first touches some threshold. Maybe it's a "knock-out" barrier option that vanishes if the price ever dips to USD 90, or a loan covenant that triggers if a firm's asset value first falls below its debt. In every case the question is the same: <em>when</em> does the wandering price first hit the line? Not whether it eventually does, but the full probability distribution of that first touching-time. This is called the <strong>first-passage time</strong> (or first-hitting time), and it is one of the most stubborn objects in quantitative finance. For a flat, unmoving barrier and simple dynamics there are textbook formulas, but the moment the barrier itself moves through time — say it drifts upward as a bond accrues interest — the clean formulas evaporate and you are stuck with slow simulations.</p>
+<p><strong>The idea.</strong> The authors find a new way to write down the answer as an integral equation, then hand you a three-step recipe to actually crunch it. The trick relies on a piece of modern probability called <em>local time–space calculus</em> — think of it as a version of calculus specially built to handle the exact moment a random path grazes a boundary, an event too "sharp" for ordinary calculus to describe cleanly. Using this tool they convert the elusive first-passage distribution into a <strong>Volterra integral equation</strong> — an equation where the unknown function appears inside an integral over its own past. They then approximate the messy kernel of that integral by a small Markov chain (a simple hop-between-states process), and finally solve the whole thing with standard numerical integration. It's like replacing an impossible continuous problem with a tidy staircase of solvable pieces.</p>
+<p><strong>What they found.</strong> The method works for genuinely hard cases — time-dependent barriers and even <em>double</em> barriers (a price trapped between an upper and lower line) — and they prove it converges to the true answer as the grid gets finer. It's a general-purpose engine rather than a single formula.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $X_t$ be a one-dimensional diffusion solving
+$$dX_t = \mu(X_t,t)\,dt + \sigma(X_t,t)\,dW_t,$$
+where $\mu$ is the drift, $\sigma$ the volatility, and $W_t$ a standard Brownian motion. Given a possibly time-varying barrier $b(t)$, the <strong>first-passage time</strong> is
+$$\tau = \inf\{\,t \ge 0 : X_t = b(t)\,\}.$$
+The goal is the law of $\tau$, i.e. the function $t \mapsto \mathbb{P}(\tau \le t)$ (or its density).</p>
+<p><strong>The key equations.</strong> The heart of the paper is the <strong>local time–space formula</strong> of Peskir (2005). For a suitable function $F(t,x)$ applied to the process, the usual Itô formula picks up an extra boundary term:
+$$F(t,X_t) = F(0,X_0) + \int_0^t \Big(\partial_s + \mathcal{L}\Big)F\,ds + \int_0^t \partial_x F\,\sigma\,dW_s + \tfrac{1}{2}\int_0^t \Delta_x F(s,b(s))\,d\ell_s^{b},$$
+where $\mathcal{L}$ is the generator of the diffusion, $\ell_s^b$ is the <strong>local time</strong> of $X$ at the barrier (a clock that ticks only while the path sits exactly on $b$), and $\Delta_x F$ is the jump in the space-derivative across the barrier. Choosing $F$ cleverly and taking expectations turns this identity into a <strong>Volterra equation of the second kind</strong>,
+$$u(t) = g(t) + \int_0^t K(t,s)\,u(s)\,ds,$$
+where $u$ encodes the unknown first-passage density, $g$ is a known function, and $K$ is the kernel built from transition densities of $X$.</p>
+<p><strong>The method.</strong> Three steps. (1) <em>Reduce</em> the first-passage problem to that Volterra equation via the local time–space calculus. (2) <em>Approximate</em> the kernel $K(t,s)$ by a <strong>finite-state Markov chain</strong>, so the continuous transition density becomes a matrix of hop probabilities. (3) <em>Solve</em> the resulting discretized equation with a <strong>quadrature rule</strong> (numerical integration on a time grid). They prove the scheme converges as the grid is refined and extend it to the <strong>double-barrier</strong> case, where the path may exit through either of two moving boundaries.</p>
+<p><strong>Results with numbers.</strong> The paper is methodological, so its "results" are worked examples plus convergence theorems: across several representative diffusions the numerical distribution matches known benchmarks and the error shrinks predictably as the discretization tightens, including for the harder double-barrier problems where few clean alternatives exist.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Diffusion process</strong> — a continuous random path whose local drift and wiggle are governed by a stochastic differential equation.</li>
+<li><strong>First-passage / first-hitting time</strong> — the first instant a random process touches a specified boundary.</li>
+<li><strong>Local time</strong> — a measure of how much time a process spends <em>exactly at</em> a given level, used to handle boundary-grazing precisely.</li>
+<li><strong>Volterra integral equation</strong> — an equation for an unknown function that appears inside an integral running over its own earlier values.</li>
+<li><strong>Kernel</strong> — the weighting function $K(t,s)$ inside an integral equation that links the value at time $t$ to the value at earlier time $s$.</li>
+<li><strong>Quadrature</strong> — numerically approximating an integral by a weighted sum over sample points.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean applied-probability contribution, not a trading strategy: it delivers accuracy and generality for barrier problems but assumes a one-dimensional diffusion with known, well-behaved coefficients — real markets have jumps, stochastic volatility, and fat tails that sit outside this frame. Building the Markov-chain kernel and choosing the grid takes care, so a desk quant would treat it as a high-quality tool for barrier-option pricing and default-timing, not a plug-and-play black box.</p>
+<h3>Bottom Line</h3>
+<p>When the finish line keeps moving, this paper turns "when does it first get hit?" from an intractable question into a convergent computation.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> DYSANOS Generative Dynamic Smooth Arbitrage-free Non-parametric Option Surfaces</h2>
+  <p class="meta">Hans Buehler, Blanka Horvath, Anastasis Kratsios<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-12 &middot; <a href="http://arxiv.org/abs/2608.12587v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.12587v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This is the first model that can dream up years of realistic, self-consistent option-price scenarios where the entire volatility surface never contains a free-money arbitrage.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An <strong>option</strong> is a contract to buy or sell a stock at a fixed price later. For a single stock there aren't just one or two options but hundreds — different strike prices and different expiry dates — and together their prices form a rippling landscape called the <strong>implied-volatility surface</strong>. Banks that trade and hedge options need to stress-test their books against the future: <em>what could this whole surface look like next month, next year?</em> The catch is brutal. If you just wiggle the surface randomly, you almost always create an <strong>arbitrage</strong> — a combination of options that is guaranteed to make money with zero risk. Real markets don't allow that, so any scenario containing one is worthless for risk management. Generating thousands of <em>plausible and arbitrage-free</em> future surfaces, day after simulated day, has been an open problem.</p>
+<p><strong>The idea.</strong> The authors build <strong>DYSANOS</strong>, a generative model that produces entire paths of daily stock and option prices stretching years into the future, with a hard guarantee baked in: every surface it emits is free of <strong>static arbitrage</strong> by construction. The clever move is to represent each surface not as raw prices but in a special coordinate system (their "SANOS" parametrization) that is <em>smooth across all strikes and expiries</em> and where the no-arbitrage conditions become simple, enforceable constraints. Instead of generating prices and praying they're consistent, they generate in a space where inconsistency is impossible. On top of that geometry they put a deliberately simple engine — a hidden-state model where tomorrow's surface depends on today's plus a random nudge — to prove the framework works before anyone bolts on a fancier neural network.</p>
+<p><strong>What they found.</strong> Trained on real S&amp;P index option data from 2020–2025, DYSANOS generates multi-year price paths that stay arbitrage-free and reproduce realistic surface behavior, and it stacks up favorably against the standard workhorse — a <strong>principal-component (PCA) model</strong> of implied vols — which offers no such guarantee.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix an underlying with spot price $S_t$. The object of interest is the option-price (or implied-volatility) surface $\sigma_t(K,T)$ as a function of strike $K$ and maturity $T$, observed daily. <strong>Static arbitrage-freeness</strong> demands the call-price surface $C_t(K,T)$ satisfy monotonicity and convexity in strike and monotonicity in maturity:
+$$\partial_K C \le 0,\qquad \partial_{KK} C \ge 0,\qquad \partial_T C \ge 0,$$
+so that butterfly and calendar spreads always cost something non-negative. The modeling goal is a stochastic process on surfaces, $\{\sigma_t(\cdot,\cdot)\}_{t\ge 0}$, whose every realization obeys these inequalities.</p>
+<p><strong>The key equation(s).</strong> DYSANOS encodes the surface through a <strong>SANOS</strong> map $\Phi$ from a low-dimensional latent state $h_t$ to a guaranteed-admissible surface:
+$$\sigma_t(K,T) = \Phi\big(h_t\big)(K,T), \qquad \text{with } \Phi(h) \text{ arbitrage-free for all } h.$$
+The state itself evolves as a baseline <strong>AR(1)</strong> (first-order autoregressive) process,
+$$h_{t+1} = a + B\,h_t + \varepsilon_{t+1},\qquad \varepsilon_{t+1}\sim \mathcal{N}(0,\Sigma),$$
+where $h_t$ is the hidden state vector, $a$ a drift, $B$ a transition matrix, and $\varepsilon_{t+1}$ Gaussian innovations. Because $\Phi$ maps <em>any</em> $h$ to an admissible surface, no draw of $\varepsilon$ can ever produce an arbitrage — the guarantee is structural, not statistical.</p>
+<p><strong>The method.</strong> The pipeline: parametrize surfaces in the smooth arbitrage-free SANOS coordinates; fit the latent dynamics by estimating the AR(1) parameters $(a,B,\Sigma)$ from historical states; then simulate forward by iterating the AR(1) recursion and pushing each state through $\Phi$. They explicitly check for <strong>dynamic</strong> arbitrage numerically (static-free by construction does not automatically forbid intertemporal arbitrage) and benchmark against an implied-vol <strong>PCA</strong> generator.</p>
+<p><strong>Results with numbers.</strong> Evaluated on OptionMetrics IvyDB S&amp;P index data spanning 2020–2025, DYSANOS produces multi-year daily paths that remain static-arbitrage-free by construction and are competitive with — and structurally safer than — the PCA baseline, which can and does leak arbitrage.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied-volatility surface</strong> — the 2-D map of option-implied volatilities across all strikes and maturities for one underlying.</li>
+<li><strong>Static arbitrage</strong> — a risk-free profit obtainable from a fixed portfolio of options at a single instant, forbidden in real markets.</li>
+<li><strong>SANOS parametrization</strong> — the paper's smooth, non-parametric coordinate system in which no-arbitrage conditions hold automatically.</li>
+<li><strong>AR(1) process</strong> — a simple time series where each value equals a constant plus a scaled previous value plus random noise.</li>
+<li><strong>PCA (principal component analysis)</strong> — a technique that summarizes a high-dimensional surface by a few dominant modes of variation.</li>
+<li><strong>Generative market model</strong> — a model that samples entire synthetic future price paths rather than forecasting a single number.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The guarantee is the headline strength, but the authors are upfront that the AR(1) driver is a "simplistic baseline" — real vol surfaces move in fatter-tailed, regime-switching ways an AR(1) won't capture, and static-arbitrage-freeness is a weaker promise than full dynamic consistency. It's a strong scaffold whose realism will live or die on the richer state model someone plugs in next.</p>
+<h3>Bottom Line</h3>
+<p>DYSANOS shows you can generate years of synthetic option surfaces without ever handing a trader a free lunch — the arbitrage-freeness is built into the coordinates, not hoped for after the fact.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Dynamic Physical Hedging amid Jump Losses, Reconstruction-Price Uncertainty, Population Interactions</h2>
+  <p class="meta">Paramahansa Pramanik, Michael Bowdin<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-13 &middot; <a href="http://arxiv.org/abs/2608.13745v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.13745v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper works out the mathematically optimal way for an insurer to physically protect itself against catastrophes when both the disasters and the cost of rebuilding are random and every insurer's choices affect everyone else's.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Think about an insurer covering homes against hurricanes. Two kinds of uncertainty gang up on them. First, the disasters themselves arrive suddenly and in unpredictable sizes — a jump, not a gentle drift. Second, <em>after</em> a disaster the cost to rebuild spikes: lumber, labor and contractors all get scarce exactly when everyone needs them, so the "reconstruction price" is itself a moving, random target. On top of that, insurers don't act in isolation — if everyone rushes to rebuild at once, they bid up prices for one another. The insurer must decide, continuously, how much to spend on <strong>physical hedging</strong> and mitigation (reinforcing structures, pre-buying materials) to keep its surplus healthy. How much, and when?</p>
+<p><strong>The idea.</strong> The authors model the insurer's money cushion (its <strong>surplus</strong>) as something that drifts along smoothly but occasionally takes sudden downward hits from catastrophes — a <strong>jump diffusion</strong>. Each catastrophe's damage combines three ingredients: how severe the event is, an outside cost factor that mean-reverts (rebuilding prices spike then relax), and how much the insurer proactively mitigated. They then ask for the strategy that best trades off the cost of hedging today against the risk of ruin tomorrow. Crucially, they let the insurers interact: instead of tracking every rival individually, they use a <strong>mean-field game</strong> — a trick from physics where you replace "everybody else" with a single averaged crowd, the way you'd model one gas molecule against the average pressure rather than tracking every other molecule.</p>
+<p><strong>What they found.</strong> They prove the problem is well-posed and that the best strategy is characterized by a specific master equation (an HJB equation). Numerically, two levers matter most: how expensive reconstruction gets and how well-capitalized the insurer is — both materially reshape the optimal hedge — and an insurer's vulnerability <em>relative to the crowd</em> shifts the equilibrium cost for everyone.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The insurer's surplus $X_t$ follows a <strong>controlled jump diffusion</strong>
+$$dX_t = \big(r\,X_t - c(u_t)\big)\,dt + \sigma\,dW_t - \int_{\mathbb{Z}} \gamma(z,\theta_t,u_t)\,\tilde N(dt,dz),$$
+where $r$ is a growth/interest rate, $u_t$ the insurer's control (hedging/mitigation effort), $c(u_t)$ its cost, $W_t$ a Brownian motion, and $\tilde N(dt,dz)$ a compensated Poisson random measure driving catastrophe arrivals of mark $z$. The loss amplitude $\gamma$ blends marked severity $z$, a mean-reverting cost factor $\theta_t$ (its own SDE), and endogenous mitigation $u_t$.</p>
+<p><strong>The key equations.</strong> The insurer maximizes expected discounted utility, giving a value function
+$$V(x,\theta) = \sup_{u}\ \mathbb{E}\!\left[\int_0^{\tau} e^{-\rho t} U(X_t,u_t)\,dt\ \Big|\ X_0=x,\ \theta_0=\theta\right],$$
+with $\rho$ a discount rate, $U$ a utility, and $\tau$ a stopping time (e.g. ruin). By the <strong>dynamic programming principle</strong>, $V$ solves a <strong>nonlocal Hamilton–Jacobi–Bellman</strong> equation
+$$\rho V = \sup_u\Big\{ \mathcal{L}^u V + \textstyle\int_{\mathbb{Z}} \big[V(x-\gamma,\theta)-V(x,\theta)\big]\nu(dz) + U\Big\},$$
+where $\mathcal{L}^u$ is the diffusion generator and the integral term (the "nonlocal" part) accounts for the sudden jumps. Because $V$ need not be smooth, they prove it is the unique <strong>viscosity solution</strong>. Strategic interaction promotes this to a <strong>mean-field game</strong>: a coupled forward–backward system pairing the backward HJB with a forward <strong>Kolmogorov</strong> equation for the population distribution $m_t$ of states.</p>
+<p><strong>The method.</strong> They establish well-posedness (existence, moment and stability estimates), prove the HJB has a unique viscosity solution, and prove <strong>relaxed equilibrium existence, Markovian realization, and uniqueness</strong> for the MFG under compactness and monotonicity conditions. Then they solve the system numerically.</p>
+<p><strong>Results with numbers.</strong> The numerical experiments show reconstruction costs and capitalization level <em>materially</em> change the optimal hedging policy, cross-sectional vulnerability shifts equilibrium costs across the population, and tail-family robustness checks confirm the qualitative conclusions survive alternative catastrophe-severity distributions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Jump diffusion</strong> — a random process that drifts continuously but also takes sudden discontinuous jumps.</li>
+<li><strong>HJB (Hamilton–Jacobi–Bellman) equation</strong> — the master PDE whose solution gives the best possible value in a continuous-time control problem.</li>
+<li><strong>Viscosity solution</strong> — a generalized notion of solution for a PDE that may not be differentiable everywhere.</li>
+<li><strong>Mean-field game</strong> — a model of many interacting agents where each optimizes against the averaged behavior of the whole population.</li>
+<li><strong>Kolmogorov (forward) equation</strong> — the PDE describing how the probability distribution of a random process evolves over time.</li>
+<li><strong>Compensated Poisson measure</strong> — the bookkeeping object counting random jump events after subtracting their expected rate.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a heavy theoretical contribution — the existence/uniqueness machinery is the real product, and the numerics are "controlled" illustrations, not a calibrated live pricing tool. Its assumptions (a tractable severity family, monotonicity conditions, a representative mean-field crowd) smooth over messy reality like correlated mega-catastrophes and regulatory constraints, so a practitioner would treat it as a principled framework to specialize, not a ready hedging engine.</p>
+<h3>Bottom Line</h3>
+<p>When disasters jump, rebuilding gets pricey, and everyone reacts at once, this paper pins down the optimal hedge as the unique viscosity solution of a mean-field HJB system.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> FlowLOB: Efficient and Controllable Limit Order Book Generation with Flow Matching</h2>
+  <p class="meta">Zhuohan Wang, Andreea Bacalum, Ollie Olby, Carmine Ventre, Namid Stillman<br>
+    <span class="cat">cs.LG</span> &middot; 2026-08-13 &middot; <a href="http://arxiv.org/abs/2608.13096v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.13096v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>FlowLOB uses "flow matching" to generate lifelike order-book market data in about ten computational steps instead of hundreds, and even transfers to stocks it never trained on.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Underneath every stock price is the <strong>limit order book (LOB)</strong> — the live ledger of all the buy and sell offers waiting at each price, updating many times per second. Quants desperately want a realistic <em>simulator</em> of this ledger: to backtest trading strategies, stress-test against rare scenarios ("what if a flash crash starts?"), and train algorithms without risking real money. But good simulators are hard. Hand-built "agent-based" ones miss subtle real-market texture; modern deep generative ones are slow to sample and often can't handle a stock they weren't specifically trained on. Practitioners want all four things at once: realism, speed, controllability, and generalization.</p>
+<p><strong>The idea.</strong> FlowLOB borrows a hot technique from image generation called <strong>flow matching</strong>. Picture starting from pure random noise and needing to sculpt it into a realistic order-book snapshot. Older <strong>diffusion models</strong> do this by reversing a slow, meandering noising process that takes many little denoising steps. Flow matching instead learns a <em>straight-ish velocity field</em> — at every point it knows which direction and how fast to push the sample toward realism — so you can follow that flow to the destination in far fewer steps, like taking a highway instead of a winding country road. They represent the book in "tick-relative" coordinates (prices measured relative to the current best quote), which is what lets a model trained on some stocks generalize to others. Because flow and diffusion share a common mathematical formulation, the authors train both with identical data and budget for a genuinely fair race.</p>
+<p><strong>What they found.</strong> Flow matching reaches its best quality in just <strong>10 solver steps</strong>, while diffusion needs many more to catch up. At that efficient setting FlowLOB beats four baselines (two learned, two agent-based) on most realism metrics at the finer time scales, responds correctly when you dial a scenario knob toward a tail regime, and — impressively — does all this <strong>zero-shot</strong> on a held-out symbol it never saw.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A LOB trajectory is a sequence of book states $x \in \mathbb{R}^d$ in tick-relative representation, sampled at frequencies $\{0.1\text{s}, 1\text{s}, 10\text{s}\}$ and conditioned on a scenario variable $c$. The goal is to learn a conditional generative model $p(x\mid c)$ that both matches the real data distribution and is cheap to sample.</p>
+<p><strong>The key equations.</strong> Flow matching learns a time-dependent <strong>velocity field</strong> $v_\theta(x,t)$ that transports a simple base distribution $p_0$ (Gaussian noise) at $t=0$ to the data distribution $p_1$ at $t=1$ along the ODE
+$$\frac{dx_t}{dt} = v_\theta(x_t, t),\qquad x_0 \sim p_0.$$
+Training uses the <strong>conditional flow-matching objective</strong>: for a chosen probability path $x_t = (1-t)x_0 + t\,x_1$ interpolating a noise sample $x_0$ and a data sample $x_1$, the target velocity is simply $x_1 - x_0$, and one minimizes
+$$\mathcal{L}(\theta) = \mathbb{E}_{t,x_0,x_1}\big\lVert v_\theta(x_t,t) - (x_1 - x_0)\big\rVert^2,$$
+where $\theta$ are the network weights and $t\sim \mathrm{Unif}[0,1]$. Sampling integrates the ODE with a <strong>fixed-step solver</strong> using a handful of steps.</p>
+<p><strong>The method.</strong> Both FlowLOB (flow matching) and a diffusion twin are trained with <strong>identical architecture, data, and compute</strong>, then sampled through the same fixed-step ODE solvers — isolating <em>sampling efficiency</em> as the variable. Controllability is tested with a <strong>distributional test</strong>: does changing the conditioning $c$ push the generated statistic toward the corresponding real tail regime? Realism is judged with distributional distance metrics against real HKEX data.</p>
+<p><strong>Results with numbers.</strong> Flow matching hits peak fidelity at <strong>10 ODE-solver steps</strong>; diffusion requires many more function evaluations to approach the same quality. At that operating point FlowLOB improves realism over <strong>four baselines</strong> in most distributional metrics at the <strong>0.1s and 1s</strong> frequencies, passes the counterfactual-control test in most settings, and transfers <strong>zero-shot</strong> to a held-out symbol — all trained across multiple HKEX symbols.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book (LOB)</strong> — the real-time list of all outstanding buy and sell orders at each price for an asset.</li>
+<li><strong>Flow matching</strong> — a generative method that learns a velocity field carrying noise to data along an ODE, enabling few-step sampling.</li>
+<li><strong>Diffusion model</strong> — a generative model that creates data by gradually denoising, typically needing many sampling steps.</li>
+<li><strong>ODE solver / function evaluation</strong> — the numerical integrator (and each call to the network) used to turn noise into a sample; fewer steps means faster generation.</li>
+<li><strong>Tick-relative representation</strong> — encoding prices relative to the current best quote so a model generalizes across instruments.</li>
+<li><strong>Zero-shot transfer</strong> — performing well on data (here, a new stock) the model never saw during training.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The efficiency win is real and the zero-shot generalization is genuinely useful, but the evidence is strongest at the finer frequencies and on one exchange (HKEX) — coarser 10s dynamics and other market microstructures are less validated. "Realistic on distributional metrics" is not the same as fooling a strategy backtest, so a trading desk should confirm the simulated books preserve the specific dependencies its algorithm actually exploits before trusting it.</p>
+<h3>Bottom Line</h3>
+<p>FlowLOB shows that generating believable order-book data can be a ten-step highway rather than a hundred-step crawl — and the model still performs on stocks it has never met.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Regime-Gated Residual Mixture-of-Experts for Cross-Sectional Volatility Forecasting</h2>
+  <p class="meta">Junyi Ye, Gargi Vijay Borde<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-08-12 &middot; <a href="http://arxiv.org/abs/2608.12251v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.12251v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When teaching a neural network to forecast stock volatility, telling it what market "regime" we're in helps only if that information steers <em>which</em> expert answers, not the answer itself.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> <strong>Volatility</strong> is how violently a stock's price swings, and forecasting it is central to pricing options, sizing positions, and measuring risk. The nuisance is that volatility behaves completely differently in different <strong>regimes</strong> — a calm bull market versus a panicky crash — so a good forecaster clearly needs to know which world it's in. But there's a trap: shove that regime information straight into a neural network and it often <em>destabilizes</em> training, making the model worse and flakier. So the question isn't <em>whether</em> to use regime information, but <em>where</em> to inject it.</p>
+<p><strong>The idea.</strong> The authors propose <strong>RG-ResMoE</strong>, and the core insight is a plumbing decision. A <strong>mixture-of-experts</strong> model is like a panel of specialist forecasters plus a <strong>gating</strong> receptionist who decides which specialist handles each case. RG-ResMoE keeps a plain base forecaster that predicts volatility from a stock's own features, and then adds a team of "experts" who only supply <em>residual corrections</em> — small tweaks to the base guess. The regime information (are we calm or stressed?) is fed <strong>only to the receptionist</strong>, the gate that routes among experts — never directly into the forecasting math. The intuition: the volatile, non-stationary regime signal is dangerous as a direct input but safe and useful as a <em>router</em> that decides whose correction to trust right now. They test this rigorously, matching model size, tuning, information, and even random seeds across architectures so it's an apples-to-apples fight.</p>
+<p><strong>What they found.</strong> Routing beats injecting, decisively. Restricting regime variables to the gate improved both accuracy and risk (Value-at-Risk) calibration, whereas appending the <em>same</em> variables directly to the forecasting input <strong>degraded</strong> performance and stability. It held up on 1,027 U.S. stocks and again on an independent Japanese panel, and "soft" routing (blend the experts) beat "hard" routing (pick just one).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> For each stock $i$ and day $t$, predict five-day-ahead <strong>realized volatility</strong> $y_{i,t}$ from stock-level features $x_{i,t}\in\mathbb{R}^p$ and market <strong>regime state variables</strong> $s_t\in\mathbb{R}^q$. Evaluation uses rolling <strong>walk-forward</strong> splits (train on the past, test on the immediate future, then roll) across 1,027 U.S. equities, with capacity, tuning, and seeds matched across architectures.</p>
+<p><strong>The key equation(s).</strong> The forecast is a <strong>base predictor plus regime-gated residual experts</strong>:
+$$\hat{y}_{i,t} = f_{\text{base}}(x_{i,t}) + \sum_{k=1}^{K} g_k(s_t)\,e_k(x_{i,t}),$$
+where $f_{\text{base}}$ is the base volatility model, $e_k$ is the $k$-th expert's residual correction, and $g_k(s_t)$ is the gating weight for expert $k$. Crucially, the regime state $s_t$ enters <strong>only</strong> through the gate $g$, not through $f_{\text{base}}$ or $e_k$. The gate is a <strong>softmax</strong> over a routing network $r$:
+$$g_k(s_t) = \frac{\exp\!\big(r_k(s_t)\big)}{\sum_{j=1}^{K}\exp\!\big(r_j(s_t)\big)},$$
+which is <strong>soft routing</strong> (a weighted blend). <strong>Hard routing</strong> replaces this with an $\arg\max$ that picks a single expert. The contrast baseline appends $s_t$ directly: $f(x_{i,t}, s_t)$.</p>
+<p><strong>The method.</strong> A <strong>mixture-of-experts</strong> neural network trained by minimizing forecast error, with the ablation isolating the <em>integration pathway</em> — gate-only versus direct-input — under a matched-capacity <strong>MLP</strong> control. They also report <strong>Value-at-Risk</strong> calibration to check the forecasts translate into honest risk numbers.</p>
+<p><strong>Results with numbers.</strong> RG-ResMoE <strong>consistently outperforms a capacity-matched MLP</strong> in both accuracy and training stability on the main U.S. study of 1,027 equities, with <strong>similar gains on an independent Japanese panel</strong>. The pathway is decisive: gate-only routing <strong>improves</strong> accuracy and VaR calibration, while feeding the same regime variables directly to the forecasting input <strong>degrades</strong> both. <strong>Soft routing consistently beats hard routing.</strong></p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Realized volatility</strong> — a backward-looking measure of how much a price actually moved, computed from returns over a window.</li>
+<li><strong>Regime</strong> — a persistent market state (e.g. calm vs. turbulent) with its own statistical behavior.</li>
+<li><strong>Mixture-of-experts (MoE)</strong> — a model with several specialist sub-networks and a gate that weights their contributions per input.</li>
+<li><strong>Gating / routing</strong> — the mechanism that decides how much each expert contributes; soft routing blends, hard routing picks one.</li>
+<li><strong>Residual correction</strong> — a small additive adjustment layered on top of a base prediction rather than replacing it.</li>
+<li><strong>Value-at-Risk (VaR) calibration</strong> — checking whether the model's stated risk thresholds are hit at the promised frequency.</li>
+<li><strong>Walk-forward evaluation</strong> — repeatedly training on past data and testing on the next unseen period to mimic live forecasting.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The finding is narrow but clean and well-controlled: it's about <em>compact</em> neural forecasters, and its lesson — regime info belongs in the router, not the input — may not carry to large models with more capacity to absorb noisy signals. Gains are reported against a matched MLP rather than the full zoo of GARCH-family and tree-based volatility baselines practitioners actually use, so it's a persuasive design principle more than a declared state-of-the-art.</p>
+<h3>Bottom Line</h3>
+<p>For volatility forecasting, regime information is a steering wheel, not fuel — use it to route among experts, and keep it out of the prediction itself.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
