@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 19, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 19, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> COS-TT-CHF: A Tensor-Train Characteristic-Function COS Method for Multi-Asset Option Pricing</h2>
+  <p class="meta">Lucas Arenstein, Michael Kastoryano<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-18 &middot; <a href="http://arxiv.org/abs/2608.17636v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.17636v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Pricing an option on thirty stocks at once by squashing an impossibly large lookup table into a short "train" of tiny ones, without losing accuracy.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Some options don't pay off based on one stock but on a whole <em>basket</em> — say the average of thirty tech stocks, or whichever of them ends up highest ("best-of") or lowest ("worst-of"). Banks sell these constantly. To put a fair price on one, you have to account for every possible way those thirty prices could jointly move by the option's expiry: all of them up together, half up half down, and so on. There is a wonderfully fast tool for doing this when you have <em>one</em> asset, called the COS method — it approximates the bell-curve-ish distribution of future prices with a short sum of cosine waves and reads the answer off almost instantly. The trouble is that when you extend it to many assets, it builds a grid of numbers with one axis per asset. Two assets, a modest grid. Thirty assets, and the grid has (roughly) a hundred points along each of thirty axes — that's 100 multiplied by itself thirty times, more numbers than atoms in a room. Nobody can store or compute that. This is the famous "curse of dimensionality," and it is why high-dimensional pricing is genuinely hard.</p>
+<p><strong>The idea.</strong> Their trick is to notice that this monstrous grid, while enormous, is not <em>random</em> — it has smooth, repetitive structure, because the underlying price models are well-behaved. So instead of storing the whole thing, they approximate it as a <strong>tensor-train</strong>: picture the giant grid squeezed into a chain of small cars, like a freight train. Each car is a modest little block, and to recover any single entry of the original monster you just multiply the cars along the train in order. If the grid is "low rank" — meaning its structure really is repetitive — a short train reproduces it almost perfectly while storing a rounding-error's worth of the original data. They build the train cheaply using a sampling procedure (TT-cross) that peeks at only a handful of the grid's entries and infers the rest, the way you might reconstruct a smooth landscape from a few survey stakes.</p>
+<p><strong>What they found.</strong> Once built, the compressed model prices baskets and best-of/worst-of options fast, and even spits out risk sensitivities (how the price moves if a stock or its volatility nudges). It scales to thirty assets under a Black–Scholes-style model and twenty under jumpier models — territory where the naive grid is hopeless. It beats direct grid-COS once you pass four assets, and beats a good Monte-Carlo (random-sampling) benchmark starting at just two.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider $d$ assets with log-returns $x = (x_1,\dots,x_d) \in \mathbb{R}^d$ under a model whose <strong>characteristic function</strong> $\varphi(u) = \mathbb{E}[e^{i u \cdot x}]$ is known in closed form — this holds for Lévy models (VG, NIG) and affine models (Heston). The COS method approximates the risk-neutral density on a truncated box $[a,b]^d$ by a multivariate Fourier-cosine series and writes the option price as
+$$ V \approx e^{-rT} \sum_{k_1=0}^{N-1}\!\cdots\!\sum_{k_d=0}^{N-1} A_{k_1\dots k_d}\, U_{k_1\dots k_d}, $$
+where $A_{k_1\dots k_d}$ are density (cosine) coefficients built from $\operatorname{Re}\varphi$ evaluated on a frequency grid, $U_{k_1\dots k_d}$ are the payoff's cosine coefficients, $r$ is the risk-free rate, $T$ maturity, and $N$ the number of cosine terms per axis. The coefficient array $A$ has $N^d$ entries — the exponential blow-up.</p>
+<p><strong>The key idea in symbols.</strong> They approximate $A$ by a <strong>tensor-train (TT)</strong> decomposition,
+$$ A_{k_1 k_2 \dots k_d} \approx G^{(1)}_{k_1}\, G^{(2)}_{k_2}\, \cdots\, G^{(d)}_{k_d}, $$
+where each <strong>core</strong> $G^{(m)}$ is a small array of shape $r_{m-1}\times N\times r_m$; fixing the index $k_m$ turns $G^{(m)}_{k_m}$ into an $r_{m-1}\times r_m$ matrix, and the product of these matrices along the chain returns one entry. The numbers $r_m$ are the <strong>TT-ranks</strong>. Storage drops from $N^d$ to about $d\,N\,r^2$ — linear in the number of assets instead of exponential.</p>
+<p><strong>The method.</strong> The cores are fitted by <strong>TT-cross</strong> (cross / skeleton approximation), which adaptively samples a small set of fibers of $A$ and solves for cores that interpolate them — no need to ever form the full tensor. Contracting the fitted train against the payoff coefficients $U$ (also kept compressed) yields the price; differentiating the same contraction gives component Delta and Vega essentially for free.</p>
+<p><strong>Results with numbers.</strong> Against direct COS there is a crossover between $d=2$ and $d=4$ (TT wins beyond it); TT beats a tensor-Fourier min-option benchmark from $d=3$ on, and beats a randomized-Sobol quasi-Monte-Carlo common-Heston reference already at $d=2$. The tests reach $d=30$ for geometric Brownian motion and $d=20$ for VG, NIG, and common-Heston families, with accuracy, TT-rank, and runtime diagnostics reported throughout.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Characteristic function</strong> — the Fourier transform of a random variable's distribution; knowing it is as good as knowing the distribution.</li>
+<li><strong>COS method</strong> — a pricing technique that expands the future-price density in cosine waves so the option value becomes a quick weighted sum.</li>
+<li><strong>Curse of dimensionality</strong> — the exponential explosion of work as you add dimensions (here, assets).</li>
+<li><strong>Tensor-train</strong> — a way of writing a huge multi-index array as a chain of small blocks multiplied in sequence.</li>
+<li><strong>TT-cross</strong> — an algorithm that builds a tensor-train by sampling only a few entries of the full array.</li>
+<li><strong>Greeks (Delta/Vega)</strong> — an option's sensitivity to the underlying price (Delta) and to volatility (Vega).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The method shines only when the coefficient tensor is genuinely low-rank; strongly non-linear payoffs or heavy dependence can inflate the ranks and erase the savings, and the paper's own rank diagnostics matter here. It also assumes a known characteristic function, so it inherits whatever calibration error the underlying Lévy/affine model carries. For a desk already pricing European baskets under such models, though, this is a plausibly deployable accelerator rather than a research curiosity.</p>
+<h3>Bottom Line</h3>
+<p>When the pricing table is too big to hold, don't shrink the problem — compress the table into a train and ride it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Rough Volatility Across Assets</h2>
+  <p class="meta">Saad Mouti<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-17 &middot; <a href="http://arxiv.org/abs/2608.16749v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.16749v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Market volatility jitters far more erratically than the smooth randomness textbooks assume — and this paper shows it does so in almost every market on Earth, then measures exactly how much.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> "Volatility" is how violently a price swings around. It matters enormously: option prices, margin requirements, and risk limits all depend on how volatility itself behaves over time. For decades the standard assumption was that volatility wanders smoothly, like a slow tide. Then researchers noticed the tide is actually a jagged, spiky thing — "rough" — and that modeling this roughness gives strikingly better option prices. But most evidence came from a handful of equity indices. Does roughness hold for individual stocks? For interest rates, currencies, oil, cattle? Nobody had measured it consistently across the whole financial zoo with one clean yardstick. That is what this paper does.</p>
+<p><strong>The idea.</strong> Roughness is captured by a single number, the <strong>Hurst exponent</strong> $H$, between 0 and 1. Smooth ordinary randomness (Brownian motion) has $H = 0.5$; smaller $H$ means rougher, jaggier paths. The author estimates $H$ two ways: from <strong>realized volatility</strong> (measured directly from high-frequency price data) and, where possible, from <strong>option-implied</strong> volatility (backed out of option prices). Crucially, they also catch a subtle trap: volatility tends to <em>revert</em> toward a normal level, and that pull can masquerade as roughness and bias the estimate — so they derive a formula that quantifies and removes the contamination.</p>
+<p><strong>What they found.</strong> Volatility is rough <em>everywhere</em>. Median Hurst estimates: about 0.05 for livestock, 0.07–0.10 for rates, FX, agriculture, energy and metals, 0.13 for single stocks, and 0.20 for equity indices — all far below the smooth 0.5. For equity indices the option-implied estimate (0.21–0.28) roughly matches the realized one, a nice consistency check. But for rates and FX the implied approach collapses (the skew regression has essentially zero explanatory power) even though realized volatility is plainly rough — a warning that the two lenses don't always agree. The paper closes with a candid "failure taxonomy" of where rough-volatility methods work and where they don't.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model the log of instantaneous (or realized) volatility as a fractional process. In the fractional Ornstein–Uhlenbeck (fOU) case,
+$$ d\log\sigma_t = -\kappa\,(\log\sigma_t - m)\,dt + \nu\, dW^H_t, $$
+where $\sigma_t$ is volatility, $\kappa$ the mean-reversion speed, $m$ the long-run log-level, $\nu$ the volatility-of-volatility, and $W^H_t$ a <strong>fractional Brownian motion</strong> with Hurst parameter $H$. The defining property of $W^H$ is that its increments scale as a power of the time step:
+$$ \mathbb{E}\big[\,|\log\sigma_{t+\Delta} - \log\sigma_t|^2\,\big] \;\propto\; \Delta^{2H}. $$</p>
+<p><strong>The key equations.</strong> Estimate $H$ from the slope of $\log m(\Delta)$ against $\log\Delta$, where $m(\Delta)$ is the second moment of log-vol increments — an ideal fractional path gives slope exactly $2H$. The paper's contamination result says mean reversion bends this slope: the local slope departs from $2H$ by
+$$ (1-H)\,\Gamma(2H+1)\,(\kappa\Delta)^{\,2-2H}, $$
+for every $H\in(0,1)$, where $\Gamma$ is the gamma function and $\kappa\Delta$ the mean-reversion pull over the step. On the option side, rough volatility predicts an at-the-money skew term structure that decays as a power of maturity, $\psi(\tau) \propto \tau^{\,H-1/2}$, with $\tau$ the option maturity — the basis for the implied-$H$ regressions.</p>
+<p><strong>The method.</strong> Realized volatility is computed from high-frequency returns; $H$ is read off the log–log increment-moment regression, then corrected for the additive measurement noise in log realized volatility and for the mean-reversion bias above. Implied $H$ comes from regressing the ATM skew against maturity.</p>
+<p><strong>Results with numbers.</strong> Across 3,926 US equities, 34 CME futures roots, plus rates, FX and commodities, 2010–2025: class-median $H$ ranges from 0.05 (livestock) to 0.20 (equity indices). Implied estimates for indices land at 0.21–0.28, just above their realized $H$; for rates and FX the ATM-skew regression fails with $R^2 \approx 0$. The noise correction nudged $H$ up only slightly — nowhere near the Brownian value 0.5.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Volatility</strong> — the size of a price's random fluctuations, usually an annualized standard deviation.</li>
+<li><strong>Realized volatility</strong> — volatility measured directly from many intraday price moves, rather than inferred from options.</li>
+<li><strong>Hurst exponent ($H$)</strong> — a number in (0,1) grading path roughness; below 0.5 is rough, 0.5 is ordinary Brownian.</li>
+<li><strong>Fractional Brownian motion</strong> — a generalization of Brownian motion whose increments are correlated, tunable via $H$.</li>
+<li><strong>Mean reversion</strong> — the tendency of a quantity to be pulled back toward a typical level.</li>
+<li><strong>ATM skew</strong> — how steeply option-implied volatility changes with strike near the current price, as a function of maturity.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Measuring $H$ is notoriously sensitive to microstructure noise, sampling frequency, and exactly this mean-reversion confound — the author is admirably upfront that estimates cluster low partly because of estimator bias, not only true roughness. The realized-vs-implied disagreement for rates and FX is a real crack: if the two disagree, which one should a trader price off? Useful as a rigorous empirical map of where the rough paradigm holds, less so as a turnkey pricing recipe outside equities.</p>
+<h3>Bottom Line</h3>
+<p>Across nearly every market, volatility is not a smooth tide but a jagged coastline — and now we have the ruler that says just how jagged.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> When ratios fall: A dynamic approach to contingent convertibles</h2>
+  <p class="meta">Li Chen, Liang Wang, Weixuan Xia<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-08-17 &middot; <a href="http://arxiv.org/abs/2608.16842v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.16842v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A pricing model for the strange bank bonds that can be wiped out overnight — built around the bank's regulatory capital ratio and the sudden jumps that actually sink banks.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> After the 2008 crisis, regulators wanted banks to have a shock absorber that turns into a rescue <em>automatically</em>. Enter the <strong>contingent convertible (CoCo)</strong> bond: it pays interest like a normal bond, but if the bank gets into trouble it either converts into shares or is simply written to zero — the bondholders take the hit instead of taxpayers. The trigger is the bank's <strong>CET1 ratio</strong>, a regulatory gauge of how much loss-absorbing capital it holds. Pricing these is genuinely awkward for three reasons. First, the trigger is a ratio that regulators report only quarterly, while the market trades every second. Second, regulators have <em>discretion</em> — they can pull the trigger even when the ratio hasn't formally breached, exactly as happened when Credit Suisse's CoCos were wiped out in 2023. Third, trouble arrives in jumps, not gentle drifts.</p>
+<p><strong>The idea.</strong> The authors model the CET1 ratio and the bank's share price <em>together</em>, as two quantities that drift, wobble, and occasionally <em>jump</em> — and whose jumps are correlated, because bad news hits capital and stock at the same instant. On top of the mechanical "ratio falls below the line" trigger, they add a discretionary trigger — a random chance that regulators act early — capturing the Credit Suisse-style surprise. They also allow flexible "power" conversion formulas (how many shares you get, or how much is written down) and a clever bridge between quarterly capital figures and daily market data. The reward for all this structure: they still get <strong>semi-closed-form</strong> price formulas, so you can compute prices and hedges quickly rather than by brute-force simulation.</p>
+<p><strong>What they found.</strong> Tested on five real episodes from 2009 to 2023 — including a detailed post-mortem of the Credit Suisse collapse — the model prices and hedges CoCos noticeably better than existing approaches, and its data-adaptive design even supports short-term predictions.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $C_t$ be the bank's CET1 ratio and $S_t$ its share price. Both follow a <strong>bivariate jump-diffusion</strong> under the risk-neutral measure $\mathbb{Q}$:
+$$ \frac{dC_t}{C_{t^-}} = \mu_C\,dt + \sigma_C\,dW^C_t + dJ^C_t, \qquad \frac{dS_t}{S_{t^-}} = \mu_S\,dt + \sigma_S\,dW^S_t + dJ^S_t, $$
+where $\mu_C,\mu_S$ are drifts, $\sigma_C,\sigma_S$ diffusive volatilities, $W^C_t, W^S_t$ correlated Brownian motions with $d\langle W^C,W^S\rangle_t = \rho\,dt$, and $J^C_t, J^S_t$ compound-Poisson <strong>jump</strong> processes sharing a common arrival intensity $\lambda$ so their jumps are correlated. The notation $C_{t^-}$ means the value an instant before a possible jump.</p>
+<p><strong>The trigger and payoff.</strong> Conversion happens at the stopping time
+$$ \tau = \inf\{\,t \ge 0 : C_t \le c^\star \text{ or a discretionary event fires}\,\}, $$
+where $c^\star$ is the contractual trigger level and the discretionary part is governed by a <strong>hazard rate</strong> $h(C_t)$ — an instantaneous probability of forced conversion that rises as capital weakens. The CoCo value is the risk-neutral expectation of discounted cash flows: coupons paid up to $\tau$, plus the conversion or write-down payoff at $\tau$,
+$$ P_0 = \mathbb{E}^{\mathbb{Q}}\!\left[ \int_0^{\tau} e^{-r t}\, k\, dt \;+\; e^{-r\tau}\, \Phi(S_\tau, C_\tau)\,\mathbf{1}_{\{\tau \le T\}} \right], $$
+with $r$ the discount rate, $k$ the coupon, $T$ maturity, and $\Phi$ the payoff — a <strong>power conversion</strong> scheme $\Phi = \alpha S_\tau^{\,\beta}$ (write-down being the limiting case that pays a fixed recovery).</p>
+<p><strong>The method.</strong> Because the characteristic function of the jump-diffusion is available, the authors evaluate the expectation via Fourier/Laplace-transform techniques, yielding <strong>semi-closed-form</strong> formulas for both write-down and equity-convertible CoCos, and closed sensitivities for hedging.</p>
+<p><strong>Results with numbers.</strong> Across five case studies (2009–2023), including Credit Suisse 2023, the model reports materially improved pricing accuracy and hedging performance versus benchmark CoCo models, and demonstrates data-adaptive short-horizon prediction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CoCo bond</strong> — a bank bond that converts to equity or is written down when the bank's capital falls below a trigger.</li>
+<li><strong>CET1 ratio</strong> — Common Equity Tier 1 capital divided by risk-weighted assets; a regulator's core measure of bank solvency.</li>
+<li><strong>Jump-diffusion</strong> — a random process combining continuous wiggles with occasional sudden jumps.</li>
+<li><strong>Hazard rate</strong> — the instantaneous probability per unit time that an event (here, forced conversion) occurs.</li>
+<li><strong>Risk-neutral measure ($\mathbb{Q}$)</strong> — the adjusted probability world in which discounted asset prices are fair, used for pricing.</li>
+<li><strong>Semi-closed form</strong> — a formula that is explicit up to a simple integral or transform inversion, not full simulation.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The discretionary trigger is the honest heart of the paper and also its soft spot: regulator behavior in a crisis is close to unmodellable, and a hazard-rate stand-in is a reasonable but ultimately fitted guess — the Credit Suisse write-down was a political-legal event as much as a financial one. Calibrating correlated jumps from sparse quarterly capital data is delicate, and out-of-sample the model rests on parameters that a fresh crisis could invalidate. Still, for a desk holding or hedging CoCos, this is a meaningfully richer tool than ratio-blind equity-derivative proxies.</p>
+<h3>Bottom Line</h3>
+<p>To price a bond that can vanish overnight, model the ratio that decides its fate — and the jumps and regulators that pull the trigger.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Pricing Temperature-Index Insurance under Long Memory and Stochastic Time Change</h2>
+  <p class="meta">Nader Karimi, Foad Shokrollahi<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-15 &middot; <a href="http://arxiv.org/abs/2608.15097v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.15097v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Pricing weather insurance when hot spells stubbornly persist, by running a jagged random temperature process on a second, randomly ticking clock.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A farmer, a ski resort, or an energy utility can buy <strong>weather-index insurance</strong> that pays out based on cumulative temperature over a season — for example, total "degree-days" above a threshold. To price such a contract fairly you must model how temperature accumulates, and temperature has an awkward habit: it has <strong>long memory</strong>. A hot week makes the next week more likely to be hot too; deviations from normal fade only slowly. Ordinary random-walk models forget the past almost immediately and so badly misprice this persistence. On top of that, real payouts are usually <strong>capped</strong> (the insurer limits its maximum loss), which makes the math messier still.</p>
+<p><strong>The idea.</strong> The authors build temperature anomalies from <strong>fractional Brownian motion</strong> — a random process specifically engineered to have long memory, tuned by a Hurst parameter $H$. But they add a twist: instead of running it on ordinary calendar time, they run it on an <strong>operational clock</strong> that itself ticks at a random, fluctuating speed, driven by a mean-reverting positive process (a CIR process). Think of a stopwatch whose hand sometimes races and sometimes crawls; the temperature process advances according to that erratic stopwatch, injecting extra realistic variability without destroying the long-memory structure. The elegant payoff of this construction: <em>conditional on the clock's path</em>, the accumulated temperature index becomes an ordinary bell curve, which means the insurance premium has an exact formula — and you only have to simulate the simple clock, never the expensive fractional paths.</p>
+<p><strong>What they found.</strong> Using Chicago temperature data, they show that both long memory and the random clock materially move premiums compared with standard Brownian and plain fractional-Brownian benchmarks, and that the Hurst parameter is a major driver of how uncertain the valuation is.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Daily temperature anomalies are increments of a <strong>fractional Brownian motion</strong> $B^H$ evaluated at a random operational time. Let
+$$ \Theta_t = \int_0^t Y_s\, ds, \qquad dY_s = \kappa(m - Y_s)\,ds + \eta\sqrt{Y_s}\; dW_s, $$
+where $Y_s$ is a stationary, normalized <strong>Cox–Ingersoll–Ross (CIR)</strong> process (the random clock speed), $\kappa$ its mean-reversion speed, $m$ its long-run mean, $\eta$ its volatility, and $W_s$ a Brownian motion. The temperature anomaly is $\theta_t = B^H_{\Theta_t}$, so the model is a <strong>time-changed</strong> fractional Brownian motion. The clock change preserves both stationarity and the long-memory covariance decay of the increments while adding variability through the random $\Theta_t$.</p>
+<p><strong>The key equations.</strong> The cumulative index over $[0,T]$ is $I_T = \int_0^T \theta_t\, dt$ (or a discrete degree-day sum), and the capped insurance loss is $L = \min\{(I_T - K)^+, \,\bar{L}\}$ with strike $K$ and cap $\bar{L}$. The price uses the <strong>entropic (exponential) premium</strong>
+$$ \pi = \frac{1}{\gamma}\,\log \mathbb{E}\!\left[e^{\gamma L}\right], \qquad \gamma > 0, $$
+where $\gamma$ is the insurer's risk-aversion parameter. The crucial simplification: <strong>conditional on the clock path</strong> $\{\Theta_t\}$, the index $I_T$ is Gaussian, so the inner expectation collapses to an exact exponential kernel — a closed formula in the conditional mean and variance — and existence of $\pi$ is guaranteed for every $\gamma>0$ under the cap.</p>
+<p><strong>The method.</strong> Valuation reduces to an <strong>outer Monte Carlo</strong> over the accumulated CIR clock: simulate the low-dimensional $\Theta_t$, plug each realization into the closed conditional-Gaussian premium, and average. This sidesteps simulating fractional-Brownian paths and building large covariance matrices entirely. The authors also prove the premium is monotone increasing in risk aversion $\gamma$ and in conditional volatility.</p>
+<p><strong>Results with numbers.</strong> On Chicago temperature data, incorporating long memory and the stochastic clock shifts premiums materially relative to Brownian and fractional-Brownian benchmarks, with the Hurst parameter $H$ identified as a leading source of valuation uncertainty.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Fractional Brownian motion</strong> — a random process with correlated increments, giving it tunable long memory via the Hurst parameter.</li>
+<li><strong>Hurst parameter ($H$)</strong> — the dial (0 to 1) controlling how persistent the process's memory is.</li>
+<li><strong>Long memory</strong> — statistical persistence in which past deviations influence the future over long horizons.</li>
+<li><strong>CIR process</strong> — a mean-reverting, always-positive random process, here used as a fluctuating clock speed.</li>
+<li><strong>Stochastic time change</strong> — running a process on a randomly ticking clock instead of calendar time.</li>
+<li><strong>Entropic premium</strong> — an insurance price defined through an exponential of the loss, encoding risk aversion.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framework is mathematically clean, but it leans on strong modeling choices — Gaussian anomalies, a CIR clock, an entropic (exponential-utility) pricing rule — none of which the market actually quotes, so calibrating $\gamma$ and $H$ from data is where the real fight lies and the paper's single-city illustration only gestures at it. Weather-derivative markets are also thin and basis-risk-laden, so a "fair" premium may not be a tradeable one. As a tractable way to bake persistence into climate-index pricing, though, it is a genuine step up from memoryless benchmarks.</p>
+<h3>Bottom Line</h3>
+<p>When heat waves refuse to forget, price the insurance on a clock that remembers too.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> A generic nonparametric value-at-risk estimator for high dimensions</h2>
+  <p class="meta">Siyuan Sun<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-18 &middot; <a href="http://arxiv.org/abs/2608.17481v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.17481v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A way to estimate a big portfolio's worst-case daily loss that stays honest even with hundreds of positions, by aiming straight at the rare corner where everything loses at once.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every trading desk needs a number for "how bad could tomorrow be?" The standard answer is <strong>Value-at-Risk (VaR)</strong>: the loss level you expect to breach only 1% of days, say. It sounds simple, but estimating it for a portfolio of hundreds of positions is treacherous for two deep reasons the author names plainly. First, all forecasts of the future are built from the past, yet the past is never exactly the future — so any method that over-fits history will fail live. Second, VaR is really about one tiny, specific region of an enormous space: the corner where <em>all</em> your bets lose money <em>simultaneously</em>. In a portfolio of 500 positions, that joint disaster corner is a vanishingly small slice of all possible outcomes, and the popular shortcut of assuming a tidy bell-shaped joint distribution badly underestimates how often everything sinks together.</p>
+<p><strong>The idea.</strong> Rather than impose a distribution and hope, the author builds a <strong>nonparametric</strong> estimator — one that makes no assumption about the shape of returns — using only mathematical operations that are proven <em>not</em> to lose accuracy as the number of positions grows. Historical data are fed in directly, keeping all the tangled relationships between positions intact, without the smoothing or factor-reduction tricks that usually distort the tail. The whole thing is engineered so that adding more assets doesn't silently degrade the estimate, which is the failure mode of most high-dimensional risk models.</p>
+<p><strong>What they found.</strong> Tested honestly — blind to the future — on an ensemble of 500 randomly built portfolios spanning 49 distinct liquid futures (equity indices, government bonds, rates, energy, metals, livestock, agriculture, softs, even VIX), the method's 99% daily VaR was breached almost exactly 1% of the time, as it should be. The median portfolio's exceedance rate was $1.0\pm0.1\%$; two-thirds of portfolios fell within $1.0\pm0.3\%$ and 95% within $1.0\pm0.5\%$. That tightness across a wide, randomized set is the headline: the estimator is <em>calibrated</em>, not just accurate on average.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A portfolio holds weights $w = (w_1,\dots,w_d)$ across $d$ instruments with (random) returns $r = (r_1,\dots,r_d)$. The portfolio loss is $L = -\,w^\top r = -\sum_{i=1}^d w_i r_i$. For a confidence level $\alpha$ (e.g. $\alpha = 0.99$), Value-at-Risk and its companion Conditional VaR are
+$$ \mathrm{VaR}_\alpha = \inf\{\ell \in \mathbb{R} : \mathbb{P}(L > \ell) \le 1-\alpha\}, \qquad \mathrm{CVaR}_\alpha = \mathbb{E}\!\left[\,L \,\middle|\, L > \mathrm{VaR}_\alpha\right], $$
+where $\ell$ is a candidate loss threshold, $\mathbb{P}(L>\ell)$ the probability of exceeding it, and $\mathrm{CVaR}_\alpha$ the average loss <em>given</em> a breach. The estimation target is the upper-tail quantile of the scalar $L$, but $L$ inherits the full joint dependence of the $d$-dimensional return vector $r$ — the "corner where all bets lose" is the tail of that joint law.</p>
+<p><strong>The method.</strong> The estimator is <strong>nonparametric and historical</strong>: it does not fit a parametric copula or Gaussian to $r$, but combines the empirical data through operations chosen so their accuracy is dimension-robust (does not decay as $d$ grows). The estimate is then judged by <strong>backtesting</strong> — counting how often realized loss exceeds the predicted $\mathrm{VaR}_\alpha$, which for a well-calibrated 99% estimate should occur on a fraction $1-\alpha = 1\%$ of days, strictly out-of-sample.</p>
+<p><strong>Results with numbers.</strong> Across 500 random portfolios over 49 liquid futures, all evaluated blind to the future: median exceedance rate of the 99% daily VaR is $1.0\pm0.1\%$; 68% of portfolios lie in $1.0\pm0.3\%$; 95% lie in $1.0\pm0.5\%$ — i.e., the empirical breach frequency matches the nominal 1% closely and stably as dimensionality varies.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Value-at-Risk (VaR)</strong> — the loss threshold a portfolio is not expected to exceed except with a small stated probability.</li>
+<li><strong>Conditional VaR (CVaR / expected shortfall)</strong> — the average loss on the bad days when VaR <em>is</em> exceeded.</li>
+<li><strong>Nonparametric</strong> — making no assumption about the mathematical shape of the return distribution.</li>
+<li><strong>Backtesting / exceedance rate</strong> — checking a risk estimate by counting how often actual losses breach it.</li>
+<li><strong>Confidence level ($\alpha$)</strong> — the probability (e.g. 99%) the loss is supposed to stay within VaR.</li>
+<li><strong>Curse of dimensionality</strong> — the way estimation accuracy usually collapses as the number of positions grows.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The results are impressively calibrated, but the abstract keeps the actual estimator under wraps — "methods that strictly do not degrade at high dimensions" is a claim, not a mechanism, so a reader can't yet judge how it achieves dimension-robustness or where it might break. Calibration on liquid futures over a benign-ish window is also the easy case; the real test is a regime shift the history never saw, precisely where nonparametric-from-the-past methods are most exposed. Promising, but needs the full method and a crisis-era stress test before a risk manager should lean on it.</p>
+<h3>Bottom Line</h3>
+<p>Good tail-risk estimation isn't about modeling the whole market — it's about not flinching when you point straight at the corner where everything loses together.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
