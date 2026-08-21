@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 21, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 21, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Deep-MKV-TS: Path-Dependent McKean--Vlasov Control for Financial Time Series Generation</h2>
+  <p class="meta">Samer El Boustany, Théo Basseras, Samy Mekkaoui, Alexandre Alouadi, Yadh Hafsi, Huyên Pham<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-19 &middot; <a href="http://arxiv.org/abs/2608.19394v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.19394v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of throwing away a trusted, interpretable market model and replacing it with a black box, they keep the trusted model and teach a neural network to <em>nudge</em> its randomness so the fake price paths it produces finally behave like real ones.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks, funds, and risk managers constantly need to ask "what if?" — what if the market drops 10%, what if volatility spikes, what if this happens three days after that? To answer, they need lots of plausible <em>fake</em> futures for prices: synthetic scenarios that look and behave like the real market. The classic way is to write down a tidy mathematical model (a formula for how prices wiggle) that you can understand and explain to a regulator. The trouble is those tidy models are too simple. Real markets have memory and mood: a calm week tends to stay calm, a violent day casts a shadow over the days that follow, and volatility today depends on the whole recent <em>path</em>, not just today's price. Simple models miss all of that, so their fake futures are subtly wrong in ways that matter for risk.</p>
+<p><strong>The idea.</strong> The modern temptation is to hand the whole job to a deep neural network that invents scenarios from scratch. But then you've traded a model you understand for a machine nobody can explain — bad when a regulator asks "why?" These authors take a middle path. Start with the interpretable model you already trust. Keep its overall <em>direction</em> (its drift — where prices tend to head) untouched. Then let a neural network make a <strong>small, penalized correction</strong> only to the <em>volatility</em> — the size of the random wiggles — so that specific measurable features of the fake paths (how bunched-up the volatility is, how today's swings relate to last week's) line up with what real data shows. Think of it as keeping your grandmother's trusted recipe and only adjusting the seasoning, with a rule that punishes you for changing it more than necessary. The "McKean–Vlasov" twist is that the correction is allowed to depend not just on where a single path is, but on the <em>statistical distribution</em> of all the paths at once — the model watches the whole crowd of scenarios to decide how each one should move.</p>
+<p><strong>What they found.</strong> On textbook cases where the exact right answer can be computed (a built-in "oracle" to grade against), their method sharply reduces the specific defects of the starting model. In experiments where volatility reacts with a <em>delay</em>, the correction keeps working even far into the future, while training a network directly (from scratch) gets flaky. On real intraday equity-index futures they'd never trained on, the corrected model forecasts better than the reference and matches flexible generative baselines — while staying interpretable. Bonus: portfolios built on its scenarios could safely take on more exposure at the same risk budget.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Prices live on a filtered probability space $(\Omega,\mathcal F,(\mathcal F_t)_{t},\mathbb P)$. The state is a process $X_t$ (log-price and a volatility factor) whose randomness is driven by a Brownian motion $W_t$. The reference (trusted) model has known drift $b$ and volatility $\sigma_{\text{ref}}$. The correction being learned is a control $\alpha$ that lives <em>inside</em> the volatility.</p>
+<p><strong>The key equation(s).</strong> The controlled, path- and law-dependent dynamics take the McKean–Vlasov form
+$$dX_t = b(t,X_t)\,dt + \sigma\big(t, X_{\cdot\wedge t},\, \mathcal L(X_{\cdot\wedge t}),\, \alpha_t\big)\,dW_t,$$
+where $X_t$ is the state, $b$ the preserved reference drift, $\sigma$ the corrected volatility, $X_{\cdot\wedge t}$ the whole <em>path so far</em> (making it path-dependent), $\mathcal L(\cdot)$ the <em>law</em> (probability distribution) of that path — this is the McKean–Vlasov / mean-field ingredient — $\alpha_t$ the neural control, and $W_t$ a Brownian motion. Calibration minimizes a feature-matching objective with a leash on the correction:
+$$\min_{\alpha}\; \sum_{k} \Big( \mathbb E\big[\phi_k(X^{\alpha})\big] - c_k^{\text{data}}\Big)^2 \;+\; \lambda\, \mathbb E\!\int_0^T \|\alpha_t\|^2\,dt,$$
+where $\phi_k$ are chosen path/volatility features (e.g. moments, autocorrelations of squared returns), $c_k^{\text{data}}$ their observed values in real data, $\lambda>0$ the regularization strength, and $T$ the horizon. The penalty $\lambda\,\mathbb E\int\|\alpha_t\|^2dt$ is what keeps the correction small and the model close to its interpretable starting point.</p>
+<p><strong>The method.</strong> They solve this control problem with a <strong>neural, sample-based stochastic maximum principle (SMP)</strong>: the SMP characterizes an optimal control via an adjoint (backward) process, and here the drift/adjoint equations are represented by neural networks and optimized on simulated sample paths — essentially Pontryagin's principle done with Monte-Carlo and gradient descent rather than a grid.</p>
+<p><strong>Results with numbers.</strong> Validated against an exactly computable oracle, and tested on Heston and Heston-mixture models, the method "substantially reduces" path-dependent and volatility deficiencies of the reference. In delayed-volatility tests the correction stays effective as the horizon grows (direct training degrades). On held-out intraday index futures it beats the reference on conditional forecasts and reaches parity with flexible generative and historical baselines, while supporting greater exposure under a fixed drawdown-risk target.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>McKean–Vlasov dynamics</strong> — a stochastic process whose evolution depends on its own probability distribution, not just its current value.</li>
+<li><strong>Path-dependent</strong> — the rule for the next move uses the entire history so far, not only the present state.</li>
+<li><strong>Drift vs. volatility</strong> — drift is the average direction a process tends to move; volatility is the size of its random fluctuations.</li>
+<li><strong>Stochastic maximum principle</strong> — a calculus-of-variations condition (with an adjoint process) that pins down the optimal control of a stochastic system.</li>
+<li><strong>Heston model</strong> — a standard model in which volatility itself is random and mean-reverting, used here as a controllable test bed.</li>
+<li><strong>Feature matching / calibration</strong> — tuning a model so chosen summary statistics of its output equal those measured in real data.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The correction only touches volatility and leans on the reference drift being roughly right — if the trusted model's <em>direction</em> is wrong, this won't rescue it. Everything is validated on simulated oracles and one class of intraday futures; whether the feature set generalizes to messier, regime-switching, cross-asset data is untested. Still, the "improve, don't replace" philosophy is exactly what risk desks that answer to regulators actually want.</p>
+<h3>Bottom Line</h3>
+<p>Keep the model you can explain, and let a neural network quietly fix only its randomness — a scalpel for scenario generation instead of a sledgehammer.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> The Reconfiguration Premium: Co-movement Structure as an Unspanned Dimension of the Variance Risk Premium</h2>
+  <p class="meta">Lucas Carvalho<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-20 &middot; <a href="http://arxiv.org/abs/2608.20020v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.20020v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Investors are paid not for how much stocks move, but for how fast the hidden map of <em>which stocks move together</em> keeps getting redrawn under their feet.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Almost everything in portfolio management rests on knowing which companies move together. Hedges, factor models, and "diversified" portfolios all assume you know the co-movement structure — tech stocks cluster here, energy there, and so on. But that structure is not fixed. Firms drift between groups: a carmaker becomes a tech story, a retailer becomes a logistics story, and when enough firms migrate, the very axes the market uses to organize itself rotate. If you built a hedge assuming an old map, you're exposed when the map changes. The question is: does the market <em>pay</em> you for bearing the risk that the map is being rewritten — and is that a different risk than plain old volatility?</p>
+<p><strong>The idea.</strong> The author invents a way to measure <em>how fast the map is turning</em>, month to month. Picture the market's co-movement structure as a set of directional axes. Each month you get a new set of axes from recent data. You then ask: how much did the axes <em>rotate</em> versus last month? A big rotation means the market is reorganizing; a small one means it's carrying the old structure forward. Crucially, this "pace of reconfiguration" is about <em>turning</em>, not <em>distance</em> — not how far any stock moved, but how quickly the organizing structure itself is being redrawn. The paper then checks whether this turning rate is <em>priced</em>: do investors earn a premium for holding exposure while the map is in flux, separate from what they earn for volatility itself?</p>
+<p><strong>What they found.</strong> A typical month rewrites about a fifth of the structure and carries four-fifths forward — so reconfiguration is real but gradual. And it <em>is</em> priced: the turning rate is strongly linked to the variance risk premium (the extra return for bearing volatility risk), with a statistical strength far beyond ordinary level-based measures. The existing implied-correlation tools capture at most a sliver of it, meaning this is a genuinely <em>new</em>, unspanned dimension of risk. The mechanism is "prepayment": when the map jolts, implied volatility jumps immediately, but actual volatility only shows up two to three quarters later — investors pay up front for turbulence that arrives on a delay. Notably, only the <em>persistent</em> part of reconfiguration is paid for, and it offers no market-timing edge and no crash protection — it's rent on holding exposure over a map still being drawn.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> For each month, take the trailing 12-month correlation matrix of S&amp;P 500 returns and extract its eigenspaces (the directions of common movement). The object of study is the <em>subdominant</em> eigenspace — the block of principal directions below the top market-wide one — of consecutive months, and how much it rotates.</p>
+<p><strong>The key equation(s).</strong> The rotation between two subspaces is measured through the <strong>principal angles</strong> $\theta_1,\dots,\theta_k$ between them, and the reconfiguration rate is their mean squared sine:
+$$R_t = \frac{1}{k}\sum_{i=1}^{k}\sin^2\theta_i,$$
+where $R_t$ is the reconfiguration rate at month $t$, $\theta_i$ the $i$-th principal angle between the subdominant eigenspaces of consecutive 12-month correlation matrices, and $k$ the subspace dimension. When two subspaces coincide, all $\theta_i=0$ and $R_t=0$ (no turning); when they are orthogonal, $\sin^2\theta_i=1$ (maximal turning). A "typical month" has roughly $R_t\approx 0.2$ — a fifth rewritten, four-fifths carried forward. This $R_t$ is then related to the aggregate variance risk premium
+$$\text{VRP}_t = \mathbb E^{\mathbb Q}_t[\text{RV}_{t\to t+\tau}] - \mathbb E^{\mathbb P}_t[\text{RV}_{t\to t+\tau}],$$
+the gap between risk-neutral ($\mathbb Q$) and physical ($\mathbb P$) expected realized variance $\text{RV}$ over horizon $\tau$.</p>
+<p><strong>The method.</strong> Rolling eigendecomposition of correlation matrices to build $R_t$; principal-angle (subspace-distance) computation for the rotation; regression of the variance risk premium on $R_t$ with <strong>simulated-null (Monte-Carlo) significance testing</strong>; and a decomposition of $R_t$ into persistent versus transitory parts to see which is actually priced.</p>
+<p><strong>Results with numbers.</strong> The coupling of $R_t$ to the aggregate variance risk premium reaches $t = 5.40$ (highly significant); no <em>level</em> measure correlates above $0.32$; the implied-correlation surface spans at most $6.7\%$ of it — i.e. it is largely <em>unspanned</em>. Only the persistent component is priced. The prepayment mechanism holds with simulated-null $p<0.03$ at horizons $h=1$–$9$, with realized volatility following the implied jump by two to three quarters. Three pre-registered boundaries hold: no timing alpha, no crash protection, and an inseparable downside version.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Eigenspace / principal directions</strong> — the dominant axes along which a set of correlated returns tend to move together, extracted from the correlation matrix.</li>
+<li><strong>Principal angles</strong> — a set of angles measuring how much one subspace is rotated relative to another; zero means identical, ninety degrees means orthogonal.</li>
+<li><strong>Variance risk premium</strong> — the extra return investors demand for bearing uncertainty about future volatility (implied variance minus expected realized variance).</li>
+<li><strong>Implied correlation</strong> — the level of co-movement the options market is pricing in, backed out from index and single-name option prices.</li>
+<li><strong>Unspanned</strong> — a risk that existing traded instruments cannot replicate or hedge away, so it carries its own premium.</li>
+<li><strong>Risk-neutral ($\mathbb Q$) vs physical ($\mathbb P$)</strong> — pricing probabilities implied by market prices versus the real-world probabilities of outcomes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a single-market, S&amp;P-500 study built on 12-month rolling windows, so the measure is slow and the sample of genuine "reconfigurations" is thin — the pre-registered null boundaries are reassuring but the economic story (prepayment) is inferred, not proven. There's no tradable strategy here (the author is explicit: no timing alpha, no crash hedge), so a practitioner gets a risk <em>diagnostic</em>, not a money machine. Still, as a new, nearly-unspanned axis of variance risk, it's a genuinely fresh idea.</p>
+<h3>Bottom Line</h3>
+<p>The market charges rent for holding positions while the map of who-moves-with-whom is still being redrawn — and that rent is invisible to every volatility gauge we already had.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> When to Sell an Asset? - A Distribution Builder Approach</h2>
+  <p class="meta">Peter Carr, Stephan Sturm<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-08-19 &middot; <a href="http://arxiv.org/abs/2608.18783v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.18783v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of asking an investor the impossible question "how risk-averse are you?", let them draw the <em>distribution of outcomes</em> they want from selling an asset — then find the selling rule that delivers exactly that picture.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> You own something — a stock, a house, a bar of gold — whose price wanders up and down unpredictably. When should you sell? The honest answer depends on how you feel about risk, and that's the catch. Classical finance says: write down your "utility function" or a "risk-aversion coefficient," a single number capturing your appetite for risk, and out pops the optimal rule. But nobody actually knows their own risk-aversion number. Ask a real person "is your risk aversion 2 or 4?" and you'll get a blank stare. So the whole elegant machinery rests on an input humans can't provide.</p>
+<p><strong>The idea.</strong> Carr and Sturm (Peter Carr was a legendary quant) borrow a clever trick called the <strong>distribution builder</strong>. Instead of asking about your feelings, it asks about <em>results</em>: "Here's a menu of possible payoff distributions you could achieve with your asset; which shape do you like?" You literally pick the <em>distribution of money</em> you want at the end — how likely a big gain, how likely a small one — and the method reverse-engineers the selling strategy that produces it. It's like a restaurant that, instead of asking how hungry you are, shows you plates and lets you point. The mathematical heart of it is a beautiful equivalence: <em>"achieve this target distribution by choosing when to sell"</em> turns out to be exactly the classic problem of <strong>embedding a distribution into a wandering process</strong> — find a stopping time (a rule for when to halt) such that the price, at the moment you stop, has precisely the distribution you asked for.</p>
+<p><strong>What they found.</strong> They show this sell-timing problem is equivalent to a <strong>Skorokhod embedding</strong> — a famous 60-year-old question in probability about how to stop a random process so its value lands on a prescribed distribution. For the standard model of a stock (geometric Brownian motion) and a specific family of target distributions, they work out the tradeoff explicitly: pick a more ambitious payoff distribution and you must accept more risk to reach it — a clean, visible risk–return frontier. The payoff isn't a new number-crunching algorithm; it's a <em>reframing</em> that replaces an un-answerable question ("what's your risk aversion?") with an answerable one ("which outcome distribution do you want?").</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The asset price $S_t$ evolves as a diffusion on a filtered probability space. The investor does not specify a utility $U$; instead they specify a <em>target distribution</em> $\mu$ for the wealth realized at sale. The decision variable is a <strong>stopping time</strong> $\tau$ — a random time, depending only on information available up to then, at which to sell.</p>
+<p><strong>The key equation(s).</strong> The asset follows a geometric Brownian motion
+$$dS_t = \mu_S\, S_t\,dt + \sigma\, S_t\, dW_t,$$
+where $S_t$ is the price, $\mu_S$ the drift (average growth rate), $\sigma$ the volatility, and $W_t$ a Brownian motion. The problem is to find a stopping time $\tau$ such that the value at sale matches the target law:
+$$S_\tau \sim \mu,$$
+meaning the random variable $S_\tau$ (price at the chosen selling moment) has the investor-specified distribution $\mu$. This is precisely the <strong>Skorokhod embedding problem</strong>: given a process and a target distribution $\mu$, construct a stopping time $\tau$ embedding $\mu$ into the process. Because a fair (arbitrage-free) valuation requires a martingale, one works under a measure where the discounted price $\tilde S_t = e^{-rt}S_t$ satisfies $\mathbb E[\tilde S_\tau] = \tilde S_0$ (an optional-stopping / budget constraint), with $r$ the discount rate — this is what ties the <em>cost</em> of a target distribution to its shape and produces the risk–return tradeoff.</p>
+<p><strong>The method.</strong> The tool is the <strong>distribution builder</strong> of Sharpe–Goldstein–Blythe: elicit $\mu$ directly, then solve the associated <strong>Skorokhod embedding</strong> (there is a rich toolkit of explicit embeddings — Azéma–Yor, Root, etc.) to construct the stopping rule $\tau$. For geometric Brownian motion and a chosen parametric family of targets, the embedding is worked out so the tradeoff between the target's ambition and its required risk is explicit.</p>
+<p><strong>Results with numbers.</strong> The paper is theoretical, so the "result" is a structural equivalence plus, for GBM with a specific target family, an <em>observable risk–return tradeoff</em>: more aggressive target distributions demand more risk-bearing to embed. There are no benchmark error rates or Sharpe ratios — the contribution is the mapping (sell-timing $\Leftrightarrow$ Skorokhod embedding) and the elicitation-free framing.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Stopping time</strong> — a rule for when to act that uses only information available up to that moment (no peeking into the future).</li>
+<li><strong>Skorokhod embedding</strong> — the problem of finding a stopping time so that a random process, stopped then, has a prescribed target distribution.</li>
+<li><strong>Geometric Brownian motion</strong> — the standard model in which an asset's percentage returns are random and independent, giving smooth exponential-with-noise price paths.</li>
+<li><strong>Distribution builder</strong> — an elicitation tool that asks investors to choose a desired outcome distribution instead of stating a utility or risk-aversion number.</li>
+<li><strong>Martingale / optional stopping</strong> — a "fair game" process whose expected future value equals its current value; optional stopping extends this to random stopping times and enforces a budget constraint.</li>
+<li><strong>Utility function</strong> — the classical encoding of preferences over uncertain outcomes that the distribution-builder approach deliberately sidesteps.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is elegant theory, not a deployable tool: it assumes geometric Brownian motion (constant drift and volatility), a single asset, no transaction costs or taxes, and that an investor can coherently draw the target distribution they want — a big behavioral "if." Real assets have jumps, changing volatility, and frictions that break the clean embedding. But as a <em>conceptual</em> replacement for the unanswerable risk-aversion question, it's genuinely useful, and the Skorokhod bridge invites decades of existing machinery.</p>
+<h3>Bottom Line</h3>
+<p>Don't tell me your risk aversion — show me the outcome you want, and the math will tell you when to sell.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Behavioral Participating Insurance: Optimal Investment under Probability Distortion and Aspiration Constraints</h2>
+  <p class="meta">Hao Liu, Yang Liu, Zhenyu Shen<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-16 &middot; <a href="http://arxiv.org/abs/2608.15743v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.15743v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When an insurer selling profit-sharing policies actually behaves like a human — overweighting rare jackpots and clinging to guarantees — the math shows it will gamble <em>more</em> with policyholders' money, not less.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many life-insurance and pension products are "participating": you're promised a guaranteed minimum, but you also <em>share</em> in the upside if the insurer's investments do well. The insurer has to decide how aggressively to invest the pooled money. Standard theory assumes the insurer is a cool, rational optimizer. But the guarantees create a kink — below the guarantee the insurer eats losses, above it profits are split — so the effective payoff isn't the smooth, "more-is-better-but-with-diminishing-appetite" shape that classical math needs. And real decision-makers aren't cool optimizers: they overweight small probabilities of big wins (why people buy lottery tickets), they anchor on aspirations ("we must stay solvent"), and they behave differently over long horizons. Ignore all that and your model of insurer behavior is wrong in ways regulators care about.</p>
+<p><strong>The idea.</strong> The authors build the messy human reality straight into the optimization. Three ingredients at once: (1) a <strong>non-concave</strong> effective payoff — the kinked, S-ish shape created by guarantees and surplus-sharing, which breaks standard tools; (2) <strong>probability weighting</strong> — the insurer subjectively distorts the odds, typically overweighting the tails (an "inverse-S" distortion), capturing genuinely behavioral psychology; and (3) <strong>aspiration constraints</strong> — hard "we must hit at least this outcome with at least this probability" rules encoding solvency requirements. Solving this looks hopeless directly, so they use two classic tricks: <strong>quantile formulation</strong> (reframe the problem in terms of the <em>distribution</em> of final wealth rather than the trading strategy itself, which tames the probability weighting) and <strong>concavification</strong> (mathematically "fill in" the non-concave payoff with its smallest concave cap, so the problem becomes solvable — and the fix reveals gambling behavior).</p>
+<p><strong>What they found.</strong> They get <em>explicit closed-form</em> answers — actual formulas — for the best terminal wealth and the trading strategy, in both idealized (complete) and realistic (incomplete) markets. The striking economic finding: probability distortion <strong>weakens "lock-in"</strong> and pushes the insurer toward <em>more</em> risk. Because the insurer overestimates the chance of a big upside, it invests more aggressively than an undistorted, rational insurer would. The framework also produces <strong>time inconsistency</strong> (the plan you'd choose today isn't the one you'd stick to tomorrow) and <strong>regime switches</strong> — sharp changes in optimal strategy as capital crosses regulatory thresholds. This extends the well-known "hope–fear–aspirations" behavioral framework of He and Zhou (2016) to the insurance balance-sheet setting.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A Black–Scholes financial market on $[0,T]$ with wealth process $X_t$; the insurer chooses an investment strategy to maximize a <em>behavioral</em> objective over terminal wealth $X_T$. The payoff is an effective utility $U$ that is <strong>non-concave</strong> (kinked by the guarantee $G$ and a surplus-sharing rule), drawn from the <strong>piecewise HARA (PHARA)</strong> family. Preferences are distorted by a <strong>probability weighting function</strong> $w$, and there is an <strong>aspiration constraint</strong> of the form $\mathbb P(X_T \ge A) \ge p$.</p>
+<p><strong>The key equation(s).</strong> The behavioral objective is a Choquet-type distorted expectation
+$$V = \int_0^\infty w'\big(1-F_{X_T}(x)\big)\, U(x)\, dF_{X_T}(x),$$
+where $U$ is the (non-concave) effective utility, $F_{X_T}$ the distribution function of terminal wealth $X_T$, and $w:[0,1]\to[0,1]$ the probability distortion (inverse-S when the insurer overweights tails) with derivative $w'$. The insurer maximizes $V$ subject to the <strong>budget constraint</strong> and the <strong>aspiration (solvency) constraint</strong>:
+$$\mathbb E[\rho_T\, X_T] \le x_0, \qquad \mathbb P(X_T \ge A) \ge p,$$
+where $\rho_T$ is the pricing kernel / state-price density (the market's discount-and-probability weighting of each future state), $x_0$ the initial capital, $A$ the aspiration (solvency) level, and $p$ the required probability of meeting it.</p>
+<p><strong>The method.</strong> <strong>Quantile formulation</strong> — change the decision variable from the trading strategy to the quantile function of $X_T$, turning a distorted, non-concave stochastic-control problem into a more tractable optimization over distributions. Then <strong>concavification</strong> — replace $U$ by its concave envelope to solve the relaxed problem, and read off the optimal <em>terminal wealth</em> in closed form; the market's martingale/replication structure then recovers the <em>trading strategy</em> that achieves it. They handle both <strong>complete</strong> and <strong>incomplete</strong> Black–Scholes markets and add <strong>asymptotic analysis</strong> near regulatory thresholds.</p>
+<p><strong>Results with numbers.</strong> The paper's "numbers" are structural rather than empirical: explicit closed-form optimal terminal wealth and strategies for the whole PHARA class; a proven direction of effect — inverse-S distortion raises risky investment relative to the undistorted benchmark and weakens lock-in; documented <strong>time inconsistency</strong>; and numerically illustrated <strong>regime switches</strong> in optimal policy as capital and solvency thresholds are crossed.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Participating (profit-sharing) contract</strong> — an insurance policy with a guaranteed floor plus a share of the insurer's investment surplus.</li>
+<li><strong>Non-concave utility</strong> — a payoff whose "more is better" appetite doesn't smoothly diminish; kinks (from guarantees) make standard optimization fail.</li>
+<li><strong>Probability weighting / distortion</strong> — subjectively bending true odds, e.g. overweighting rare large gains, as in prospect theory.</li>
+<li><strong>Quantile formulation</strong> — recasting a portfolio problem in terms of the distribution (quantile function) of final wealth rather than the trading strategy.</li>
+<li><strong>Concavification</strong> — replacing a non-concave function with its smallest concave upper envelope so the optimization becomes solvable.</li>
+<li><strong>Pricing kernel (state-price density)</strong> — the object $\rho_T$ that assigns a present value to a payoff in each future state, encoding both discounting and risk.</li>
+<li><strong>Time inconsistency</strong> — when the plan that is optimal today would be abandoned later, because distorted preferences aren't dynamically consistent.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean closed forms come from a Black–Scholes world — constant volatility, no jumps, frictionless trading, one risky asset — which is a caricature of an insurer's actual multi-decade, multi-asset, regulated balance sheet. And the model <em>describes</em> behavior it doesn't endorse: the headline that distortion makes insurers gamble more is a warning about incentives, not a strategy to copy. A practitioner would use this to understand <em>why</em> guarantees plus behavioral bias plus loose solvency rules can encourage risk-taking — a governance insight more than a trading tool.</p>
+<h3>Bottom Line</h3>
+<p>Bake human psychology and guarantees into the math and a sobering result falls out: profit-sharing insurers with distorted risk perception are wired to bet bigger with your savings.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Concentrated Liquidity Provision: a Reinforcement Learning Perspective</h2>
+  <p class="meta">Georgios Chionas, Charalampos Kleitsikas, Stefanos Leonardos, Leandro Sánchez-Betancourt, Carmine Ventre<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-19 &middot; <a href="http://arxiv.org/abs/2608.19389v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.19389v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>An AI learns, on its own, <em>when</em> and <em>where</em> to park money in a decentralized crypto exchange so it earns fees without getting wiped out by sudden price swings — and its learned rules turn out to be interpretable.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On decentralized exchanges like Uniswap, there are no traditional market makers with quote screens. Instead, ordinary people supply the trading inventory: you deposit two tokens into a pool, traders swap against your deposit, and you collect fees. In the "concentrated liquidity" design (Uniswap v3), you don't spread your money across all possible prices — you choose a <em>price range</em> to concentrate it in, like stocking a lemonade stand only for the price band you expect. Concentrate in the right band and you earn far more fees per dollar. But if the price marches out of your band, you stop earning fees <em>and</em> you get stuck holding the token that just fell — a nasty combination called impermanent loss. So a liquidity provider faces a relentless sequence of decisions: when to rebalance, and which range to move to, as prices wander and rebalancing itself costs gas fees. Getting this wrong can mean catastrophic losses.</p>
+<p><strong>The idea.</strong> The authors treat this as a <strong>stochastic impulse control problem</strong> — a precise mathematical way of describing "mostly do nothing, but occasionally make a discrete jump (rebalance), and each jump costs something." Because that's hard to solve exactly in a realistic, noisy market, they hand it to a <strong>reinforcement learning</strong> agent: an AI that learns by trial and error in a simulated market, trying strategies, seeing its profit-and-loss, and gradually discovering good policies. The prize here isn't just performance — it's <em>interpretability</em>. Rather than an inscrutable black box, they show the learned policy behaves in ways a human trader would recognize and explain.</p>
+<p><strong>What they found.</strong> The trained agent develops rich, sensible, state-dependent behavior: it allocates liquidity according to how <em>mispriced</em> the pool is, how expensive rebalancing is right now, how <em>uncertain</em> the market looks, how much <em>inventory</em> (directional exposure) it's carrying, and even its own risk appetite. The payoff shows up in the shape of the outcome distribution: the agent <strong>compresses the left tail</strong> of profit-and-loss — it specifically avoids the catastrophic blow-ups — and steps back under high uncertainty. Benchmarked against both simple baseline strategies and sophisticated agents from the academic AMM-microstructure literature, the RL agents hold their own, while offering behavior you can actually interpret.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A liquidity provider in a constant-product AMM with concentrated liquidity (Uniswap v3). The pool price $P_t$ evolves stochastically; the provider's <em>position</em> is an interval $[P_\ell, P_u]$ where capital is deployed, plus inventory holdings. Doing nothing lets fees accrue; a <strong>rebalance</strong> is a discrete intervention that resets the interval at a cost. This is the structure of <strong>stochastic impulse control</strong>: a controlled process where interventions are discrete and costly.</p>
+<p><strong>The key equation(s).</strong> The provider maximizes expected risk-adjusted PnL over a sequence of intervention times $\{\tau_i\}$ and new positions $\{\zeta_i\}$:
+$$\sup_{\{\tau_i,\,\zeta_i\}}\; \mathbb E\!\left[ \int_0^T e^{-rt}\, dF_t \;-\; \sum_{i:\,\tau_i\le T} e^{-r\tau_i}\, c(\zeta_i) \right],$$
+where $\tau_i$ are the (stopping) times at which the provider rebalances, $\zeta_i$ the new range/allocation chosen at each, $F_t$ the accumulated trading fees, $r$ a discount rate, $c(\cdot)$ the rebalancing (gas + slippage) cost, and $T$ the horizon. The associated optimality condition is a <strong>quasi-variational inequality (QVI)</strong>: at each state the value function $V$ satisfies
+$$\max\Big\{\, \mathcal L V + \text{(fee flow)},\; \mathcal M V - V \,\Big\} = 0,$$
+where $\mathcal L$ is the generator of the price process (the "keep waiting" operator) and $\mathcal M V(x) = \sup_{\zeta}\{V(x') - c(\zeta)\}$ is the <strong>intervention operator</strong> (the value of rebalancing now, net of cost). The provider waits while $\mathcal L V+\text{fees}=0$ dominates and rebalances when $\mathcal M V - V$ hits zero.</p>
+<p><strong>The method.</strong> Rather than solving the QVI on a grid (which explodes in higher dimensions), they use <strong>reinforcement learning</strong> — the agent learns a policy mapping market state (mispricing, cost, uncertainty, inventory, risk preference) to actions (rebalance-or-wait and which range), optimizing simulated PnL by trial and error, with an emphasis on extracting interpretable decision rules.</p>
+<p><strong>Results with numbers.</strong> The paper reports qualitative-but-quantifiable behavior: learned policies <strong>compress the left tail</strong> of the PnL distribution (fewer catastrophic outcomes) and reduce activity under high uncertainty. The RL agents are benchmarked against baseline and sophisticated AMM-microstructure agents and shown to be competitive; the emphasis is on <em>interpretable</em> state-dependence rather than a single headline Sharpe number.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Automated market maker (AMM)</strong> — a smart contract that lets people trade against a pooled reserve of tokens using a fixed pricing formula, no order book needed.</li>
+<li><strong>Concentrated liquidity</strong> — depositing your capital only within a chosen price range (Uniswap v3) to earn more fees per dollar while it stays in range.</li>
+<li><strong>Impermanent loss</strong> — the loss a liquidity provider suffers when the pool price moves, leaving them holding more of the token that fell.</li>
+<li><strong>Stochastic impulse control</strong> — an optimization where you mostly wait but occasionally make discrete, costly interventions.</li>
+<li><strong>Quasi-variational inequality</strong> — the equation characterizing the optimal wait-or-intervene boundary in impulse-control problems.</li>
+<li><strong>Reinforcement learning</strong> — training an agent to choose actions by rewarding good outcomes and penalizing bad ones through repeated simulated experience.</li>
+<li><strong>Intervention operator</strong> — the mathematical object giving the best achievable value from acting now, net of the cost of acting.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's trained and benchmarked in <em>simulated</em> markets, so the usual caveat bites hard: real Uniswap has adversarial flow, MEV/front-running, gas spikes, and liquidity that reacts to your own moves — none fully captured by a simulator. "Interpretable" here means the learned policy correlates sensibly with state variables, not that it comes with guarantees. Still, framing LP-ing as impulse control and getting an RL agent that provably avoids the catastrophic tail is a concrete, useful step for anyone actually providing DeFi liquidity.</p>
+<h3>Bottom Line</h3>
+<p>Providing liquidity on Uniswap is a wait-or-jump gamble, and a well-trained AI learns to jump for the right, human-readable reasons — mostly by refusing to blow up.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
