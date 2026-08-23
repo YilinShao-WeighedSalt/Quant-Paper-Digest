@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 23, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 23, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Dynamic Portfolio Optimization under CVaR Constraints</h2>
+  <p class="meta">Anran Hu, Silvana M. Pesenti, Xiaofei Shi<br>
+    <span class="cat">math.OC</span> &middot; 2026-08-20 &middot; <a href="http://arxiv.org/abs/2608.20179v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.20179v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you want to promise "my worst-case losses stay bounded" while still trading dynamically, the smartest thing to do is not to de-risk uniformly, but to cut risk after losses and <em>press</em> risk after wins.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you manage money and you make a promise: "In the worst 5% of outcomes a year from now, my average loss won't exceed some line." That kind of tail promise — bound the bad tail, not just the average — is exactly what regulators and cautious clients ask for. The catch is that markets move continuously, so you're not choosing a portfolio once; you're steering it every instant as prices bounce around. How should the steering change when you've already made this tail promise? Naively you'd think "just hold less stock the whole time." This paper shows that's wrong.</p>
+<p><strong>The idea.</strong> The tail-risk measure here is CVaR — Conditional Value-at-Risk — which is just "the average loss in your worst-x% scenarios," a gentler and better-behaved cousin of the more famous Value-at-Risk. The authors rewrite the CVaR promise using a clever trick: instead of one hard constraint, CVaR can be expressed as <em>pick a threshold, then penalize losses beyond it</em>. That threshold becomes a knob you optimize over. Once CVaR is written this way, the hard constrained problem dissolves into a family of easy, unconstrained "just maximize your objective" problems — the kind of steering problem finance has known how to solve since the 1970s (Merton's classic result). You solve the easy ones and search over two numbers (the threshold and a price on the constraint) until the promise is exactly met.</p>
+<p><strong>What they found.</strong> When the tail promise doesn't actually bite, the optimal strategy is just the textbook Merton portfolio — reassuring sanity check. When it <em>does</em> bite, something subtle happens: the investor becomes <strong>state-dependent and asymmetric</strong>. After bad outcomes they pull risk in; after good outcomes they <em>keep or even increase</em> risk as the deadline approaches, because a cushion of gains means the tail promise is no longer in danger. So a tail constraint doesn't produce timid, uniform caution — it produces "duck when you're hurt, lean in when you're ahead." They also show that having risky income you can't trade (a job, an illiquid asset) makes you more conservative, while trading costs shrink both your positions and how fast you adjust them.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Wealth $X_t$ evolves in continuous time as the investor picks a control $\pi_t$ (exposure to risky assets). The objective is to maximize a general convex trading criterion $\mathbb{E}[U(X_T)]$ at horizon $T$, subject to a terminal tail constraint
+$$\mathrm{CVaR}_\alpha(L) \le c,$$
+where $L = -X_T$ is the terminal loss, $\alpha$ the tail level (e.g. 5%), and $c$ the loss budget.</p>
+<p><strong>The key trick — Rockafellar–Uryasev representation.</strong> CVaR admits the variational form
+$$\mathrm{CVaR}_\alpha(L) = \min_{z\in\mathbb{R}}\Big\{ z + \tfrac{1}{\alpha}\,\mathbb{E}[(L-z)^+] \Big\},$$
+where $z$ is an auxiliary threshold (it turns out to equal Value-at-Risk at the optimum) and $(L-z)^+ = \max(L-z,0)$ is the loss beyond the threshold. This linearizes the awkward tail functional into an expectation.</p>
+<p><strong>Strong duality.</strong> Introducing a Lagrange multiplier $\lambda \ge 0$ for the constraint, the problem becomes
+$$\sup_{\pi}\ \inf_{\lambda\ge 0,\, z}\ \mathbb{E}\!\left[U(X_T) - \lambda\Big(z + \tfrac{1}{\alpha}(L-z)^+ - c\Big)\right].$$
+The paper proves an optimal $\pi^\*$ exists and that <strong>strong duality holds without market completeness</strong> — you can swap the sup and inf even when not every payoff is replicable, which is where classical duality usually breaks.</p>
+<p><strong>The method.</strong> For fixed $(z,\lambda)$ the inner problem is a <em>standard unconstrained stochastic control problem</em>, solved via the Hamilton–Jacobi–Bellman (HJB) equation as in Merton. The outer problem is a two-dimensional root-find over the threshold $z$ and multiplier $\lambda$, done with a <strong>nested bisection–golden-search</strong> scheme. They prove the iterates converge to the true optimal control as iterations $\to\infty$.</p>
+<p><strong>Results.</strong> Numerically, when the constraint is slack the solution recovers the Merton policy exactly. When binding, the optimal $\pi^\*_t$ becomes a function of the current wealth state: risky exposure falls after adverse paths and is preserved or increased near maturity after favorable paths — an <em>asymmetric</em> reallocation, not uniform de-risking. Untraded endowment risk amplifies the conservative tilt; price impact (trading cost) lowers target positions and slows adjustment speed.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CVaR (Conditional Value-at-Risk)</strong> — the average loss you suffer in your worst $\alpha$-fraction of scenarios; a coherent, convex tail-risk measure.</li>
+<li><strong>Merton problem</strong> — the classic continuous-time result for how much wealth to hold in a risky asset to maximize expected utility, with a constant optimal fraction.</li>
+<li><strong>Strong duality</strong> — the property that a constrained max equals its Lagrangian min, so you can solve the easier dual instead of the primal.</li>
+<li><strong>HJB equation</strong> — the partial differential equation whose solution is the value function of a continuous-time optimal-control problem.</li>
+<li><strong>Market completeness</strong> — the condition that every payoff can be replicated by trading; when it fails, standard duality arguments usually need repair, which this paper provides.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The state-dependent "duck-when-hurt, lean-in-when-ahead" behavior is economically believable and the duality result is genuinely useful because it survives incomplete markets. But the guarantees are asymptotic (convergence as iterations $\to\infty$), the numerics live in stylized low-dimensional models, and a <em>terminal-date</em> CVaR promise is a somewhat artificial object — real mandates monitor risk continuously, not just at one horizon. A practitioner would treat this as insight into the shape of the optimal policy more than a plug-in trading engine.</p>
+<h3>Bottom Line</h3>
+<p>A tail-risk promise doesn't make you uniformly cautious — it makes you cautious after losses and bold after gains, and this paper proves it and computes it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Entropic Value-at-Risk portfolio optimization for tempered stable Lévy processes</h2>
+  <p class="meta">Jaehyung Choi<br>
+    <span class="cat">q-fin.PM</span> &middot; 2026-08-18 &middot; <a href="http://arxiv.org/abs/2608.18022v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.18022v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>By modeling asset returns with genuinely fat-tailed "tempered stable" jumps and pricing risk with the crash-sensitive Entropic Value-at-Risk, you can build portfolios that beat their standard counterparts on realized Sharpe ratio.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Real financial returns are not the gentle bell curve textbooks assume. Big crashes happen far more often than a normal distribution predicts — the tails are "fat." If your risk model quietly assumes thin tails, you will systematically underestimate how badly a portfolio can blow up, and you'll build portfolios that look safe until they aren't. Anyone allocating across, say, a dozen sector funds needs a risk number that actually respects rare disasters.</p>
+<p><strong>The idea.</strong> Two upgrades. First, replace the normal distribution with a <strong>tempered stable Lévy</strong> model. "Lévy" means returns can jump, not just drift smoothly; "stable" gives you truly heavy tails; "tempered" softens the very-far tail just enough that the math stays finite and moments exist. It's the fat middle-ground between "everything is normal" and "tails so wild nothing is computable." Second, measure risk with <strong>Entropic Value-at-Risk (EVaR)</strong> instead of the usual CVaR. EVaR is a tighter, more conservative tail measure built from the moment-generating function — think of it as a smooth upper bound on CVaR that reacts sharply to the possibility of extreme losses. The clever engineering move: they derive formulas so that portfolio-level risk can be computed directly from parameters <em>fitted once to each asset or each independent factor</em>, without re-fitting a fresh distribution to every candidate portfolio. That makes optimization actually tractable.</p>
+<p><strong>What they found.</strong> Testing on U.S. sector ETFs from 2000 to 2026 out-of-sample, several of their entropic portfolios delivered higher realized Sharpe ratios than the matched CVaR portfolios and standard benchmarks. In other words, taking the fat tails seriously <em>and</em> pricing them with EVaR paid off in risk-adjusted returns, not just in theory.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Asset returns follow a multivariate tempered stable Lévy process. Two constructions are used: a <strong>multivariate normal tempered stable (MNTS)</strong> law, and an <strong>independent-component</strong> factorization where returns are linear mixes of independent tempered stable factors. The portfolio return is $R_p = \sum_i w_i R_i = w^\top R$ with weights $w$.</p>
+<p><strong>The risk measure.</strong> For confidence $1-\alpha$, EVaR is
+$$\mathrm{EVaR}_{\alpha}(L) = \inf_{t>0}\ \frac{1}{t}\,\ln\!\left(\frac{M_L(t)}{\alpha}\right),$$
+where $L=-R_p$ is the portfolio loss, $M_L(t)=\mathbb{E}[e^{tL}]$ is its moment-generating function (MGF), $t>0$ the optimization variable, and $\alpha$ the tail probability. EVaR dominates CVaR: $\mathrm{CVaR}_\alpha \le \mathrm{EVaR}_\alpha$.</p>
+<p><strong>The key derivation.</strong> Because the model is Lévy, the portfolio's <strong>cumulant-generating function</strong> $\kappa_{R_p}(t)=\ln \mathbb{E}[e^{t R_p}]$ has a closed form in the fitted parameters. The authors express $\kappa_{R_p}$ and, crucially, the <strong>weight-dependent admissible MGF domain</strong> — the set of $t$ for which $M_L(t)<\infty$ — for both the MNTS and independent-component constructions. This is what lets EVaR be evaluated from asset- or component-level parameters:
+$$\mathrm{EVaR}_\alpha(w) = \inf_{t\in D(w)}\ \frac{1}{t}\big(\kappa_{-w^\top R}(t) - \ln\alpha\big),$$
+with $D(w)$ the admissible domain depending on $w$.</p>
+<p><strong>The method.</strong> They fit the tempered stable parameters to data, then solve <strong>minimum-EVaR</strong> and two <strong>entropic reward–risk</strong> optimization problems over $w$ — a nonlinear program in which each EVaR evaluation is itself a 1-D infimum over $t$. Backtesting uses a rolling out-of-sample window over 2000–2026.</p>
+<p><strong>Results.</strong> On U.S. sector ETFs, several entropic portfolios achieved higher realized Sharpe ratios than their matched CVaR portfolios and standard allocation benchmarks over the full out-of-sample period.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Lévy process</strong> — a model where a quantity evolves with independent, stationary increments, allowing sudden jumps as well as continuous drift.</li>
+<li><strong>Tempered stable distribution</strong> — a heavy-tailed distribution whose extreme tail is exponentially "tempered" so that moments and the MGF exist on a region.</li>
+<li><strong>Entropic Value-at-Risk (EVaR)</strong> — a conservative, coherent tail-risk measure defined via the moment-generating function; a smooth upper bound on CVaR.</li>
+<li><strong>Moment-generating function</strong> — $M(t)=\mathbb{E}[e^{tX}]$, an object encoding all moments of a distribution, finite only on some interval of $t$.</li>
+<li><strong>Cumulant-generating function</strong> — the logarithm of the MGF; for Lévy models it's often available in closed form, making tail computations tractable.</li>
+<li><strong>Sharpe ratio</strong> — average excess return divided by return volatility, the standard measure of risk-adjusted performance.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The result is an in-sample-fit, out-of-sample-tested "several portfolios did better," not a uniform win — sector ETFs are a friendly, low-dimensional universe, and Sharpe-ratio edges there don't always survive in messier asset classes or after transaction costs. The tempered stable fitting is delicate (many parameters, sensitive tails), and EVaR's conservatism can also leave return on the table. Still, the closed-form cumulant machinery is a real practical contribution: it makes heavy-tail-aware optimization computationally feasible.</p>
+<h3>Bottom Line</h3>
+<p>Take fat tails literally and price them with a crash-aware risk measure, and your portfolios can earn more per unit of risk — if the tail model holds.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Multi-Level Market Making with Reinforcement Learning</h2>
+  <p class="meta">Patrick Cheridito, Moritz Weiss<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-18 &middot; <a href="http://arxiv.org/abs/2608.18195v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.18195v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A reinforcement-learning market maker that quotes different sizes across many price levels at once — and learns which quotes to post — can manage inventory and harvest the bid–ask spread even against clever, signal-reading counterparties.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A market maker is a shop that always posts both a price to buy and a price to sell, pocketing the small gap (the "spread") for providing liquidity. The danger is inventory: if you keep buying because sellers keep hitting you, you end up holding a pile of stock right before it drops. So a market maker must constantly decide <em>where</em> to quote, <em>how much</em> to quote, and when to lay off risk — all in a fraction of a second, against traders who may know something you don't. Doing this by hand-tuned rules is fragile.</p>
+<p><strong>The idea.</strong> Let a machine learn the policy by trial and error — reinforcement learning, the same paradigm behind game-playing AIs. Three engineering pieces make it work in a real order book. First, instead of a single quote, the agent posts a <em>ladder</em>: orders of varying size across multiple price levels simultaneously, plus market orders to dump inventory fast when needed. To choose how to spread size across the ladder it uses a <strong>logistic-normal distribution</strong> — a tidy way to output a set of fractions that sum to one (like allocating a budget across bins) while staying random enough to explore. Second, the state of an order book is a variable-length list of resting orders; to feed that into a fixed-size neural network they use a <strong>deep-set encoder</strong>, which digests an unordered set of any length into one fixed summary vector. Third, they use <strong>potential-based reward shaping</strong> — extra hints during training that speed up learning <em>without</em> secretly changing the optimal strategy, a known safe trick.</p>
+<p><strong>What they found.</strong> They test in three simulated markets of increasing nastiness: noise traders (random), tactical traders (react to instantaneous order imbalance), and strategic traders (follow a smoothed imbalance signal, i.e. momentum). The learned market maker keeps making money and controlling inventory across all three, showing the ladder-plus-deep-set approach adapts to counterparties who are actively trying to read the flow.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A market-making MDP (Markov decision process). State $s_t$ includes the agent's inventory $q_t$, the limit-order-book configuration (a variable-length set of price–size pairs), and market features. Action $a_t$ specifies market and limit orders of varying sizes across multiple price levels. Reward is trading revenue penalized for inventory risk.</p>
+<p><strong>Order-allocation via logistic-normal.</strong> To place total size across $K$ levels, the agent samples a simplex vector $p=(p_1,\dots,p_K)$, $\sum_k p_k=1$, from a <strong>logistic-normal</strong> distribution: draw $y\sim\mathcal{N}(\mu_\theta(s),\Sigma_\theta(s))$ in $\mathbb{R}^{K-1}$ and map through the softmax
+$$p_k = \frac{e^{y_k}}{1+\sum_{j=1}^{K-1} e^{y_j}},$$
+where $\mu_\theta,\Sigma_\theta$ are network outputs. This gives a differentiable, exploratory distribution over allocations.</p>
+<p><strong>Deep-set encoding.</strong> The order set $\{o_1,\dots,o_m\}$ (variable $m$) is mapped to a fixed vector by a permutation-invariant aggregator
+$$h = \rho\!\Big(\textstyle\sum_{i=1}^{m}\phi(o_i)\Big),$$
+where $\phi$ embeds each order, the sum makes it order-independent, and $\rho$ post-processes — the Deep Sets construction.</p>
+<p><strong>Reward shaping.</strong> They add a shaped reward $r'_t = r_t + \gamma\,\Phi(s_{t+1}) - \Phi(s_t)$ with potential $\Phi$ and discount $\gamma$. This <strong>potential-based</strong> form is guaranteed to leave the optimal policy unchanged while densifying the learning signal.</p>
+<p><strong>The method.</strong> Policy-gradient reinforcement learning trains $\theta$ to maximize expected shaped return. Evaluation is in three agent-based simulators — noise, tactical (instantaneous volume-imbalance responders), and strategic (exponentially-weighted-imbalance momentum) traders.</p>
+<p><strong>Results.</strong> The agent maintains positive trading revenue while controlling inventory across all three adversary types, with the multi-level ladder and deep-set state representation illustrated as the drivers of robust performance.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market making</strong> — continuously quoting both buy and sell prices to earn the bid–ask spread while managing inventory.</li>
+<li><strong>Limit order book</strong> — the live list of all resting buy and sell orders at each price level in a market.</li>
+<li><strong>Reinforcement learning</strong> — training an agent to maximize cumulative reward by trial-and-error interaction with an environment.</li>
+<li><strong>Logistic-normal distribution</strong> — a distribution over vectors that sum to one, obtained by pushing a Gaussian through the softmax; useful for random allocations.</li>
+<li><strong>Deep Sets / deep-set encoder</strong> — a neural architecture that maps a variable-length, unordered set to a fixed vector in a permutation-invariant way.</li>
+<li><strong>Potential-based reward shaping</strong> — adding a reward term built from a potential function $\Phi$, which speeds learning without changing the optimal policy.</li>
+<li><strong>Volume imbalance</strong> — the difference between buy-side and sell-side resting volume, a common short-term price-direction signal.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Everything is in <strong>simulated</strong> markets with hand-built trader archetypes — the hardest part of real market making, adverse selection by genuinely informed institutional flow and latency competition, is only crudely proxied. There are no real-data backtests or transaction-cost/queue-position frictions here, so "keeps making money" is a statement about the simulator, not a live P&amp;L claim. The architecture (ladder actions + deep sets + safe shaping) is sound and reusable; whether it survives contact with a real exchange is untested.</p>
+<h3>Bottom Line</h3>
+<p>Give a trading agent a whole ladder of quotes, a set-aware view of the book, and safe training hints, and it learns to make markets even when its counterparties are trying to outguess it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> zLend: A Dual-Scope Cash-Flow Reconstruction Framework for On-Chain Credit Underwriting</h2>
+  <p class="meta">Girish G N, Ashutosh Sahoo, Akshay SP, Gurukiran S, Dhanashekar Kandaswamy<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-17 &middot; <a href="http://arxiv.org/abs/2608.16856v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.16856v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Because blockchain lending has no credit bureau, zLend rebuilds each wallet's day-by-day spendable-cash history from raw transfers — twice, once for stablecoins and once for everything — to judge whether a borrower can actually repay.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a bank lends to you, it checks a credit bureau: your income, your debts, your history. In decentralized finance (DeFi) there is no such bureau. A lending protocol sees only a pseudonymous wallet address and the public record of tokens flowing in and out. From that alone it must guess: can this wallet repay a loan? Get it wrong and you either lock out good borrowers or hand money to wallets that can't pay. This is the core underwriting problem of on-chain credit.</p>
+<p><strong>The idea.</strong> zLend reconstructs a wallet's <strong>daily balance history</strong> purely from raw token transfers — replaying every incoming and outgoing transaction to know how much the wallet held on each day. The key insight is that it does this <strong>twice</strong>, on purpose. Once counting <em>only stablecoins</em> (dollar-pegged tokens — the genuinely spendable, liquid cash), and once counting <em>all</em> fungible tokens (which includes volatile, possibly illiquid holdings). Why twice? Because a wallet can look rich in total tokens but have almost no spendable dollars — like someone "worth a million" entirely in a house they can't sell this week. Conflating the two mis-prices risk. From each daily series zLend derives repayment signals: does liquid cash reliably cover the loan size, how volatile and regular is the cash flow, a <strong>drawdown-and-recovery</strong> statistic borrowed from quant finance (how deep and how long are the dips), and a <strong>recurring-counterparty detector</strong> that spots salary-like regular incoming payments just from their timing. Comparing the two views flags a "liquidity mismatch": lots of total wealth but thin stablecoin reserves.</p>
+<p><strong>What they found.</strong> zLend is actually <strong>deployed in production</strong>, informing real lending decisions through third-party APIs. Engineering-wise they verified a cross-language migration to numerical tolerance $10^{-9}$ and got exact agreement (78 of 78 field checks) against the live system. Substantively, the loan size drives tier assignment (4 of 6 reference wallets change tier as the loan ranges from USD 10 to USD 25,000), and the drawdown and coverage criteria bind on <em>disjoint</em> wallets — neither is redundant.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> For a wallet $w$, let $\mathcal{T}_w$ be its set of on-chain token transfers, each a tuple (timestamp, token, direction, amount). Reconstruct the daily balance series $B_w(d)$ for day $d$ by cumulating signed transfers:
+$$B_w(d) = \sum_{\tau \in \mathcal{T}_w,\ t(\tau)\le d}\ \mathrm{sign}(\tau)\,a(\tau),$$
+computed on two token universes: $B^{\mathrm{stable}}_w$ (a fixed stablecoin basket) and $B^{\mathrm{all}}_w$ (all fungible transfers).</p>
+<p><strong>Derived signals.</strong> From a balance series $\{B(d)\}$ zLend computes, against a fixed loan size $\ell$:
+- <strong>Liquidity coverage</strong> — the fraction of days the balance covers the loan, $\frac{1}{N}\sum_d \mathbf{1}\{B(d)\ge \ell\}$.
+- <strong>Cash-flow volatility / regularity</strong> — dispersion and periodicity statistics of daily net flow $\Delta B(d)=B(d)-B(d-1)$.
+- <strong>Drawdown-and-recovery</strong> — the peak-to-trough decline $\mathrm{DD}=\max_{d}\big(\max_{e\le d}B(e)-B(d)\big)$ and the time to recover to the prior peak.
+- <strong>Recurring-counterparty cadence</strong> — detection of periodic incoming transfers from the same address (salary-like signal) from inter-arrival times alone.</p>
+<p><strong>The tier rule.</strong> A tier function $\mathcal{T}(w;\ell)$ maps the signal vector to a credit tier, governed predominantly by the reference loan size $\ell$. The paper shows the criteria are non-redundant: the drawdown and coverage conditions <strong>bind on disjoint wallet sets</strong>, so neither subsumes the other, and no criterion is inert.</p>
+<p><strong>The method.</strong> This is a deployed deterministic pipeline (not a trained model): reconstruction + feature derivation + a rule-based tier function, verified by a <strong>golden-master methodology</strong> — an independent reimplementation reproduced the reference outputs to tolerance $10^{-9}$ and passed 78 of 78 field assertions against production fixtures.</p>
+<p><strong>Results.</strong> Four of six reference wallets change tier across loan sizes USD 10–25,000; drawdown and coverage criteria bind on disjoint wallets; every criterion in the tier rule is active. Deployed in production via third-party API integrations.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>On-chain / DeFi underwriting</strong> — deciding creditworthiness from public blockchain activity alone, with no income docs or credit bureau.</li>
+<li><strong>Stablecoin</strong> — a token designed to hold a fixed value (typically 1 USD), representing genuinely spendable on-chain cash.</li>
+<li><strong>Drawdown</strong> — the decline from a running peak balance to a subsequent trough; a standard measure of downside stress in finance.</li>
+<li><strong>Liquidity coverage</strong> — how reliably a wallet's spendable balance meets or exceeds a target loan amount over time.</li>
+<li><strong>Golden-master testing</strong> — verifying a system by checking that a reimplementation reproduces a trusted reference's outputs exactly (here to $10^{-9}$).</li>
+<li><strong>Tier function</strong> — the deterministic rule mapping derived cash-flow features to a discrete credit tier.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is careful engineering more than new mathematics — the "model" is a rule-based scoring pipeline, and the paper's evidence is verification (it reproduces itself exactly) plus a handful of reference wallets, not a default-rate backtest showing the tiers actually predict repayment. On-chain data is also gameable: a wallet can manufacture salary-like inflows or stablecoin reserves cheaply, and pseudonymity means one borrower can be many wallets. Its real value is the stablecoin-vs-all-tokens distinction and the honest treatment of loan-size sensitivity, which are genuinely useful framings for a domain that badly needs them.</p>
+<h3>Bottom Line</h3>
+<p>No credit bureau on-chain? Rebuild each wallet's spendable-cash diary from its raw transfers and read repayment capacity straight off the ledger.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Calibration-Induced Degeneracy in LLM Financial Forecasting: An Audit-Trailed Case Study on Next-Day Market Risk</h2>
+  <p class="meta">Arin Mohanty<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-20 &middot; <a href="http://arxiv.org/abs/2608.20304v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.20304v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Expensive LLM-generated features are worthless if the model's fitting step silently zeroes their weights — and a cheap check run before you pay can catch that "the feature literally cannot move the forecast" failure.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> It's fashionable to feed a large language model (LLM) news and headlines and turn its output into a "feature" that supposedly improves a financial forecast — here, next-day market risk for two broad-market funds. But LLM features cost real money and effort to produce. The uncomfortable question this paper asks: do they actually <em>do</em> anything once you plug them into your forecasting model? Sometimes the answer is a hidden, embarrassing "no" — and not because the feature is uninformative, but because of a mechanical failure in how the model was calibrated.</p>
+<p><strong>The idea.</strong> The author documents a specific failure they name <strong>calibration-induced degeneracy</strong>. When the forecasting model was fitted (calibrated) on the full history, the fitting procedure set <em>all four</em> LLM feature weights to exactly zero. That means for the 856 later test observations, the LLM features were mathematically incapable of changing the forecast — they were dead wires. Any evaluation of "do LLM features help?" run in that state is meaningless: you're testing a knob that's been disconnected. When the author allowed <em>signed</em> weights (letting the features push either up or down), all four features came back to life — but after proper statistical correction for testing many things at once, none of them actually improved forecasts. Meanwhile, an almost-free feature — just <em>counting the headlines</em> — measurably reduced forecast error. The proposed fix is a <strong>calibration-viability checkpoint</strong>: before you spend money acquiring the fancy feature on fresh data, fit the mapping, wiggle the feature across plausible values, and confirm the forecast actually responds. If it can't respond, stop — don't pay.</p>
+<p><strong>What they found.</strong> The headline count reduced SPY variance-forecast loss by 0.001720 (95% familywise interval [0.000719, 0.002830]) — a small but statistically real gain from a near-zero-cost signal. The expensive LLM features, by contrast, delivered nothing once you accounted for the degeneracy and for multiple testing. And the proposed cheap checkpoint would have halted the paid, full-history LLM inference before any money was spent.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A next-day risk-forecasting model for two broad-market ETFs (e.g. SPY). Candidate features include four LLM-derived signals and a near-zero-cost headline-count feature. The forecast target is a next-day risk quantity (a variance-forecast loss is reported). Model calibration estimates feature weights $\beta$ by minimizing a scoring loss $\mathcal{L}$ over the fitting sample.</p>
+<p><strong>The degeneracy.</strong> Calibration on full history produced
+$$\hat{\beta}_j = 0 \quad \text{for all four LLM features } j,$$
+so for every later observation $t$ the forecast $\hat{f}_t = g\big(\sum_j \hat{\beta}_j x_{j,t} + \cdots\big)$ is invariant to the LLM inputs $x_{j,t}$: $\partial \hat{f}_t / \partial x_{j,t} = 0$. The 856 holdout scores therefore carry <strong>zero sensitivity</strong> to the paid features — the evaluation is degenerate by construction. Relaxing the sign restriction on $\beta$ (allowing $\beta_j\in\mathbb{R}$ rather than $\beta_j\ge 0$) reactivated all four mappings.</p>
+<p><strong>Multiple-testing control.</strong> With several features tested at once, significance is assessed under <strong>familywise error control</strong>: a gain counts only if its familywise-adjusted interval excludes zero. The headline-count gain in SPY variance-forecast loss was
+$$\Delta \mathcal{L} = 0.001720,\qquad \text{95\% familywise interval } [0.000719,\ 0.002830],$$
+i.e. reliably positive; no LLM feature survived the same correction.</p>
+<p><strong>The method — calibration-viability checkpoint.</strong> Before acquiring a costly feature on holdout data: (1) fit the mapping on available data; (2) <strong>perturb</strong> the feature over prespecified calibration values; (3) require a <em>meaningful forecast response</em> $\big(\partial \hat{f}/\partial x \not\approx 0\big)$ before purchase. Crucially the check uses <strong>no holdout outcomes</strong>, so it doesn't burn evaluation data. Applied here, it would have stopped the expensive full-history LLM inference phase.</p>
+<p><strong>Results.</strong> Cheap headline count: statistically significant loss reduction of 0.001720 on SPY. Four LLM features: none improved forecasts after familywise correction; all were weight-zeroed under the original calibration.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Calibration</strong> — fitting a model's parameters (here feature weights) to data so its forecasts are well-scaled.</li>
+<li><strong>Calibration-induced degeneracy</strong> — the failure where fitting sets a feature's weight to zero, making that feature unable to affect any forecast.</li>
+<li><strong>Familywise error control</strong> — a statistical adjustment ensuring that testing many features at once doesn't manufacture false "significant" results.</li>
+<li><strong>Variance-forecast loss</strong> — a scoring rule measuring how badly a model's predicted variance (risk) matches realized outcomes; lower is better.</li>
+<li><strong>Holdout data</strong> — data withheld from fitting and used only to evaluate, which the proposed checkpoint deliberately avoids consuming.</li>
+<li><strong>Signed vs. sign-restricted weights</strong> — whether a feature's coefficient is free to be positive or negative, versus constrained to one sign.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a single audited case study on two funds, so its quantitative gains (a 0.0017 loss reduction) are specific, not a general law — the real contribution is the <em>diagnostic</em>, not a trading edge. The lesson is uncomfortable but important: much of the "LLMs improve forecasts" literature may never check whether the feature can even move the output, so silent degeneracy could be widespread and unreported. The checkpoint is cheap, sensible, and immediately adoptable; the headline-count result is a nice reminder that free features sometimes beat paid ones.</p>
+<h3>Bottom Line</h3>
+<p>Before paying for a clever feature, prove it can actually move your forecast — because a weight quietly fitted to zero turns the most expensive signal into a disconnected wire.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
