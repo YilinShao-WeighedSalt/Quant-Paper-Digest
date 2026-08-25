@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 25, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 25, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> The Physical Crash Frontier: What Finite Option Quotes Can and Cannot Reveal</h2>
+  <p class="meta">Jirong Zhuang<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-24 &middot; <a href="http://arxiv.org/abs/2608.23274v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.23274v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Option prices don't pin down the real chance of a crash — they only fence off a range of possibilities, and this paper draws the exact fence.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose you want to know the true probability that the stock market drops, say, 20% next week. A natural place to look is the options market, because a put option is essentially crash insurance: it pays off precisely when prices fall. If you can read the price of that insurance, surely you can back out the odds of the disaster it insures against. But there are two catches. First, insurance is never priced at "fair odds" — people pay extra for protection, the way you pay more for fire insurance than your house's burn-down probability alone would justify. So the probabilities implied by option prices (the "risk-neutral" probabilities) exaggerate crash risk. Second, and more subtly, only a handful of options actually trade, each with a gap between the price a buyer offers and a seller demands (the bid and the ask). Many different guesses about the future are all perfectly consistent with those few quoted prices. So there isn't one crash probability hiding in the data — there's a whole family of them.</p>
+<p><strong>The idea.</strong> The author stops trying to squeeze a single number out of the quotes and instead asks: <em>given everything the quotes rule in and rule out, what is the full set of crash probabilities (and expected crash losses) that remain possible?</em> Picture every scenario that fits inside all the bid-ask gaps as a point on a map, with "crash probability" on one axis and "expected loss in a crash" on the other. The paper proves this set of possibilities is a clean, convex blob, and it names the blob's outer edge the <strong>physical crash frontier</strong> — the boundary between what the market's prices permit and what they forbid.</p>
+<p><strong>What they found.</strong> Two things stand out. First, information is concentrated: the two put options struck nearest the crash threshold do almost all the work — adding quotes further out shrinks the range of admissible crash probabilities by about 80%. Second, a warning. If you don't assume prices are bounded below (i.e. you allow catastrophically deep, vanishingly-rare losses), the math can quietly slide the crash probability toward zero while every quote stays inside its spread — so a confident-looking "the market says crashes are basically impossible" can be an artifact, not a signal.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let the future asset value be a random variable $X \ge 0$ on a bounded support $[0, \bar{x}]$. The market quotes $n$ options with payoffs $g_i(X)$ (e.g. a put payoff $g_i(X) = (K_i - X)^+$), each with a bid $b_i$ and ask $a_i$. A candidate physical probability measure $\mathbb{P}$ (a distribution for $X$) is <em>admissible</em> if it reprices every option within its spread after adjusting for the risk premium.</p>
+<p>The bridge from risk-neutral to physical is a <strong>power-utility pricing kernel</strong>. Under power utility with risk aversion $\gamma$, the state-price density is proportional to $X^{-\gamma}$, so risk-neutral and physical expectations relate through
+$$\mathbb{E}^{\mathbb{Q}}[f(X)] = \frac{\mathbb{E}^{\mathbb{P}}[X^{-\gamma} f(X)]}{\mathbb{E}^{\mathbb{P}}[X^{-\gamma}]}.$$
+Here $\mathbb{Q}$ is the risk-neutral measure, $f$ any payoff, and $\gamma>0$ the coefficient of relative risk aversion; $\gamma=1$ is the log ("Kelly") investor.</p>
+<p><strong>The key quantities.</strong> For a crash threshold $c$, the two coordinates of interest are the physical crash probability and expected loss below $c$:
+$$P_{\text{crash}} = \mathbb{P}(X < c) = \frac{\mathbb{E}^{\mathbb{P}}[X^{-\gamma}\mathbf{1}_{\{X<c\}}]}{\mathbb{E}^{\mathbb{P}}[X^{-\gamma}]}, \qquad L = \frac{\mathbb{E}^{\mathbb{P}}[X^{-\gamma}(c-X)^+]}{\mathbb{E}^{\mathbb{P}}[X^{-\gamma}]}.$$
+Every symbol: $X$ the terminal price, $c$ the crash level, $\mathbf{1}_{\{X<c\}}$ the indicator that a crash occurred, $\gamma$ risk aversion, and the denominator $\mathbb{E}^{\mathbb{P}}[X^{-\gamma}]$ the kernel normalizer. Crucially, <strong>both coordinates are ratios of moments</strong> of the measure $\mathbb{P}$.</p>
+<p><strong>The method.</strong> Because each admissible constraint is linear in $\mathbb{P}$ and the objectives are ratios of linear moment functionals, tracing the frontier reduces to a sequence of <strong>second-order cone programs (SOCPs)</strong> — convex optimizations that maximize/minimize $P_{\text{crash}}$ subject to all bid-ask repricing constraints. Solving them at many angles sweeps out the convex attainable set; its boundary is the frontier.</p>
+<p><strong>Results with numbers.</strong> Across roughly a thousand weekly S&amp;P 500 option cross-sections: the quotes beyond the two puts nearest the threshold shrink the admissible probability interval by a <strong>median ~80%</strong>. And the degeneracy result is sharp — the tail-mass collapse that drives $P_{\text{crash}}\to 0$ occurs <em>precisely when</em> $\gamma > 1$ (risk aversion above the log investor), because a vanishing mass deep in the right tail inflates the denominator $\mathbb{E}^{\mathbb{P}}[X^{-\gamma}]$ without violating any quote.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk-neutral measure ($\mathbb{Q}$)</strong> — the pretend probabilities under which every asset earns the risk-free rate; they build the risk premium into the odds.</li>
+<li><strong>Pricing kernel / state-price density</strong> — the conversion factor that turns real-world probabilities into the prices markets actually pay, weighting bad states more.</li>
+<li><strong>Relative risk aversion ($\gamma$)</strong> — a single number for how much an investor dislikes risk; $\gamma=1$ is the log investor.</li>
+<li><strong>Second-order cone program (SOCP)</strong> — a type of convex optimization that solves reliably and fast, used here to trace the frontier's edge.</li>
+<li><strong>Bid-ask spread</strong> — the gap between the highest price buyers offer and the lowest sellers accept; it's why the data give a range, not a point.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The frontier is honest exactly because it refuses to over-claim: its main message is that a single "market-implied crash probability" is often not identified, and any deep-tail assumption you smuggle in is doing the real work. That candor is also the limit — a risk manager wanting one actionable number still has to supply a tail restriction from outside the quotes, and the power-utility kernel is a modeling choice, not a law of nature.</p>
+<h3>Bottom Line</h3>
+<p>Options tell you where crash risk <em>can't</em> be, and only rarely where it <em>is</em> — this paper draws that line precisely.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> From Exponential to Polynomial: An Exact Filter for High-Dimensional MSM Models</h2>
+  <p class="meta">Daniyal Ali Hameedi<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-08-24 &middot; <a href="http://arxiv.org/abs/2608.22864v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.22864v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A clever relabeling makes a notoriously expensive volatility-tracking calculation explode far more slowly as you add more market factors.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Financial volatility — how wildly prices swing — is itself invisible and constantly changing. To manage risk you have to <em>infer</em> the current volatility state from the prices you observe, updating your best guess each day as new data arrive. One respected way to model volatility is the <strong>Markov-Switching Multifractal (MSM)</strong> model, which imagines volatility as the product of many hidden on/off "switches" flipping at different speeds — some slow (the economy), some fast (today's headlines). The trouble is bookkeeping. With $k$ switches each having $D$ possible settings, the number of combined states is $D^k$, and the standard filter that tracks the probability of each state must grind through all of them every update. Add a few switches and the computation becomes hopeless — the classic "curse of dimensionality."</p>
+<p><strong>The idea.</strong> The author noticed that the model has a hidden <strong>symmetry</strong>: the switches are interchangeable in a specific way, so many of those $D^k$ states are really the same state wearing different labels. Instead of tracking every individually-labeled configuration, you track only the genuinely distinct ones — "three switches are on, two are off" rather than "switch #1 and #4 and #7 are on." It's like counting the ways to get a poker hand: you don't enumerate every ordering of the cards, you count the combinations. Collapsing these equivalent states shrinks the bookkeeping dramatically.</p>
+<p><strong>What they found.</strong> The rewritten filter cuts the cost from growing like $D^k$ to growing like $k^D$ — a huge saving in the regime that matters (many switches, few settings each). Reassuringly, when they compare the fast "sector" filter to the naive one on the same data, the fast version doesn't just match it — its recovery of the true hidden volatility actually looks <em>better</em>, suggesting the symmetric formulation is not merely cheaper but statistically cleaner.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> In the discrete-time MSM model, volatility at time $t$ is
+$$\sigma_t = \bar\sigma \prod_{i=1}^{k} M_t^{(i)},$$
+where $\bar\sigma$ is a baseline scale, and each $M_t^{(i)}$ is a hidden multiplier ("switch") that, at each step, either keeps its value or is redrawn from a fixed distribution with probability $\gamma_i$ depending on its frequency $i$. Observed returns are $r_t = \sigma_t \, \epsilon_t$ with $\epsilon_t$ standard noise. The hidden state is the vector $\mathbf{M}_t = (M_t^{(1)},\dots,M_t^{(k)})$, taking one of $D^k$ values if each multiplier has $D$ levels.</p>
+<p><strong>The key equation.</strong> Tracking beliefs is the <strong>Bayesian filter</strong> (a hidden Markov model forward recursion):
+$$\pi_t(j) \;\propto\; \mathcal{L}(r_t \mid s_j)\sum_{i} A_{ij}\,\pi_{t-1}(i),$$
+where $\pi_t(j)$ is the posterior probability of hidden state $s_j$ after seeing return $r_t$, $\mathcal{L}(r_t\mid s_j)$ is the likelihood of the return given that state, and $A_{ij}$ is the transition probability from state $i$ to state $j$. The sum runs over all $D^k$ states — that is the bottleneck.</p>
+<p><strong>The method.</strong> The key move is a <strong>permutation symmetry</strong> in the likelihood: because the multipliers enter $\sigma_t$ only through their product, permuting the switches leaves both the likelihood $\mathcal{L}$ and the transition dynamics invariant. States that are permutations of one another form an equivalence class, and the filter can be pushed down to the <strong>quotient space</strong> of these classes. The number of classes is the count of multisets — combinatorially far smaller than $D^k$ — turning the update's complexity from $O(D^k)$ into $O(k^D)$. This is exact, not an approximation: no probability mass is discarded, only redundant labels are merged.</p>
+<p><strong>Results with numbers.</strong> The headline is the complexity reduction from $O(D^k)$ to $O(k^D)$: for the natural MSM regime of large $k$ (many frequencies) and small $D$ (few multiplier levels), this is the difference between an intractable and a routine computation. Empirically, the naive and "sector" (symmetry-reduced) filters show <em>significant disagreement</em> in their state estimates — and the sector filter's ground-truth recovery of the hidden volatility path improves on the naive one, so the reformulation pays off in accuracy as well as speed.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Bayesian filter</strong> — a recipe that updates the probability of each hidden state as each new observation arrives, weighting by how likely that observation was.</li>
+<li><strong>Hidden Markov model</strong> — a system with an unobserved state that jumps randomly over time and is glimpsed only through noisy measurements.</li>
+<li><strong>Multifractal volatility</strong> — a model of price swings built from many components acting on different time scales, producing bursts within bursts.</li>
+<li><strong>Permutation symmetry</strong> — the property that swapping interchangeable components leaves the model's behavior unchanged, so their orderings are redundant.</li>
+<li><strong>Time complexity $O(\cdot)$</strong> — how the computational cost grows with problem size; $O(k^D)$ beats $O(D^k)$ badly when $k$ is large and $D$ is small.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The win is real but scoped: it lands hardest when you have many low-resolution switches, and the paper is candid that the reduced filter <em>disagrees</em> with the naive one rather than merely reproducing it — so someone relying on the old filter's numbers should understand which is right before trusting either. As an econometrics engineering result it's clean; whether MSM itself is the right volatility model for your market is a separate question this paper doesn't relitigate.</p>
+<h3>Bottom Line</h3>
+<p>When your hidden states are interchangeable, stop counting them separately — count the combinations, and the curse of dimensionality loosens its grip.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> WSVI: A Dimensionless Shape Family for Implied Volatility and Its Static No-Arbitrage Structure</h2>
+  <p class="meta">Charles Clevenger, Xiang Wan<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-23 &middot; <a href="http://arxiv.org/abs/2608.22620v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.22620v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new formula for the "smile" of option prices can bend the way real markets bend right before an earnings announcement — into a W — without ever implying free money.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Options on the same stock but with different strike prices trade at different implied volatilities, and if you plot volatility against strike you usually get a curve called the <strong>volatility smile</strong>. Traders desperately need a tidy mathematical formula for this curve: they only see a few option prices, but they must fill in the gaps to price everything in between and manage risk. The most popular such formula, called <strong>SSVI/eSSVI</strong>, works beautifully most of the time — but it can only make simple U-shaped or skewed smiles. Around a binary event like an earnings report, where the stock will likely jump one way or the other, the smile can take a <strong>W shape</strong> (dipping in the middle). eSSVI physically cannot draw a W, so exactly when you most need a good model — near a big event — the standard tool fails.</p>
+<p><strong>The idea.</strong> The authors design a richer formula, <strong>WSVI</strong>, built so it <em>can</em> produce that W (and the underlying "two-humped" picture of where the stock might land) while still obeying the market's no-free-lunch rules. Their trick is to separate two things: an overall <em>level</em> of uncertainty, and a dimensionless <em>shape</em> that describes the curve's form independent of scale — like separating how loud a sound is from its melody. They then bolt onto the familiar eSSVI shape a couple of gentle, one-sided extra terms that add flexibility in the middle (allowing the W) without disturbing the far edges of the curve, which are what keep prices sensible for extreme strikes.</p>
+<p><strong>What they found.</strong> WSVI can represent bimodal ("two-outcome") markets that eSSVI simply can't, and — this is the hard part — the authors work out the <em>exact</em> conditions on their parameters that guarantee the smile is arbitrage-free, written directly in their clean shape coordinates. So a trader gets extra expressiveness <em>and</em> a checklist to stay safe.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work with total implied variance $w(k, T) = \sigma_{\text{imp}}^2(k,T)\,T$ as a function of log-moneyness $k = \log(K/F)$ and maturity $T$, where $K$ is strike, $F$ the forward price, and $\sigma_{\text{imp}}$ the Black–Scholes implied volatility. WSVI <strong>factorizes</strong> total variance into a level $\theta$ and a dimensionless shape $\Psi$ of normalized log-moneyness:
+$$w(k) = \theta \cdot \Psi\!\left(\frac{k}{\sqrt{\theta}}\right),$$
+where $\theta>0$ is the at-the-money total variance (the level) and $\Psi$ is the shape function of the rescaled variable $z = k/\sqrt{\theta}$.</p>
+<p><strong>The key equation.</strong> The shape extends the per-slice eSSVI form with <strong>bounded one-sided basis terms</strong>:
+$$\Psi(z) = \underbrace{a + b\big(\rho z + \sqrt{z^2 + 1}\big)}_{\text{eSSVI core}} \;+\; \underbrace{\sum_{j} c_j\, B_j(z)}_{\text{bounded shape terms}},$$
+where $a$ sets the floor, $b$ the overall curvature scale, $\rho\in(-1,1)$ the skew (tilt), and each $B_j$ is a bounded, one-sided basis bump with weight $c_j$ that adds interior flexibility — enough to push the at-the-forward curvature <em>negative</em> (the dip of the W) — while leaving the leading-order <strong>wing</strong> behavior fixed by the affine and quadratic pieces.</p>
+<p><strong>The method.</strong> This is an analytic, static no-arbitrage construction. The authors characterize the family's <strong>exact admissible domain</strong> (which parameter combinations are legal) and translate the three classical no-arbitrage conditions into inequalities in shape coordinates: the <strong>butterfly</strong> condition (density stays nonnegative — no negative probabilities), the <strong>vertical spread</strong> condition (call prices fall monotonically in strike), and the <strong>calendar</strong> condition (variance grows with maturity). Because everything is written in the dimensionless variable $z$, these checks become clean constraints on $a, b, \rho, c_j$ rather than messy strike-by-strike tests.</p>
+<p><strong>Results.</strong> The qualitative headline is a capability, not a horse-race number: eSSVI's three parameters <em>cannot</em> produce negative at-the-forward curvature or bimodal risk-neutral densities, and WSVI <em>can</em>, while the paper proves the precise butterfly/spread/calendar conditions that keep the extended family arbitrage-free — so the added flexibility comes with an exact safety certificate, and the wings remain controlled by the affine and quadratic components.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility / smile</strong> — the volatility number that makes the Black–Scholes formula reproduce an option's market price; plotting it against strike gives the smile.</li>
+<li><strong>Log-moneyness</strong> — $\log(\text{strike}/\text{forward})$, a scale-free way to say how far an option's strike is from the current price.</li>
+<li><strong>Risk-neutral density</strong> — the market-implied probability distribution of where the price will end up; a W-smile corresponds to a two-humped (bimodal) one.</li>
+<li><strong>Butterfly / vertical-spread / calendar arbitrage</strong> — three ways prices could offer a risk-free profit; ruling them out means densities are nonnegative and prices monotone and time-consistent.</li>
+<li><strong>eSSVI</strong> — the industry-standard three-parameter volatility-slice formula that WSVI generalizes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a modeling-and-theory contribution: it enlarges what shapes you can fit and hands you the arbitrage conditions, but the abstract reports no calibration error numbers against market data, so how well WSVI fits real earnings-day surfaces in practice is left to be shown. Extra parameters also mean more ways to overfit thin near-expiry quote sets, so a practitioner would want to test stability before trusting the W it draws.</p>
+<h3>Bottom Line</h3>
+<p>If the market expects a coin-flip event, its volatility smile becomes a W — and WSVI is a formula honest enough to draw that W without inventing free money.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Beyond Lognormal Sums: A Four-Moment Probability Framework for Basket and Spread Option Pricing</h2>
+  <p class="meta">Dongdong Hu, Hasanjan Sayit, Steve Tchoneteck, Frederi Viens<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-08-21 &middot; <a href="http://arxiv.org/abs/2608.21498v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.21498v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Adding up correlated lognormal prices has no clean formula, so this paper approximates the messy sum with a tunable stand-in matched on its first four moments — and prices basket and spread options accurately from it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many real contracts depend not on one price but on a <em>combination</em> of prices. A "basket option" pays off based on a weighted sum of several stocks; a "crack spread" option in energy pays off on the <em>difference</em> between refined-product prices (gasoline, heating oil) and crude oil — the refiner's margin. Individually, each price is often modeled as <strong>lognormal</strong> (its logarithm is bell-shaped), which is convenient because single-asset options then have the famous Black–Scholes formula. But add or subtract several correlated lognormals and the result has no known clean distribution. There's simply no textbook formula for "the sum of correlated lognormals," so pricing baskets exactly has always been awkward.</p>
+<p><strong>The idea.</strong> Split the problem in two. First, using a change of perspective (a "change of measure"), rewrite the basket's price <em>exactly</em> as a combination of probabilities — no approximation yet. That's the clean, exact skeleton. Second, approximate only the hard part — the distribution of the correlated sum — by a flexible stand-in variable chosen to <strong>match the first four moments</strong> of the true sum: its mean, its spread (variance), its lopsidedness (skewness), and its tail-heaviness (kurtosis). It's like not knowing a stranger's face but sketching them from four reliable facts — height, build, posture, gait — enough for a good likeness. For baskets that mix positive and negative weights (like a spread), they use a <strong>signed</strong> version of the stand-in that still yields a closed-form call price.</p>
+<p><strong>What they found.</strong> The four-moment stand-in fits the true distribution — and the option prices — noticeably better than cruder two-moment approximations, especially where it's hardest: long maturities and lopsided, heavy tails. They demonstrate on a realistic 3:2:1 crack spread (3 barrels crude in, 2 gasoline + 1 heating oil out), and the method stays fully analytical, so it re-prices quickly across many strikes and maturities.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let assets follow correlated lognormal dynamics: $S_i(T) = S_i(0)\exp\!\big((r - \tfrac12\sigma_i^2)T + \sigma_i W_i(T)\big)$, with correlations $\mathrm{corr}(W_i, W_j) = \rho_{ij}$. A basket is $B = \sum_i w_i S_i(T)$ with weights $w_i$ (positive for a standard basket, mixed-sign for a spread). Here $S_i$ is asset $i$'s price, $r$ the risk-free rate, $\sigma_i$ its volatility, $W_i$ correlated Brownian motions, and $T$ maturity. The basket call pays $(B-K)^+$ for strike $K$.</p>
+<p><strong>The key representation.</strong> A <strong>change of numéraire/measure</strong> writes the call price as a linear combination of probabilities:
+$$C = \sum_i w_i S_i(0)\,\mathbb{Q}_i(B > K)\; -\; K e^{-rT}\,\mathbb{Q}(B > K),$$
+where $\mathbb{Q}$ is the risk-neutral measure, each $\mathbb{Q}_i$ is the measure with asset $i$ as numéraire, and $\mathbb{Q}(B>K)$ etc. are exercise probabilities. This step is exact; the only remaining task is evaluating these CDF values for correlated lognormal sums.</p>
+<p><strong>The approximation.</strong> Each positive correlated sum is replaced by a <strong>shifted lognormal variance mixture</strong> $Y = \lambda + e^{\mu + \tau Z\sqrt{V}}$ (with $Z$ standard normal and $V$ a mixing variable), whose parameters $(\lambda, \mu, \tau, \dots)$ are chosen to match the true sum's <strong>first four moments</strong> $m_1, m_2, m_3, m_4$. For mixed-sign baskets, a <strong>signed shifted lognormal proxy</strong> gives an analytical call-price formula. The paper states admissibility conditions, a <strong>root-selection rule</strong> for solving the moment-matching equations (which can have multiple solutions), and — importantly — derives <strong>exact pricing-error identities</strong> expressing the mispricing purely in terms of CDF discrepancies between the true sum and the proxy.</p>
+<p><strong>Results with numbers.</strong> On standard-basket benchmarks and an empirical <strong>3:2:1 crack spread</strong> built from RBOB gasoline, ULSD/heating oil, and WTI futures, the probability reformulation plus the <strong>fourth-moment</strong> condition improves both distributional fit and pricing accuracy over lower-moment approximations, with the gains growing precisely as <strong>maturity lengthens and tail asymmetry increases</strong> — the regimes where two-moment methods break down. The method remains analytical throughout, so it is cheap to re-evaluate across a whole grid of strikes and maturities.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Lognormal</strong> — a variable whose logarithm is normally distributed; standard for prices because they stay positive and Black–Scholes assumes it.</li>
+<li><strong>Moments (1st–4th)</strong> — mean, variance, skewness, kurtosis: successively finer descriptions of a distribution's location, spread, lopsidedness, and tail weight.</li>
+<li><strong>Change of measure / numéraire</strong> — a mathematical re-weighting of probabilities (or change of accounting unit) that turns an option price into clean exercise probabilities.</li>
+<li><strong>Crack spread</strong> — the refining margin: the price difference between refined fuels and the crude oil used to make them, here in a 3:2:1 ratio.</li>
+<li><strong>Variance mixture</strong> — a distribution built by randomizing the variance of a base distribution, adding flexible fat tails.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Moment-matching is only as good as its four moments: when the true sum is strongly bimodal or its higher moments blow up, a four-moment proxy can still miss, and the multiple-root issue means the "root-selection rule" carries real weight in practice. Still, because it stays closed-form, this is genuinely usable desk technology for baskets and spreads where Monte Carlo would be too slow to re-run across every strike.</p>
+<h3>Bottom Line</h3>
+<p>You can't write down the sum of correlated lognormals, but you can sketch it faithfully from four numbers — and that sketch prices baskets and spreads well where cruder ones fail.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Calibrating Inelastic Markets to Options: The Lean Marketron and the Generalized Langevin Equation</h2>
+  <p class="meta">Andrey Itkin<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-20 &middot; <a href="http://arxiv.org/abs/2608.20589v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.20589v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A physics-flavored model of how order flow pushes prices had too many redundant knobs to trust; stripping it to a clean nine gives, for the first time, a measurable "price of flow risk" — and reveals prices obey a memory-laden equation borrowed from statistical physics.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A newer school of thought says markets are <strong>inelastic</strong>: prices move not just on news but simply because money <em>flows</em> in and out, like a crowd shoving a revolving door. The "Marketron" model captured this by treating the price as a particle pushed around by hidden flow forces. But it had <strong>eighteen parameters</strong>, many of which did the same job as others — so when you tried to fit it to real option prices, the optimizer wandered into meaningless valleys where wildly different settings fit equally well. When a knob can't be pinned down, the "economic quantity" it's supposed to measure is meaningless. The model was rich but effectively unmeasurable.</p>
+<p><strong>The idea.</strong> The author performs careful mathematical housekeeping to remove the redundancy. Some parameters were pure "gauges" — like measuring temperature in Celsius vs. Fahrenheit, they change the numbers but not the physics, so they can be fixed by convention. Others describe a <em>fast</em> hidden signal that relaxes so quickly it can be averaged out (physicists call this "adiabatic elimination" — ignoring the blur of something that vibrates far faster than what you're watching). What's left is a lean <strong>nine-parameter</strong> model that the author proves carries no remaining hidden symmetry — you genuinely can't shrink it further. With the redundancy gone, a previously invisible quantity becomes real: the <strong>market price of flow risk</strong>, the extra return investors demand for bearing the risk that flows move against them.</p>
+<p><strong>What they found.</strong> Two payoffs. First, the trimmed model fits the <em>entire</em> S&amp;P 500 option surface with a single set of parameters, and the flow-risk premium is identifiable for the first time (though one option snapshot pins down its level only loosely). Second, a striking structural discovery: the log-price obeys a <strong>generalized Langevin equation</strong> — a physics equation for a particle with <em>memory</em> of its past kicks — with a memory kernel the author writes in closed form. That memory framing yields a <em>testable</em> prediction, and on real SPX data the market appears to sit in a "driven, non-equilibrium" regime — markets as active matter, tentatively but falsifiably.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state is the log-price $x_t$ coupled to a hidden flow/signal variable. In the reduced model the dynamics take the form of a <strong>generalized Langevin equation (GLE)</strong>:
+$$\ddot{x}_t = -\int_0^t K(t-s)\,\dot{x}_s\,ds \;+\; F(x_t) \;+\; \xi_t,$$
+where $x_t$ is the log-price, $\dot x_t$ its velocity, $K(\cdot)$ a <strong>memory kernel</strong> encoding how past price changes still exert drag now, $F$ a state-dependent force from flow, and $\xi_t$ a noise term. The key structural result is that $K$ is <strong>state-modulated with a closed form</strong>, and the hidden memory variable is exactly the <strong>Markovian lift</strong> of this kernel — i.e. augmenting the state with that variable makes the memory-laden system memoryless (Markov) again, which is what makes it solvable.</p>
+<p><strong>The identifiability machinery.</strong> To go from eighteen to nine parameters the author (i) removes exact <strong>scaling gauges and sign symmetries</strong> (transformations that leave all observables unchanged), (ii) <strong>freezes non-financial parameters</strong> by explicit criteria, and (iii) performs <strong>adiabatic elimination</strong> of the fast signal. The proof that no further reduction is possible uses the <strong>Gauss–Newton Hessian</strong>
+$$H = J^\top J,$$
+where $J$ is the Jacobian of model outputs with respect to parameters; an <strong>empty null space</strong> of $H$ means no direction in parameter space leaves the fit unchanged, so every parameter is locally identified. A <strong>manifold-boundary analysis</strong> confirms no approximate symmetry remains either.</p>
+<p><strong>The method.</strong> Calibration is <strong>staged</strong>: first fit under the physical measure $\mathbb{P}$, then map to the risk-neutral measure $\mathbb{Q}$, with a <strong>diffusive correlation</strong> between flow and return innovations capturing the short-maturity skew. The wedge between physical and pricing values of the flow block becomes the <strong>market price of flow risk</strong> — a well-defined premium rather than a fitting artifact.</p>
+<p><strong>Results.</strong> The reduced model fits the whole <strong>SPX</strong> option surface with one parameter set. The market price of flow risk is identifiable for the first time, though a single surface constrains only its level, and weakly. The GLE framing yields a falsifiable test: equality of the <strong>signal and memory relaxation rates</strong> would mean equilibrium; on the SPX surface these rates come out <strong>well separated</strong> (both weakly identified), placing the market <strong>tentatively in the driven, non-equilibrium regime</strong> — turning the "active matter" analogy into a checkable constraint rather than a metaphor.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Inelastic market</strong> — the idea that buying/selling flows move prices directly, not only via information.</li>
+<li><strong>Identifiability</strong> — whether the data can actually pin down a parameter's value; non-identifiable means many settings fit equally, so the number is meaningless.</li>
+<li><strong>Generalized Langevin equation</strong> — a physics equation of motion for a particle whose past pushes still influence it now, via a memory kernel.</li>
+<li><strong>Adiabatic elimination</strong> — replacing a very fast, quickly-settling variable by its average, simplifying the dynamics of the slow variables you care about.</li>
+<li><strong>Gauss–Newton Hessian / null space</strong> — a matrix measuring how sensitively the fit responds to each parameter; a zero direction (null space) signals a redundant parameter.</li>
+<li><strong>Market price of (flow) risk</strong> — the extra expected return investors demand for bearing a particular source of risk, here adverse order flow.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is careful, honest model surgery — the value is as much in proving what <em>can't</em> be measured as in what now can. But the headline quantities (flow-risk premium, the equilibrium-vs-driven verdict) are only <em>weakly</em> identified from a single option surface, so the non-equilibrium conclusion is genuinely tentative; pinning it down would need time-series or cross-sectional data the paper doesn't yet bring. It's a researcher's tool for now, not a trading desk's.</p>
+<h3>Bottom Line</h3>
+<p>Cut a bloated market model down to its irreducible nine knobs, and hidden physics falls out: prices move with memory, and this market looks driven, not at rest.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
