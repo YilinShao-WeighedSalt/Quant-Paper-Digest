@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 29, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 29, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Distribution-constrained optimal multiple stopping: the Root-type solution</h2>
+  <p class="meta">Shuoqing Deng, Daxin Huang<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-27 &middot; <a href="http://arxiv.org/abs/2608.27374v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.27374v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you must sell an asset at several moments in time — and you insist that <em>when</em> you sell must follow a prescribed statistical pattern — the best rule is to sell the first time a hidden, time-reversed version of the price wanders into a fixed "barrier" region.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you run a fund and you have to liquidate a position, but not all at once — you'll sell in a few tranches over the coming months. You want to time each sale well (sell high, roughly speaking). Classic "optimal stopping" theory tells you how to time a <em>single</em> sale to maximize expected value. But here there's a twist that shows up constantly in real finance: you're not free to sell whenever you like. A regulator, a mandate, or a risk model might require that the <em>distribution</em> of your selling times matches something specified in advance — say, "on average you should be roughly half sold by month three, and the spread of your selling dates should look like this." So you're optimizing timing while being forced to hit a target <em>shape</em> for how your timing is spread out.</p>
+<p><strong>The idea.</strong> The authors tackle the version where you stop <em>multiple</em> times, each stop forced to match its own target distribution (they call these "marginals"). The elegant trick, inherited from a deep area of probability called the Skorokhod embedding problem, is to stop looking at the price going forward and instead run a cleverly <em>time-reversed</em> process. In that reversed world, the optimal strategy becomes shockingly simple: draw fixed regions in the (time, price) plane called <em>barriers</em>, and stop the instant the reversed process first touches one. It's like saying "don't agonize over forecasts — just wait until the picture crosses a pre-drawn line, then act." Each of your multiple sales gets its own barrier, nested inside the others.</p>
+<p><strong>What they found.</strong> They prove that this barrier-hitting rule is genuinely optimal — not just plausible — and they do it for a broader menu of objectives (cost functions) than earlier work could handle. Previous results nailed the single-stop case or narrower cost functions; this paper extends the clean "hit a barrier" picture to the multi-marginal, multiple-stopping world.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a filtered probability space carrying a stochastic process $X = (X_t)_{t\ge 0}$ (think of it as the driving state, e.g. a Brownian motion). We choose an increasing sequence of stopping times $\tau_1 \le \tau_2 \le \cdots \le \tau_n$. The <em>distribution constraint</em> is that $X_{\tau_k}$ (or the pair (time, position)) must have a prescribed law $\mu_k$ for each $k$; the $\mu_k$ are the "marginals" and are assumed to increase in convex order, which is exactly the condition that makes such an embedding possible.</p>
+<p><strong>The objective.</strong> We maximize an expected reward
+$$\sup_{\tau_1\le\cdots\le\tau_n}\ \mathbb{E}\!\left[\sum_{k=1}^{n} c_k(\tau_k, X_{\tau_k})\right]\quad\text{subject to}\quad X_{\tau_k}\sim \mu_k,$$
+where $c_k$ is the cost/reward function for the $k$-th stop, $\tau_k$ the $k$-th stopping time, and $X_{\tau_k}$ the state when you stop. The constraint $X_{\tau_k}\sim\mu_k$ is what ties this to multi-marginal Skorokhod embedding (SEP): each $\tau_k$ must <em>embed</em> the target law $\mu_k$.</p>
+<p><strong>The key result.</strong> The optimizer is a <em>Root-type</em> barrier solution: there exist regions (barriers) $\mathcal{R}_k$ in state–time space such that
+$$\tau_k = \inf\{\, t : (t, \hat X_t)\in \mathcal{R}_k \,\},$$
+where $\hat X$ is a <em>time-reversed</em> process built from $X$, and $\mathcal{R}_k$ is a barrier (roughly, a set closed under moving forward in time). "Root-type" refers to Root's classical SEP solution, whose hallmark is exactly this first-hitting-of-a-barrier structure.</p>
+<p><strong>The method.</strong> Two ingredients. First, a <em>probabilistic characterization</em>: they show the constrained optimizer can be written as hitting times of barrier sets by the reversed process, in the spirit of Cox–Obłój–Touzi. Second, a <em>verification via martingale inequalities</em>: they construct a dual/pathwise inequality — an $\mathbb{E}[\cdot]\le$ bound that holds for every admissible strategy and becomes an equality for the barrier rule — so the barrier strategy attains the supremum. This martingale-inequality machinery is what lets them enlarge the class of cost functions beyond Beiglböck et al.</p>
+<p><strong>Results.</strong> The contribution is theoretical: existence and optimality of the multi-marginal Root-type solution, plus a strictly broader class of admissible cost functions than the prior single-marginal / restricted-cost results. No numerical error bars — the "result" is a theorem and its proof.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal stopping</strong> — choosing the best random time to take an action (like selling) to maximize expected payoff.</li>
+<li><strong>Skorokhod embedding problem (SEP)</strong> — finding a stopping time so that a process, stopped then, has a prescribed probability distribution.</li>
+<li><strong>Marginal / multi-marginal</strong> — the target distribution(s) the stopped process must match, one per stopping time.</li>
+<li><strong>Convex order</strong> — an ordering of distributions ($\mu\preceq\nu$) meaning $\nu$ is "more spread out"; it's exactly when a martingale can carry $\mu$ into $\nu$.</li>
+<li><strong>Root barrier</strong> — a region in (time, state) space such that stopping the first time you enter it reproduces the target law; the canonical minimal-variance SEP solution.</li>
+<li><strong>Martingale inequality argument</strong> — proving optimality by exhibiting a pathwise inequality that every strategy satisfies and the candidate meets with equality.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is pure probability with a finance-flavored motivation: the payoff is a clean structural theorem, not a trading system. Real desks rarely face a <em>hard</em> distributional constraint on execution times, so the direct practical use is niche — but the SEP/barrier toolkit it strengthens underpins robust (model-free) pricing of exotic options, where these results genuinely matter. Expect it to be cited in that literature rather than coded into an execution engine.</p>
+<h3>Bottom Line</h3>
+<p>When your timing must obey a fixed statistical shape, optimality collapses to a beautifully dumb rule: wait for a reversed-time picture to cross a pre-drawn line, then act.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Traveling Waves in Equity Markets with Rank-Based Entry and Exit</h2>
+  <p class="meta">Graeme Baker, Caroline Smyth<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-27 &middot; <a href="http://arxiv.org/abs/2608.27156v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.27156v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The whole tug-of-war of the stock market — big firms drifting down, small firms climbing, companies being born and dying — settles into a <em>traveling wave</em>: a fixed-shape distribution of company sizes that glides steadily along, and it's firm turnover, not returns, that holds it together.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Look at all public companies ranked by size. Year after year, that "size pyramid" looks remarkably stable in shape even though individual firms rise, fall, get acquired, or go bankrupt. Economists and quants have long wanted a <em>mechanism</em> that explains this stability — because the shape controls real money. In particular, "diversity-weighted" index funds (which deliberately tilt toward smaller stocks) earn their edge precisely from this rank structure. So: what physical-style law keeps the distribution of company sizes steady, and where does the profit of these funds actually come from?</p>
+<p><strong>The idea.</strong> Model each firm as a little particle whose (log) size does a random walk with drift — a geometric Brownian motion. The twist: firms <em>enter and exit</em> the market at rates that depend on their <em>rank</em>, not their absolute size. Tiny firms are more likely to disappear or be born; the biggest are more stable. Now imagine not a few hundred firms but a limit of infinitely many. The cloud of particles blurs into a smooth density, and that density obeys a <em>reaction–diffusion equation</em> — the same kind of equation physicists use for flames spreading or populations growing. The "diffusion" is the random size fluctuations; the "reaction" (birth/death from the rank-based entry and exit) is what makes it special. When they fit this to real US stock data, the reaction term turns out <em>bistable</em> — it has two competing stable states — and bistable reaction–diffusion equations famously produce <strong>traveling waves</strong>: a fixed profile that translates at constant speed. That, they argue, <em>is</em> the stable market size-distribution, quietly marching along.</p>
+<p><strong>What they found.</strong> They prove such a traveling wave exists, is unique, and (in the clean constant-coefficient case) that the market relaxes back to it exponentially fast after a shock. Fitting to CRSP data across every decade, the wave tracks the real capital distribution strikingly well. The punchline: <em>turnover</em>, not the drift of returns, is what stabilizes the market, and it "reclaims most of what rebalancing gains" — meaning much of the celebrated profit of diversity-weighted portfolios is really the market's churn of firms entering and leaving, not a free lunch from rebalancing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Each firm $i$ has log-capitalization $X^i_t$ evolving as a geometric Brownian motion; firms enter and exit at <em>rank-dependent</em> intensities. Rank matters: let $\mu$ denote the empirical <em>capital distribution</em> (the ranked, normalized market weights). In the many-firm ($N\to\infty$) mean-field limit, the density $\rho(t,x)$ of (log) sizes converges to the solution of a reaction–diffusion PDE
+$$\partial_t \rho = \tfrac{1}{2}\sigma^2\,\partial_{xx}\rho \;-\; \partial_x\!\big(b\,\rho\big) \;+\; f(\rho),$$
+where $\rho(t,x)$ is the density of firms at log-size $x$ and time $t$, $\sigma$ is volatility, $b$ the drift, and $f$ the <em>reaction term</em> assembled from the rank-based entry/exit intensities. The first term is diffusion (random size shocks), the middle is transport (drift), and $f$ injects/removes mass (births/deaths).</p>
+<p><strong>The key equation — traveling wave.</strong> A traveling-wave solution has the form
+$$\rho(t,x) = \Phi(x - ct),$$
+where $\Phi$ is a fixed profile and $c$ is the wave speed. Substituting reduces the PDE to an ODE in the moving coordinate $\xi = x-ct$:
+$$\tfrac{1}{2}\sigma^2\,\Phi'' + (c-b)\,\Phi' + f(\Phi) = 0.$$
+Here $\Phi'$ and $\Phi''$ are derivatives in $\xi$. <em>Bistability</em> of $f$ (two stable zeros) is exactly the condition that yields a unique wave connecting the two states.</p>
+<p><strong>The method.</strong> (i) Propagation of chaos / mean-field limit to derive the PDE from the interacting particle system. (ii) PDE analysis: existence and uniqueness of the traveling wave for a bistable reaction, and, for constant coefficients, a proof of <em>exponential relaxation</em> to the wave (spectral-gap / comparison arguments). (iii) Empirical calibration: fit $b,\sigma,f$ to CRSP data.</p>
+<p><strong>Results with numbers.</strong> Calibrated on CRSP data, the reaction term is <em>bistable</em>; the wave tracks the empirical capital distribution "in every decade." It quantifies the capitalization growth of diversity-weighted portfolios and places the market "just inside the boundary of the diverse phase." Headline economic claim: turnover reclaims <em>most</em> of the excess growth usually attributed to rebalancing.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Geometric Brownian motion</strong> — a model where a quantity's <em>percentage</em> changes are random and normally distributed, so it stays positive.</li>
+<li><strong>Capital distribution</strong> — the ranked profile of how total market value is split across firms by size.</li>
+<li><strong>Mean-field / many-firm limit</strong> — letting the number of firms go to infinity so the discrete cloud becomes a smooth density.</li>
+<li><strong>Reaction–diffusion equation</strong> — a PDE combining spreading (diffusion) with local creation/destruction (reaction); used for flames, populations, and here, firms.</li>
+<li><strong>Bistable</strong> — a reaction with two stable equilibria, which typically supports a unique traveling front between them.</li>
+<li><strong>Diversity-weighted portfolio</strong> — an index tilted toward smaller stocks by weighting on rank, a staple of stochastic portfolio theory.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a lovely, physics-flavored explanation of a real regularity, and the "turnover, not rebalancing" reframing is provocative for anyone selling diversity-weighted products. But the clean theorems live in the constant-coefficient idealization, and real markets have correlated shocks, regime changes, and messy entry/exit that the mean-field limit smooths away. Treat it as a powerful lens on <em>why</em> the distribution is stable, not a live trading signal.</p>
+<h3>Bottom Line</h3>
+<p>The stock market's size pyramid isn't standing still — it's a wave rolling forward, propelled by the constant churn of firms entering and leaving.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Discrete asset pricing under transaction costs and model uncertainty with and without short-sale constraints</h2>
+  <p class="meta">Wenqing Zhang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-22 &middot; <a href="http://arxiv.org/abs/2608.21873v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.21873v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you can't agree on the true probabilities of the market <em>and</em> every trade costs you the bid–ask spread, "no free lunch" stops meaning "there's a fair price" and starts meaning "there's a whole <em>band</em> of fair prices held up by a family of not-quite-fair coins."</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The bedrock theorem of mathematical finance says, roughly: a market offers no arbitrage (no risk-free money machine) if and only if there's a special "pricing probability" under which every asset drifts like a fair game. Beautiful — but it assumes two fantasies. First, that you can buy and sell at a single price (no bid–ask spread). Second, that everyone agrees on <em>the</em> probability distribution of the future. Real markets violate both: you always pay more to buy than you receive to sell, and nobody actually knows the true odds — you face <em>model uncertainty</em>, a whole set of plausible probability models rather than one. The question is whether the clean "no arbitrage ⇔ fair-pricing-measure" story survives once you add spreads and uncertainty.</p>
+<p><strong>The idea.</strong> The author rebuilds the theory from scratch in discrete time (day-by-day steps, on a tree of possible futures) with <em>both</em> frictions switched on. The key conceptual move for handling model uncertainty is to stop asking "what's the true probability?" and instead work with the <em>union of the supports</em> of all the candidate models — essentially, every future scenario that <em>any</em> plausible model considers possible. No-arbitrage then has to hold across that whole umbrella of scenarios at once. They also handle the realistic case where you <em>can't</em> short-sell (can't bet on prices falling). The lovely finding: banning short-sales <em>softens</em> the requirement — instead of needing a perfectly fair game (a martingale), you only need a game that's fair-or-better-for-the-seller (a supermartingale).</p>
+<p><strong>What they found.</strong> They prove clean "fundamental theorems of asset pricing" in this hard setting: in the unconstrained market, no-arbitrage is equivalent to the existence of a <em>full-support</em> consistent pricing system that's a martingale within the spread; under short-sale constraints, martingale is replaced by <em>super</em>martingale. They extend it from one period to a multi-period tree, allow the starting information to be nontrivial (so prices and valuation bounds can depend on where you start), and introduce <em>robust</em> upper and lower pricing systems for a whole family of measures — showing a lower system must exist under no-arbitrage, an upper system is enough to guarantee no-arbitrage, and a two-state example proving the lower condition <em>alone</em> isn't sufficient.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Discrete time $t=0,1,\dots,T$ on a filtered space. Each asset has a <em>bid</em> price and an <em>ask</em> price (bid $\le$ ask), encoding transaction costs. Instead of one measure $\mathbb{P}$, we're given a family $\mathcal{P}$ of probability measures (model uncertainty). Positions are constrained (with/without short-selling). No-arbitrage is required <em>quasi-surely</em> — i.e. across $\bigcup_{\mathbb{Q}\in\mathcal{P}}\operatorname{supp}(\mathbb{Q})$, the union of supports.</p>
+<p><strong>The key objects.</strong> A <em>consistent price system</em> is a pair: a process $\tilde S_t$ lying inside the bid–ask spread, $\text{bid}_t \le \tilde S_t \le \text{ask}_t$, together with a measure under which $\tilde S$ has the right martingale property. In the frictionless single-model case the classical statement is
+$$\text{No Arbitrage} \iff \exists\, \mathbb{Q}\sim\mathbb{P}:\ S_t = \mathbb{E}_{\mathbb{Q}}[S_{t+1}\mid \mathcal{F}_t],$$
+where $S_t$ is the price, $\mathbb{Q}$ an equivalent martingale measure, $\mathcal{F}_t$ the information up to $t$, and $\mathbb{E}_\mathbb{Q}$ expectation under $\mathbb{Q}$. This paper replaces the equality by a spread-consistency plus, under constraints, the <em>supermartingale</em> relaxation
+$$\tilde S_t \ \ge\ \mathbb{E}_{\mathbb{Q}}[\tilde S_{t+1}\mid \mathcal{F}_t],$$
+meaning the discounted consistent price can drift <em>down</em> on average — allowed because you cannot short to exploit it.</p>
+<p><strong>Robust systems.</strong> For the family $\mathcal{P}$ they define <em>lower</em> and <em>upper robust supermartingale consistent price systems</em>. Results: no-arbitrage $\Rightarrow$ existence of a lower system; existence of an upper system $\Rightarrow$ no-arbitrage. A two-state counterexample shows the lower condition is <em>necessary but not sufficient</em>.</p>
+<p><strong>The method.</strong> Separating-hyperplane / duality arguments (Hahn–Banach–style) adapted to the quasi-sure, union-of-supports setting, done first in one period then propagated along a finite tree via dynamic (backward) arguments; conditioning handles the nontrivial initial information.</p>
+<p><strong>Results.</strong> The deliverables are theorems: single-period FTAP with and without short-sale constraints; the multi-period extension with state-dependent valuation bounds; and the asymmetric sufficiency result (upper system sufficient, lower necessary-not-sufficient) pinned down by an explicit two-state example.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Arbitrage</strong> — a trading strategy that costs nothing, can't lose, and might win: a free money machine.</li>
+<li><strong>Fundamental theorem of asset pricing (FTAP)</strong> — the result linking "no arbitrage" to the existence of a pricing measure that makes prices fair games.</li>
+<li><strong>Bid–ask spread / transaction costs</strong> — the gap between the price to buy (ask) and to sell (bid); the built-in cost of trading.</li>
+<li><strong>Martingale vs. supermartingale</strong> — a martingale has zero expected drift given today's info; a supermartingale drifts down or stays flat.</li>
+<li><strong>Model uncertainty / quasi-sure</strong> — not trusting a single probability model; requiring statements to hold across all scenarios any candidate model deems possible.</li>
+<li><strong>Consistent price system</strong> — a shadow price living inside the bid–ask spread that behaves like a (super)martingale under some measure.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational robust-finance mathematics — it tells you <em>when</em> consistent prices exist, not <em>what number</em> to quote or how to hedge efficiently. It lives in discrete time on finite trees, so continuous-time and computational aspects are out of scope, and the "family of measures" is taken as given rather than estimated. A practitioner won't run it, but it's the kind of result that legitimizes the pricing <em>bands</em> (rather than single prices) that robust and XVA desks already reason about.</p>
+<h3>Bottom Line</h3>
+<p>Add real trading costs and honest uncertainty, and the single "fair price" dissolves into a defensible band — guaranteed to exist exactly when no free lunch does.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Capital allocation on decentralized lending platforms</h2>
+  <p class="meta">Bastien Baude, Vincent Danos, Hamza El Khalloufi<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-08-25 &middot; <a href="http://arxiv.org/abs/2608.24206v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.24206v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you're a lender spreading money across several crypto-lending pools whose interest rates <em>drop</em> as you pour more money in, there's an exact formula for the best split — and, surprisingly, it's never optimal to fill a pool right up to its "kink."</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In decentralized finance (DeFi), you can lend a stablecoin like USDC into automated "money markets" and earn interest set by code, not a banker. The catch: the interest rate a pool pays <em>falls</em> the more capital sits in it (more supply, lower yield — basic supply and demand, hard-wired into a formula). So a lender with, say, a fixed pile of USDC to deploy across several such pools faces a genuine optimization: dump it all in the highest-yielding pool and you crush that pool's rate; spread it too thin and you leave yield on the table. Everyday analogy: you have cash to split across savings accounts, but each account's rate drops the more you deposit, and your own deposits move the rate. Where do you put each dollar?</p>
+<p><strong>The idea.</strong> The authors write down the actual rate formulas these platforms use and solve the lender's allocation problem <em>in closed form</em> — a clean equation, not a black-box optimizer — for three standard interest-rate curve shapes: <strong>linear</strong> (rate falls in a straight line with utilization), <strong>kinked</strong> (flat-ish, then a sharp bend upward past a target utilization — the industry-standard "kink" model), and <strong>adaptive</strong> (Morpho's AdaptiveCurveIRM, where the curve itself slowly shifts over time). Think of "utilization" as how full the pool is — the fraction of supplied money that's currently borrowed. The kink is a deliberately placed elbow in the rate curve that's supposed to keep pools near a healthy target.</p>
+<p><strong>What they found.</strong> Two things. First, they get explicit optimal allocations under all three models and <em>backtest</em> them on real Morpho markets on Ethereum (USDC first, then WETH), so the formulas aren't just theory. Second, a sharp structural insight: under the kinked model, the lender's optimum is <em>never</em> exactly at the kink — a lender should either stop short of it or push well past it, but never park a market precisely on the elbow. That's the opposite of what's optimal for <em>borrowers</em>, who can find the kink attractive. This asymmetry means lenders and borrowers pull the market in opposite directions around the kink, which can <em>amplify</em> interest-rate volatility right where the protocol designers wanted stability.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A lender has a fixed budget $B$ to allocate as $x_1,\dots,x_n \ge 0$ with $\sum_i x_i = B$ across $n$ markets sharing the same supplied asset. Each market $i$ has a supply/borrow state summarized by <em>utilization</em> $U_i$ = borrowed / supplied. Adding lender capital $x_i$ raises supply, hence <em>lowers</em> $U_i$ and the paid rate. The lender's return in market $i$ is (supply rate) × (their share), and total return is the sum.</p>
+<p><strong>The objective.</strong> Maximize
+$$\max_{x_1,\dots,x_n\ge 0,\ \sum_i x_i = B}\ \sum_{i=1}^{n} r_i\!\big(U_i(x_i)\big)\cdot x_i,$$
+where $x_i$ is capital placed in market $i$, $U_i(x_i)$ the resulting utilization, and $r_i(\cdot)$ the supply interest-rate function. The three model families specify $r_i$: <strong>linear</strong> $r(U)=aU$; <strong>kinked</strong> $r(U)$ has slope $s_1$ up to a target $U^\*$ then a steeper slope $s_2$ beyond; <strong>adaptive</strong> lets the curve's level drift according to Morpho's AdaptiveCurveIRM.</p>
+<p><strong>The key result (the kink).</strong> Because supplying capital <em>reduces</em> $U_i$, and the marginal-return conditions (a Lagrange/KKT stationarity condition equating marginal returns across markets, $\partial/\partial x_i[r_i(U_i)x_i] = \lambda$ for all funded $i$) are analyzed piecewise around $U^\*$, they prove the lender-optimal allocation never leaves a market <em>exactly</em> at the kink $U=U^\*$: the objective's one-sided derivatives don't reconcile there, so the optimum sits strictly on one side. On the <em>borrower</em> side the analogous condition <em>can</em> be met at the kink — hence the asymmetry.</p>
+<p><strong>The method.</strong> Constrained optimization solved analytically per rate-model (closed-form allocations via first-order/KKT conditions), then empirical <em>backtesting</em> on historical Morpho USDC and WETH market data on Ethereum to check realized performance against the formulas.</p>
+<p><strong>Results.</strong> Closed-form optimal allocations for linear, kinked, and adaptive IRMs; backtests on USDC then WETH Morpho markets; and the structural theorem that the kink is never lender-optimal while it can be borrower-optimal — a documented source of potential rate volatility.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>DeFi lending market</strong> — a smart-contract pool where suppliers deposit an asset and borrowers take it, with interest set algorithmically.</li>
+<li><strong>Utilization</strong> — the fraction of supplied capital currently borrowed; the main driver of the interest rate.</li>
+<li><strong>Interest-rate model (IRM)</strong> — the formula mapping utilization to the interest rate (linear, kinked, or adaptive here).</li>
+<li><strong>Kink</strong> — a deliberate bend in the rate curve at a target utilization, meant to nudge markets toward a healthy level.</li>
+<li><strong>Closed-form solution</strong> — an exact answer written as a formula, no iterative solver needed.</li>
+<li><strong>KKT / first-order conditions</strong> — the calculus conditions characterizing the optimum of a constrained maximization.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The math is tidy and, refreshingly, backtested on live on-chain data — but it assumes a single lender optimizing against <em>fixed</em> pool states, ignoring that other lenders and borrowers react simultaneously (no game-theoretic equilibrium, no gas costs, no smart-contract risk). The "never at the kink" result is a genuinely useful design warning, yet real deployment would need to account for competition and rapidly moving utilization. Usable as a sizing guide for a sophisticated DeFi lender; not a turnkey strategy.</p>
+<h3>Bottom Line</h3>
+<p>For a DeFi lender the optimal split has an exact formula — and it says to steer clear of the very kink the protocol built to hold rates steady.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> On the approximation of posterior laws in compound loss models by conditional Wasserstein GANs</h2>
+  <p class="meta">Aleksandar Arandjelovic, Pavel V. Shevchenko, George Tzougas<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-08-27 &middot; <a href="http://arxiv.org/abs/2608.27229v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.27229v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of re-running expensive statistics every time an insurer updates its beliefs about catastrophe losses, train one neural network <em>once</em> that spits out the answer instantly — and it works even for the heavy-tailed distributions where the usual math breaks down.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Insurers pricing rare, catastrophic losses (think hurricanes, earthquakes, wildfires) constantly ask a Bayesian question: given the losses I've seen and my prior beliefs, what's my <em>updated</em> belief about the underlying risk — how often claims arrive, and how fat the tail of a single claim is? Answering that "posterior" question exactly is easy only in textbook "conjugate" cases. In the real world — with mixtures of prior beliefs and heavy-tailed severities — you're forced into slow numerical integration or Markov chain Monte Carlo (MCMC), and you have to <em>redo it from scratch</em> for every policy, every market scenario, every tweak to your prior. That's crushingly expensive when you need to do it thousands of times.</p>
+<p><strong>The idea.</strong> Borrow a trick from modern machine learning called <em>amortized inference</em>: pay a big one-time training cost so that afterward each answer is nearly free. Concretely, they train a <em>conditional generative adversarial network</em> (GAN) — two neural nets, one <em>generating</em> samples from the posterior and one <em>critiquing</em> whether those samples look right — that takes as input a compact summary of your situation (the data's sufficient statistics, your prior's mean and spread, which prior families you're mixing) and <em>outputs samples from the posterior distribution directly</em>. A GAN is like a forger-and-detective pair: the forger learns to produce fake posterior samples so convincing the detective can't tell them from the real thing, at which point the forger <em>is</em> a posterior sampler. Remarkably, a <em>single shared generator</em> learns to handle two very different parameters at once — how frequently losses occur (a Poisson intensity) and how heavy the loss tail is (a Pareto shape) — across mixtures of three different prior families.</p>
+<p><strong>What they found.</strong> The one network reproduces the true posteriors: they check it against exact analytical answers where those exist, against high-accuracy numerical quadrature, against heavy MCMC runs, and via <em>simulation-based calibration</em> (a formal test that the network's uncertainty is honest, not over- or under-confident). Then they apply it to real extreme natural-catastrophe loss data, producing rolling one-year forecasts of future losses and showing how heavy tails and uncertainty about <em>which prior is right</em> inflate aggregate tail risk. The win over MCMC isn't accuracy — it's that after training, answers are effectively instant and can be produced at scale.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A <em>compound loss model</em>: aggregate loss $S = \sum_{i=1}^{N} Y_i$, where $N\sim\text{Poisson}(\lambda)$ is the (random) number of claims and each severity $Y_i$ is, e.g., Pareto with shape $\alpha$. The unknowns are the frequency parameter $\lambda$ and the tail parameter $\alpha$. We place a prior $\pi(\lambda,\alpha)$ — here a <em>mixture</em> over Gamma, inverse-Gaussian, and lognormal families — and want the posterior
+$$\pi(\lambda,\alpha \mid \text{data}) \;\propto\; L(\text{data}\mid \lambda,\alpha)\,\pi(\lambda,\alpha),$$
+where $L$ is the likelihood, $\pi$ the prior, and the proportionality hides the intractable normalizing integral that makes exact inference hard.</p>
+<p><strong>The key idea — amortization.</strong> Rather than approximate one posterior, learn a map from <em>problem descriptors</em> to the whole posterior. Let $\theta=(\lambda,\alpha)$ and let $c$ be a conditioning vector holding the sufficient statistics of the data, the prior mean and coefficient of variation, and the mixture weights. A generator $G_\phi(z,c)$ with noise $z\sim\mathcal{N}(0,I)$ and weights $\phi$ is trained so that $G_\phi(z,c)\sim \pi(\theta\mid c)$. The <em>conditional Wasserstein GAN</em> objective is
+$$\min_{\phi}\ \max_{\psi\in\text{1-Lip}}\ \mathbb{E}_{\theta\sim\pi(\cdot\mid c)}[D_\psi(\theta,c)] - \mathbb{E}_{z}[D_\psi(G_\phi(z,c),c)],$$
+where $D_\psi$ is the <em>critic</em> (constrained to be 1-Lipschitz), the inner max estimates the Wasserstein-1 distance between generated and true posteriors, and the outer min trains the generator to shrink it. Wasserstein-1 (the "earth-mover" distance) measures the minimal cost to reshape one distribution into another.</p>
+<p><strong>The method.</strong> Train the cWGAN on simulated $(\theta, \text{data})$ pairs drawn from the model. Validate with (i) closed-form posteriors in conjugate cases, (ii) deterministic quadrature, (iii) extensive MCMC, and (iv) <em>simulation-based calibration</em> (SBC), which checks that posterior ranks of the true parameter are uniform — the signature of a correctly calibrated posterior.</p>
+<p><strong>Results.</strong> A <em>single shared generator</em> approximates posterior laws for both the Poisson intensity and the Pareto shape under Gamma/inverse-Gaussian/lognormal prior mixtures, passing SBC and matching analytical, quadrature, and MCMC benchmarks. Applied to extreme catastrophe-loss data, it yields rolling one-year posterior predictive distributions and quantifies how heavy tails and prior-family uncertainty lift aggregate tail risk.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Posterior</strong> — your updated probability distribution over unknown parameters after seeing data, via Bayes' rule.</li>
+<li><strong>Compound loss model</strong> — total loss = a random number of claims, each of random size; standard in insurance.</li>
+<li><strong>Amortized inference</strong> — training once so that each subsequent inference is cheap, instead of solving every case from scratch.</li>
+<li><strong>GAN (generative adversarial network)</strong> — a generator and a critic trained against each other until the generator produces realistic samples.</li>
+<li><strong>Wasserstein distance</strong> — the "earth-mover" cost of reshaping one distribution into another; a stable objective for training GANs.</li>
+<li><strong>Simulation-based calibration (SBC)</strong> — a diagnostic verifying that an approximate posterior has honest, well-calibrated uncertainty.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This trades a big upfront training cost and the fragility of GAN training for lightning-fast repeated inference — great when you truly need thousands of posteriors, less compelling for a one-off calculation. The approximation is only as good as the simulator it's trained on, and GANs can silently miss modes or misjudge the extreme tail — precisely the region catastrophe insurers care most about — so the SBC and MCMC cross-checks are load-bearing, not optional. Promising for pricing/reserving pipelines, but a cautious actuary will keep MCMC on hand to audit the tail.</p>
+<h3>Bottom Line</h3>
+<p>Train the network once and every future "what do I now believe about this catastrophe risk?" becomes an instant lookup instead of an overnight computation.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
