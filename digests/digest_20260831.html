@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — August 31, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">August 31, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Pricing and Calibration of Bitcoin Inverse Options via the Rough Bergomi Model</h2>
+  <p class="meta">Riccardo Caruso<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-27 &middot; <a href="http://arxiv.org/abs/2608.27575v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.27575v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Bitcoin's volatility is so jagged that pricing its options needs a model where volatility is "rougher" than a Brownian motion — and this paper shows exactly how rough, and how to compute the prices fast.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On the crypto exchange Deribit you can buy a Bitcoin option — the right to buy Bitcoin at a fixed price later. But there's a twist: these are <em>inverse</em> options, settled in Bitcoin itself, not in dollars. So the payoff is a strange fraction, not a simple difference, and the currency you get paid in is the very thing whose price you're betting on. On top of that, Bitcoin's volatility (how wildly the price swings) doesn't behave like the calm, textbook randomness in classic finance models. It flickers and jumps in a way that looks "rough" — like a coastline that stays jagged no matter how far you zoom in. If you price these options with a smooth model, you get the numbers badly wrong, and a trading desk that mis-prices ends up on the losing side of every trade.</p>
+<p><strong>The idea.</strong> The author borrows a modern tool called the <strong>rough Bergomi model</strong>. Think of ordinary randomness as a drunkard's walk where each step is independent. "Rough" randomness is a drunkard whose steps are strongly, negatively tangled with the recent past — so the path is far more crinkled. The model uses a parameter called the <em>Hurst exponent</em> to dial the roughness: near 0.5 is ordinary Brownian motion, near 0 is extremely rough. The hard part is that this crinkly randomness can't be simulated by simple formulas, so the paper builds and races three computational "pipelines" to generate the paths and average the payoffs, and adapts them to the weird inverse payoff.</p>
+<p><strong>What they found.</strong> The best pipeline — a clever "Hybrid" simulation scheme plus a variance-reducing "Mixed" estimator — was both the most accurate <em>and</em> about 20 times faster than the naive approach (17 seconds versus minutes per market snapshot). Fitting the model to 30 real Deribit volatility surfaces from 2022–2025, the roughness knob kept slamming against its lowest setting (Hurst approximately 0.01–0.06), confirming Bitcoin volatility is genuinely, extremely rough — rougher than most equity markets.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Under the rough Bergomi model the log-price and its variance evolve as
+$$dS_t = \sqrt{v_t}\,S_t\,dW_t, \qquad v_t = \xi_0(t)\,\exp\!\Big(\eta\, \sqrt{2H}\!\int_0^t (t-s)^{H-1/2}\,dZ_s - \tfrac{1}{2}\eta^2 t^{2H}\Big),$$
+where $S_t$ is the Bitcoin price, $v_t$ the instantaneous variance, $\xi_0(t)$ the forward variance curve (today's market guess of future variance), $\eta$ the volatility-of-volatility, $H$ the Hurst exponent controlling roughness, and $W_t, Z_t$ are correlated Brownian motions with correlation $\rho$. The integral against $(t-s)^{H-1/2}$ is a <em>fractional</em> (Riemann–Liouville) Brownian motion — that power-law kernel is what makes the paths rough when $H<1/2$.</p>
+<p><strong>The key adaptation.</strong> The inverse option pays, in Bitcoin,
+$$\text{payoff} = \frac{\max(S_T - K,\,0)}{S_T},$$
+where $K$ is the strike and $T$ the maturity. Because you're paid in the underlying, the price is a discounted expectation under the risk-neutral measure $\mathbb{Q}$ of this ratio, not the usual $\max(S_T-K,0)$. Dividing by $S_T$ makes the estimator sensitive to the deep-out-of-the-money tail, which is exactly where roughness bites.</p>
+<p><strong>The method.</strong> There is no closed form, so everything is <strong>Monte Carlo</strong>: simulate many volatility paths, price along each, average. The two design choices are (i) how to simulate the fractional Brownian motion — exact <strong>Cholesky</strong> factorization of the covariance matrix (accurate but slow) versus the <strong>Hybrid Scheme</strong> of Bennedsen–Lunde–Pakkanen (approximates the singular near-diagonal kernel exactly and the rest by a discrete sum); and (ii) the payoff estimator — plain <strong>log-Euler</strong> versus the <strong>Mixed Estimator</strong>, which conditions on the variance path and prices the residual analytically to cut variance. Calibration then minimizes RMSE between model and market implied-volatility surfaces over $(\xi_0,\eta,\rho,H)$.</p>
+<p><strong>Results with numbers.</strong> The Hybrid+Mixed pipeline reached a mean unweighted RMSE of <strong>22.83 percentage points</strong> versus <strong>41.76 pp</strong> for Cholesky+Euler — nearly half the error — at <strong>17 seconds</strong> per snapshot, a <strong>20x speed-up</strong>. Calibrated $H \approx 0.01$–$0.06$ across most regimes. Calibration error scaled almost linearly with at-the-money implied vol (Pearson $r = 0.89$): the more volatile the market, the harder to fit.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the grid of volatilities the market's option prices imply, across strike and maturity.</li>
+<li><strong>Hurst exponent ($H$)</strong> — a number in $(0,1)$ measuring path roughness; below $1/2$ means rougher-than-Brownian.</li>
+<li><strong>Fractional Brownian motion</strong> — a Gaussian process whose increments are correlated across time, producing rough or smooth paths depending on $H$.</li>
+<li><strong>Monte Carlo estimator</strong> — pricing by simulating many random scenarios and averaging the payoff.</li>
+<li><strong>Risk-neutral measure ($\mathbb{Q}$)</strong> — the reweighted probabilities under which discounted asset prices are fair, used for no-arbitrage pricing.</li>
+<li><strong>Variance reduction (Mixed Estimator)</strong> — a trick that analytically integrates out part of the randomness so the Monte Carlo average converges with far fewer paths.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>An RMSE of ~23 volatility points is still large in absolute terms — useful for research and relative comparison, less so for tight market-making quotes. The rough Bergomi model has no jumps, yet Bitcoin plainly jumps, so some of that residual error is really mis-specification, not just numerics. And calibration to Deribit trade data inherits that venue's liquidity gaps. Still, the speed-up makes rough-volatility calibration genuinely practical for crypto desks that previously found it too slow.</p>
+<h3>Bottom Line</h3>
+<p>Bitcoin's volatility is about as rough as a random process can get, and with the right simulation tricks you can finally price its oddly-settled options fast enough to matter.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Market-Informed Valuation of GMMB Riders with Surrender Options under a Heston Stochastic-Local Volatility Model</h2>
+  <p class="meta">Ludovic Goudenege, Andrea Molent, Xiao Wei, Antonino Zanette<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-28 &middot; <a href="http://arxiv.org/abs/2608.28397v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.28397v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two option-pricing models that agree perfectly on plain vanilla prices can still disagree sharply on the value of a long-dated insurance guarantee — once the customer is allowed to cash out early.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many life-insurance and annuity products come with a <em>guaranteed minimum maturity benefit</em> (GMMB): your money is invested in a fund, and if the fund crashes, the insurer promises you at least a floor amount at the end. That promise is essentially a long-dated put option the insurer has written, and it must be priced and reserved for correctly — get it wrong across millions of policies and the insurer is under-reserved. It gets harder because policyholders can <em>surrender</em> — walk away early and take the cash value — and a rational customer surrenders exactly when it hurts the insurer most. So the insurer is short both a guarantee and an American-style early-exit option.</p>
+<p><strong>The idea.</strong> To price the guarantee you need a model of how the fund's volatility behaves. Two families are popular. A <strong>local-volatility (LV)</strong> model makes volatility a fixed function of price and time — it's tuned to match today's option prices exactly but has no randomness of its own in the volatility. A <strong>stochastic-local-volatility (SLV)</strong> model adds a genuinely random volatility on top (the Heston engine) while a "leverage function" keeps it matching the same option prices. The clever move here: the authors deliberately force both models to agree on every single-date distribution — the marginals — so any difference in the guarantee's value must come purely from how volatility behaves <em>through time</em>, not from a calibration mismatch. It's a controlled experiment isolating one variable.</p>
+<p><strong>What they found.</strong> For a guarantee paid only at maturity, the two models give almost the same value — as expected, since matching marginals pins down single-date payoffs. But the moment you add early surrender, they diverge materially: different guarantee values, different fair fees, and different maps of <em>when</em> a customer should rationally surrender. The lesson: matching vanilla-option prices does <strong>not</strong> remove model risk for insurance liabilities whose value depends on the <em>path</em> of volatility and on optimal early decisions.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The fee-deducted account value $A_t$ and its variance $v_t$ follow the Heston SLV dynamics
+$$dA_t = (r-\phi)\,A_t\,dt + \ell(A_t,t)\sqrt{v_t}\,A_t\,dW_t^A, \qquad dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_t^v,$$
+with $d\langle W^A, W^v\rangle_t = \rho\,dt$. Here $A_t$ is the account value, $r$ the risk-free rate, $\phi$ the continuous fee rate, $\ell(A_t,t)$ the <strong>leverage function</strong>, $v_t$ the instantaneous variance, $\kappa$ its mean-reversion speed, $\theta$ its long-run level, $\xi$ the vol-of-vol, and $\rho$ the price–vol correlation.</p>
+<p><strong>The calibration constraint.</strong> The leverage function is chosen so the SLV model reproduces a target local-volatility surface $\sigma_{LV}$ via the <strong>Markovian projection / Gyongy</strong> identity:
+$$\ell^2(a,t)\,\mathbb{E}\!\big[v_t \,\big|\, A_t = a\big] = \sigma_{LV}^2(a,t).$$
+This forces the conditional expected variance to line up so both models share the same one-dimensional marginals $A_t \sim$ (LV law) for every $t$.</p>
+<p><strong>The pricing equation.</strong> The terminal guarantee value $V$ solves the backward Kolmogorov PDE
+$$\partial_t V + \mathcal{L}V - rV = 0, \quad V(A,v,T) = \max(G - A_T,\,0),$$
+where $\mathcal{L}$ is the two-dimensional generator of $(A_t,v_t)$ and $G$ is the guaranteed floor. With surrender, this becomes a <strong>variational inequality / optimal-stopping</strong> problem: at each state the value is $\max$ of continuing and the surrender payoff, so a free boundary — the <strong>surrender region</strong> — emerges endogenously.</p>
+<p><strong>The method.</strong> They derive the backward equations and solve them with a <strong>hybrid tree/finite-difference scheme</strong>: a recombining tree handles the variance factor $v_t$ while a finite-difference grid handles $A_t$, and dynamic-programming backward induction imposes the surrender-vs-continue $\max$ at each step.</p>
+<p><strong>Results with numbers.</strong> Terminal-only guarantee values under SLV and LV were numerically close (as the shared marginals predict), but with surrender the gap in guarantee values, fair fees $\phi$, and the geometry of the surrender region became material and volatility-regime dependent — demonstrating irreducible model risk that vanilla calibration cannot detect.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>GMMB rider</strong> — an add-on promising a minimum payout at the policy's maturity regardless of fund performance.</li>
+<li><strong>Local vs. stochastic-local volatility</strong> — LV makes volatility a deterministic function of price/time; SLV adds its own random volatility while staying calibrated to the same prices.</li>
+<li><strong>Leverage function $\ell$</strong> — the multiplier that bends SLV dynamics so they reproduce a target local-volatility surface.</li>
+<li><strong>Markovian projection (Gyongy's theorem)</strong> — a result letting you match a complex process's single-date distributions with a simpler one-factor process.</li>
+<li><strong>Optimal stopping / variational inequality</strong> — the math of deciding the best moment to exercise an early-exit right, yielding a free boundary.</li>
+<li><strong>Fair fee</strong> — the fee rate that makes the guarantee's value equal its cost to the insurer at inception.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The "rational surrender" assumes policyholders optimize like option traders — real customers surrender for divorces, job loss, and inertia, so the modeled surrender region is an upper bound on how much value they extract. The framework is computationally heavier than the LV benchmark insurers already use, and calibrating the leverage surface stably is delicate. But the core warning is sound and actionable: reserving off vanilla-matched models understates path-dependent guarantee risk.</p>
+<h3>Bottom Line</h3>
+<p>Matching today's option prices is not enough — for guarantees a customer can walk away from, <em>how</em> volatility moves through time quietly rewrites the liability.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> The Loop-Gain Matrix: Coupled Rebalancing Feedback and the Blind Spots of Scalar Stability Monitoring</h2>
+  <p class="meta">Jihwan Woo<br>
+    <span class="cat">physics.soc-ph</span> &middot; 2026-08-24 &middot; <a href="http://arxiv.org/abs/2608.22768v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.22768v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The real danger from leveraged ETFs isn't any single fund's self-reinforcing rebalancing — it's the <em>matrix</em> of how those funds push and pull on each other, and watching one number at a time is guaranteed to miss it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Leveraged exchange-traded funds (LETFs) promise, say, 3x the daily move of an index. To keep that promise, they must buy more when prices rise and sell when they fall — always near the market close. That mechanical trading nudges the very prices they track, which forces more rebalancing: a feedback loop. Recent work measured this loop for a single fund with one number, the "loop gain," and treated any spillover onto <em>other</em> assets as noise. But funds sit on correlated underlyings and trade in the same closing auction, so one fund's forced trades slam into another's price. If your monitor looks at each fund alone, it can flash "safe" while the coupled system is actually running away.</p>
+<p><strong>The idea.</strong> Model the whole complex as a coupled feedback system — like a room of microphones and speakers where each speaker can howl into every microphone, not just its own. The stability of the whole room isn't set by the loudest single speaker but by the <strong>spectral radius</strong> of the full feedback matrix (the largest amplification factor once you account for all the cross-echoes). The author builds this <strong>loop-gain matrix</strong> $L$ and shows scalar monitoring has two blind spots: it can't see amplification from mutual feedback, and it's completely blind to displacement <em>transmitted</em> into an asset from a coupled neighbor. Crucially, he gives a way to estimate $L$ from only public data — prices and reported fund sizes — using the tendency of forced closing moves to reverse overnight.</p>
+<p><strong>What they found.</strong> In simulation the method nails the true system amplification (error 0.005). In a designed "trap" case, the scalar monitor said <em>safe</em> on 100% of paths while the matrix monitor correctly said <em>unsafe</em>. And in a real 2026 episode, Korea's single-stock LETFs on SK Hynix were shown to be pushing Samsung Electronics' closing price — about <strong>41%</strong> of Samsung's closing displacement was imported from its neighbor, invisible to Samsung's own "moderate" gain. The same test found nothing for the U.S. MicroStrategy–Bitcoin–Coinbase complex, whose closing venue is far deeper and absorbs the trades.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let there be $n$ leveraged products on correlated underlyings. Stack their rebalancing-induced price displacements into a vector, and model the closing feedback as a linear map with <strong>loop-gain matrix</strong> $L \in \mathbb{R}^{n\times n}$, where the diagonal entry $l_{ii}$ is product $i$'s own (scalar) loop gain and the off-diagonals $l_{ij}$ capture how product $j$'s forced trading displaces asset $i$.</p>
+<p><strong>The key inequality.</strong> System stability is governed by the spectral radius
+$$\rho(L) = \max_k |\lambda_k(L)|,$$
+the largest magnitude eigenvalue of $L$. The central structural result is that, for nonnegative coupling,
+$$\rho(L) \;\ge\; \max_i l_{ii},$$
+with strict inequality under genuine two-way coupling. Here $\lambda_k(L)$ are the eigenvalues of $L$; the inequality says the true system feedback is always at least the worst single-product gain — so scalar monitoring <strong>underestimates by construction</strong>. A feedback loop stays stable only while $\rho(L)<1$; the scalar view can report every $l_{ii}<1$ while $\rho(L)\ge 1$.</p>
+<p><strong>The method.</strong> $L$ is estimated by a <strong>reduced-form estimator</strong> from public data alone: forced close rebalancing tends to reverse the next morning, so <strong>cross-asset overnight reversals</strong> (regressing asset $i$'s overnight return on asset $j$'s prior closing displacement, scaled by $j$'s public rebalancing capital) identify the off-diagonal gains without any signed order-flow data. The identification is a <strong>difference-in-differences (DiD)</strong> comparison against control asset pairs, with an exact randomization (permutation) test for significance.</p>
+<p><strong>Results with numbers.</strong> Spectral radius recovered with <strong>RMSE 0.005</strong> at $T=250$ observations; a lead–lag confounder produced only a <strong>2%</strong> false-alarm rate; in the blind-spot configuration the scalar monitor said "safe" and the matrix monitor "unsafe" on <strong>100%</strong> of simulated paths. In the Korean episode: transmission from SK Hynix into Samsung with <strong>DiD $z=-2.82$</strong>, exact-randomization <strong>$p=0.0055$</strong> against 182 control pairs, ~<strong>41%</strong> of Samsung's closing displacement variance imported despite its own gain of only <strong>0.24</strong>. The U.S. MSTR–Bitcoin–Coinbase complex returned nulls.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Leveraged ETF (LETF)</strong> — a fund engineered to deliver a fixed multiple of an index's daily return, requiring mechanical daily rebalancing.</li>
+<li><strong>Loop gain</strong> — how strongly a fund's own forced trading feeds back into the price it must track; above 1 means runaway.</li>
+<li><strong>Loop-gain matrix $L$</strong> — the full table of self- and cross-feedback gains among coupled products.</li>
+<li><strong>Spectral radius $\rho(L)$</strong> — the largest eigenvalue magnitude, governing whether the coupled feedback system amplifies or dies out.</li>
+<li><strong>Overnight reversal</strong> — the tendency of a price pushed by close-auction trading to partially bounce back the next morning, used here as a fingerprint of forced flow.</li>
+<li><strong>Difference-in-differences</strong> — comparing the change in a treated pair against untreated control pairs to isolate a causal effect.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The estimator leans on overnight reversals as a clean signature of forced flow, but genuine overnight news can mimic or mask it, so the identification is only as good as the control pairs chosen. The linear feedback model is a first-order approximation — real close auctions are nonlinear and liquidity varies by day. Still, the policy message is concrete and testable, and regulators monitoring LETF systemic risk really could compute this matrix from data they already have.</p>
+<h3>Bottom Line</h3>
+<p>Systemic feedback lives in the eigenvalues of a matrix, and any regulator still watching one fund at a time is looking at the wrong number.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> $\texttt{findr}$: Transparent and Fair Credit Risk Decisions through Semi-Structured Regressions</h2>
+  <p class="meta">Victor Medina-Olivares, Stefan Lessmann, Jonathan Crook<br>
+    <span class="cat">stat.ML</span> &middot; 2026-08-25 &middot; <a href="http://arxiv.org/abs/2608.24582v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.24582v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A credit model can be honest about <em>why</em> it made a decision and fair across groups at the same time — by splitting its score into a transparent linear part plus a neural correction that is mathematically forced not to overlap with it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a bank decides whether to give you a loan, regulators demand it explain <em>why</em> and prove the model isn't systematically harsher on protected groups. The old workhorse, logistic regression, is wonderfully explainable — each factor gets one coefficient you can read off — but it assumes the world is linear and misses subtler patterns, so it leaves predictive accuracy on the table. Fancy machine-learning models predict better but explain themselves only <em>after the fact</em>, with add-on tools that may not describe what the model actually did. You seem stuck choosing between a model you can trust and a model that works.</p>
+<p><strong>The idea.</strong> Don't choose — decompose. Build the credit score as two pieces added together: a clean <strong>structured</strong> part (a logistic-regression-style formula with readable coefficients) plus a <strong>neural residual</strong> that mops up leftover nonlinear signal. The trick that makes this honest is <strong>orthogonalization</strong>: the neural part is mathematically constrained to be uncorrelated with the structured part, like splitting a sound into "the melody you can name" and "everything else," with a guarantee the two don't secretly encode the same thing. Then the coefficients you report really are the coefficients driving that share of the decision. For fairness, they add a penalty <em>during</em> training that pushes the score distributions of different groups toward each other — using a distance between distributions called the Wasserstein (earth-mover's) distance.</p>
+<p><strong>What they found.</strong> On simulations and eight public credit datasets, findr gracefully slides along a dial: when the true signal is basically linear, it behaves like plain logistic regression (so you lose nothing in transparency); when there's real nonlinear structure, it recovers most of the accuracy of a full neural model. Its built-in diagnostics tell you <em>which regime you're in</em> — how much of the decision the readable coefficients actually explain — so a risk officer knows when the simple story is enough and when they must inspect the residual.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> For applicant features $x$ and default label $y \in \{0,1\}$, the log-odds (logit) of default is modeled as
+$$\eta(x) = \underbrace{\beta_0 + \beta^\top x}_{\text{structured}} \;+\; \underbrace{f_\theta(x)}_{\text{neural residual}}, \qquad \mathbb{P}(y=1\mid x) = \frac{1}{1+e^{-\eta(x)}},$$
+where $\beta_0$ is the intercept, $\beta$ the interpretable coefficient vector, $x$ the features, and $f_\theta$ a neural network with parameters $\theta$.</p>
+<p><strong>The orthogonality constraint.</strong> To stop the network from silently re-absorbing linear effects, $f_\theta$ is constrained to be orthogonal to the structured design space:
+$$\mathbb{E}\big[\,x\, f_\theta(x)\,\big] = 0,$$
+so the residual carries only variation the linear term cannot express. This makes the decomposition of the logit <strong>identifiable</strong> — the reported $\beta$ describe the structured contribution rather than an arbitrary split.</p>
+<p><strong>The fairness penalty.</strong> Let $S = \eta(x)$ be the score and $A$ a protected attribute. The training loss adds an <strong>in-processing Wasserstein penalty</strong> between the score distributions of the groups:
+$$\mathcal{L} = \underbrace{\text{BCE}(y,\eta)}_{\text{fit}} \;+\; \lambda \, W_1\!\big(\mathbb{P}_{S\mid A=0},\, \mathbb{P}_{S\mid A=1}\big),$$
+where BCE is the binary cross-entropy, $W_1$ is the 1-Wasserstein (earth-mover's) distance between the two groups' score distributions, and $\lambda\ge 0$ trades accuracy against group disparity. Minimizing $W_1$ makes the score distributions statistically closer across groups.</p>
+<p><strong>The method.</strong> The whole thing is trained end-to-end by gradient descent, with the orthogonality constraint enforced during optimization and $\lambda$ swept to trace an <strong>accuracy–fairness frontier</strong>. Diagnostics then quantify the structured component's share of logit variation, decision agreement with the full model, and local directional consistency of each coefficient.</p>
+<p><strong>Results with numbers.</strong> Across a simulation study and eight public credit datasets, findr matched logistic regression when the signal was linear and recovered "much of" the neural model's predictive gain when nonlinearity was present, while the frontier let practitioners pick an explicit accuracy-vs-fairness operating point. The diagnostics flagged when coefficient explanations stayed faithful to the full fitted model versus when residual variation had to be examined too.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Logit / log-odds</strong> — the log of the odds of an event; modeling it linearly is exactly logistic regression.</li>
+<li><strong>Semi-structured model</strong> — one that adds an interpretable parametric part and a flexible learned part in a single equation.</li>
+<li><strong>Orthogonalization</strong> — forcing two components to be uncorrelated so each captures distinct, non-overlapping information.</li>
+<li><strong>Wasserstein (earth-mover's) distance</strong> — the minimal "work" to reshape one probability distribution into another; small distance means similar distributions.</li>
+<li><strong>In-processing fairness</strong> — enforcing fairness during training via a penalty, rather than patching outputs afterward.</li>
+<li><strong>Accuracy–fairness frontier</strong> — the trade-off curve of best achievable accuracy at each level of group disparity.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Enforcing orthogonality and a distributional penalty makes optimization touchier and adds hyperparameters ($\lambda$, network size) that themselves affect the fairness claim, so results need careful validation per deployment. Reducing the Wasserstein gap in <em>scores</em> is not the same as satisfying every legal fairness definition — the choice of metric is a policy decision, not a mathematical given. But as a way to make the accuracy–fairness–interpretability trade-off <em>explicit and auditable</em>, it's a genuinely practical step for regulated lending.</p>
+<h3>Bottom Line</h3>
+<p>You don't have to trade away transparency for accuracy in credit scoring — you just have to force the smart part of the model to stay out of the honest part's lane.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Equity Strategy Backtesting: Luck or Edge? The MinervaScore as a Statistical Robustness Grade</h2>
+  <p class="meta">Maria Laura Santoni, Vincent Jouanne, Matthew L. Scullin<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-08-24 &middot; <a href="http://arxiv.org/abs/2608.23808v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.23808v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A great-looking backtest is often just the luckiest of thousands of tries, and this paper builds a single graded score that tells you whether a strategy's track record is real evidence or survivorship theater.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose you test a thousand trading rules on historical data and report only the best one. Its Sharpe ratio looks fantastic — but you'd expect <em>some</em> rule to look great by pure chance, the way flipping enough coins guarantees a long streak of heads somewhere. The standard summaries traders quote — total return, Sharpe ratio, maximum drawdown — say nothing about how many rules were tried, whether the winner holds up out-of-sample, or whether the history is even long enough to trust. So beautiful backtests routinely fool people, and real money follows fake edges.</p>
+<p><strong>The idea.</strong> Bundle the known statistical defenses against this self-deception into one auditable grade, the <strong>MinervaScore</strong>. It combines four established tests — one that discounts the Sharpe ratio for how many strategies were tried, one that estimates the chance the backtest is overfit, one that checks whether the strategy genuinely beats a whole universe of alternatives, and one that asks whether the track record is even long enough to be meaningful — plus a check that performance is stable across market regimes. Each test is turned into a signed "margin" (how far past or short of its pass/fail threshold you are), the margins are combined into a raw number, and that's mapped to a friendly 0–100 grade. Critically, a top "Robustness Seal" only lights up if <strong>all five</strong> gates pass — one weak link and the seal is withheld. The authors are refreshingly candid: this grades <em>statistical support</em>, not future profit.</p>
+<p><strong>What they found.</strong> Calibrated on 359,062 real production backtests and tested on synthetic markets where the truth is known, the score separates genuine signal from lucky noise almost perfectly (AUROC 0.989). But — and they say this plainly — in a pre-registered test on unseen <em>real</em> markets with little surviving edge, the score showed <strong>no</strong> significant relationship to forward returns. So it's an honest validation-and-reporting layer, not a crystal ball.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A strategy produces a return series; after $N$ trials the analyst selects the best. The score aggregates five diagnostics into a signed margin representation. The headline correction is the <strong>Deflated Sharpe Ratio (DSR)</strong>, which asks: given that we picked the max of $N$ Sharpe estimates, is the observed Sharpe still significant?
+$$\text{DSR} = \Phi\!\left(\frac{(\widehat{SR} - SR_0)\,\sqrt{T-1}}{\sqrt{1 - \gamma_3\,\widehat{SR} + \frac{\gamma_4-1}{4}\,\widehat{SR}^{\,2}}}\right),$$
+where $\Phi$ is the standard normal CDF, $\widehat{SR}$ the estimated Sharpe ratio, $T$ the number of observations, $\gamma_3,\gamma_4$ the skewness and kurtosis of returns, and $SR_0$ the <strong>selection-adjusted benchmark</strong> Sharpe — the level you'd expect from the best of $N$ pure-noise trials, which grows with $N$.</p>
+<p><strong>The other gates.</strong> The <strong>Probability of Backtest Overfitting (PBO)</strong> uses combinatorially-symmetric cross-validation to estimate $\mathbb{P}(\text{in-sample best ranks below median out-of-sample})$; <strong>Superior Predictive Ability (SPA)</strong> tests the null that no strategy in the search set beats a benchmark, controlling for the full universe tried; and <strong>Minimum Track Record Length (MinTRL)</strong> is the smallest $T$ needed for $\widehat{SR}$ to be significant at a chosen confidence.</p>
+<p><strong>The aggregation.</strong> Each component $c_i$ is converted to a signed margin $m_i = c_i - \tau_i$ from its admissibility threshold $\tau_i$, combined into a raw score $R = g(m_1,\dots,m_5)$, and mapped monotonically to a 0–100 display. The <strong>Robustness Seal</strong> fires only if $\min_i m_i > 0$ — every gate strictly passes.</p>
+<p><strong>The method.</strong> Pure <strong>statistical hypothesis testing and cross-validation</strong> — no learned model — calibrated on a large corpus and validated against synthetic ground truth and a pre-registered real-market holdout.</p>
+<p><strong>Results with numbers.</strong> Calibration corpus: <strong>359,062</strong> backtest records. On synthetic markets with known truth, AUROC <strong>0.989</strong> at the headline difficulty separating signal from lucky backtests — though only modestly better than a corrected DSR-alone baseline. On the pre-registered unseen real-market test: Spearman $\rho_s = 0.013$, one-sided permutation $p = 0.40$ — <strong>no</strong> significant forward relationship where surviving edge was limited.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Backtest overfitting</strong> — tuning a strategy so well to past data that its edge is an artifact of the sample, not a real signal.</li>
+<li><strong>Sharpe ratio</strong> — average excess return divided by its volatility; higher means more return per unit of risk.</li>
+<li><strong>Deflated Sharpe Ratio</strong> — a Sharpe adjusted downward for the number of strategies tried and for non-normal returns.</li>
+<li><strong>Probability of Backtest Overfitting (PBO)</strong> — the estimated chance the in-sample winner underperforms out-of-sample.</li>
+<li><strong>AUROC</strong> — a 0.5-to-1 measure of how well a score separates two classes; 1.0 is perfect, 0.5 is coin-flip.</li>
+<li><strong>Pre-registered test</strong> — a test whose design is fixed and declared before seeing the data, preventing after-the-fact cherry-picking.</li>
+<li><strong>Minimum Track Record Length</strong> — the shortest history needed for a Sharpe estimate to be statistically credible.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The authors deserve credit for a rare, disarming honesty: on real out-of-sample markets the score did <em>not</em> predict forward returns, so this is a rigor grade, not an alpha signal. Its edge over simply reporting a Deflated Sharpe Ratio is admittedly modest, so the value is mostly in packaging and auditability. Used as a disclosure standard it's genuinely useful; mistaken for a profit forecast it would mislead exactly the people it's meant to protect.</p>
+<h3>Bottom Line</h3>
+<p>The MinervaScore won't tell you a strategy will make money — but it will tell you, in one honest number, whether its track record is evidence or just the loudest coincidence.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
