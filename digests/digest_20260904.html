@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 04, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 04, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Global Multi-Maturity SPX-VIX Calibration Beyond Markovian Stitching</h2>
+  <p class="meta">Atithi Acharya, Yue Sun, Brandon Augustino, Shouvanik Chakrabarti, Shree Hari Sureshbabu, Charlie Che<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-03 &middot; <a href="http://arxiv.org/abs/2609.04087v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.04087v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Fitting the option market one month at a time can secretly hide how those months connect — and that hidden connection is exactly what determines the price of any bet spanning several months.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The S&amp;P 500 (SPX) is the headline US stock index; the VIX is the market's "fear gauge," a number that tells you how jumpy investors expect the SPX to be over the coming month. Both have huge options markets — contracts that pay off depending on where the index or the fear gauge lands at some future date — quoted at many maturities (one month out, two months out, and so on). A bank that sells and hedges these contracts needs one single mathematical model of the world that reproduces <em>all</em> those quoted prices at once. That fitting exercise is called calibration, and the joint SPX–VIX version is famously brutal: the VIX is itself a statement about how much the SPX will wiggle, so the two instruments are chained together and you cannot fit one while ignoring the other.</p>
+<p><strong>The idea.</strong> A popular shortcut is "Markovian stitching": calibrate each month in isolation — this month's smile, next month's smile — then glue the pieces together under the assumption that the future depends only on <em>today's</em> SPX level, not on the whole road that got you there. The authors show this glue quietly throws information away. Two different models can reproduce the <em>identical</em> set of monthly option prices and yet disagree about a contract that spans several months. Picture a hiker whose location you photograph once a month: the monthly snapshots are the same whether they took the scenic switchbacks or the straight highway, but a payout that depends on the <em>route</em> — the path's twists — can't be read off the snapshots. Stitching keeps only the snapshots. Their remedy is a <em>global</em> framework that fits every maturity jointly, without pretending the future forgets its past, plus an algorithm that fits the visible quotes while keeping the deeper consistency conditions honest.</p>
+<p><strong>What they found.</strong> Their method keeps the quantities it is supposed to match ("marginals") about 25 times tighter than the standard alternating-projection approach in a controlled stress test, and on real smoothed SPX/VIX surfaces the worst single-smile fitting error stays under 0.70 volatility points while the internal consistency diagnostics improve substantially. The punchline: adjacent smiles simply <em>cannot</em> reveal the cross-period dependence — you must inject it deliberately.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space carrying monthly SPX levels $S_i$ and variance factors $V_i$, $i=0,1,\dots,n$. A model is a joint law $\mathbb{P}$ on the path $(S_0,V_0,S_1,V_1,\dots)$. It is <em>globally feasible</em> if it matches every quoted SPX and VIX smile at every maturity. Markovian stitching restricts attention to laws where each block $(S_i,V_i,S_{i+1})$ depends on history only through the current level $S_i$.</p>
+<p><strong>The key equations.</strong> Two structural constraints anchor everything. First, SPX is a (discounted) martingale under the pricing measure,
+$$\mathbb{E}[S_{i+1}\mid \mathcal{F}_i] = S_i,$$
+where $\mathcal{F}_i$ is the information available at step $i$. Second, the VIX squared is expected forward variance,
+$$V_i^2 = \mathbb{E}\!\left[\tfrac{1}{\Delta}\!\int_{t_i}^{t_i+\Delta}\! d\langle \log S\rangle_u \,\Big|\, \mathcal{F}_i\right],$$
+tying the fear gauge to the SPX's future wiggle over horizon $\Delta$. Among all feasible laws, the one closest to a Markov reference $\mathbb{Q}$ is selected by minimizing relative entropy,
+$$D(\mathbb{P}\,\|\,\mathbb{Q}) = \mathbb{E}_{\mathbb{P}}\!\left[\log \frac{d\mathbb{P}}{d\mathbb{Q}}\right],$$
+and the authors prove this minimum-information completion is <em>exactly</em> the stitched law — so stitching is what you get if you assume no extra cross-period dependence. Here $\Delta$ is the VIX horizon, $\langle\log S\rangle$ the quadratic variation of log-price, and $d\mathbb{P}/d\mathbb{Q}$ the Radon–Nikodym density (a likelihood ratio between the two models).</p>
+<p><strong>The method.</strong> For finite discretizations they run an <em>augmented-Bregman mirror-descent</em> scheme — a constrained-optimization method that iterates in a geometry warped by an entropy-like Bregman divergence rather than ordinary Euclidean distance. The augmentation splits the objective into (i) a term pinning the observable quote moments and (ii) penalty terms controlling the martingale and dispersion residuals, so the algorithm exposes discrepancies in the <em>conditional</em> rows instead of smearing them across the marginals.</p>
+<p><strong>Results with numbers.</strong> In a controlled infeasible affine system the split keeps prescribed marginals roughly <strong>25× tighter</strong> than cyclic row projection. An exact finite-state example confirms block preservation and shows <em>material</em> multi-period price changes after Markovization. On smoothed real surfaces, worst fitted-smile error stays <strong>below 0.70 volatility points</strong> across the reported budget sweep while conditional diagnostics improve markedly.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Smile</strong> — the curve of option-implied volatilities plotted against strike price; its curved shape is the "smile."</li>
+<li><strong>Calibration</strong> — tuning a model's parameters until it reproduces observed market prices.</li>
+<li><strong>Martingale</strong> — a process whose best forecast of its future value is its current value; discounted tradable prices must be martingales to rule out free money.</li>
+<li><strong>Marginal law</strong> — the probability distribution of one variable (or one time slice) ignoring the others.</li>
+<li><strong>Relative entropy (KL divergence)</strong> — a measure of how much one probability distribution differs from a reference distribution.</li>
+<li><strong>Mirror descent</strong> — an optimization algorithm that takes gradient steps in a transformed geometry, well suited to probability-constrained problems.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framework is heavier than stitching and, crucially, it does not <em>conjure</em> the missing cross-period dependence — it only stops you from silently assuming it away, and still needs an external prior or extra data to pin that dependence down. The tests lean on controlled and smoothed surfaces; whether the 25× gain survives noisy live quotes and larger maturity grids at trading-desk speed is unproven. Realistically this is a warning-and-diagnostic tool for quants pricing path-dependent SPX/VIX structures more than a plug-in replacement for existing calibrators.</p>
+<h3>Bottom Line</h3>
+<p>Monthly option prices are snapshots, not the movie — and if your product depends on the plot, stitching the snapshots will quietly misprice it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Price manipulation in nonlinear transient impact models: rigidity before memory and complete positivity after memory</h2>
+  <p class="meta">Minhyeok Lee<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-09-02 &middot; <a href="http://arxiv.org/abs/2609.02447v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.02447v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Whether a realistic model of how big trades push prices lets someone secretly print free money comes down to one clean rule: put the "square-root" nonlinearity <em>after</em> the market's memory, never before it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy or sell a large amount of a stock, you move its price against yourself — buying pushes the price up, so your later shares cost more. This is "market impact," and it fades over time: the shove you gave the price today partly relaxes tomorrow. That fade is the market's <em>memory</em>. Anyone modeling trading costs has to describe two things — how hard a given trading speed shoves the price (the nonlinearity) and how that shove decays (the memory kernel). But there is a landmine: if you write the model down carelessly, it can accidentally predict that a cleverly designed round trip — buy, sell, buy, sell, ending where you started — costs <em>negative</em> money. That is "price manipulation," a money pump, and any model with it is broken, because real markets don't hand out free cash.</p>
+<p><strong>The idea.</strong> The authors notice something delightfully simple: it matters <em>in what order</em> you compose the two ingredients. Do you first bend the trading rate through a nonlinear function and <em>then</em> let it decay through memory? Or do you accumulate the memory first and <em>then</em> read it out through a nonlinearity? Same two pieces, opposite conclusions. Think of it like a distortion pedal and a reverb on a guitar: "distortion-then-reverb" and "reverb-then-distortion" sound nothing alike. They classify both orderings completely and pin down exactly which combinations are safe. The headline villain is the empirically famous "square-root law" — impact grows like the square root of trade size. Put that concave shape <em>before</em> the memory and you get manipulation; put it <em>after</em> and you're safe.</p>
+<p><strong>What they found.</strong> With the nonlinearity acting first, the <em>only</em> shape that avoids free money is a straight line — any genuine curvature, including the square-root law traders actually observe, admits manipulation. This sharpens a long-standing result (Gatheral's bound $\delta+\gamma\ge1$): the whole region that bound left ambiguous collapses onto the single line "impact is linear." Flip the order, and safety becomes equivalent to a crisp property of the memory kernel called <em>complete positivity</em> — under which square-root-after-memory is manipulation-free. Since every realistically calibrated exponent pair lies in the manipulable set, the moral is unavoidable: concavity must enter <em>after</em> the memory, not before.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A trader chooses a trading-rate path $v(t)$ over $[0,T]$. Transient impact composes an instantaneous law $f$ with a memory (Volterra) kernel $G$. The two orderings are, schematically, price displacement
+$$I_{\text{pre}}(t)=\int_0^t G(t-s)\,f\big(v(s)\big)\,ds \qquad\text{vs.}\qquad I_{\text{post}}(t)=f\!\left(\int_0^t G(t-s)\,v(s)\,ds\right),$$
+where $f:\mathbb{R}\to\mathbb{R}$ is the instantaneous impact law, $G$ the decay kernel, and $s,t$ times. The cost of a round trip is (up to constants) the quadratic-type form $\mathcal{C}[v]=\int_0^T v(t)\,I(t)\,dt$, and <strong>absence of price manipulation</strong> means $\mathcal{C}[v]\ge 0$ for every admissible round trip with net zero inventory.</p>
+<p><strong>The key results.</strong> <em>Nonlinearity-first (rigidity).</em> If $f$ acts before any nonzero integrable kernel and every finite piecewise-constant round trip has nonnegative cost, then $f$ must be <strong>affine</strong> — and <strong>linear</strong> for every nonzero convolution kernel. For the power family $f(x)=\operatorname{sgn}(x)|x|^{\delta}$ with decay $G(t)\propto t^{-\gamma}$, $0<\gamma<1$: manipulation is absent <strong>iff</strong> $\delta=1$. So square-root impact ($\delta=\tfrac12$) is manipulable at <em>every</em> decay exponent, and Gatheral's slow-rate two-block region collapses to the line $\delta=1$. Here $\delta>0$ is the impact-concavity exponent and $\gamma$ the memory-decay exponent.</p>
+<p><em>Nonlinearity-last (complete positivity).</em> If a monotone readout acts <em>after</em> the kernel, safety for all inputs and all readouts is equivalent to <strong>complete positivity</strong> of $G$ — the property that $G$ is the covariance kernel of a Gaussian process, so all its induced quadratic forms are nonnegative — with a constructive converse. Square-root-after-power-law-memory is then manipulation-free.</p>
+<p><strong>The method.</strong> The proofs are constructive. The rigidity theorem uses a <em>zero-volume chattering pump</em> — a rapidly oscillating trade of vanishing net volume — whose profit is read out by two thin baseline trades; crucially this works for <em>singular</em> kernels (unbounded at zero), where earlier proofs that required boundedness fail. The positivity direction builds explicit manipulating strategies when complete positivity fails, and quantifies a "storage quotient" separating round-trip safety from all-input safety for permanent-memory kernels.</p>
+<p><strong>Results with numbers.</strong> No statistical benchmarks — this is a classification theorem — but sharp <em>quantitative geometry</em>: the safe set for order-one composition is the single line $\delta=1$; two-mode Prony kernels, first-order time-inhomogeneous memory, and stable fully-actuated matrix memories are all classified; and calibrated real-world $(\delta,\gamma)$ pairs <em>all</em> land in the manipulable region for the nonlinearity-first ordering.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the adverse price move your own order causes as it executes.</li>
+<li><strong>Transient / memory kernel</strong> — the function $G(t)$ describing how a past trade's price impact decays with elapsed time $t$.</li>
+<li><strong>Volterra kernel</strong> — a kernel used inside a convolution integral over past times, encoding history-dependence.</li>
+<li><strong>Price manipulation (money pump)</strong> — a self-financing round trip that ends flat in inventory yet books a guaranteed profit.</li>
+<li><strong>Square-root law</strong> — the empirical regularity that impact scales like the square root of executed volume.</li>
+<li><strong>Complete positivity</strong> — a kernel property equivalent to being a valid covariance function, guaranteeing all associated energy/cost forms stay nonnegative.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is clean, rigorous applied math, not an empirical trading study: it says which <em>model structures</em> are internally consistent, not how to make money or even that any real market is exactly one of these models. It assumes a specific transient-impact cost functional and deterministic kernels; genuine markets add noise, adverse selection, and cross-asset effects the framework ignores. Its real value is prescriptive — a modeling hygiene rule ("concavity goes after memory") that quants building execution-cost models should heed before their optimizer discovers the fake arbitrage for them.</p>
+<h3>Bottom Line</h3>
+<p>Same nonlinearity, same memory — swap their order and you flip a model between "sound" and "secretly prints money," so put the curvature last.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Insights on Time-consistent Deep Hedging under Elicitable Dynamic Risk Measures</h2>
+  <p class="meta">Shuyi Zhang, Frédéric Godin<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-02 &middot; <a href="http://arxiv.org/abs/2609.02014v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.02014v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can train a neural network to hedge a whole basket of options while measuring risk step-by-step in a way that never makes your future self regret your past self's plan.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> If a bank sells you an option, it doesn't just pocket the premium and hope — it <em>hedges</em>, continuously buying and selling the underlying assets to stay roughly insulated from market moves. Deciding exactly how much to hold, minute by minute, so that your leftover risk is as small as possible, is the hedging problem. It gets nasty fast when the payout depends on a <em>basket</em> of many stocks at once, because the state of the world you must track becomes high-dimensional. "Deep hedging" throws a neural network at this: let the network learn the trading rule directly from simulated market scenarios. But there's a subtle trap in <em>how you score risk over time</em>. If you fix your notion of "acceptable risk" once at the start and never revisit it (a "static" measure), you can end up <em>precommitted</em> to a plan that, halfway through, you'd clearly want to change — your later self and earlier self disagree. That inconsistency is not just philosophically ugly; it can produce genuinely worse hedges.</p>
+<p><strong>The idea.</strong> The authors do deep hedging under <em>dynamic, time-consistent</em> risk measures — you re-evaluate risk at every step in a way that stitches together coherently, so no future regret. The technical key that makes this trainable is <em>elicitability</em>: a risk number is elicitable if there's a scoring rule (a loss function) whose average is minimized exactly at the true risk value — the same trick that lets you train a forecaster by rewarding accurate predictions. They exploit that <em>spectral</em> risk measures (a flexible family that weights bad outcomes more heavily, generalizing "expected shortfall") are <em>conditionally</em> elicitable, so the whole time-consistent objective can be written as something a network can descend on. Analogy: instead of grading a whole exam once at the end, you grade each question with a rule designed so honest answers always score best — and the grades compose sensibly into a final mark.</p>
+<p><strong>What they found.</strong> The approach <em>scales</em> to high-dimensional basket-option hedging, where prior time-consistent methods mostly stuck to toy, low-dimensional setups. They show the choice of scoring function materially affects training behavior, and they benchmark the time-consistent strategies against static-risk (precommitment) deep hedging.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Discrete times $t=0,1,\dots,T$ on a filtered probability space $(\Omega,\mathcal{F},(\mathcal{F}_t),\mathbb{P})$. Tradable assets $S_t\in\mathbb{R}^d$; the agent holds a position $\phi_t$ (a neural network of the observable state) generating hedged portfolio wealth $X_T = -Z + \sum_{t} \phi_t\cdot(S_{t+1}-S_t)$, where $Z$ is the basket option's terminal payoff. A <strong>dynamic risk measure</strong> is a sequence $\rho_t(\cdot)$ mapping future losses to an $\mathcal{F}_t$-measurable risk, and it is <strong>time-consistent</strong> if
+$$\rho_t(X) = \rho_t\big(-\rho_{t+1}(X)\big),$$
+the recursive (tower) property that makes nested one-step risks agree with the multi-step risk.</p>
+<p><strong>The key equation.</strong> A <strong>spectral risk measure</strong> with spectrum $\varphi$ is
+$$\rho_\varphi(L) = \int_0^1 \operatorname{VaR}_u(L)\,\varphi(u)\,du,$$
+where $L$ is the loss, $\operatorname{VaR}_u(L)$ its $u$-quantile, and $\varphi\ge0$ a decreasing weight integrating to one that loads on adverse tail outcomes (expected shortfall is the special case $\varphi=\tfrac1\alpha\mathbf{1}_{u\le\alpha}$). <strong>Elicitability</strong> means there is a scoring function $s(\cdot,\cdot)$ with
+$$\rho(L) = \arg\min_{r}\ \mathbb{E}\big[s(r,L)\big],$$
+so estimating the risk becomes an ordinary expected-loss minimization — precisely what stochastic gradient descent eats.</p>
+<p><strong>The method.</strong> Each step's conditional spectral risk is represented via its eliciting score; the time-consistent objective is built by nesting these one-step problems (dynamic programming in spirit), and a neural network parameterizes the hedging policy $\phi_t$, trained by simulating market paths and minimizing the composed scoring objective by SGD. Different admissible scoring functions for the same risk measure are compared for their effect on training stability and speed.</p>
+<p><strong>Results with numbers.</strong> The paper is framed as an <em>insights</em> study, so the reported findings are qualitative-comparative rather than a single headline ratio: feasibility and convenience on high-dimensional basket hedging where static-risk deep hedging previously dominated; a demonstrated dependence of training dynamics on the scoring-function choice; and time-consistent strategies benchmarked head-to-head against precommitment (static-risk) deep hedging.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Deep hedging</strong> — learning a hedging strategy directly with a neural network trained on simulated market scenarios.</li>
+<li><strong>Dynamic risk measure</strong> — a rule that re-scores risk at each date using the information known then.</li>
+<li><strong>Time-consistent</strong> — the property that step-by-step risk assessments compose into the same verdict as evaluating the whole horizon at once, so no future contradiction.</li>
+<li><strong>Precommitment</strong> — locking in a plan from a fixed initial risk view even if you'd later prefer to deviate.</li>
+<li><strong>Spectral risk measure</strong> — a coherent risk metric that averages quantiles of loss with tail-weighting; expected shortfall is one case.</li>
+<li><strong>Elicitability</strong> — the existence of a scoring rule whose expected value is minimized exactly at the target risk quantity, making it learnable.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a methodological/"insights" paper, so it establishes feasibility and training intuition more than a battle-tested edge; the experiments live in simulation, and real desks face frictions — transaction costs, jumps, model misspecification — that simulated environments only partly capture. Time consistency is theoretically appealing but doesn't guarantee lower realized cost than a well-tuned precommitment hedger. A practitioner would find the elicitability-as-training-objective idea genuinely useful, but would still need to validate on their own market data and cost model.</p>
+<h3>Bottom Line</h3>
+<p>Score risk honestly at every step and your neural hedger stops fighting its own past decisions — even when it's juggling a whole basket.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Adaptive singular-point method for pricing and hedging surrenderable equity-linked contracts</h2>
+  <p class="meta">Andrea Molent, Marcellino Gaudenzi<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-01 &middot; <a href="http://arxiv.org/abs/2609.01323v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.01323v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of building an impossibly large grid to price a savings-and-insurance contract whose fund balance never lands on tidy values, track the price as a smart, adaptive curve in the fund dimension and only grid the factors that actually recombine.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many life-insurance products are also investments: you pay periodic premiums, the money grows in a market-linked fund, and you're promised a guaranteed minimum at maturity or death — plus the right to <em>surrender</em> (cash out early) on certain dates. Pricing and hedging these contracts is genuinely hard for a computational reason. The accumulated fund is <em>path-dependent</em> and <strong>non-recombining</strong>: because you keep adding fresh contributions and the fund grows randomly, two different market paths that reach the same stock price generally reach <em>different</em> fund balances, so the usual trick of collapsing the tree into a compact recombining lattice fails on the fund. Meanwhile the underlying economy has multiple random factors — stochastic volatility (the market's wiggle changes over time) and stochastic interest rates (discounting changes over time) — and the early-surrender feature makes it an optimal-stopping (early-exercise) problem on top. Naively gridding fund × volatility × rate × time is a combinatorial explosion.</p>
+<p><strong>The idea.</strong> The authors sidestep the explosion with a clever separation. The factors that <em>do</em> recombine — variance and interest rate — get ordinary recombining lattices. But at <em>each</em> node of those lattices, instead of adding another grid axis for the fund, they store the contract value as an <strong>adaptive one-dimensional function of the fund balance</strong>. Think of it as: at every "weather state" (given volatility and rates), you carry a flexible curve — value versus fund — rather than a bucket of discrete fund points. Two features make this cheap. Periodic contributions simply <em>shift</em> the curve sideways (adding money translates the fund argument). Surrender is handled by an <em>obstacle</em>: at each surrender date, the value can't drop below the cash-out amount, so you clip the curve up to the surrender floor. The curves are stored as piecewise-cubic pieces that faithfully carry the kinks (from payoffs and exercise) and are continuously pruned to stay compact.</p>
+<p><strong>What they found.</strong> The method produces compact representations with a favorable cost-versus-accuracy trade-off, matches independent Monte Carlo and cross-fitted least-squares Monte Carlo benchmarks closely, and — importantly for risk managers — reveals that two contracts with <em>similar prices</em> can carry <em>materially different</em> sensitivities to equity, volatility, and interest-rate risk.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state is $(F_t, v_t, r_t)$: accumulated fund $F_t$, instantaneous variance $v_t$, and short interest rate $r_t$, correlated. Under the pricing measure the equity fund follows a stochastic-volatility SDE and rates a short-rate SDE, schematically
+$$dS_t = r_t S_t\,dt + \sqrt{v_t}\,S_t\,dW_t^S,\qquad dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_t^v,\qquad dr_t = a(r_t)\,dt + b(r_t)\,dW_t^r,$$
+where $\kappa,\theta,\xi$ are the variance mean-reversion speed, long-run level, and vol-of-vol, $a,b$ the rate drift/diffusion, and the Brownian motions $W^S,W^v,W^r$ are correlated. The contract value $U_t(F,v,r)$ solves the associated pricing problem with periodic cash-flow jumps and a Bermudan surrender constraint.</p>
+<p><strong>The key equations.</strong> Value on regular regions satisfies backward propagation (discounted conditional expectation between event dates); at a contribution date with premium $c$ the fund jumps, giving the translation
+$$U_{t^-}(F,v,r) = U_{t^+}(F + c,\, v,\, r),$$
+and at a surrender date the <strong>obstacle (variational-inequality) condition</strong> is
+$$U_t(F,v,r) = \max\big\{\,U_t^{\text{cont}}(F,v,r),\; \Gamma_t(F)\,\big\},$$
+where $U_t^{\text{cont}}$ is the continuation (hold) value, $\Gamma_t(F)$ the surrender payoff, $F$ the fund, and $t^-,t^+$ the instants just before/after the event. Each $U$ is stored as an adaptive piecewise-cubic function of $F$ at every $(v,r)$ lattice node.</p>
+<p><strong>The method.</strong> A deterministic backward scheme: recombining lattices for $(v,r)$, adaptive piecewise-cubic functional representation in $F$, contributions as argument translations, surrender as a backward obstacle, with continuous pruning that bounds representation error. They prove <strong>weak convergence</strong> of the discretized financial chains, convergence of the adaptive valuation as representation error vanishes, and <strong>Delta consistency</strong> on regular fund regions; for the strict binomial scheme they obtain <strong>first-order weak accuracy</strong> and a <strong>Talay–Tubaro expansion</strong>, which justifies <strong>Richardson extrapolation</strong> to accelerate convergence.</p>
+<p><strong>Results with numbers.</strong> Reported as compact representations and favorable cost-accuracy: close agreement with independent Monte Carlo and cross-fitted least-squares Monte Carlo, first-order weak convergence (with Richardson extrapolation boosting the effective order), and hedging experiments showing similar-value contracts with materially different equity/vol/rate exposures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Surrender (Bermudan)</strong> — the option to cash out the contract early, but only on a preset set of dates.</li>
+<li><strong>Non-recombining</strong> — a tree/state whose branches don't merge back together, so its size grows explosively with time steps.</li>
+<li><strong>Stochastic volatility / interest rates</strong> — models in which the market's variance and the discount rate are themselves random and time-varying.</li>
+<li><strong>Obstacle condition (variational inequality)</strong> — the rule that an early-exercisable value must be the larger of "hold" and "exercise now."</li>
+<li><strong>Talay–Tubaro expansion</strong> — a formula giving the leading error term of a weak discretization, enabling Richardson extrapolation to cancel it.</li>
+<li><strong>Delta consistency</strong> — the guarantee that the method's price sensitivity to the underlying (its Delta) converges to the true hedge ratio.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a specialized deterministic PDE-style engine: fast and accurate for the correlated-factor, single-fund structure it targets, but the one-dimensional-curve-per-node trick leans on the fund being the <em>only</em> badly non-recombining axis — add more path-dependent funds or many underlyings and the approach strains. The convergence theory covers regular regions, so behavior right at exercise boundaries and guarantee kinks warrants care in production. Still, for an insurer already modeling stochastic vol and rates, this is a credible, benchmarkable alternative to Monte Carlo that also delivers hedge sensitivities directly.</p>
+<h3>Bottom Line</h3>
+<p>Don't grid what you can't afford to grid — carry the price as an adaptive curve in the one troublesome dimension and let the well-behaved factors keep their tidy lattices.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Distribution-constrained optimal multiple stopping: the Root-type solution</h2>
+  <p class="meta">Shuoqing Deng, Daxin Huang<br>
+    <span class="cat">math.PR</span> &middot; 2026-08-27 &middot; <a href="http://arxiv.org/abs/2608.27374v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.27374v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you're forced to stop a random process not once but several times, and the <em>distribution</em> of each stopping moment is pinned down in advance, the optimal rule is a set of time-reversed "wait until you hit a barrier" regions — even when those barriers refuse to line up in order.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Optimal stopping is the math of <em>when to quit</em>: you watch something evolve randomly — a stock price, a machine's condition — and you must choose the moment to stop to maximize (or minimize) some reward, using only what you've seen so far. Classic finance example: an American option, where you pick the best moment to exercise. Now add two twists that make this paper's problem special. First, you don't stop once — you stop <em>several</em> times (think staged exits, or a contract with multiple exercise rights). Second — the unusual constraint — the <em>probability distribution</em> of each stopping time is fixed in advance: you're told the statistical profile of when you'll stop (say, "the first stop must be distributed like <em>this</em>"), and your rule has to honor it. This "distribution-constrained" flavor shows up in a deep connection to the <strong>Skorokhod embedding problem</strong>, a foundational question about representing a target distribution as the value of a Brownian motion stopped at a cleverly chosen time — which in turn underlies model-independent (robust) pricing bounds in finance.</p>
+<p><strong>The idea.</strong> For the <em>single</em>-stop version there's a beautiful classical answer, the <strong>Root solution</strong>: stop the first time the process enters a fixed "barrier" region in space-time — a region that, once entered, you never leave. The authors extend this to <em>multiple</em> stops. The obstacle: with several stops, the natural barriers <strong>need not be ordered</strong> — you can't just say "barrier 1 sits neatly inside barrier 2 and solve them one after another." That nesting failure is exactly what makes the multi-marginal problem hard and genuinely new, not a trivial repetition of the one-stop case. Their fix is to look at the problem <em>backwards in time</em>: they build an auxiliary <strong>time-reversed process</strong> and show the constrained multiple-stopping problem turns into an ordinary <em>sequential</em> optimal-stopping problem for that reversed process, which they can solve.</p>
+<p><strong>What they found.</strong> They construct a Root-type (barrier-based) solution for the multi-marginal case and <em>prove it is optimal</em> — not just plausible — for a broad class of reward functions, recovering all the standard single-marginal examples as special cases. It's a clean generalization of a celebrated result to a setting people genuinely need.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $(B_t)_{t\ge0}$ be a Brownian motion (or a suitable Markov process) started from a fixed law $\mu_0$. Fix target marginals $\mu_1,\dots,\mu_n$. Seek an increasing sequence of stopping times $\tau_1\le\tau_2\le\cdots\le\tau_n$, adapted to the filtration, such that $B_{\tau_i}\sim\mu_i$ for each $i$ (the <strong>distribution constraints</strong>) and which optimizes $\mathbb{E}\big[\sum_i R_i(\tau_i,B_{\tau_i})\big]$ for given reward functions $R_i$. This is the multi-marginal <strong>Skorokhod embedding problem</strong> with an optimality criterion.</p>
+<p><strong>The key objects.</strong> A <strong>Root-type solution</strong> is given by barriers $\mathcal{R}_1,\dots,\mathcal{R}_n\subset [0,\infty)\times\mathbb{R}$ with the hitting-time rule
+$$\tau_i = \inf\{\,t \ge \tau_{i-1} : (t, B_t)\in \mathcal{R}_i\,\},\qquad \tau_0 \equiv 0,$$
+where each $\mathcal{R}_i$ is a barrier (a "once you're in, you stay in" region in time-space) and $\inf$ is the first entry time. The essential difficulty is that the $\mathcal{R}_i$ <strong>need not be nested/ordered</strong>, so the problem does not decompose into $n$ independent one-marginal Root problems.</p>
+<p><strong>The method.</strong> Two moves. <em>(1) Probabilistic characterization:</em> they recast the constrained multiple-stopping problem as <strong>sequential optimal stopping for an auxiliary time-reversed process</strong>, in the spirit of Cox–Obłój–Touzi-type dual constructions — reversing time linearizes the otherwise entangled barriers into a solvable stopping sequence. <em>(2) Optimality proof:</em> they exhibit a <strong>martingale (pathwise dual) certificate</strong> — supermartingale/submartingale inequalities integrated against the reward — that verifies the constructed barrier strategy attains the optimum for a <strong>general class of reward functions</strong>, including multi-marginal analogues of every example in Beiglböck–Cox–Huesmann.</p>
+<p><strong>Results with numbers.</strong> This is a pure-theory contribution, so the "results" are theorems, not statistics: (i) existence and explicit <strong>barrier characterization</strong> of a Root-type optimizer in the multi-marginal setting; (ii) an equivalent <strong>time-reversed sequential-stopping</strong> representation; and (iii) a <strong>rigorous optimality proof by martingale arguments</strong> covering a broad reward class and subsuming all known single-marginal cases.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal stopping</strong> — choosing, using only past information, the best moment to halt a random process to optimize a reward.</li>
+<li><strong>Multiple / multi-marginal stopping</strong> — stopping several times in order, with a prescribed distribution imposed at each stop.</li>
+<li><strong>Skorokhod embedding problem (SEP)</strong> — finding a stopping time that makes a Brownian motion's stopped value have a specified target distribution.</li>
+<li><strong>Root solution / barrier</strong> — the classical rule that stops the first time the process hits a fixed space-time region you can never exit.</li>
+<li><strong>Time-reversed process</strong> — the same dynamics run backward in time, used here to untangle non-ordered barriers.</li>
+<li><strong>Martingale argument</strong> — a proof technique using a fair-game process and its (super/sub)martingale inequalities to certify optimality.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational stochastic-analysis theory: its payoff is conceptual clarity and robust-pricing machinery, not a number you plug into a trading system tomorrow. The distribution constraints and the reward class, while general, are idealizations — real applications (e.g., model-free bounds for multi-exercise or path-dependent derivatives) still need the marginals and dynamics to be specified and the barriers to be computed numerically, which the paper doesn't tackle. For a quant researcher working on model-independent pricing or multi-marginal transport, though, it fills a real and previously-open gap.</p>
+<h3>Bottom Line</h3>
+<p>Stopping several times under fixed distributional targets has a clean optimal shape after all — you just have to read the barriers backwards in time to see it.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
