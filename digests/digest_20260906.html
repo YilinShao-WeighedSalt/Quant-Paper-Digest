@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 06, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 06, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Mean-field equilibrium of heterogeneous agents under market impact</h2>
+  <p class="meta">Joseph Leclère, Mathieu Rosenbaum<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-09-02 &middot; <a href="http://arxiv.org/abs/2609.03115v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.03115v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When traders who plan over different time horizons all push on the same price, their forecasts can cancel out and leave the price looking like pure random noise.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine a crowded marketplace where everyone reads the same news feed, but they act on it over different stretches of time. A day-trader reacts to a rumor in the next ten minutes; a pension fund reacts to the same rumor over the next three months. When any of them buys a lot, they <em>move the price</em> — big orders push prices up, big sells push them down. This is called "market impact," and it is unavoidable: you cannot buy a million shares without nudging the price against yourself. The puzzle the paper tackles is what happens to the <em>observed</em> price when a whole population of such traders, each with a different planning horizon, all trade on the same shared signal and all feel each other's impact. Do their forecasts show up as predictable trends anyone could exploit, or does something cancel them out?</p>
+<p><strong>The idea.</strong> The authors build a "mean-field" model, which is a physicist's trick: instead of tracking every individual trader, you track only the <em>average</em> behavior of the crowd, because the price only cares about the total amount being bought or sold, not who is doing it. Picture a tug-of-war where the rope only feels the sum of everyone's pull. Each trader looks at the common signal, forecasts where it is going over <em>their own</em> horizon, and also tries to anticipate how much the <em>whole crowd</em> will push the price. Everyone doing this at once creates a feedback loop: my trade depends on what I think you will do, and yours depends on what you think I will do. The authors find the self-consistent solution — the "equilibrium" — where everyone's expectations are mutually correct.</p>
+<p><strong>What they found.</strong> The striking result is a "balance condition." At equilibrium, the predictable common signal that everyone is chasing gets exactly <em>cancelled</em> from the observed price — the collective trading erases the very pattern that motivated it. And in a limiting case where traders fully account for their impact, the observed price collapses to a pure martingale (a fair coin-flip process with no exploitable trend). They even show that for realistic signal types and a spread of horizons shaped like a Gamma distribution, the price can end up as jagged and irregular as Brownian motion.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a probability space with a filtration $(\mathcal{F}_t)$ carrying the information all agents share. The observed price is decomposed as
+$$P_t = M_t + I_t + \int_0^t \text{(impact term)}\,,$$
+where $M_t$ is a martingale (the unpredictable part), and the predictable common signal is a <strong>Volterra process</strong>
+$$I_t = \int_0^t K(t,s)\,dW_s,$$
+with $K(t,s)$ a deterministic kernel and $W$ a Brownian motion. Agents are indexed by a horizon $\tau$ drawn from a distribution $\mu(d\tau)$. Let $Q_t^\tau$ be the position of the horizon-$\tau$ agent and $\bar Q_t = \int Q_t^\tau\,\mu(d\tau)$ the <strong>aggregate position</strong>. Market impact is linear in the aggregate: price contains a term $\lambda \bar Q_t$ for impact coefficient $\lambda$.</p>
+<p><strong>The key equation.</strong> Each agent chooses positions from conditional forecasts of future signal increments plus a fraction of the anticipated aggregate impact over their horizon:
+$$Q_t^\tau = \mathbb{E}\!\left[\int_t^{t+\tau} dI_u \,\middle|\, \mathcal{F}_t\right] - \theta\,\mathbb{E}\!\left[\int_t^{t+\tau} d(\lambda \bar Q_u)\,\middle|\,\mathcal{F}_t\right],$$
+where $\theta\in[0,1]$ measures how fully agents internalize their own price impact. Because $\bar Q$ appears on both sides once you average over $\tau$, this is a <strong>linear fixed-point equation</strong> for the aggregate position:
+$$\bar Q = \mathcal{L}(\bar Q),$$
+with $\mathcal{L}$ a linear operator built from the kernel $K$ and the horizon law $\mu$.</p>
+<p><strong>The method.</strong> Working inside a <strong>Gaussian–Volterra framework</strong> (everything jointly Gaussian, driven by $W$), the authors solve the fixed point explicitly and prove <strong>existence and uniqueness</strong> under conditions on the spectral norm of $\mathcal{L}$ (a contraction-type bound). The <strong>balance condition</strong> is the algebraic requirement that makes the signal's direct transmission coefficient vanish: the impact term and the forecast term have equal-and-opposite loadings on $I_t$. Taking $\theta\to 1$ along a scaled family of equilibria, both the signal and impact contributions vanish and $P_t \to M_t$.</p>
+<p><strong>Results with numbers.</strong> The results are structural rather than empirical, but sharp: for <strong>fractional-type kernels</strong> $K(t,s)\sim (t-s)^{H-1/2}$ (Hurst parameter $H$) and <strong>Gamma-distributed horizons</strong>, they derive local <strong>Hölder regularity</strong> bounds and identify exactly which horizon distributions make the observed price attain Hölder exponent $1/2$ — matching Brownian motion.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the price change your own order causes; buying pushes the price up against you.</li>
+<li><strong>Mean-field model</strong> — an approximation that replaces a crowd of interacting agents with their average, valid when only the aggregate matters.</li>
+<li><strong>Martingale</strong> — a process whose best forecast of the future is its current value; it has no exploitable trend.</li>
+<li><strong>Volterra process</strong> — a moving average of past noise with a memory kernel $K(t,s)$, allowing long-range dependence.</li>
+<li><strong>Fixed-point equation</strong> — an equation $x = \mathcal{L}(x)$ whose solution is a state consistent with itself; here, expectations that turn out correct.</li>
+<li><strong>Hölder regularity</strong> — a measure of how rough a path is; exponent $1/2$ is the roughness of Brownian motion.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model is deliberately linear-Gaussian, which is what makes it solvable but also what limits it: real impact is nonlinear and transient, and real traders are not all optimizing the same quadratic objective. The "balance condition" is an elegant explanation of why signals seem to vanish from prices, but it is an equilibrium statement, not a trading recipe — it does not tell a practitioner how to <em>find</em> the residual edge. Still, as a theoretical account of why crowded signals self-destruct, it is clean and testable.</p>
+<h3>Bottom Line</h3>
+<p>When everyone trades the same forecast, the crowd's own footprints erase the trail they were following.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Single- and Multilevel Quadrature with Error Control for Fourier Pricing under the Rough Heston Model</h2>
+  <p class="meta">Chiheb Ben Hammouda, Abderrahmene Ben Romdhane, Michael Samet, Raul F. Tempone<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-31 &middot; <a href="http://arxiv.org/abs/2609.00438v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.00438v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A smarter way to add up an infinite integral so that pricing options under a "rough" volatility model gets much cheaper without losing accuracy.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> To price a stock option — say the right to buy Apple at 200 dollars in three months — you need a model of how volatility (the size of price wiggles) behaves. A recent favorite is the <strong>rough Heston model</strong>, where volatility is unusually jagged, matching what markets actually look like. The catch: pricing an option in this model means computing an integral (an infinite sum of contributions across all "frequencies"), and at <em>every single point</em> in that sum you must solve a nasty <strong>fractional differential equation</strong> by stepping through time. Solve it too coarsely and your price is wrong; solve it too finely everywhere and you burn enormous compute. Worse, how fine you need to be changes from point to point. It is like photographing a landscape where some regions need a telephoto lens and others a wide angle, but you are forced to use one setting for the whole shot.</p>
+<p><strong>The idea.</strong> The authors build quadrature (numerical integration) rules that <em>balance two competing errors</em> — the error from chopping time too coarsely, and the error from using too few points in the frequency sum — and spend effort where it actually helps. Their single-level method takes your accuracy budget and splits it cleverly between the two error sources. Their <strong>multilevel</strong> method is the real trick: borrowed from the "multilevel Monte Carlo" playbook, it writes the answer as a cheap coarse estimate <em>plus</em> a series of small corrections, and uses many points only on the cheap coarse part and very few on the expensive fine corrections. Both methods also stretch the built-in decay weight of Gauss–Laguerre integration to match how fast the actual integrand fades out.</p>
+<p><strong>What they found.</strong> The multilevel method is provably cheaper — its cost grows more slowly as you demand more accuracy — and in tests it beat both the single-level version and a popular shortcut (the "BL2 Markovian approximation" that fakes roughness with a simpler process), delivering lower total CPU time.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The rough Heston variance follows a fractional stochastic Volterra equation with Hurst parameter $H\in(0,1/2)$. Option prices come from Fourier inversion of the characteristic function $\phi(u)$:
+$$C(k) = \text{(payoff terms)} - \frac{1}{\pi}\int_0^\infty \text{Re}\!\left[e^{-iuk}\,\phi(u)\right]\,\frac{du}{u^2+1/4}\,,$$
+where $k$ is log-strike and $u$ the Fourier frequency. Evaluating $\phi(u)$ requires solving the <strong>fractional Riccati equation</strong>
+$$D^\alpha \psi(u,t) = \tfrac12(-u^2 - iu) + \kappa(\rho\sigma\, iu - 1)\psi + \tfrac{\sigma^2}{2}\psi^2,$$
+with $\alpha = H+1/2$ the fractional order, $D^\alpha$ the Caputo derivative, $\kappa$ mean-reversion, $\rho$ correlation, $\sigma$ vol-of-vol — no closed form, so it is stepped over a time grid of size $\Delta t$.</p>
+<p><strong>The key equation — the cost bounds.</strong> Assume the discretization error is $O(\Delta t^{p})$, each characteristic-function evaluation costs $O(\Delta t^{-\beta})$, and Gauss–Laguerre quadrature error is $O(N^{-s_{SL}/2})$ with smoothness index $s_{SL}$ over $N$ points. Then to reach accuracy $\varepsilon$:
+$$W_{\text{single}} = O\!\left(\varepsilon^{-(\beta/p + 2/s_{SL})}\right), \qquad W_{\text{multi}} = O\!\left(\varepsilon^{-\beta/p}\right).$$
+The multilevel exponent drops the entire $2/s_{SL}$ quadrature penalty — that is the saving.</p>
+<p><strong>The method.</strong> Gauss–Laguerre quadrature approximates $\int_0^\infty f(u)e^{-u}\,du \approx \sum_j w_j f(u_j)$ using optimally placed nodes; they rescale the Laguerre weight to the estimated integrand decay so the nodes land where the mass is. The multilevel split writes the integrand as a level-0 term plus level differences, choosing node counts $N_\ell$ per level so cheap coarse levels get many nodes and costly fine levels get few. They also analyze <strong>root-exponential</strong> error models $O(e^{-c\sqrt{N}})$ for realistic node allocation.</p>
+<p><strong>Results with numbers.</strong> Numerical experiments confirm the predicted fractional-Riccati and Fourier convergence rates and the root-exponential quadrature behavior; the decay-scaling gives "substantial reductions in quadrature cost." The multilevel method shows clear savings over single-level, and benchmarked against the BL2 Markovian approximation it reports <strong>lower total CPU time</strong> across the tested configurations.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Rough Heston model</strong> — a stochastic-volatility model where volatility is extra-jagged (Hurst $H<1/2$), matching real option data better than the classic Heston model.</li>
+<li><strong>Characteristic function</strong> — the Fourier transform of a distribution; knowing it lets you price options by integration.</li>
+<li><strong>Fractional Riccati equation</strong> — a quadratic differential equation with a fractional (non-integer-order) derivative that must be solved numerically.</li>
+<li><strong>Gauss–Laguerre quadrature</strong> — a rule for approximating integrals over $[0,\infty)$ using cleverly chosen sample points and weights.</li>
+<li><strong>Multilevel method</strong> — a hierarchy of coarse-to-fine estimates where most work is done cheaply and only small corrections are computed expensively.</li>
+<li><strong>Smoothness index $s_{SL}$</strong> — a number capturing how smooth the integrand is; smoother integrands need fewer quadrature points.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is squarely a numerical-methods contribution: it makes an existing model faster, not more realistic, so it inherits every limitation of rough Heston itself (single asset, no jumps, calibration still hard). The cost bounds rest on regularity and decay assumptions on the level differences that hold in their experiments but should be checked per calibration. For a quant desk already committed to rough volatility, though, the multilevel Riccati approach is a genuinely useful speedup.</p>
+<h3>Bottom Line</h3>
+<p>Spend your compute where the integral is actually hard, and rough-volatility pricing stops being a bottleneck.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Latent-Space No-Arbitrage Geometry of Generative Models for Implied Volatility Surfaces</h2>
+  <p class="meta">Jing Wang, Shuaiqiang Liu, Cornelis Vuik<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-31 &middot; <a href="http://arxiv.org/abs/2609.00332v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.00332v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When an AI generates a volatility surface, this paper draws a precise "safe zone" in the AI's hidden coordinates where its outputs can't secretly imply free money.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An <strong>implied volatility surface</strong> is a map: for every option strike and maturity, it tells you the market's expected wiggle-size. Traders want to generate realistic <em>new</em> surfaces — for stress tests, for filling gaps, for simulating tomorrow. Modern AI (variational autoencoders, GANs) can spit out surfaces that <em>look</em> right. But there is a hard constraint: a surface must be <strong>arbitrage-free</strong>. If it isn't, it implies a trading strategy that makes money with zero risk — which is nonsense, and any surface violating it is unusable. The trouble is that a generative model does not know about arbitrage; it just paints plausible-looking pictures. Some of those pictures are quietly illegal.</p>
+<p><strong>The idea.</strong> Every generative model works by taking a short list of hidden numbers — a <strong>latent code</strong> — and expanding it into a full surface. Think of the latent code as the dials on a synthesizer and the surface as the sound. The authors ask: <em>which dial settings produce legal (arbitrage-free) surfaces?</em> They assign each latent code a single score, a <strong>margin</strong>, that is positive if the generated surface is arbitrage-free and negative if it isn't. All the codes with a non-negative margin form the <strong>admissible set</strong> — the safe zone on the dial-board. They then study the geometry of this zone: they prove that if you are safely inside it, small nudges keep you inside, and they characterize its <em>boundary</em> as exactly the codes where the margin hits zero. Crucially, this works for <em>any</em> generator architecture, because they only treat it as a black-box map from codes to surfaces.</p>
+<p><strong>What they found.</strong> The safe zone has clean structure: an interior, a well-defined edge, and a rule (a flow) that pushes you back toward the edge if you drift out. In experiments with a VAE trained on Heston surfaces, they found two practical surprises — surfaces with nearly identical reconstruction quality can live in <em>different</em> admissible regions, and the model's default sampling prior may sit comfortably inside the safe zone. Best of all, the computed boundary can be used as a <em>repair tool</em>: nudge an illegal latent code back across the boundary and it generates a legal surface.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $G:\mathbb{R}^d \to \mathcal{S}$ be the generator mapping a latent code $z\in\mathbb{R}^d$ to a surface $G(z)$ in surface space $\mathcal{S}$. Static no-arbitrage imposes shape constraints — monotonicity in maturity and convexity in strike (positive butterfly and calendar spreads). Encode all constraints as a family of functionals $\{g_i(\cdot)\}$ that must be non-negative.</p>
+<p><strong>The key equation — the margin.</strong> Define the scalar margin of a code as the worst-case constraint value of its surface:
+$$m(z) = \inf_i\, g_i\big(G(z)\big).$$
+Here $m(z)\ge 0$ means every no-arbitrage condition holds. The <strong>admissible set</strong> is the sublevel/superlevel set
+$$\mathcal{A} = \{\,z : m(z)\ge 0\,\},$$
+its interior is $\{m(z)>0\}$ (<strong>strictly admissible</strong> codes), and its boundary is characterized by $\{m(z)=0\}$ for regular components. They prove: if $m(z_0)>0$ and $m$ is continuous, there is a ball $B(z_0,r)\subset\mathcal{A}$ — strict admissibility survives small perturbations.</p>
+<p><strong>The method.</strong> For regular boundary points they set up a <strong>level-set equation</strong> driving the code toward the zero-margin frontier:
+$$\dot z = -\,\eta\,\nabla m(z),$$
+a gradient flow whose local dynamics are directed toward $\{m=0\}$ (or inward when repairing). Because the analysis uses only continuity and differentiability of $G$, it applies to VAEs, GANs, and any model with a deterministic realization map — no architecture-specific assumptions.</p>
+<p><strong>Results with numbers.</strong> In analytic test cases where the true admissible boundary is known, the computed boundary <strong>recovers it</strong>. On a VAE trained on <strong>Heston-generated surfaces</strong>, they show (i) similar reconstruction errors correspond to <em>different</em> admissible regions, (ii) the latent Gaussian prior mass can concentrate <em>inside</em> the admissible region, and (iii) the boundary flow successfully edits violating codes into compliant ones.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the grid of market-implied volatilities across option strikes and maturities.</li>
+<li><strong>No-arbitrage constraints</strong> — shape rules (convex in strike, monotone in maturity) that prevent risk-free profit; a surface breaking them is invalid.</li>
+<li><strong>Latent code</strong> — the compact vector of hidden numbers a generative model expands into a full output.</li>
+<li><strong>Variational autoencoder (VAE) / GAN</strong> — neural generative models that learn to map simple random codes to realistic data.</li>
+<li><strong>Margin</strong> — here, a single number scoring how safely arbitrage-free a generated surface is (positive = safe).</li>
+<li><strong>Level-set / gradient flow</strong> — a differential equation that moves a point along or toward a target contour of a function.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framework is elegant and architecture-agnostic, but it enforces <em>static</em> no-arbitrage only — it says nothing about <em>dynamic</em> arbitrage or whether generated surfaces evolve realistically over time. Computing the margin requires evaluating all constraints densely, which can be expensive for fine grids, and the gradient-flow repair assumes the boundary is locally regular, which can fail at kinks. As a safety filter bolted onto an existing generator, though, it is immediately practical.</p>
+<h3>Bottom Line</h3>
+<p>Give a surface-generating AI a map of where free money hides, and you can steer it to only ever draw honest markets.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> The Convergence Rate of Stochastic Tracking with Application to Optimal Execution</h2>
+  <p class="meta">Marcel Nutz, Moritz Voss<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-08-29 &middot; <a href="http://arxiv.org/abs/2608.29468v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.29468v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you smooth out a jerky optimal trading plan just enough to make it usable, this paper proves exactly how much extra cost that smoothing buys you: it shrinks like the square root of how gently you smooth.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose a fund must sell a huge block of stock by 4 p.m. without crashing the price. The mathematically optimal execution strategy often demands <em>instantaneous jumps</em> — dump a chunk right now, another chunk right at the close — because trading in bursts can be cheapest on paper. But you cannot actually trade infinitely fast; real orders take time, and a strategy full of spikes is impossible to run and dangerous besides. So practitioners add a penalty that discourages trading too quickly, which smooths the plan into something implementable. The natural question: <em>how much do you lose</em> by smoothing? Does forbidding the spikes cost you a little or a lot?</p>
+<p><strong>The idea.</strong> The paper studies a general "tracking" problem — steadily following a moving random target, like a self-driving car keeping a wobbling lane while penalized for jerky steering — and derives exact, non-asymptotic bounds on how well you can track. It then plugs optimal execution into this frame. Trading is the steering; the moving target is the position you'd <em>ideally</em> hold; the smoothing penalty (with a small knob $\varepsilon$) is the cost of jerky steering. The authors show the ideal target for execution can genuinely jump, then prove that as you dial the smoothing knob toward zero, the extra cost you pay vanishes at a precise, predictable rate. They also hand you a simple, ready-to-run strategy that captures almost all of the benefit.</p>
+<p><strong>What they found.</strong> The penalty for being realistic is <em>small and well-behaved</em>: the excess price-impact cost of the smoothed strategy converges to the ideal at rate proportional to $\sqrt{\varepsilon}$ — the square root of the smoothing strength. Halve the smoothing and the excess cost drops by about 30%. And because the exactly-optimal smoothed strategy has no closed form, they build a near-optimal approximation that is easy to implement and loses nothing in convergence rate.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> On a filtered probability space, let $\xi_t$ be a general stochastic <strong>target process</strong> and $X_t$ a controlled process with <strong>absolutely continuous controls</strong> — the trading rate $u_t = \dot X_t$ exists (no jumps). The quadratic tracking cost, with optional terminal constraint $X_T = \xi_T$, is
+$$J(u) = \mathbb{E}\!\left[\int_0^T (X_t - \xi_t)^2\,dt\right].$$
+The <strong>regularized execution</strong> problem is the generalized Obizhaeva–Wang model with random terminal inventory, penalizing the trading rate:
+$$J_\varepsilon(u) = \mathbb{E}\!\left[\int_0^T \big(\text{impact cost}\big)\,dt + \varepsilon\int_0^T u_t^2\,dt\right].$$</p>
+<p><strong>The key equation — the convergence rate.</strong> The central bounds are non-asymptotic and expressed through a <strong>Besov-type modulus</strong> $\omega$ of the target: for a semimartingale target,
+$$\big|J(u^\star) - J_{\text{ideal}}\big| \le C\,\omega(\text{target}) = O(\sqrt{h}),$$
+and for regularized execution the excess cost obeys
+$$J_\varepsilon(u_\varepsilon^\star) - J_0^\star = O(\sqrt{\varepsilon}),$$
+where $u_\varepsilon^\star$ is the optimal regularized trading rate, $J_0^\star$ the unregularized (jump-allowing) optimum, $\varepsilon$ the trading-rate penalty coefficient, and $C$ an explicit constant. The $\sqrt{\varepsilon}$ order is proved <strong>sharp</strong> (matching upper and lower bounds).</p>
+<p><strong>The method.</strong> The unconstrained optimal strategy — which includes jumps — is characterized via a <strong>Hilbert-space approach</strong>: the problem is cast as projection in an $L^2$ space of controls, and optimality becomes an orthogonality condition. The convergence rate follows from the Besov modulus of the target's paths (a fine measure of path roughness). Because $u_\varepsilon^\star$ has no closed form, they construct an <strong>explicit, implementable near-optimal strategy</strong> and prove it inherits the same $O(\sqrt{\varepsilon})$ rate.</p>
+<p><strong>Results with numbers.</strong> The headline is the <strong>sharp $O(\sqrt{\varepsilon})$</strong> convergence of both the regularized cost and the excess price-impact cost. For semimartingale targets the tracking bounds specialize to <strong>square-root order</strong> ($O(\sqrt{h})$ in the modulus). The near-optimal strategy achieves the same asymptotic rate as the true optimum while being closed-form-simple to run.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal execution</strong> — trading a large order over time to minimize total cost, mainly the price impact you cause.</li>
+<li><strong>Obizhaeva–Wang model</strong> — a classic execution model where price impact builds up and then decays (transient impact).</li>
+<li><strong>Absolutely continuous control</strong> — a trading strategy with a well-defined rate, ruling out instantaneous jumps.</li>
+<li><strong>Regularization</strong> — adding a penalty (here $\varepsilon \int u_t^2$) to make an ill-behaved optimum smooth and implementable.</li>
+<li><strong>Besov modulus</strong> — a refined yardstick of how rough a random path is, finer than ordinary continuity.</li>
+<li><strong>Semimartingale</strong> — a broad class of processes (drift plus martingale) covering most tradable price dynamics.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a rigorous convergence-rate result, not a new trading engine — its value is telling a desk that the <em>unavoidable</em> cost of running a smooth, realistic strategy instead of an impossible spiky one is small and predictable. The bounds assume the specific quadratic/Obizhaeva–Wang structure and semimartingale targets; genuinely non-semimartingale (e.g. very rough) signals or nonlinear impact fall outside the sharp theory. But the implementable near-optimal strategy is a real, usable takeaway.</p>
+<h3>Bottom Line</h3>
+<p>Making the perfect trade realistic costs only the square root of how much you round off its sharp edges.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Improving Swaption Calibration in Factor HJM Stochastic Volatility Models: A First-Order Correction to Frozen Swap-Rate Loadings</h2>
+  <p class="meta">Bram Brongers<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-08-29 &middot; <a href="http://arxiv.org/abs/2608.29423v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2608.29423v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A one-line, parameter-free Taylor correction fixes a common shortcut in interest-rate option models, cutting the bias that shortcut quietly introduces into calibration.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks price and hedge enormous books of <strong>swaptions</strong> — options to enter interest-rate swaps — and to do so they need a model of how interest rates and their volatility move. A leading modern model (factor HJM with stochastic volatility) is powerful but has a nonlinear gear inside: the "swap-rate loading," which links the raw rate factors to the actual swap rate, depends on where rates currently sit. That state-dependence makes the math intractable. The standard fix is to <strong>"freeze"</strong> this loading along a single deterministic best-guess path of where rates are expected to go. It is like navigating a winding river by pretending it runs perfectly straight down its average course — fast, but wrong whenever the river bends, i.e. whenever rates move away from their expected path. This freezing quietly biases the model's calibrated parameters, so the numbers you fit to today's market are systematically off.</p>
+<p><strong>The idea.</strong> Instead of throwing away the state-dependence entirely, the authors keep the <em>first slice</em> of it. They take a <strong>first-order Taylor expansion</strong> of the frozen loading around the expected path — the leading correction term that captures how the loading tilts as rates drift off course. Crucially this correction adds <strong>no new calibration parameters</strong>; it is computed from quantities already in the model. They show that, once you keep the frozen drift, this first variation is a clean linear (affine) function of the "centered" rate states and collapses the hard problem down to <strong>one-dimensional equations in volatility</strong>. For their specific stochastic-volatility choice, those equations become a small, finite system of ODEs that solve quickly.</p>
+<p><strong>What they found.</strong> The correction substantially reduces bias. Calibrating against prices generated by the <em>full</em> nonlinear model, the corrected version recovers the true stochastic-volatility parameters far more accurately and gives lower out-of-sample (held-out) pricing error, while barely changing how identifiable the local parameters are. You get most of the accuracy of the expensive nonlinear model at essentially the cost of the cheap frozen one.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> In the factor HJM stochastic-volatility model of Sepp–Rakhmonov (2025), the swap rate $S_t$ is a nonlinear transform $S_t = \Phi(X_t)$ of Gaussian rate factors $X_t\in\mathbb{R}^n$, with a <strong>swap-rate loading</strong> $b(X_t) = \nabla\Phi(X_t)$ that is state-dependent. Volatility follows a <strong>quadratic-drift lognormal</strong> stochastic-volatility process $V_t$. Under the annuity (swap) measure the swap rate is a martingale, and swaption prices depend on its conditional variance.</p>
+<p><strong>The key equation — the frozen approximation and its correction.</strong> The baseline freezes the loading along the expected state path $\bar X_t = \mathbb{E}[X_t]$:
+$$b(X_t)\;\approx\; b(\bar X_t),$$
+removing the dependence of conditional swap-rate variance on the current yield-curve state. The authors instead keep the <strong>first-order Taylor correction</strong>:
+$$b(X_t)\;\approx\; b(\bar X_t) + \nabla b(\bar X_t)\,\big(X_t - \bar X_t\big),$$
+where $X_t - \bar X_t$ is the <strong>centered state</strong> and $\nabla b(\bar X_t)$ the Jacobian of the loading at the expected path. Conditional on retaining the frozen annuity-measure drift, the <strong>first variation of the swap-rate transform is affine</strong> in the centered states.</p>
+<p><strong>The method.</strong> Substituting the affine correction reduces the swap-rate dynamics to <strong>one-dimensional equations in volatility</strong>. For the quadratic-drift lognormal specification these yield a <strong>finite-dimensional ODE representation</strong> and a direct <strong>log-volatility formulation</strong> — closed enough to price swaptions cheaply, with no extra fitted parameters beyond the original model. Calibration then minimizes pricing error over the same parameter set as the frozen model.</p>
+<p><strong>Results with numbers.</strong> Benchmarked against <strong>independently generated nonlinear-model prices</strong>, the first-order correction delivers "substantially lower stochastic volatility parameter bias" and lower <strong>held-out pricing error</strong>, with "only modest changes in local calibration identifiability." In short: markedly less bias, similar identifiability, and negligible added cost.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Swaption</strong> — an option to enter an interest-rate swap at a preset rate; a core interest-rate derivative.</li>
+<li><strong>HJM model</strong> — the Heath–Jarrow–Morton framework modeling the whole forward-rate curve's evolution directly.</li>
+<li><strong>Swap-rate loading</strong> — the (state-dependent) sensitivity linking underlying rate factors to the swap rate.</li>
+<li><strong>Freezing</strong> — replacing a state-dependent quantity with its value along a fixed expected path to gain tractability.</li>
+<li><strong>First-order Taylor correction</strong> — keeping the leading linear term of a function's expansion around a point to reduce approximation error.</li>
+<li><strong>Calibration bias</strong> — systematic error in fitted parameters caused by an approximation in the pricing map.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is an incremental but well-targeted fix: it improves an existing model's calibration without adding parameters, which is exactly what a rates desk wants. But it is only a <em>first-order</em> correction — for large rate moves or steep curves the neglected higher-order terms could matter, and the gains are demonstrated against synthetic prices from the nonlinear model rather than live market data across regimes. It also inherits the frozen annuity-measure drift, so one approximation remains untouched.</p>
+<h3>Bottom Line</h3>
+<p>Keep the first bend of the river instead of pretending it's straight, and your rate-model calibration stops lying to you — for free.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
