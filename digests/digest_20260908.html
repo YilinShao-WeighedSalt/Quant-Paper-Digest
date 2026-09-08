@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 08, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 08, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Gatheral&#x27;s Conjecture Revisited</h2>
+  <p class="meta">Vladimir Lucic<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-04 &middot; <a href="http://arxiv.org/abs/2609.05047v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.05047v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two option models can quote identical prices today yet disagree about how wildly future volatility will swing — and here the popular Heston model is provably the tamer of the two, overturning a conjectured rule of thumb.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option is a contract that pays off depending on where a stock ends up. To price and hedge one, you need a mathematical model of how the stock moves. The awkward truth is that <em>many different models</em> can be tuned so they all reproduce the exact same option prices you see quoted in the market today. They agree on everything observable — and then quietly disagree about things you cannot see directly, such as how variable the stock's <em>variance</em> (its rate of jitter) will be over the life of the trade. Those hidden disagreements are exactly what matter when you price a more exotic product or manage the risk of a book, so quants care a great deal about the structural relationships between model families.</p>
+<p><strong>The idea.</strong> Jim Gatheral, a well-known figure in volatility modeling, conjectured a clean ordering between two standard families: the <em>local-volatility</em> model (where the jitter is a fixed function of price and time) and <em>stochastic-volatility</em> models like Heston (where the jitter has a mind of its own, driven by its own randomness). The claim was essentially that one family always produces "more spread out" accumulated variance than the other, once both are calibrated to the same option prices. This paper stress-tests that claim in the cleanest possible case: Heston with correlation exactly minus one. Perfect negative correlation collapses Heston into effectively a one-dimensional model, which makes it directly comparable to local volatility. Think of two cake recipes engineered to produce cakes that look identical on the outside; the conjecture said recipe A's batter is always lumpier than recipe B's. The authors find a case where it is the other way round.</p>
+<p><strong>What they found.</strong> With correlation minus one, Heston's total accumulated variance is <em>strictly less</em> spread out than the local-volatility model's — the exact opposite of what the conjecture demanded. That single clean counterexample is enough to show the conjectured inequality does not hold in general.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $S_t$ be the asset price. In the Heston model the variance $v_t$ is itself random,
+$$dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_t,\qquad \frac{dS_t}{S_t}=\sqrt{v_t}\,dB_t,\qquad d\langle B,W\rangle_t=\rho\,dt,$$
+with $\rho=-1$. Here $\kappa$ is the speed of mean reversion, $\theta$ the long-run variance, $\xi$ the volatility-of-volatility, and $W_t,B_t$ are Brownian motions. The object of interest is the <strong>integrated variance</strong>
+$$I_T^{\mathrm H}=\int_0^T v_t\,dt.$$
+The local-volatility twin sets $dS_t/S_t=\sigma_{\mathrm{loc}}(t,S_t)\,dB_t$, where $\sigma_{\mathrm{loc}}$ is chosen via Dupire's formula so that European option prices match Heston's exactly, giving $I_T^{\mathrm{LV}}=\int_0^T \sigma_{\mathrm{loc}}^2(t,S_t)\,dt$.</p>
+<p><strong>The key statement.</strong> For every fixed expiry $T>0$,
+$$I_T^{\mathrm H}\ \prec_{\mathrm{cx}}\ I_T^{\mathrm{LV}},$$
+strictly. The symbol $\prec_{\mathrm{cx}}$ denotes the <strong>convex order</strong>: $X\prec_{\mathrm{cx}}Y$ means $\mathbb{E}[\varphi(X)]\le\mathbb{E}[\varphi(Y)]$ for every convex function $\varphi$. Because both models are calibrated to the same prices, the two integrated variances share the same mean, so convex order is a pure statement about dispersion — $I_T^{\mathrm{LV}}$ is genuinely more spread out.</p>
+<p><strong>The method.</strong> The engine is Gyöngy's mimicking theorem: local volatility is the <em>Markovian projection</em> of the true dynamics, so it reproduces the one-dimensional marginal law of $S_T$ while being the "least random" model consistent with it. Matching marginals of $S_T$ pins down the mean of integrated variance but not its spread; the authors exploit the $\rho=-1$ collapse to compare the full laws and, via convexity (Jensen-type) arguments, establish the strict ordering — an explicit, checkable counterexample rather than a numerical coincidence.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper, so the "result" is a proof, not a table of errors: a strict convex-order inequality holding for <em>every</em> expiry $T$, which is precisely the direction the conjecture forbade.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Integrated variance</strong> — the total amount of variance a stock accumulates from now to time $T$, i.e. the area under its (random) variance curve.</li>
+<li><strong>Convex order ($\prec_{\mathrm{cx}}$)</strong> — a rigorous way of saying one random quantity is "more spread out" (riskier) than another that has the same average.</li>
+<li><strong>Local volatility</strong> — a model where the instantaneous jitter is a deterministic function of price and time, fitted to the option smile via Dupire's formula.</li>
+<li><strong>Heston model</strong> — a stochastic-volatility model in which variance follows its own mean-reverting random process.</li>
+<li><strong>Markovian projection (Gyöngy)</strong> — a theorem producing the simplest one-factor model that matches the marginal price distribution of a more complex one.</li>
+<li><strong>Correlation $\rho$</strong> — how tightly price shocks and volatility shocks move together; $\rho=-1$ is perfect opposition.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a boundary case: $\rho=-1$ is extreme, whereas real equity indices sit nearer $\rho\approx-0.7$, so the result is a clean mathematical counterexample rather than a claim about typical markets. Its value is cautionary — it warns quants that intuitively appealing orderings between model families can silently fail, which matters when you lean on one family to bound the price or risk of volatility-sensitive products.</p>
+<h3>Bottom Line</h3>
+<p>Matching every price you can see is no guarantee two models agree on the risks you cannot — and Heston, at its extreme, is calmer than folklore predicted.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Convex Modeling of Price Cross-Impact over Time</h2>
+  <p class="meta">Vincent Yinjun-Wang, Madeleine Udell<br>
+    <span class="cat">math.OC</span> &middot; 2026-09-04 &middot; <a href="http://arxiv.org/abs/2609.04712v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.04712v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A trading-cost model that finally admits two obvious facts — trading one contract nudges its cousins, and market impact fades once you stop pushing — so genuinely profitable relative-value trades stop looking artificially expensive.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy or sell in size, you move the price against yourself. That "market impact" is a hidden cost, and in relative-value trading — buying one futures contract while selling a closely related one to harvest a tiny mispricing — the edge is only a few basis points (hundredths of a percent), so getting the cost estimate wrong is the difference between a good strategy and a losing one. Standard cost models make two convenient but wrong simplifications: they count only <em>self-impact</em> (trading contract X moves X's price) and treat that impact as permanent. Two well-documented effects are missing. <em>Cross-impact</em>: trading X also moves related contract Y. <em>Transient impact</em>: the price dent heals over time, so when you unwind a position days later you recover part of what you paid on the way in. A model blind to both overstates the cost of correlated, multi-day trades and makes you walk away from money.</p>
+<p><strong>The idea.</strong> Picture paddling a kayak through water. The water resists you (self-impact), your wake nudges the boat beside you (cross-impact), and the disturbance settles after you pass (transient). A cost model that assumes the wake never heals and never touches your neighbor will mis-plan your route. The authors build a cost function that captures both. In each time slice a matrix — assembled from forecasts of volatility, traded volume, and correlations between contracts — couples your trades across different contracts. A power-law decay kernel then couples trades across <em>time</em>, so today's push partially forgives yesterday's. The whole thing is convex, which means a computer can optimize the trade schedule reliably, and — crucially — the model is built so that no "free money" trading loop exists even when liquidity changes over the plan.</p>
+<p><strong>What they found.</strong> The framework is demonstrated on real crude-oil calendar-spread trading around the commodity-index roll (a predictable period when large index funds shift positions between contract months). By pricing cross- and transient impact honestly, it recovers the cost saved on unwinds that older self-impact-only models throw away.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A trader schedules trades $x_t\in\mathbb{R}^n$ over periods $t=1,\dots,H$, where $n$ is the number of contracts and each entry of $x_t$ is the quantity traded in one contract during period $t$. Trading pushes prices; the price displacement felt at period $t$ is the accumulation of past pushes,
+$$\Delta p_t=\sum_{s\le t} G(t-s)\,\Lambda_s\,x_s,$$
+where $\Lambda_s$ is a <strong>positive semidefinite</strong> impact matrix for period $s$ (built from volatility, volume, and correlation forecasts) and $G(\cdot)$ is a decay kernel, typically a power law $G(\tau)\propto(\tau+1)^{-\beta}$ with exponent $\beta>0$.</p>
+<p><strong>The key equation.</strong> The total execution cost of a schedule is the sum of each trade against the price it moves,
+$$C(x)=\sum_{t} x_t^\top\,\Delta p_t=\sum_{t}\sum_{s\le t} G(t-s)\,x_s^\top\Lambda_s\,x_t.$$
+Here $x_t$ is the trade vector, $\Lambda_s$ the instantaneous cross-impact matrix, $G$ the temporal decay kernel, and $\beta$ its decay rate. This is a convex quadratic form in the full schedule $x=(x_1,\dots,x_H)$.</p>
+<p><strong>The method.</strong> The authors show the space–time cost operator — the block matrix with entries $G(t-s)\Lambda_s$ — is positive semidefinite, which is precisely the <em>no-price-manipulation</em> condition (no round-trip trade can have negative expected cost), extending the classical Gatheral–Schied–Slynko criterion to the case where liquidity $\Lambda_t$ varies across the horizon. Optimal execution then reduces to a convex quadratic program, solvable with standard convex-optimization solvers.</p>
+<p><strong>Results with numbers.</strong> The paper's contribution is structural — a convex, manipulation-free cost with cross- and transient impact — validated empirically on crude-oil calendar spreads around the index roll rather than by a single headline accuracy figure; the demonstrated payoff is that impact of correlated, multi-day relative-value trades is no longer systematically overpriced.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the adverse price move your own trading causes, a core piece of transaction cost.</li>
+<li><strong>Cross-impact</strong> — trading one contract also shifts the prices of related contracts.</li>
+<li><strong>Transient impact</strong> — the part of impact that decays over time, so unwinding recovers some of the entry cost.</li>
+<li><strong>Positive semidefinite matrix</strong> — a matrix that never assigns a negative value to $x^\top M x$; here it guarantees costs can't go negative.</li>
+<li><strong>Decay kernel</strong> — a function specifying how quickly a past trade's price dent heals.</li>
+<li><strong>Price manipulation / round-trip</strong> — a buy-then-sell loop that ends flat but books a profit purely from impact dynamics; a sound model must forbid it.</li>
+<li><strong>Calendar spread / index roll</strong> — trading two expiries of the same future against each other, especially around the scheduled period when index funds roll positions forward.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Everything hinges on forecasting the impact matrices $\Lambda_t$ (volatility, volume, correlations) accurately, and the abstract reports a demonstration rather than head-to-head profit numbers, so the real-money edge over simpler models is asserted more than quantified. The quadratic form is also a local approximation — true impact is nonlinear and concave in size — so the model is most trustworthy for the modest, correlated trade sizes typical of relative-value desks.</p>
+<h3>Bottom Line</h3>
+<p>Model the wake honestly — sideways and fading — and the trades you were told to skip turn out to be worth doing.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Quantum Circuit Learning for Volatility Modeling: Multifractal Analysis of Realized Volatility Time Series</h2>
+  <p class="meta">Tetsuya Takaishi<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-03 &middot; <a href="http://arxiv.org/abs/2609.04569v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.04569v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A single-qubit quantum circuit, trained on Bitcoin data, reproduces the strange "rough" statistical fingerprint of volatility without anyone having to guess a formula like GARCH first.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Volatility — how violently a price swings — is the raw material of risk management and option pricing. It clusters (calm begets calm, storms beget storms) and has a peculiar statistical texture that plain models miss. The workhorse tools, the GARCH family, force you to <em>write down the equation</em> for how variance evolves before you fit it. If your assumed shape is wrong, everything downstream inherits the error. What you'd really like is a flexible machine that learns the volatility dynamics straight from data, without you pre-committing to a functional form.</p>
+<p><strong>The idea.</strong> The authors reach for a <em>parameterized quantum circuit</em> — a tiny quantum program with a handful of tunable rotation angles. Instead of assuming the shape of the volatility curve, you let this shape-shifting device produce outputs and turn its knobs (the angles) until its behavior matches reality. Remarkably, they use just a <em>single qubit</em>. They take five-minute Bitcoin prices, compress each day into a "realized volatility" number, train the circuit to predict it, and then let the trained circuit spin out a long synthetic history. Finally they interrogate that synthetic series with <em>multifractal analysis</em> — a magnifying glass that asks whether the same statistical roughness shows up at every zoom level — to see whether the quantum model captured the real texture or just the averages.</p>
+<p><strong>What they found.</strong> The synthetic returns behave like a near-random walk, which is exactly what real markets should look like at the level of raw price changes. More strikingly, the <em>changes in volatility</em> come out strongly "anti-persistent" — a jump up tends to be followed by a pull back down — matching the fashionable "rough volatility" picture of real markets. The synthetic series also shows genuine multifractality that partly survives scrambling the data order, just as the real Bitcoin series does. In short, a one-qubit toy captures, qualitatively, several fingerprints of real crypto volatility that GARCH-style models struggle to reproduce without hand-tuning.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> From five-minute log-returns $r_{d,i}$ within day $d$, daily <strong>realized volatility</strong> is
+$$\mathrm{RV}_d=\sum_i r_{d,i}^2 .$$
+A single-qubit <strong>parameterized quantum circuit</strong> prepares a state $|\psi(\boldsymbol\theta,x)\rangle=U(\boldsymbol\theta,x)\,|0\rangle$, where $U$ is a sequence of tunable rotations $R_y(\theta),R_z(\theta)$ with parameter vector $\boldsymbol\theta$ and $x$ encodes recent volatility. The prediction is read off as an expectation of the Pauli-$Z$ observable, $f(\boldsymbol\theta,x)=\langle\psi|Z|\psi\rangle\in[-1,1]$, rescaled to a volatility.</p>
+<p><strong>The key equations.</strong> Training minimizes mean-squared error, $\mathcal L(\boldsymbol\theta)=\tfrac1N\sum_d\big(f(\boldsymbol\theta,x_d)-\mathrm{RV}_d\big)^2$, with gradients obtained by the <strong>parameter-shift rule</strong>, $\partial_\theta f=\tfrac12\big[f(\theta+\tfrac\pi2)-f(\theta-\tfrac\pi2)\big]$. The generated series is then analyzed by Multifractal Detrended Fluctuation Analysis: fluctuations at scale $s$ scale as
+$$F_q(s)\sim s^{\,h(q)},\qquad \tau(q)=q\,h(q)-1,\qquad f(\alpha)=q\alpha-\tau(q),\ \ \alpha=\tau'(q),$$
+where $q$ is the moment order, $s$ the window length, $h(q)$ the <strong>generalized Hurst exponent</strong>, $\tau(q)$ the mass exponent, $\alpha$ the local singularity strength, and $f(\alpha)$ the singularity spectrum whose width measures the strength of multifractality.</p>
+<p><strong>The method.</strong> This is variational quantum machine learning: a shallow circuit trained by gradient descent using the parameter-shift rule (an exact way to differentiate quantum expectations), followed by MFDFA on the outputs and a shuffle test that separates roughness coming from fat tails versus from genuine correlations.</p>
+<p><strong>Results with numbers.</strong> The predicted return series shows $h(2)\approx 0.5$ (near-random dynamics); the RV-increment series is markedly anti-persistent with $h(2)\approx 0.05\text{–}0.1$ (a Hurst exponent far below $0.5$, the hallmark of rough volatility); and both synthetic and empirical series retain measurable multifractality after random shuffling.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Realized volatility</strong> — a day's volatility estimated by summing that day's squared high-frequency returns.</li>
+<li><strong>Qubit</strong> — the basic unit of quantum information; a single qubit's state lives on a sphere and is steered by rotation angles.</li>
+<li><strong>Parameterized quantum circuit</strong> — a quantum program with adjustable rotation angles that acts as a trainable model.</li>
+<li><strong>Parameter-shift rule</strong> — a formula giving exact gradients of a quantum circuit's output by evaluating it at shifted angles.</li>
+<li><strong>Generalized Hurst exponent $h(q)$</strong> — a number saying whether a series is persistent ($>0.5$), random ($=0.5$), or anti-persistent ($<0.5$), possibly differing across moments $q$.</li>
+<li><strong>Multifractal / singularity spectrum $f(\alpha)$</strong> — a description of a series that needs a whole <em>range</em> of scaling exponents, not one; the spectrum's width quantifies that richness.</li>
+<li><strong>Rough volatility</strong> — the empirical finding that volatility paths are far more jagged than classical models assume, corresponding to a very low Hurst exponent.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>A single qubit is a proof-of-concept toy and, being classically simulable, demonstrates no quantum advantage; the results are explicitly "qualitative," and the paper reports no head-to-head forecast-accuracy numbers against GARCH. A practitioner can't deploy this for pricing or risk today — its interest is in showing that a form-free, trainable model can inherit rough-volatility structure, pointing toward larger circuits later.</p>
+<h3>Bottom Line</h3>
+<p>Don't guess the equation for volatility — let a tiny quantum dial find it, and it comes out rough, just like the real thing.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Modeling Trade Durations under Temporal Granularity Effects in Forex Markets</h2>
+  <p class="meta">Vladimír Holý<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-09-02 &middot; <a href="http://arxiv.org/abs/2609.02660v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.02660v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>High-frequency currency-trade timestamps pile up suspiciously on round-number gaps, and this model bakes that "heaping" directly into the math so the estimated trading dynamics aren't quietly distorted.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In high-frequency foreign-exchange data, one useful quantity is the <em>duration</em> — the time between consecutive trades. Short durations mean a frenzy of activity; long ones mean a lull, and how durations rise and fall carries information about liquidity and information flow. But real FX data has an ugly wrinkle: the gaps cluster unnaturally at whole-second values — far more trades appear to be exactly one, two, or three seconds apart than a smooth model would ever produce. This "heaping" is largely an artifact of how timestamps are recorded and rounded, not a true feature of trading. If you fit a standard smooth model to heaped data, you get the wrong answer about both the shape of the duration distribution and how it evolves.</p>
+<p><strong>The idea.</strong> It's the same trap as survey data where everyone reports their weight to the nearest five pounds: fit a smooth bell curve and you'll misjudge the spread. The fix is to model the rounding explicitly. The authors propose the <em>granularity-adjusted autoregressive conditional duration</em> model (GA-ACD). It says each observed duration comes from one of two sources mixed together: most of the time, a smooth, flexible distribution (a generalized gamma) that describes "real" durations; and part of the time, a second component that deliberately piles probability onto the integer values to reproduce the heaping. On top of this, the typical duration is allowed to drift over time in a "score-driven" way — after each trade, the model nudges its estimate of the current pace using how surprising the latest duration was — and all the parameters are fit at once by maximum likelihood.</p>
+<p><strong>What they found.</strong> Two clear messages. First, ignoring heaping isn't harmless: a simulation shows it biases the estimated parameters and distorts your conclusions about both the distribution and the dynamics. Second, integer-duration clustering is pervasive across all the major currency pairs, and the GA-ACD model fits the data better than the standard generalized-gamma ACD model it extends.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $x_i>0$ be the $i$-th trade duration. In the autoregressive conditional duration framework, $x_i=\psi_i\,\varepsilon_i$, where $\psi_i=\mathbb{E}[x_i\mid\mathcal F_{i-1}]$ is the conditional expected duration given past information $\mathcal F_{i-1}$ and $\varepsilon_i$ is a positive innovation with unit mean.</p>
+<p><strong>The key equations.</strong> The observed duration has a <strong>two-component mixture</strong> density
+$$f(x)=(1-\pi)\,f_{\mathrm{GG}}(x;\psi_i,\kappa,\nu)\;+\;\pi\,f_{\mathrm{heap}}(x),$$
+where $f_{\mathrm{GG}}$ is a generalized-gamma density (shape parameters $\kappa,\nu$, scale set by $\psi_i$), $f_{\mathrm{heap}}$ redistributes mass locally around integer values, and $\pi\in[0,1]$ is the heaping weight. The conditional pace evolves in a <strong>score-driven</strong> (generalized autoregressive score) recursion,
+$$\log\psi_i=\omega+\alpha\,s_{i-1}+\beta\,\log\psi_{i-1},\qquad s_{i-1}=\frac{\partial \log f(x_{i-1})}{\partial \log\psi_{i-1}},$$
+where $\omega$ is a baseline level, $\beta$ the persistence of the pace, $\alpha$ the sensitivity to the scaled score $s_{i-1}$, and $s_{i-1}$ is the derivative of the log-likelihood of the last observation with respect to the log-pace — the model's own measure of how surprising that duration was.</p>
+<p><strong>The method.</strong> Because the score-driven update makes $\psi_i$ a deterministic function of past data, the full likelihood factorizes and every parameter — the gamma shapes, the heaping weight $\pi$, and the dynamics $(\omega,\alpha,\beta)$ — is estimated jointly by <strong>maximum likelihood</strong>. A simulation study quantifies the bias from ignoring heaping; an empirical study fits the model across major FX pairs.</p>
+<p><strong>Results with numbers.</strong> The abstract reports qualitative-but-decisive findings: simulations show that neglecting heaping produces biased estimates and distorted inference, integer clustering is confirmed pervasive across major pairs, and GA-ACD achieves a better fit (higher likelihood) than the standard generalized-gamma ACD baseline.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Duration</strong> — the elapsed time between two consecutive trades.</li>
+<li><strong>ACD (autoregressive conditional duration)</strong> — a model in which the expected time to the next trade depends on recent durations, the time-analogue of GARCH.</li>
+<li><strong>Score-driven / GAS</strong> — an updating rule that moves a time-varying parameter in the direction of the likelihood's gradient (the "score") after each observation.</li>
+<li><strong>Generalized gamma</strong> — a flexible positive distribution that nests the exponential, Weibull, and gamma as special cases.</li>
+<li><strong>Mixture distribution</strong> — a density formed by blending two components with weights that sum to one.</li>
+<li><strong>Heaping</strong> — the artificial pile-up of observations at round values caused by rounding or coarse recording.</li>
+<li><strong>Maximum likelihood</strong> — estimating parameters by choosing the values that make the observed data most probable.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The heaping being modeled is essentially a data-recording artifact, so GA-ACD is as much a data-cleaning device as an economic model — valuable for honest inference, but it doesn't reveal new trading behavior. Its practical reach depends on whether integer clustering appears the same way in a given venue's feed; on cleaner or differently time-stamped data the correction may matter far less, and the abstract stops short of showing it improves any downstream forecast a trader would act on.</p>
+<h3>Bottom Line</h3>
+<p>When your clock rounds, model the rounding — otherwise the artifact masquerades as market dynamics.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Viscosity Supersolution Barriers to a Non-local Free Boundary Problem</h2>
+  <p class="meta">Avetik Arakelyan, Lusine Poghosyan<br>
+    <span class="cat">math.AP</span> &middot; 2026-09-02 &middot; <a href="http://arxiv.org/abs/2609.02381v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.02381v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>In a jump-driven model of speculative bubbles there is a critical time horizon past which no well-behaved pricing bound can possibly exist — and it is decided by a tug-of-war between discounting and jump risk.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Speculative asset bubbles — think a meme stock or a crypto token detaching from any sensible value — are often modeled with sudden jumps rather than smooth wiggles, because real bubbles pop and spike. Once you write down such a model and ask a decision question ("when should a holder optimally get out?"), you land on a <em>free-boundary problem</em>: there is a moving threshold in price and time that separates "hold" from "act," and that threshold is itself part of the unknown you must solve for. Jumps make it worse, because a jump can teleport the price far away, so the governing equation is <em>non-local</em> — the value at one price depends on values at distant prices. Before anyone computes a price, a prior question must be answered: does a sensible bounding solution even exist, and for how long?</p>
+<p><strong>The idea.</strong> The authors look for a <em>supersolution barrier</em> — a mathematical object that safely sits above any true solution, like a ceiling you know the answer can't punch through, and that grows at most linearly (no explosive blow-up). Whether such a ceiling can be built comes down to a balance. On one side, stabilizing forces: the discount rate (future money is worth less, which pulls values down) and mean reversion (prices tend to be tugged back). On the other side, the destabilizing force: jump dispersion — how big and how frequent the jumps are. Picture a dam holding back rising water. If drainage (discounting plus mean reversion) beats inflow (jump dispersion), the dam holds forever. If inflow wins, the dam can only hold for a while, and there is a critical time past which no finite dam works.</p>
+<p><strong>What they found.</strong> Three sharp regimes, governed by comparing $r+\rho$ (drainage) with $\sqrt{\lambda}\,L_\gamma$ (inflow). When drainage wins, a bounding solution exists globally, for all time. When inflow wins (the "deficit" regime), a bound exists only up to an explicit critical horizon $T_{\mathrm{crit}}$, and they <em>prove</em> none can exist beyond it. Exactly at the knife-edge where the two forces tie, a global bound exists again, provided one extra geometric no-crossing condition holds.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The value function solves a parabolic <strong>obstacle PIDE</strong> (partial integro-differential equation) with a bilateral moving free boundary,
+$$\min\Big\{\,-\partial_t u+\mathcal{L}u-\mathcal{I}[u]\,,\ u-g\,\Big\}=0,$$
+posed in the class of functions with linear asymptotic growth, $u(x)=O(|g(x)|)$ as $|x|\to\infty$. Here $u$ is the unknown value, $g$ the obstacle (payoff), $\mathcal L$ the <strong>local</strong> operator carrying the discount rate $r$ and mean-reversion rate $\rho$, and $\mathcal{I}$ the <strong>non-local</strong> jump operator
+$$\mathcal{I}[u](x)=\int\big(u(x+z)-u(x)-z\,\partial_x u(x)\mathbf 1_{|z|<1}\big)\,\nu(dz),$$
+with $\nu$ the Lévy jump measure, $\lambda$ the large-jump intensity, and $L_\gamma$ the Lipschitz constant of the jump-size map.</p>
+<p><strong>The key threshold.</strong> Existence hinges on the sign of $r+\rho-\sqrt{\lambda}\,L_\gamma$:
+$$r+\rho>\sqrt{\lambda}\,L_\gamma\ \Rightarrow\ \text{global existence};\quad r+\rho<\sqrt{\lambda}\,L_\gamma\ \Rightarrow\ \text{existence only for } T<T_{\mathrm{crit}};\quad r+\rho=\sqrt{\lambda}\,L_\gamma\ \Rightarrow\ \text{global, under a no-crossing condition}.$$
+Symbols: $r$ discount rate, $\rho$ mean-reversion rate, $\lambda$ intensity of large jumps, $L_\gamma$ Lipschitz constant controlling jump dispersion, $T_{\mathrm{crit}}$ the maximal horizon, and $u,g$ as above.</p>
+<p><strong>The method.</strong> The tool is the theory of <strong>viscosity solutions</strong>, which makes sense of "solution" for equations too irregular for classical derivatives, together with a comparison principle. Existence is shown by explicitly <em>constructing</em> barrier functions via an asymptotic slope envelope; the non-existence beyond $T_{\mathrm{crit}}$ is proved by showing that any candidate linear-growth barrier would have to violate that slope envelope.</p>
+<p><strong>Results with numbers.</strong> As a pure existence theory the deliverables are the three regime dichotomies and a closed threshold $T_{\mathrm{crit}}$ expressed through $r,\rho,\lambda,L_\gamma$, rather than computed prices or error figures.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Free boundary</strong> — an unknown moving surface (here, the hold-versus-act frontier) that must be found as part of the solution.</li>
+<li><strong>Obstacle problem</strong> — a constraint that the value must stay above a given payoff, active only in part of the domain.</li>
+<li><strong>PIDE (partial integro-differential equation)</strong> — a PDE with an added integral term, arising when the process can jump.</li>
+<li><strong>Lévy jump process</strong> — a random process built from a drift, a Brownian part, and jumps of random size and timing.</li>
+<li><strong>Viscosity supersolution</strong> — a generalized "ceiling" solution valid even where the function isn't smooth, sitting above every true solution.</li>
+<li><strong>Mean reversion ($\rho$)</strong> — the tendency of a quantity to be pulled back toward a central level.</li>
+<li><strong>Linear growth</strong> — the requirement that the solution grow no faster than a straight line at large values, ruling out explosions.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is existence theory, not a pricing recipe: it tells you <em>whether</em> a well-behaved bound can exist and for how long, but hands you no algorithm and no prices. The assumptions — linear growth, Lipschitz-bounded jumps, a specific local operator — are chosen for tractability and may not match a particular bubble model, and the finite-horizon threshold, while conceptually striking, is a statement about mathematical objects rather than a tradeable signal. Its worth is foundational: knowing $T_{\mathrm{crit}}$ exists warns modelers that jump-heavy bubble models can be ill-posed over long horizons.</p>
+<h3>Bottom Line</h3>
+<p>When jumps outrun discounting, even the math runs out of time — and this paper pins down exactly when.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
