@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 12, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 12, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Deep Learning of Robust Market Making under Regime-Switching Order Flow</h2>
+  <p class="meta">Felipe Moret, Fabrizio Lillo<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-09-10 &middot; <a href="http://arxiv.org/abs/2609.11614v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.11614v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A trading robot that constantly quotes buy and sell prices learns, through trial and error, to survive the moments when the market suddenly stampedes in one direction — moments where the classic textbook formulas quietly bleed money.</p>
+<h3>Plain English</h3>
+<p>Imagine you run a currency-exchange booth at an airport. All day you post two prices: one at which you'll <em>buy</em> dollars from travelers, and a slightly higher one at which you'll <em>sell</em> them. The gap between those two prices — the "spread" — is your profit, but it's also your risk. If you buy a huge pile of dollars right before the dollar crashes, your inventory is worth less than you paid. This is the <strong>market maker's dilemma</strong>: quote a wide spread and earn a lot per trade but scare customers away; quote a tight spread and trade constantly but get caught holding the wrong thing when prices lurch. Real electronic market makers face exactly this, thousands of times per second, on stock exchanges.</p>
+<p>For decades the go-to recipe was a beautiful piece of math (the Avellaneda–Stoikov formula and its GLFT refinement) that hands you an exact quoting rule: how far to shade your prices given how much inventory you're stuck with and how twitchy the market is. The catch is a hidden assumption — that the flow of buy and sell orders is <em>stationary</em>, meaning it looks statistically the same minute to minute. In reality it isn't. Big institutions slice one giant order ("a metaorder") into thousands of small ones and feed them in over an hour, creating a persistent one-directional tide. During those tides the textbook market maker keeps happily buying from a crowd that all wants to sell — and ends up drowning in inventory. The authors show this concretely: under such regimes the classic strategy earns <em>negative</em> profit.</p>
+<p>Their idea is to stop using a fixed formula and instead let the market maker <em>learn</em> by playing the game millions of times in a simulator — this is reinforcement learning, the same family of techniques that mastered Go and video games. Their robot ("RLMM") doesn't just estimate an average profit for each action; it learns the entire <em>distribution</em> of possible outcomes (a technique called distributional or "C51" learning), so it can be appropriately scared of rare disasters. But learning alone isn't enough against a persistent tide. So they hand the robot two extra instruments to watch: a <strong>change-point detector</strong> that raises a flag the moment order flow tips one-sided, and a gauge of how exposed its resting quotes are in the exchange's queue. With those signals, the robot stops getting run over.</p>
+<p>What they found: in normal (stationary) markets, the learned robot beats the classic GLFT formula across the <em>entire</em> risk–return trade-off — more profit for the same risk, everywhere. It's also naturally more robust to lopsided flow. And once they add the change-point signal plus a final step that makes the robot rehearse the worst scenarios extra hard, profitability is restored even under the directional stampedes that broke both the textbook rule and the plain learner.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The market maker controls its bid and ask quote distances $\delta^b_t, \delta^a_t$ from the mid-price. Its state is inventory $q_t$ (net position), cash, and market microstructure variables, evolving in a limit order book. Classical theory frames this as a stochastic control problem: maximize expected utility of terminal wealth. The Avellaneda–Stoikov solution assumes the mid-price is a Brownian motion $dS_t = \sigma\,dW_t$ and order arrivals follow a Poisson process whose intensity decays with quote distance, $\lambda(\delta) = A\,e^{-k\delta}$, where $A$ sets the base trade rate and $k$ measures how quickly customers vanish as you widen the spread. The optimal reservation price shifts away from mid by an amount proportional to inventory and risk aversion $\gamma$:
+$$r_t = S_t - q_t\,\gamma\,\sigma^2 (T-t),$$
+where $r_t$ is the inventory-adjusted fair price, $q_t$ inventory, $\gamma$ risk aversion, $\sigma^2$ price variance, and $T-t$ time remaining. Quotes are placed symmetrically around $r_t$. This is closed-form but <em>assumes stationary</em> $\lambda$.</p>
+<p><strong>The reinforcement-learning reformulation.</strong> The authors instead cast quoting as a Markov Decision Process $(\mathcal{S}, \mathcal{A}, P, R)$: states $\mathcal{S}$, discrete quoting actions $\mathcal{A}$, transition law $P$ (supplied by the zero-intelligence order-book simulator), and reward $R_t$ (mark-to-market PnL change penalized for inventory). They learn the <strong>return distribution</strong> rather than its mean. Distributional RL replaces the scalar action-value $Q(s,a)=\mathbb{E}[\sum_t \gamma^t R_t]$ with a random variable $Z(s,a)$ satisfying the distributional Bellman equation
+$$Z(s,a) \;\stackrel{D}{=}\; R(s,a) + \gamma\, Z(S', A'),$$
+where $\stackrel{D}{=}$ means "equal in distribution," $\gamma\in(0,1)$ is the discount factor, and $(S',A')$ is the next state–action. C51 approximates $Z$ on a fixed grid of 51 atoms and learns the probabilities on each atom by minimizing a cross-entropy loss after a distributional Bellman projection.</p>
+<p><strong>The method.</strong> This is a <strong>Rainbow-style distributional DQN</strong> — a neural network mapping state to the value distribution of each action, trained by temporal-difference learning with prioritized replay and related tricks. The augmenting signal is a <strong>Bayesian online change-point detector</strong> on the directional flow bias: it maintains a posterior over "run length" since the last regime break, flagging when order flow stops being balanced. A final <strong>scenario-bandit</strong> step reweights training toward low-return regimes so the policy isn't optimized only for the easy, common cases.</p>
+<p><strong>Results with numbers.</strong> In the stationary regime, RLMM dominates GLFT across the <em>whole</em> observed risk–return frontier (higher return at matched risk). Under persistent directional imbalance, plain stationarily-trained strategies — GLFT included — suffer large drawdowns from inventory saturation and can turn PnL negative; adding the change-point filter plus queue-exposure signal <em>restores profitability</em>, and the scenario-bandit reweighting improves worst-regime performance further.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market maker</strong> — a trader who continuously posts both a buy and a sell quote, earning the spread while bearing inventory risk.</li>
+<li><strong>Metaorder</strong> — one large institutional order secretly split into many small child orders, creating persistent one-sided flow.</li>
+<li><strong>Stationarity</strong> — the assumption that a process's statistical properties don't change over time; order flow violates it.</li>
+<li><strong>Distributional RL (C51)</strong> — reinforcement learning that models the full probability distribution of returns, not just the average, over 51 discrete value levels.</li>
+<li><strong>Bellman equation</strong> — the recursive consistency condition linking the value of now to the reward now plus the discounted value of next.</li>
+<li><strong>Bayesian change-point detection</strong> — an online method that updates its belief about how long ago the data-generating regime last shifted.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's trained and tested inside a <em>zero-intelligence</em> simulated order book, not on live markets with strategic adversaries, latency, and fees — so the "beats GLFT everywhere" claim lives in a sandbox. The honesty is refreshing: the authors admit that even a learned agent, if trained only on stationary data, still gets crushed by sustained imbalance unless explicitly given regime signals. A practitioner couldn't drop this in tomorrow, but the recipe — augment the state with a change-point detector — is a genuinely transferable lesson.</p>
+<h3>Bottom Line</h3>
+<p>When the market stampedes, a clever formula isn't enough; you need a robot that <em>knows the stampede has started</em> and quotes accordingly.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Short-maturity skew stickiness ratio under local volatility</h2>
+  <p class="meta">Masaaki Fukasawa<br>
+    <span class="cat">math.PR</span> &middot; 2026-09-10 &middot; <a href="http://arxiv.org/abs/2609.11586v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.11586v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When an option is about to expire, the way its "smile" of prices tilts moves in a precisely predictable lockstep with the underlying stock — twice as fast as the tilt itself — and this paper finally proves it rigorously.</p>
+<h3>Plain English</h3>
+<p>Options are contracts giving you the right to buy or sell a stock at a fixed price later. Traders quote them not in dollars but in an equivalent number called <strong>implied volatility</strong> — essentially "how jumpy does the market think this stock will be?" If you plot implied volatility against the strike price (the fixed price in the contract), you don't get a flat line; you get a lopsided curve. Cheap-insurance downside options cost relatively more, so the curve tilts. That tilt is called the <strong>skew</strong>, and it's one of the most-watched numbers in derivatives trading because it encodes the market's fear of a crash.</p>
+<p>Here's the practical headache. Every time the stock price moves, the whole skew curve shifts too. If you're hedging a big options book, you desperately need to know: <em>when the stock moves 1%, how much does the skew move?</em> That ratio has a name — the <strong>skew stickiness ratio (SSR)</strong>. Traders have long observed, as a rule of thumb, that for very short-dated options the SSR sits right around <strong>2</strong>. Meaning the point on the smile that matters (the at-the-money level) moves roughly twice as sensitively to the stock as the raw slope of the smile would suggest. People have "known" this empirically and hand-waved it for years. What was missing was a proof that it <em>must</em> be so, and under what conditions.</p>
+<p>The idea here is to take one of the workhorse mathematical models of stock prices — a <strong>local volatility model</strong>, where the stock's jumpiness is allowed to depend on both time and the current price level — and prove, with full rigor, that as the option's maturity shrinks to zero, the SSR converges <em>exactly</em> to 2. Think of it like proving that a ball rolling down a ramp always approaches a specific speed: everyone measured it, now someone derived it from first principles. As a bonus, the author also cleans up a related folk theorem — the "one-half rule," which says the at-the-money skew is about half the slope of local volatility — by proving it under far weaker, more realistic assumptions than anyone had needed before.</p>
+<p>What they found: the first rigorous proof that SSR → 2 at short maturity for a <em>general, time-dependent</em> local volatility function, plus a strengthened one-half rule that no longer requires the usual restrictive technical crutches (uniform ellipticity and global bounds on high-order derivatives).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Under a <strong>local volatility model</strong> the stock price $S_t$ solves the stochastic differential equation
+$$dS_t = \sigma(t, S_t)\, S_t\, dW_t,$$
+where $S_t$ is the price at time $t$, $\sigma(t,S)$ is the local volatility surface (a deterministic function of time and price level), and $W_t$ is a Brownian motion under the pricing measure. The market quotes options via <strong>Black–Scholes implied volatility</strong> $I(t, K)$, defined so that plugging it into the Black–Scholes formula reproduces the model's option price at maturity $t$ and strike $K$.</p>
+<p><strong>The key quantities.</strong> The <strong>implied-volatility skew</strong> is the strike-slope of implied vol,
+$$\mathcal{S}(t) \;=\; \left.\frac{\partial I(t,K)}{\partial \log K}\right|_{K = F_t},$$
+evaluated at the forward price $F_t$ (at-the-money). The <strong>skew stickiness ratio</strong> measures how the at-the-money implied volatility $I_{\mathrm{atm}}(t) = I(t, F_t)$ responds to a move in the spot relative to that skew:
+$$\text{SSR}(t) \;=\; \frac{1}{\mathcal{S}(t)}\,\frac{\partial\, I_{\mathrm{atm}}(t)}{\partial \log S_0},$$
+where $S_0$ is the current spot. The paper's main theorem is the short-maturity limit
+$$\lim_{t \to 0} \text{SSR}(t) = 2.$$
+Alongside it, the <strong>one-half rule</strong> relates the short-maturity skew to the spatial slope of local volatility:
+$$\mathcal{S}(t) \;\xrightarrow[t\to 0]{}\; \tfrac{1}{2}\,\partial_{\log K}\,\sigma(0, S_0),$$
+i.e. the implied skew is half the log-strike slope of the local-vol surface at the money.</p>
+<p><strong>The method.</strong> The engine is a <strong>first-order Watanabe expansion</strong> — a Malliavin-calculus-based asymptotic technique that expands the option price (and hence implied volatility) in powers of $\sqrt{t}$ as maturity $t\to 0$. By carefully tracking the leading-order terms of both the at-the-money level and its spot-sensitivity, the ratio's limit falls out. The technical achievement is doing this <em>without</em> the usual smoothing assumptions: the proof <strong>removes uniform ellipticity</strong> (the requirement that volatility be bounded away from zero everywhere) and <strong>removes global bounds on second- and higher-order spatial derivatives</strong> of $\sigma$, so the result holds for genuinely general time-dependent surfaces.</p>
+<p><strong>Results.</strong> The headline is qualitative-turned-rigorous: SSR $\to 2$ exactly, established for the first time in this generality, and the one-half rule proven under materially weaker hypotheses than prior work required. There are no Monte-Carlo error bars to report — the contribution is a theorem, and its value is precisely that it needs no numbers.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility</strong> — the single volatility number that, fed into Black–Scholes, reproduces an option's market price.</li>
+<li><strong>Skew</strong> — the slope of implied volatility across strikes, encoding asymmetric crash fear.</li>
+<li><strong>Local volatility model</strong> — a model where instantaneous volatility is a deterministic function $\sigma(t,S)$ of time and current price.</li>
+<li><strong>Skew stickiness ratio (SSR)</strong> — how much at-the-money implied vol moves per unit of spot move, normalized by the skew.</li>
+<li><strong>Watanabe expansion</strong> — a Malliavin-calculus asymptotic method for expanding option prices in powers of time-to-maturity.</li>
+<li><strong>Uniform ellipticity</strong> — the technical assumption that volatility never gets arbitrarily close to zero; dropping it makes the result far more general.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean, honest theorem, not a trading strategy — its worth is theoretical rigor, confirming a rule desks already use. The limit is a <em>short-maturity</em> statement, so it says nothing about the SSR of the multi-month options that dominate many books, and pure local-volatility models are known to misfit the term structure of skew dynamics that stochastic-vol models capture. Still, having a proof (rather than folklore) for the boundary behavior is exactly the kind of foundation a quant should want under a widely used heuristic.</p>
+<h3>Bottom Line</h3>
+<p>The trader's rule of thumb "short-dated skew moves twice as fast as it looks" is no longer folklore — it's a theorem.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Filtering without recursion and some of its uses in financial economics</h2>
+  <p class="meta">Simon Donker van Heel, Neil Shephard<br>
+    <span class="cat">econ.EM</span> &middot; 2026-09-07 &middot; <a href="http://arxiv.org/abs/2609.07207v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.07207v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new way to smooth noisy data that runs every time step independently and in parallel — no chain of updates — and it cleans up high-frequency trading prices so well that the notorious microstructure "noise" stops distorting volatility estimates.</p>
+<h3>Plain English</h3>
+<p>Suppose you want to know the <em>true</em> value of a stock at each instant, but every price you observe is contaminated. In modern markets a single asset can trade over 1.5 million times in one day, and at that microscopic timescale the recorded prices bounce around not because the company's value is changing but because of the plumbing: bid-ask bounce, tick sizes, orders arriving in bursts. This contamination is called <strong>microstructure noise</strong>, and it's viciously inconvenient. If you try to estimate how volatile the stock is by summing up squared price changes at the finest resolution, the noise dominates and you get a wildly inflated, useless number. Practitioners literally draw a "volatility signature plot" — estimated volatility as you zoom into finer and finer time steps — and watch it blow up, then artificially back off to coarser sampling (say, 5-minute bars) to dodge the problem.</p>
+<p>The classical tool for extracting signal from noisy observations is a <strong>filter</strong> — most famously the Kalman filter, which sweeps through the data updating its best guess one step at a time, each step depending on the last. That recursion is elegant but has two problems: it's inherently sequential (step 1000 must wait for step 999), and it leans on assumptions (like finite-variance, Gaussian-ish noise) that spectacularly fail when noise is heavy-tailed — here the noise's variance is literally <em>infinite</em>.</p>
+<p>The idea is to redefine what a filtered estimate even <em>is</em>. Instead of "the output of a recursion," the authors define each moment's estimate as the answer to a small optimization: the value that minimizes a blend of how badly it fits what you just observed and how badly it fits what you'd have expected. Because that little optimization at time $t$ doesn't depend on the answer at time $t-1$, you can compute all $T$ time points at once, in parallel, and each one costs a constant amount of work no matter how much history there is. It's the difference between passing a message down a line of people versus handing everyone their own copy and letting them all solve simultaneously.</p>
+<p>What they found: applied to over 1.5 million trades of one asset in one day, their filter produces a <strong>flat volatility signature plot right down to the 1-second level</strong> — meaning the microstructure noise no longer biases the volatility estimate even at extremely fine resolution. Ordinary linear methods can't do this when the noise has infinite variance.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Observations $y_1, \dots, y_T$ are noisy readings of a latent state (here, the efficient log-price). The <strong>filtered value</strong> $\hat{x}_t$ is defined not recursively but variationally, as the minimizer of a <em>discounted convex combination of observed and expected losses</em>:
+$$\hat{x}_t \;=\; \arg\min_{x}\; \Big\{ (1-\alpha)\,\ell\big(x, y_t\big) \;+\; \alpha\, \mathbb{E}\big[\,\ell(x, X)\,\big] \Big\},$$
+where $x$ is the candidate estimate, $\ell(\cdot,\cdot)$ is a convex loss (for example, but not necessarily, squared error), $y_t$ is the current observation, $\alpha\in(0,1)$ is a discount/weight balancing fidelity to data against fidelity to the model's expectation, and $X$ is the model-implied state whose distribution supplies the expected loss $\mathbb{E}[\ell(x,X)]$. The crucial structural point: the objective at time $t$ references only $y_t$ and a fixed expectation term — <strong>no dependence on $\hat{x}_{t-1}$</strong> — so the estimates decouple across time.</p>
+<p><strong>Why it's robust.</strong> By choosing $\ell$ to be a robust convex loss (e.g. one that grows sub-quadratically in the tails, like an absolute-value or Huber-type loss) rather than the squared loss implicit in linear/Kalman filtering, the minimizer is insensitive to extreme, heavy-tailed noise increments. This is exactly what lets it survive noise with <strong>infinite variance</strong>, where any method built on squared-error (and thus on the second moment) is ill-defined.</p>
+<p><strong>The method.</strong> The expectation $\mathbb{E}[\ell(x, X)]$ is generally not available in closed form, so it is <strong>estimated by simulation</strong> (Monte Carlo over draws of $X$) to arbitrary accuracy, and the one-dimensional convex minimization over $x$ is solved cheaply. The headline computational claim is complexity: each $\hat{x}_t$ costs $O(1)$ floating-point operations per time point, and because the points are independent, the entire sequence $t = 1, \dots, T$ can be computed <strong>in parallel</strong>.</p>
+<p><strong>Results with numbers.</strong> On real high-frequency data — <strong>more than 1.5 million trades on a single asset in a single day</strong>, with microstructure noise of <strong>infinite variance</strong> — the method yields a <strong>flat volatility signature plot down to the 1-second sampling level</strong>, i.e. the estimated integrated volatility no longer inflates as sampling frequency rises. The paper contrasts this explicitly with <strong>linear methods</strong>, which do <em>not</em> deliver a flat signature under such noise and therefore remain biased.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Filter</strong> — an algorithm that estimates a hidden true signal from noisy observations over time.</li>
+<li><strong>Microstructure noise</strong> — high-frequency price contamination from bid-ask bounce, discreteness, and order timing, unrelated to fundamental value.</li>
+<li><strong>Volatility signature plot</strong> — a diagnostic graph of estimated volatility versus sampling frequency; a flat line means the estimate is unbiased across scales.</li>
+<li><strong>Convex loss</strong> — a bowl-shaped penalty function with a unique minimum, making the optimization well-posed and fast.</li>
+<li><strong>Infinite variance</strong> — a heavy-tailed distribution so prone to extremes that its theoretical variance doesn't exist, breaking methods that rely on squared error.</li>
+<li><strong>Preaveraging</strong> — smoothing local blocks of high-frequency prices to suppress noise before estimating volatility.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The $O(1)$-per-point, embarrassingly-parallel structure is genuinely attractive for the terabyte-scale tick data quant desks wrestle with, and demonstrating robustness against literally infinite-variance noise is a strong stress test. That said, the price of dropping recursion is that you must specify the expectation term (and its model) well, and the demonstration is one asset on one day — generalization across assets, days, and noise regimes still needs showing. The choice of loss and discount $\alpha$ are tuning knobs whose sensitivity a practitioner would want mapped out.</p>
+<h3>Bottom Line</h3>
+<p>Stop chaining your estimates together one step at a time — define each one on its own, and you can clean a day's 1.5 million trades all at once, even when the noise is wild enough to have no variance at all.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Pricing and Hedging of Discretely Monitored Asian Options in the Volterra-Heston Model</h2>
+  <p class="meta">Gijs Custers, Sven Karbach, Martin Friesen<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-09-07 &middot; <a href="http://arxiv.org/abs/2609.07169v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.07169v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper delivers near-formula prices and a best-possible hedge for "averaging" options in a cutting-edge rough-volatility model, using the easy-to-price cousin of the option as a shortcut to nail the hard one.</p>
+<h3>Plain English</h3>
+<p>Some options don't pay off based on where a stock ends up on the expiry date, but on its <em>average</em> price over a stretch of time. These are <strong>Asian options</strong>, and they're everywhere in the real economy: an airline hedging jet fuel, or a company converting a steady stream of foreign revenue, cares about the average price over a quarter, not one lucky closing tick. Averaging also makes the option harder to manipulate and cheaper — which is exactly why treasurers love them and why banks need to price and hedge them accurately.</p>
+<p>Two things make Asian options genuinely hard. First, "average" comes in two flavors. The <strong>geometric</strong> average (multiply the prices and take a root) is mathematically friendly — it stays log-normal-ish and yields formulas. The <strong>arithmetic</strong> average (the ordinary sum-and-divide that clients actually want) has no clean formula, because a sum of log-normal things is a notorious mathematical monster. Second, modern practice has moved to <strong>rough volatility</strong> models, where the stock's jumpiness is itself an erratic, "rough" process with long memory — this fits market data strikingly well but destroys the tidy Markov structure that classical pricing math relies on. Combine "arithmetic average" with "rough volatility" and you have a problem that resists brute force.</p>
+<p>The clever idea is a two-step judo move. Step one: even in this rough (Volterra–Heston) world, the authors find a tractable formula for the <em>joint</em> behavior of the final price and the geometric average — enough to price the friendly geometric Asian option semi-explicitly. Step two: use that priced-in-closed-form geometric option as a <strong>control variate</strong> — a statistical crutch — to dramatically sharpen the Monte-Carlo simulation of the ugly arithmetic option. The intuition: the geometric and arithmetic averages move almost in lockstep, so you simulate the <em>difference</em> (small and stable) instead of the arithmetic price itself (large and noisy), then add back the exact geometric value. For hedging, they derive the mathematically optimal "closest you can get" hedge when perfect replication is impossible, and make the whole rough model computable by approximating it with a handful of ordinary factors.</p>
+<p>What they found: the geometric-Asian control variate <strong>substantially cuts the variance</strong> of arithmetic-Asian Monte-Carlo prices and stabilizes the regression-based hedges, and their finite-factor approximation converges cleanly as you add factors.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work in the <strong>Volterra–Heston</strong> stochastic-volatility model. The log-price $X_t = \log S_t$ has instantaneous variance $V_t$ driven by a <em>rough</em> (fractional, non-Markovian) kernel:
+$$V_t = V_0 + \int_0^t K(t-s)\,\kappa(\theta - V_s)\,ds + \int_0^t K(t-s)\,\nu\sqrt{V_s}\,dB_s,$$
+where $V_t$ is the variance, $K(\cdot)$ is the memory kernel (e.g. a fractional power law giving "roughness"), $\kappa$ the mean-reversion speed, $\theta$ the long-run variance, $\nu$ the vol-of-vol, and $B_t$ a Brownian motion correlated with the price's own driver. The option depends on the discretely monitored average over dates $t_1 < \dots < t_n$; the <strong>geometric average</strong> log is $G = \tfrac{1}{n}\sum_{i=1}^n X_{t_i}$.</p>
+<p><strong>The key result.</strong> Exploiting the <strong>affine Volterra</strong> structure, they derive a semi-closed transform for the joint law of the terminal log-price and the geometric average:
+$$\mathbb{E}\!\left[\exp\!\big(u\,X_T + w\,G\big)\right] \;=\; \exp\!\Big(\phi(u,w) + \psi(u,w)\,V_0\Big),$$
+where $u, w$ are transform arguments, and $\phi, \psi$ solve a <strong>Riccati–Volterra</strong> system of integral equations determined by the kernel $K$ and the model parameters. Inverting this transform (Fourier inversion) gives semi-closed <strong>geometric</strong> Asian option prices.</p>
+<p><strong>Hedging.</strong> Because rough stochastic volatility makes markets incomplete, perfect replication is impossible, so they compute the <strong>variance-optimal hedge</strong> via the <strong>Galtchouk–Kunita–Watanabe (GKW) decomposition</strong> of a Fourier-representable payoff $H$:
+$$H \;=\; \mathbb{E}[H] + \int_0^T \xi_t\, dS_t + L_T,$$
+where $\xi_t$ is the optimal hedge ratio (the amount of stock to hold), the stochastic integral is the hedgeable part, and $L_T$ is a residual orthogonal to $S$ (the irreducible risk). The hedge $\xi_t$ is expressed through the Riccati–Volterra solution and the <strong>forward-variance curve</strong>.</p>
+<p><strong>The method.</strong> The non-Markovian model is made computable by an <strong>$N$-factor Markovian approximation</strong> — replacing the rough kernel with a sum of $N$ exponentials, turning the integral dynamics into a finite system of ordinary SDEs. Arithmetic-Asian prices come from <strong>Monte Carlo with the geometric Asian as a control variate</strong>; hedges come from regression against simulated paths.</p>
+<p><strong>Results with numbers.</strong> They document <strong>factor convergence</strong> for a regular non-Markovian kernel (accuracy improving as $N$ grows) and quantify how <strong>rebalancing frequency</strong> affects hedging error. In the Heston benchmark, geometric-Asian controls <strong>substantially reduce the variance</strong> of arithmetic-Asian price estimates and <strong>improve the finite-sample stability</strong> of regression-based hedging versus direct regression.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Asian option</strong> — an option whose payoff depends on the average underlying price over a period, not the final price.</li>
+<li><strong>Rough volatility</strong> — a model where volatility follows an erratic, long-memory (fractional) process, matching real markets better than smooth models.</li>
+<li><strong>Volterra–Heston model</strong> — a Heston-type stochastic-volatility model whose variance is driven through a memory kernel, making it non-Markovian.</li>
+<li><strong>Affine transform / Riccati–Volterra</strong> — a structure where the moment-generating function is exponential-affine in the state, with coefficients solving integral (Riccati–Volterra) equations.</li>
+<li><strong>Control variate</strong> — a Monte-Carlo trick that subtracts a correlated quantity with known mean to slash simulation variance.</li>
+<li><strong>Galtchouk–Kunita–Watanabe decomposition</strong> — the splitting of a payoff into a perfectly-hedgeable part plus an orthogonal, irreducible residual, giving the variance-optimal hedge in incomplete markets.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is careful, high-craft derivatives mathematics that plugs a real gap — <em>discretely monitored</em> arithmetic Asians under <em>rough</em> volatility — but everything rides on the model being correctly specified and calibrated, and rough-Heston calibration is itself delicate. The $N$-factor approximation trades exactness for tractability, and the numerics lean on the Heston benchmark; live-market transaction costs and calibration error would erode the "variance-optimal" hedge's edge. For a quant desk already committed to rough-vol models, though, the control-variate speedup is immediately usable.</p>
+<h3>Bottom Line</h3>
+<p>To price the option nobody can price directly, price its friendly twin exactly and let the twin carry the hard one — even when volatility is rough.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Asymmetric Long-Memory GARCH: Sign-Dependent Kernel Injection in a Two-Dimensional Markov Chain</h2>
+  <p class="meta">Kennedy Titus Kayaki, Kyungsub Lee<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-09-06 &middot; <a href="http://arxiv.org/abs/2609.06422v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.06422v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A volatility model that lets bad news and good news leave <em>different-shaped, different-length</em> footprints on future market turbulence — and it holds up statistically across five stock indices and Bitcoin.</p>
+<h3>Plain English</h3>
+<p>Markets have a well-known personality quirk: they get more nervous after they fall than after they rise by the same amount. A 3% crash spooks everyone and volatility spikes; a 3% rally is greeted more calmly. This is the <strong>leverage effect</strong>, and any serious model of market turbulence has to capture it. The standard toolkit for modeling turbulence is the <strong>GARCH</strong> family, which says today's volatility is built from yesterday's shocks plus yesterday's volatility — a kind of momentum in nervousness.</p>
+<p>But real markets have a second quirk that basic GARCH misses: <strong>long memory</strong>. A big shock today doesn't just raise volatility tomorrow and then vanish; its influence decays slowly, lingering for weeks or months. Picture dropping a stone in a pond — basic GARCH assumes the ripples die out almost immediately, but real volatility ripples persist far longer than that.</p>
+<p>Now combine the two quirks and ask a sharper question: are the <em>long-memory ripples</em> from bad news and good news actually <strong>shaped differently</strong>, not just sized differently? Maybe a crash doesn't only cause a bigger initial jump in volatility — maybe it also causes a <em>longer, more persistent</em> memory trail than a rally does. That's the subtle possibility this paper builds a model to detect. Their model, <strong>ALM-GARCH</strong>, gives positive and negative shocks two separate dials: a different <strong>injection amplitude</strong> (how big the immediate bump is) and a different <strong>kernel offset</strong> (how the memory trail is shaped and how long it lingers). This splits the leverage effect into two testable "channels": a <strong>level channel</strong> (is the bump bigger for bad news?) and a <strong>memory channel</strong> (does bad news linger longer?).</p>
+<p>They also do the careful mathematical housekeeping: they prove the model is well-behaved — it won't blow up to infinity and it settles into a stable long-run statistical regime.</p>
+<p>What they found, testing on five equity indices plus Bitcoin: <strong>asymmetry is real everywhere</strong> — good and bad news genuinely differ — but it's driven mainly by the <em>level</em> channel (bad news hits harder immediately). The <em>memory</em> channel (bad news lingering longer) shows up clearly only for the Nikkei 225, KOSPI, and Bitcoin, and even then it's hard to pin down when positive shocks barely register. Out-of-sample forecasting is roughly on par with standard benchmarks — an honest, unhyped result.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A return series $r_t$ is modeled as $r_t = \mu + \varepsilon_t$ with $\varepsilon_t = \sigma_t z_t$, where $\sigma_t^2$ is the conditional variance, $z_t$ are i.i.d. standardized innovations, and $\mu$ the mean. The novelty is the recursion for $\sigma_t^2$. Where ordinary GARCH uses one common weight on past squared shocks, <strong>ALM-GARCH</strong> injects positive and negative innovations through <em>sign-dependent</em> long-memory kernels:
+$$\sigma_t^2 \;=\; \omega \;+\; \sum_{k=1}^{\infty}\Big[\, a^{+}\,\phi_k(d^{+})\,\varepsilon_{t-k}^{2}\,\mathbf{1}\{\varepsilon_{t-k} > 0\} \;+\; a^{-}\,\phi_k(d^{-})\,\varepsilon_{t-k}^{2}\,\mathbf{1}\{\varepsilon_{t-k} < 0\}\,\Big],$$
+where $\sigma_t^2$ is today's conditional variance, $\omega>0$ a baseline, $a^{+}, a^{-}$ the <strong>injection amplitudes</strong> for positive vs. negative shocks (the <em>level channel</em>), $\phi_k(d)$ a long-memory kernel with decay/offset parameter $d$ (the <em>memory channel</em>), $d^{+}, d^{-}$ the sign-specific memory parameters, $\varepsilon_{t-k}$ the shock $k$ steps ago, and $\mathbf{1}\{\cdot\}$ the indicator selecting the sign. The nested <strong>symmetric benchmark</strong> is $a^{+}=a^{-}$ and $d^{+}=d^{-}$; the two asymmetry channels are the two testable departures from it.</p>
+<p><strong>The key structure.</strong> The authors reformulate the dynamics as a <strong>two-dimensional Markov chain</strong> (tracking state variables that jointly summarize the sign-split memory), which is what makes both the theory and the estimation tractable despite the infinite-sum memory.</p>
+<p><strong>The method / stability.</strong> They establish <strong>positive Harris recurrence</strong> for interior parameter configurations via a <strong>Foster–Lyapunov drift condition</strong> — the standard route to proving a Markov chain has a unique stationary (long-run) distribution and doesn't drift off to infinity. Concretely, one exhibits a Lyapunov function $W(\cdot)$ (a nonnegative "energy" of the state) satisfying a drift inequality
+$$\mathbb{E}\big[\,W(\text{state}_{t+1}) \mid \text{state}_t = x\,\big] \;\le\; (1-\beta)\,W(x) + b,$$
+for constants $\beta \in (0,1]$, $b < \infty$ outside a small set — guaranteeing the chain is pulled back toward the center. Parameters are estimated by <strong>quasi-maximum likelihood</strong>, and the two channels are tested against the symmetric nested model via likelihood-ratio-type statistics.</p>
+<p><strong>Results with numbers.</strong> Across <strong>five equity indices and Bitcoin</strong>, joint symmetry ($a^{+}=a^{-}$ <em>and</em> $d^{+}=d^{-}$) is <strong>rejected throughout</strong>, with the rejection driven primarily by the <strong>level channel</strong>. The <strong>memory channel</strong> is statistically supported for the <strong>Nikkei 225, KOSPI, and Bitcoin</strong>, but is <strong>weakly identified</strong> when the positive branch is nearly inactive (small $a^{+}$, so $d^{+}$ can't be pinned down). <strong>Out-of-sample</strong> forecasting performance is <strong>broadly comparable</strong> to standard GARCH-family benchmarks.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>GARCH</strong> — a model where today's variance depends on recent squared shocks and recent variance, capturing volatility clustering.</li>
+<li><strong>Leverage effect</strong> — the empirical tendency of volatility to rise more after price drops than after equal-sized rises.</li>
+<li><strong>Long memory</strong> — slowly decaying dependence, so shocks influence volatility for a very long time rather than fading fast.</li>
+<li><strong>Kernel / injection amplitude</strong> — the weight profile applied to past shocks; amplitude is the immediate size, the kernel shapes the decay.</li>
+<li><strong>Harris recurrence / Foster–Lyapunov</strong> — tools proving a Markov chain is stable and has a unique long-run distribution via a drift condition.</li>
+<li><strong>Weakly identified</strong> — a parameter the data can't estimate reliably because the feature it governs is barely active.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The theoretical care (proving stationarity, not just asserting it) is a real strength, and separating leverage into level vs. memory channels is a genuinely useful conceptual refinement. But the payoff is muted: the memory channel only shows up in some markets, it's fragile where one branch is quiet, and — most tellingly — out-of-sample forecasts are merely <em>comparable</em> to existing benchmarks, not better. A practitioner gains interpretability and a cleaner asymmetry story, not obviously sharper volatility forecasts.</p>
+<h3>Bottom Line</h3>
+<p>Bad news and good news don't just hit the market with different force — sometimes they leave memory trails of different length, and now there's a stable model honest enough to say exactly where that's true and where it isn't.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
