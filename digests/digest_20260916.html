@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 16, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 16, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> The skew Brownian motion should not be used as a risk-neutral returns process: a well-posed skew-normal alternative</h2>
+  <p class="meta">Lorenzo Torricelli, Michele Bufalo<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-14 &middot; <a href="http://arxiv.org/abs/2609.15306v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.15306v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A popular "kinked" model for stock returns turns out to secretly allow free money — but the authors salvage its useful bell-curve-with-a-lean and rebuild it the right way.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When banks price options — contracts that pay off if a stock ends up above or below some level — they need a mathematical model of how the stock's price wanders over time. The workhorse model treats returns as a smooth bell curve. But real markets are lopsided: crashes are sharper than rallies, so the distribution of returns leans to one side ("skew"). Over the last twenty years, some researchers tried to build skew into the model by using a <em>skew Brownian motion</em> — imagine the usual random-walk of a price, but with an invisible speed bump at one particular level, so the price gets nudged more easily in one direction than the other. It sounds elegant. The trouble is that a pricing model is only allowed to exist if it forbids <strong>arbitrage</strong> — a guaranteed, risk-free profit. If your model of prices lets a trader construct free money, the model is physically wrong, and every price it spits out is suspect.</p>
+<p><strong>The idea.</strong> This paper is part detective story, part repair job. The authors go back through the published work on skew-Brownian-motion pricing and show, step by step, that the field has been built on misquotations and a known-but-ignored flaw: a warning, published in 2012, that any price process with one of these "speed bumps" (technically a <em>local time</em> term) is arbitrageable. So the model, taken literally, is broken. But — and this is the constructive twist — the <em>snapshot</em> it produces at expiry, the lopsided bell curve (the "skew-normal" distribution), is genuinely useful and worth keeping. So they throw out the broken machinery underneath and ask: what is the <em>correct</em> well-behaved process whose snapshots are exactly that lopsided bell curve? They find it, prove it actually exists and behaves (no free money, no blow-ups), and then use its clean formulas to study how the model bends the "implied volatility" that options traders quote.</p>
+<p><strong>What they found.</strong> The old call-option pricing formula, they show, can actually be rescued even though the process behind it is flawed — the <em>formula</em> doesn't admit arbitrage even though the <em>return model</em> does. More importantly, they identify the genuinely well-posed replacement and, as a bonus, prove a new clean fact comparing the ordinary bell curve to its skewed cousin (a "stochastic dominance" ordering). Practitioners get a skew model they can trust instead of one that quietly contradicts itself.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Classical option pricing lives on a filtered probability space $(\Omega,\mathcal{F},(\mathcal{F}_t),\mathbb{Q})$ where $\mathbb{Q}$ is a <em>risk-neutral</em> measure. A price process $S_t$ must be a $\mathbb{Q}$-martingale (its discounted expected future value equals today's), which is exactly the no-arbitrage requirement. A <strong>skew Brownian motion</strong> $X_t$ solves
+$$dX_t = dW_t + (2\alpha-1)\,dL_t^0(X),$$
+where $W_t$ is standard Brownian motion, $L_t^0(X)$ is the <strong>local time</strong> of $X$ at level $0$ (a process that only increases when $X$ sits exactly at $0$, measuring time-at-the-barrier), and $\alpha\in(0,1)$ is the skew parameter tilting excursions above vs. below $0$.</p>
+<p><strong>Why it breaks.</strong> The extra term $(2\alpha-1)\,dL_t^0$ has finite variation but is <em>not</em> absolutely continuous in time, so it cannot be absorbed into a drift and removed by an equivalent change of measure (Girsanov). A return process carrying such a local-time term therefore fails to be a martingale under any equivalent $\mathbb{Q}$, which is precisely the arbitrage that Rossello (2012) flagged — the point the literature had ignored.</p>
+<p><strong>The fix.</strong> The authors keep the terminal law — the <strong>skew-normal</strong> density
+$$f(x)=\frac{2}{\omega}\,\phi\!\Big(\frac{x-\xi}{\omega}\Big)\,\Phi\!\Big(\lambda\frac{x-\xi}{\omega}\Big),$$
+with $\phi,\Phi$ the standard normal density and CDF, $\xi$ location, $\omega$ scale, and $\lambda$ the shape (skew) parameter — and search for a <em>Markovian</em> SDE
+$$dS_t=b(t,S_t)\,dt+\sigma(t,S_t)\,dW_t$$
+whose marginal at each time is skew-normal. They prove <strong>strong well-posedness</strong> (a unique, non-exploding solution) of that SDE, so the process genuinely exists and is arbitrage-free.</p>
+<p><strong>The method.</strong> The tools are stochastic calculus and martingale theory: a Girsanov/measure-change argument to expose the non-removable local-time term, then construction of the correct diffusion coefficients so the Kolmogorov forward (Fokker–Planck) equation reproduces the skew-normal marginals, plus an existence-and-uniqueness proof. With closed-form marginals in hand they run a short-maturity <strong>asymptotic expansion</strong> of the Black–Scholes implied-volatility surface.</p>
+<p><strong>Results.</strong> The headline results are qualitative-but-rigorous rather than a horse-race of error numbers: (i) the received SBM return model <em>admits arbitrage</em>, yet its call-pricing <em>formula</em> does <em>not</em>; (ii) the unique well-posed skew-normal SDE is identified and proven to exist; (iii) a closed-form leading-order implied-volatility skew is derived; and (iv) a new normal-vs-skew-normal stochastic-dominance inequality is established.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk-neutral measure ($\mathbb{Q}$)</strong> — a re-weighting of probabilities under which every discounted asset price has zero expected drift, so today's fair price is just a discounted expectation.</li>
+<li><strong>Martingale</strong> — a process whose best forecast of any future value is its current value; the mathematical form of "no free lunch."</li>
+<li><strong>Local time</strong> — a clock that ticks only while the process sits exactly at a chosen level, measuring how much it lingers there.</li>
+<li><strong>Skew-normal distribution</strong> — a bell curve tilted to one side by a shape parameter $\lambda$, reducing to the ordinary normal when $\lambda=0$.</li>
+<li><strong>Well-posedness</strong> — the guarantee that the equation has one and only one solution that doesn't blow up to infinity.</li>
+<li><strong>Stochastic dominance</strong> — a way to say one random payoff is systematically "better" (or larger) than another across all reasonable preferences.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a corrective, foundational paper more than a trading tool: its value is telling the field to stop using a self-contradictory model and handing over the right one. The skew-normal marginals are still a stylized, single-factor description — real vol surfaces need more flexibility across strikes and maturities — so the practical payoff is a trustworthy building block, not a finished pricing engine. Anyone currently quoting off an SBM model should read the error list carefully.</p>
+<h3>Bottom Line</h3>
+<p>If your elegant model prints free money, it's not elegant — it's wrong; keep the pretty distribution, rebuild the machine underneath.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Strategic Index Reconstitution: Differential Games, Closed-Loop Equilibria and Mean-Field Dynamics</h2>
+  <p class="meta">Lukas-Benedikt Fiechtner, Jose Blanchet<br>
+    <span class="cat">math.OC</span> &middot; 2026-09-14 &middot; <a href="http://arxiv.org/abs/2609.15901v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.15901v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When everyone knows a giant index fund <em>must</em> buy a stock next week, traders race to front-run it — this paper solves the mathematical game of that race and shows when it helps or hurts.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Index funds like the S&amp;P 500 tracker have to hold exactly the stocks in the index, in set proportions. So when the index committee announces that a company is being added or dropped — "reconstitution" — the fund is <em>forced</em> to buy or sell huge amounts on a known date. That's the most predictable large order in all of finance. Naturally, opportunistic traders try to get in front of it: buy before the fund buys, sell it back at a higher price. But there are <em>many</em> such traders, they all move the price when they trade, and they disagree about which stocks will actually be added. It's a crowded game where each player's best move depends on what everyone else does — and where trading itself pushes prices around, including across <em>different</em> stocks at once.</p>
+<p><strong>The idea.</strong> Think of a poker table where every player can see the same tell (the forced fund purchase coming) and each is trying to exploit it — but every chip they push moves the pot for everyone, and the moves partly fade over time. The authors model this as a <em>differential game</em>: a tug-of-war played continuously through time, where each trader picks a trading speed at every instant, and the "payoff" is profit minus the cost of moving the price. They solve for the equilibrium where no trader can do better by changing strategy (a Nash equilibrium), and crucially they solve the <em>closed-loop</em> version — where traders react to the actual unfolding prices and inventories, not a pre-committed plan. Then they zoom out to the limit of enormously many small traders (a "mean-field" approximation) so the messy N-player problem collapses into tracking one representative trader against the crowd average.</p>
+<p><strong>What they found.</strong> They get explicit, computable trading strategies — each trader's optimal speed is a simple linear function of the current state. A striking simplification emerges: the <em>aggregate</em> market behavior depends on beliefs only through the population <em>average</em> belief; individual disagreements only shuffle who holds what, not the total price impact. And the punchline is a genuine trade-off: anticipatory front-running displaces the price adversely (bad for the fund), but when opportunists trade <em>against</em> the fund during execution, they actually supply liquidity and <em>lower</em> the fund's trading costs. Whether reconstitution is net-harmful depends on how competitive the traders are and how fast impact decays.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Time is continuous, $t\in[0,T]$. There are $N$ opportunistic traders and one mechanical <em>indexer</em> following a prescribed schedule. Each trader $i$ controls a trading rate $u_t^i$; their inventory evolves as $dq_t^i=u_t^i\,dt$. Prices across $d$ assets carry <strong>transient cross-asset impact</strong>: a trade in one asset moves the whole price vector, and that displacement decays. A common form is
+$$dP_t=-\rho\,I_t\,dt + \Lambda\, v_t\,dt + dM_t,\qquad I_t=\sum_i u_t^i,$$
+where $P_t\in\mathbb{R}^d$ is the price vector, $v_t$ the aggregate trading rate, $\Lambda$ the impact matrix (including cross-asset entries), $\rho$ the impact-decay rate, and $M_t$ a martingale noise term. Traders hold <strong>heterogeneous beliefs</strong> about future index membership, entering through each trader's expected terminal payoff.</p>
+<p><strong>The key equations.</strong> Each trader maximizes expected trading profit net of impact cost,
+$$\sup_{u^i}\ \mathbb{E}\!\left[\int_0^T \big(P_t - c\,u_t^i\big)\,u_t^i\,dt \;+\; q_T^i\,\Pi^i\right],$$
+where $c$ penalizes fast trading and $\Pi^i$ is trader $i$'s belief-dependent terminal value of inventory. Under a <strong>no-price-manipulation condition</strong> (impact parameters that rule out round-trip profits from pure churning), the equilibrium feedback policies are <em>affine</em> in the state:
+$$u_t^{i,\*}=A(t)\,x_t + b^i(t),$$
+with $x_t$ the vector of inventories and impact states. The gain matrix $A(t)$ solves a <strong>non-standard matrix Riccati equation</strong>, and the offsets $b^i(t)$ solve linear ODEs — and, importantly, their number and size do <em>not</em> grow with $N$.</p>
+<p><strong>The method.</strong> This is continuous-time game theory via dynamic programming: the coupled Hamilton–Jacobi–Bellman equations for the players reduce, thanks to the linear-quadratic structure, to the Riccati/ODE system above (a <strong>subgame-perfect Nash equilibrium</strong> on every finite horizon). Under <strong>mean-field scaling</strong> they replace the crowd with its average, construct a mean-field equilibrium, and prove quantitative <strong>convergence</strong> and <strong>approximate-Nash</strong> bounds — i.e. the simple mean-field strategy is within a shrinking error of optimal in the true $N$-player game.</p>
+<p><strong>Results.</strong> The findings are structural: aggregate inventory and impact depend on beliefs only through the <em>population-average</em> belief; belief <em>differences</em> affect only individual positions. Numerical illustrations quantify how competition intensity and the impact-decay rate $\rho$ set the balance between adverse anticipatory displacement and the execution-cost savings the indexer enjoys when opportunists trade against its flow.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Differential game</strong> — a strategic contest played continuously through time, where each player's control affects a shared evolving state.</li>
+<li><strong>Nash / subgame-perfect equilibrium</strong> — a strategy profile where no player gains by deviating, and that remains optimal from every point in time onward.</li>
+<li><strong>Closed-loop (feedback) policy</strong> — a rule that sets your action from the <em>current observed state</em>, rather than committing to a fixed path in advance.</li>
+<li><strong>Transient price impact</strong> — the temporary price move your trade causes, which decays back over time rather than staying forever.</li>
+<li><strong>Riccati equation</strong> — a quadratic matrix differential equation that pops out of linear-quadratic optimal-control problems and yields the feedback gain.</li>
+<li><strong>Mean-field limit</strong> — the approximation, valid with very many small players, of replacing every rival with the population average.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The tractability comes from linear-quadratic structure and linear impact — real order books are nonlinear (the square-root law), impact is noisier, and index-membership beliefs are messier than a scalar. The "no-manipulation" condition is a modeling assumption, not a market guarantee. Still, as a framework for reasoning about crowded, scheduled trades, it's clean and the mean-field reduction makes it genuinely computable — a plausible starting point for execution desks and exchange-design debates.</p>
+<h3>Bottom Line</h3>
+<p>In the scramble to front-run a forced buyer, only the <em>average</em> opinion moves the market — and the crowd can end up quietly subsidizing the very fund it's trying to exploit.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Yet another asymptotic formula for implied volatility</h2>
+  <p class="meta">Masaaki Fukasawa<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-09-12 &middot; <a href="http://arxiv.org/abs/2609.13961v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.13961v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The mysterious "implied volatility" that option traders quote turns out, to first order, to be nothing more than the market's best guess of how bumpy the road will be — <em>given where the stock ends up</em>.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every listed option carries a number called <em>implied volatility</em> (IV) — plug it into the Black–Scholes formula and you recover the option's market price. Traders live and breathe IV, but it's a slippery object: it's not a property of the stock, it's a number <em>defined by inverting a pricing formula</em>. When the real world isn't Black–Scholes (and it never is — volatility itself moves around), IV becomes a tangled average of all the ways the stock might wiggle between now and expiry. For decades, quants have wanted a clean, interpretable formula that says, in plain terms, "here is what implied volatility actually <em>is</em>." That's what lets you connect the prices you see to the model in your head, and calibrate faster.</p>
+<p><strong>The idea.</strong> Fukasawa — one of the sharpest people in volatility theory — gives a strikingly simple answer for the leading-order behavior. Picture the stock's journey from today to expiry as a path with a total amount of accumulated "bumpiness" (its <em>quadratic variation</em>, the running sum of squared wiggles). Now condition on the finish line: <em>suppose you already knew the stock ends at a particular value.</em> Ask, "among all the paths that land there, what's the average bumpiness?" Fukasawa proves that this conditional-average bumpiness <em>is</em> the total implied variance, up to a smaller correction term. In one clean stroke, the opaque quoted number becomes an intuitive conditional expectation.</p>
+<p><strong>What they found.</strong> The result is a <em>first-order representation</em> — a leading-term formula — that holds across three regimes people care about simultaneously: when volatility-of-volatility is small, when volatility mean-reverts very fast, and when the option is near expiry. Earlier asymptotic formulas usually nailed one regime at a time; this one framework covers all three, for moderate ("bounded standardized") strikes. It's "yet another" formula, the title winks — but a unifying and unusually interpretable one.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space with a <strong>continuous local martingale</strong> model for the log price: $X_t=\log S_t$ with $S_t$ the asset price, and
+$$dX_t=-\tfrac12\,d\langle X\rangle_t+dM_t,$$
+where $\langle X\rangle_t$ is the <strong>quadratic variation</strong> of $X$ (accumulated variance) and $M_t$ a continuous local martingale (the driftless random part). No specific stochastic-volatility model is imposed — only the local-martingale structure and mild regularity.</p>
+<p><strong>The key equation.</strong> Let $T$ be maturity and let $\sigma_{\mathrm{BS}}(k,T)$ be the Black–Scholes implied volatility at log-strike $k$. Total implied variance is $\sigma_{\mathrm{BS}}^2(k,T)\,T$. Fukasawa's first-order representation states
+$$\sigma_{\mathrm{BS}}^2(k,T)\,T \;=\; \mathbb{E}\!\big[\,\langle X\rangle_T \,\big|\, X_T=k\,\big] \;+\; o(\cdot),$$
+i.e. <strong>total implied variance equals the conditional expectation of the terminal quadratic variation given the terminal log price</strong>, up to a smaller-order remainder, uniformly for bounded standardized log-strikes. Here $\mathbb{E}[\,\cdot\mid X_T=k\,]$ is the expectation over all paths pinned to end at level $k$, and $\langle X\rangle_T$ is the total realized variance of the log price to time $T$.</p>
+<p><strong>The method.</strong> The tool is <strong>matched asymptotic expansion</strong>: introduce a small parameter (small vol-of-vol $\varepsilon$, a fast mean-reversion rate $1/\delta$, or short maturity $T\to0$), expand option prices and the implied-vol inversion in that parameter, and collect the leading term. The conditional-expectation form is obtained by a change-of-measure / conditioning argument that isolates, at leading order, exactly the paths ending at the strike. The framework is built so the <em>same</em> leading term emerges under each of the three asymptotic scalings.</p>
+<p><strong>Results.</strong> The concrete deliverable is the identity above — a single interpretable leading-order formula valid across small-vol-of-vol, fast-mean-reverting, and short-maturity limits, for bounded standardized log-strikes. The paper is a compact theoretical note (numbers here are asymptotic <em>orders</em> — the error is $o(\cdot)$ relative to the leading term — rather than a table of pricing errors), and its contribution is the unification and the probabilistic reading of IV rather than a benchmarked accuracy gain.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility</strong> — the single volatility number that, put into Black–Scholes, reproduces an option's observed market price.</li>
+<li><strong>Quadratic variation ($\langle X\rangle_t$)</strong> — the running total of squared increments of a path; for a diffusion it <em>is</em> the accumulated variance.</li>
+<li><strong>Local martingale</strong> — a process that is "driftless" in a technical, localized sense; the natural class for arbitrage-free discounted prices.</li>
+<li><strong>Conditional expectation given $X_T=k$</strong> — the average of a quantity computed only over the paths that finish at level $k$.</li>
+<li><strong>Standardized log-strike</strong> — the option's strike expressed relative to the forward and scaled by volatility, so "bounded" means not deep in the tails.</li>
+<li><strong>Matched asymptotic expansion</strong> — a technique that approximates a hard quantity by expanding it in a small parameter and keeping leading terms.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a leading-<em>order</em> statement for <em>bounded</em> strikes, so it says little about deep out-of-the-money wings, where a lot of the trading risk actually lives, and the smaller-order term it drops can matter for precise calibration. As a short note it offers interpretation and a unifying lens more than a plug-and-play pricer. But that interpretation — IV as pinned-path average variance — is the kind of clean mental model that changes how practitioners <em>think</em>, even before it changes their code.</p>
+<h3>Bottom Line</h3>
+<p>Implied volatility isn't a mystery number; it's the market averaging tomorrow's bumpiness over all the roads that end where the option pays.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Exact calibration of structural models via time-change</h2>
+  <p class="meta">Frédéric Vrins, Damiano Brigo<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-11 &middot; <a href="http://arxiv.org/abs/2609.12666v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.12666v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To make a "company goes bust when its value hits a debt wall" model match real default odds exactly, just bend the <em>clock</em> it runs on until the numbers line up.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks constantly need to price the risk that a company defaults — misses payments on its bonds or loans. One elegant way to model default is the <em>structural</em> view: imagine the company's total value bobbing up and down randomly like a stock, and say it defaults the first moment that value falls through a "debt barrier" — the point where it can't cover what it owes. Intuitive and economically meaningful. The catch: the market <em>already tells you</em> the default odds, through credit-default-swap (CDS) prices, which imply a whole curve of survival probabilities — the chance the firm is still alive at 1 year, 2 years, 5 years, and so on. A useful model must reproduce that curve <em>exactly</em>. But the simple structural model produces its own, usually-wrong survival curve, and forcing it to match by twiddling volatility and barrier shapes is fiddly and often ad hoc.</p>
+<p><strong>The idea.</strong> The authors' move is delightfully simple: don't fight the model's shape — <strong>change its clock.</strong> Keep a plain, tractable "latent" version of the model (a simple drifting random walk against a flat barrier, whose default-timing math is textbook). Then feed it <em>time</em> through a deterministic dial — a <em>time-change</em> $\Theta$ that decides how fast the latent clock runs relative to real calendar time. Speed the clock up in periods where the market says default is more likely, slow it down where it's less likely, and the model's implied survival curve stretches and squeezes until it lands <em>exactly</em> on the market's curve. Because the underlying model is simple, finding the right clock is just inverting a function — nearly instant. As a bonus, they show a famous industry model (Brigo–Morini–Tarenghi's "AT1P") is secretly <em>exactly</em> this construction, which finally explains where its mysterious volatility function comes from.</p>
+<p><strong>What they found.</strong> For a broad range of target survival curves and simple latent models, exact calibration is not only possible but easy — a one-line function inversion. And a widely-used practitioner model turns out to be a special case, gaining a clean interpretation and an immediate, perfect calibration recipe.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Default is a <strong>first-passage time</strong> (FPT): the default time is $\tau=\inf\{t\ge 0: S_t\le K_t\}$, the first instant the firm-value process $S_t$ crosses the debt barrier $K_t$. The market gives a target survival curve $G(t)=\Pr(\tau>t)$. Start from a <strong>latent</strong> FPT model driven by a barrier $\tilde K$ and process $\tilde S$ whose crossing law is known in closed form.</p>
+<p><strong>The key construction.</strong> Introduce a deterministic, increasing <strong>clock</strong> $\Theta:[0,\infty)\to[0,\infty)$ and define the working model by time-change:
+$$S_t := \tilde S_{\Theta(t)},\qquad K_t := \tilde K_{\Theta(t)}.$$
+Because $\Theta$ is deterministic and monotone, the first-passage event is preserved and
+$$\Pr(\tau>t)=\Pr\big(\tilde\tau>\Theta(t)\big)=\tilde G\big(\Theta(t)\big),$$
+where $\tilde G$ is the (known) survival function of the latent model's FPT $\tilde\tau$. <strong>Calibration</strong> is then the demand $\tilde G(\Theta(t))=G(t)$, solved by simple inversion:
+$$\Theta(t)=\tilde G^{-1}\big(G(t)\big),$$
+which exists and is well-defined whenever $G$ lies in the range of $\tilde G$ — a broad class of curves.</p>
+<p><strong>The worked example.</strong> Take the latent firm value as a <strong>drifted Brownian motion</strong> $\tilde V_t=\mu t + W_t$ against a <em>constant</em> barrier $\tilde K_t=k<0$, where $\mu$ is the drift, $W_t$ a Brownian motion, and $k$ the fixed log-distance to default. Its first-passage law is the classic <strong>inverse-Gaussian</strong>–type formula, so $\tilde G$ and $\tilde G^{-1}$ are explicit. The authors show the industry <strong>AT1P</strong> model — which flexibly reproduces CDS term structures via a time-varying instantaneous volatility — is <em>exactly</em> this time-changed constant-barrier Brownian first passage. The volatility function of AT1P is thereby revealed to be nothing but the derivative of the clock $\Theta$.</p>
+<p><strong>The method.</strong> The technique is <strong>deterministic time-change of a first-passage model</strong> plus <strong>function inversion</strong> — no PDE solve, no Monte Carlo, no numerical root-finding beyond a one-dimensional inverse. Given a tractable latent survival $\tilde G$, calibration to <em>any</em> admissible market curve $G$ is immediate and <em>exact</em> by construction.</p>
+<p><strong>Results.</strong> The paper (a "note") delivers an existence result — exact calibration for a broad class of $(\,G,\tilde K,\tilde S\,)$ — an explicit inversion formula, and the identification of AT1P as a time-changed drifted Brownian first passage. The gain is <em>exactness</em> and near-zero computational cost versus the approximate or laborious calibrations structural models usually require; there is no error table because the residual is zero by construction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Structural default model</strong> — a model that defines default as the firm's asset value falling below a debt threshold.</li>
+<li><strong>First-passage time</strong> — the first moment a random process crosses a specified barrier.</li>
+<li><strong>Survival probability curve $G(t)$</strong> — the market-implied probability the firm has <em>not</em> defaulted by time $t$, backed out from CDS quotes.</li>
+<li><strong>Time-change / subordination</strong> — running a process on a re-scaled clock $\Theta(t)$ to reshape its statistics without changing its basic form.</li>
+<li><strong>CDS (credit default swap)</strong> — an insurance-like contract paying out if a reference firm defaults; its prices imply the survival curve.</li>
+<li><strong>AT1P model</strong> — the Brigo–Morini–Tarenghi structural model with a time-dependent volatility, popular for fitting CDS term structures.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance relies on a <em>deterministic</em> clock, which reshapes default <em>timing</em> but not the model's richer dependence structure — so for pricing baskets or correlated defaults you'd need more than a scalar time-change. It also inherits the structural model's core fiction that a firm's "asset value" is an observable diffusion. Within its lane — exact single-name CDS calibration with an interpretable engine — it's clean, fast, and genuinely usable, and the AT1P unmasking is a nice piece of scholarship.</p>
+<h3>Bottom Line</h3>
+<p>Don't redesign the default model to fit the market — just wind its clock faster or slower until its survival curve snaps exactly onto the one traders are quoting.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Diffusion models for dynamic volatility surface generation and data-driven hedging</h2>
+  <p class="meta">Yinbin Han, Jack Yuxiang Zhang, Manuel Torres, Fernando Acero, Renyuan Xu<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-11 &middot; <a href="http://arxiv.org/abs/2609.13402v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.13402v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The same AI that dreams up photorealistic images is trained here to dream up realistic <em>option-price maps</em> — and the fake markets it generates make for better, calmer hedges, even through COVID.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option's price depends on its strike and its maturity, so at any moment the market quotes a whole <em>surface</em> of implied volatilities — a landscape, high in some corners, low in others, spanning many strikes and expiry dates. Traders who hold options need to <em>hedge</em>: continually trade the underlying stock (and other options) to cancel out their risk. To decide how, and to stress-test their books, they need realistic <em>scenarios</em> of how that entire surface might move over the coming days — not just the stock price, but the whole landscape, jointly and consistently. Historical data alone is thin (you only lived through one past), and hand-built models tend to produce surfaces that violate basic sanity — allowing "arbitrage," i.e. free money — or that don't capture how the surface and the stock move <em>together</em>.</p>
+<p><strong>The idea.</strong> Borrow the engine behind modern image generators: a <strong>diffusion model</strong>. The way these work is almost poetic — take real data, gradually blur it into pure noise, then train a neural network to <em>reverse</em> the blurring, step by step, until noise becomes a fresh, realistic sample. Do that on volatility surfaces instead of cat photos, and you get a machine that generates believable surface "movies." The authors' first model, <em>AD-Seq-Vol</em>, learns the joint next-step evolution of both the stock return <em>and</em> the high-dimensional surface, conditioned on the actual market history so far — so each generated future is <em>adapted</em> to what really just happened. Their second model, <em>AD-Seq-Vol-FT</em>, is fine-tuned with penalties that punish it whenever it produces a surface violating no-arbitrage rules — teaching the AI to respect the laws of finance, not just mimic the pictures.</p>
+<p><strong>What they found.</strong> On 23 years of S&amp;P 500 option data (2000–2023), the models produce coherent surface trajectories capturing both cross-sectional shape and day-to-day dependence. Remarkably, the plain model already generates <em>fewer and milder</em> arbitrage violations than the real training data and than a GAN-based competitor; the fine-tuned version drives violations to <em>nearly zero</em>. Plugged into a hedging optimizer, the diffusion-based hedges keep tracking errors near zero, sharply cut tail risk, and stay unusually stable during the COVID-19 crash — beating both classical and other data-driven benchmarks.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $r_t$ be the underlying's return and $\Sigma_t\in\mathbb{R}^{m}$ a discretized <strong>implied-volatility surface</strong> at time $t$ (a vector of IVs over a grid of $m$ strike–maturity nodes). The goal is to learn the conditional law of the next state given history $\mathcal{H}_t$:
+$$p\big(r_{t+1},\Sigma_{t+1}\,\big|\,\mathcal{H}_t\big).$$</p>
+<p><strong>The diffusion mechanism.</strong> A <strong>denoising diffusion</strong> model defines a forward noising chain that gradually corrupts a clean sample $x_0$ (here $x_0=(r_{t+1},\Sigma_{t+1})$) into Gaussian noise:
+$$x_k=\sqrt{\bar\alpha_k}\,x_0+\sqrt{1-\bar\alpha_k}\,\varepsilon,\qquad \varepsilon\sim\mathcal N(0,I),$$
+where $k$ indexes noise levels and $\bar\alpha_k\in(0,1)$ is the retained-signal schedule. A neural network $\varepsilon_\theta(x_k,k,\mathcal H_t)$ is trained to predict the injected noise by minimizing
+$$\mathcal L(\theta)=\mathbb{E}_{k,x_0,\varepsilon}\Big[\big\|\varepsilon-\varepsilon_\theta(x_k,k,\mathcal H_t)\big\|^2\Big].$$
+Sampling then runs the chain <strong>in reverse</strong>, starting from noise and iteratively denoising into a fresh, history-conditioned scenario $(r_{t+1},\Sigma_{t+1})$.</p>
+<p><strong>The arbitrage penalty.</strong> Static no-arbitrage imposes shape constraints on the surface — e.g. call prices monotone and convex in strike, monotone in maturity (calendar spreads $\ge 0$, butterfly spreads $\ge 0$). <em>AD-Seq-Vol-FT</em> adds a post-training penalty
+$$\mathcal L_{\text{FT}}=\mathcal L(\theta)+\lambda\,\mathbb{E}\big[\,\mathrm{Pen}_{\text{arb}}(\Sigma_{t+1})\,\big],$$
+where $\mathrm{Pen}_{\text{arb}}$ sums hinge penalties for each violated inequality and $\lambda$ tunes strictness.</p>
+<p><strong>The hedging use.</strong> Generated conditional scenarios feed an <strong>optimization-based hedge</strong>: choose positions minimizing a risk objective (tracking-error variance plus a tail-risk term such as CVaR) over the sampled futures — a scenario-based stochastic program.</p>
+<p><strong>The method.</strong> Denoising diffusion probabilistic modeling (score/noise-prediction networks) with sequential conditioning on realized history, plus reinforcement-style fine-tuning against arbitrage constraints, and downstream scenario-based hedge optimization.</p>
+<p><strong>Results.</strong> On daily SPX options 2000–2023: coherent surfaces with correct cross-sectional and temporal dependence; <em>fewer and less severe</em> static-arbitrage violations than both the training data and a GAN benchmark, and <em>near-zero</em> violations after fine-tuning; hedges with tracking errors near zero, substantially reduced tail risk, and stable performance through the COVID-19 disruption, beating classical (e.g. delta/vega) and data-driven baselines. Code is released.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied-volatility surface</strong> — the full grid of option-implied volatilities across strikes and maturities at one moment.</li>
+<li><strong>Diffusion model</strong> — a generative AI that learns to turn random noise into realistic samples by reversing a gradual noising process.</li>
+<li><strong>Denoising objective</strong> — the training loss that teaches the network to predict and remove the noise added at each step.</li>
+<li><strong>Static no-arbitrage constraints</strong> — inequalities the surface must satisfy so no risk-free profit exists (monotonicity/convexity in strike and maturity).</li>
+<li><strong>GAN</strong> — an older generative approach (a generator dueling a discriminator), used here as the benchmark the diffusion model beats.</li>
+<li><strong>Tail risk / CVaR</strong> — the size of losses in the worst scenarios; Conditional Value-at-Risk averages the losses beyond a chosen quantile.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's trained on one index (SPX) over one historical span, so the "realism" it learned is that market's realism — regime shifts it never saw could still fool it, and diffusion sampling is heavier to run than a parametric model at trade time. The arbitrage penalty <em>reduces</em> violations but only fully vanishes after fine-tuning, so hard guarantees aren't there. Still, near-zero tracking error and COVID-period stability against real benchmarks is a serious, honest result, and releasing the code makes it checkable — this is a credible tool for scenario generation and hedging research.</p>
+<h3>Bottom Line</h3>
+<p>Teach an image-generating AI the laws of no-arbitrage, and it will paint you tomorrow's volatility surfaces well enough to hedge against them.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
