@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 18, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 18, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal entry and exit for variance swaps: closed-form rules for the perpetual contract</h2>
+  <p class="meta">Jun Maeda<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-16 &middot; <a href="http://arxiv.org/abs/2609.19102v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.19102v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>For a variance swap that never expires, there is now an exact formula telling you the volatility level at which to put the trade on and the level at which to take it off.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Most bets on the stock market are bets on <em>direction</em> — will Apple go up or down? A variance swap is different: it is a bet on <em>turbulence</em>. You get paid according to how violently prices actually wobble, regardless of which way they go. Think of it as weather insurance for markets: if the coming months are calm, one side wins; if there is a storm, the other side wins. Cboe now lists such a contract, so this is a real instrument, not a toy. The practical question a trader faces is simple to state and annoyingly hard to answer: <em>when should I open this position, and when should I close it?</em> Timing matters because sellers of volatility insurance, like ordinary insurers, tend to collect a premium on average — the market pays them a little extra for absorbing the risk of a storm. That extra is called the variance risk premium, and it is the whole reason there is money to be made.</p>
+<p><strong>The idea.</strong> The authors look at a clean, idealized version of the contract: a <em>perpetual</em> variance swap that never matures and settles continuously, like a running tab. Their first observation is almost philosophical: if you price the contract using the market's own "fair-betting" (risk-neutral) rules, timing is worthless — the position's value just drifts like a fair coin, so opening or closing is a wash. Timing only becomes meaningful once you account for the real-world premium. Their trick is to strip the problem down until it becomes a classic "when do I pull the trigger?" puzzle — what mathematicians call optimal stopping — attached to a well-studied model of how volatility itself moves. Once it is in that form, decades of existing mathematics hand you the answer.</p>
+<p><strong>What they found.</strong> Opening and closing are <em>not</em> mirror images of each other. Given how the premium actually behaves in markets, only the <em>short</em> side (selling the volatility insurance) is worth opening at all. A rule for <em>when to exit</em> always exists and depends only on things you can observe — the premium and the trading spread. A rule for <em>when to enter</em> is fussier: it exists only for a certain band of holding costs, and even then it fires only deep in the extreme tail of the distribution. The intuition is sharp — sitting on the sidelines costs you nothing, so you need a real "cost of idle capital" to ever justify jumping in.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The instantaneous variance $v_t$ (the current "wobbliness" of the asset) is modeled as a CIR process under the physical (real-world) measure $\mathbb{P}$:
+$$dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_t,$$
+where $v_t$ is the variance at time $t$, $\kappa>0$ is the speed at which variance reverts toward its long-run average, $\theta>0$ is that long-run average level, $\xi>0$ is the "vol-of-vol" scaling the noise, and $W_t$ is a Brownian motion. The variance risk premium is what separates $\mathbb{P}$ from the pricing measure $\mathbb{Q}$; under $\mathbb{Q}$ the mark-to-market is a martingale, so the value has no drift and stopping is content-free.</p>
+<p><strong>The key equations.</strong> The value of the option to exit (or enter) is a value function $V$ solving a free-boundary problem. On the continuation region it satisfies the CIR generator equation
+$$\tfrac{1}{2}\xi^2 v\,V''(v) + \kappa(\theta - v)\,V'(v) - r V(v) + g(v) = 0,$$
+where $V'$ and $V''$ are the first and second derivatives in $v$, $r$ is the discount rate, and $g(v)$ is the running reward (an <em>affine</em> — i.e. straight-line — function of $v$ after the accrued variance and all the maturity/strike/cost terms are absorbed into a single forcing term). The general solution is built from <strong>confluent hypergeometric functions</strong> (Kummer's $M$ and $U$). The optimal threshold $v^\*$ is the unique root of a <strong>smooth-pasting</strong> condition,
+$$V(v^\*) = P(v^\*), \qquad V'(v^\*) = P'(v^\*),$$
+i.e. at the trigger level the value function must touch the payoff $P$ <em>and</em> share its slope.</p>
+<p><strong>The method.</strong> This is optimal stopping solved as a free-boundary ODE problem: guess that you act the moment $v_t$ crosses a threshold, write the value function in closed form using confluent hypergeometric functions, and pin the threshold down by demanding value-and-slope matching (smooth pasting). Because the reward reduces to an affine payoff on a CIR process, the answer is one the optimal-stopping literature already gives explicitly.</p>
+<p><strong>Results with numbers.</strong> The results are structural rather than a single benchmark-beating statistic: each threshold is the <em>unique</em> root of the smooth-pasting equation, so entry and exit levels are computed exactly rather than by simulation. The sign of the single forcing term fixes the geometry of the exercise region; the short side is the only side worth opening under the empirically observed sign of the premium; and an entry rule exists only for an interval of carrying charges, firing only deep in the upper tail of the physical law.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Variance swap</strong> — a contract that pays out based on how much an asset's price actually fluctuated, letting you trade volatility directly instead of price direction.</li>
+<li><strong>Variance risk premium</strong> — the extra return earned on average for selling volatility protection, because buyers overpay for insurance against turbulent markets.</li>
+<li><strong>CIR process</strong> — a standard equation for a positive, mean-reverting quantity (here, variance) that is pulled back toward a long-run average with noise that shrinks near zero.</li>
+<li><strong>Optimal stopping / smooth pasting</strong> — the math of choosing the best moment to act, where the optimal trigger is found by matching both the value and its slope at the boundary.</li>
+<li><strong>Confluent hypergeometric function</strong> — a special function that shows up as the natural solution to the CIR differential equation, playing the role that sines and exponentials play for simpler equations.</li>
+<li><strong>Martingale</strong> — a process with no predictable drift, so its expected future value equals its current value; under the pricing measure the swap is one, which is why timing adds nothing there.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance comes from idealization: a <em>perpetual</em>, continuously settled contract on a pure CIR variance process. Real listed variance swaps have fixed maturities, discrete settlement, jumps, and a variance risk premium that is itself time-varying and uncertain — none of which the clean closed form captures. The exit rule leans on observables (premium, spread) and is the more usable half; the entry rule needs a "cost of idle capital" that a desk must supply from outside the model. It is a sharp conceptual map of the trade-off, not a plug-and-play execution engine.</p>
+<h3>Bottom Line</h3>
+<p>Selling volatility insurance has a clean mathematical "get out" rule, but knowing when to get <em>in</em> is the genuinely hard part — and often the answer is "don't."</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Quadratic G-BSDEs for bond pricing with endogenous short-rate feedback</h2>
+  <p class="meta">Jaehyun Kim, Hyungbin Park<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-16 &middot; <a href="http://arxiv.org/abs/2609.19094v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.19094v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper prices bonds when nobody is sure how volatile interest rates will be <em>and</em> the interest rate itself reacts to the bond's price, turning valuation into a self-referential fixed-point problem that it proves has a unique, stable answer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A bond is an IOU: you lend money now and get fixed payments back later. Its price today is just the value of those future payments discounted by prevailing interest rates. Two things make this genuinely hard in the real world. First, we do not know the <em>volatility</em> of future rates — not just their level, but how uncertain that level is (imagine not even trusting your weather forecast's error bars). Second, and more subtly, in some markets the interest rate you discount with is not handed down from on high; it responds to the bond's own price — a feedback loop. That circularity ("the price depends on the rate, which depends on the price") is exactly what makes naïve valuation break.</p>
+<p><strong>The idea.</strong> The authors work in a framework built precisely for "we do not trust our volatility estimate" — the $G$-expectation world, where instead of one probability model you carry a whole <em>family</em> of them and always price against the worst plausible case (a robust, insurance-like stance). Into that they wire the feedback loop, and the two together produce a self-consistent equation for the bond's (log) price: the price you plug in must be the price you get out. They then prove the reassuring things a practitioner needs before trusting any such equation: a solution <em>exists</em>, it is <em>unique</em>, bigger inputs give bigger outputs in a sensible way (comparison), and small perturbations do not blow up (stability). They go further and run the machine <em>backwards</em>: given a target price curve you want the market to show, they design the discount-rate rule that produces it.</p>
+<p><strong>What they found.</strong> Under reasonable conditions the self-referential pricing problem is well-behaved: one bounded solution over any finite horizon, and — with a slightly stronger monotonicity condition — a unique solution even over an infinite horizon, with the finite-horizon approximations converging <em>exponentially</em> fast to it. For long-dated bonds they can engineer feedback rules that drive the (compensated) log-price to any prescribed target shape and make the long-run yield hit a chosen number. Compared with classical term-structure models that assume you know the volatility, this hands you a robust version that survives volatility uncertainty and internal feedback.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work under $G$-expectation, a sublinear expectation $\hat{\mathbb{E}}[\cdot]$ that dominates a family of probability measures indexed by uncertain volatility ranging in $[\underline{\sigma}^2,\overline{\sigma}^2]$. Randomness is driven by $G$-Brownian motion $B_t$, whose quadratic variation $\langle B\rangle_t$ is itself uncertain. Let $Y_t = \log P_t$ be the logarithmic bond price, where $P_t$ is the price of the bond at time $t$.</p>
+<p><strong>The key equations.</strong> The log-price solves a <strong>quadratic $G$-BSDE</strong> (backward stochastic differential equation):
+$$Y_t = \xi + \int_t^T f(s, Y_s, Z_s)\,ds - \int_t^T Z_s\,dB_s - (K_T - K_t),$$
+where $Y_t$ is the (log) value process, $\xi$ is the terminal condition (the bond's known value at maturity $T$), $Z_s$ is the control/hedging process pairing with the noise $dB_s$, $f$ is the driver that grows <em>quadratically</em> in $Z$ (the source of the difficulty), and $K_t$ is a non-increasing process that enforces robustness across the whole family of models. The short-rate feedback enters through the driver $f$ depending on $Y$ itself, e.g. $r_t = \rho(Y_t)$, making $f(s,Y_s,Z_s)$ a nonlinear function of the very solution — a fixed point.</p>
+<p><strong>The method.</strong> The proof machinery is BSDE theory in the $G$-framework: a priori bounds plus a fixed-point / comparison argument to get existence and uniqueness of <em>bounded</em> solutions; a strict monotonicity condition to promote this to a unique <em>infinite-horizon</em> solution; and a contraction estimate delivering exponential convergence of finite-horizon truncations. The inverse-design step runs the driver backward — choosing the discount-rate coefficient so that the solution reproduces a prescribed smooth bond-price target at a fixed maturity.</p>
+<p><strong>Results with numbers.</strong> The paper's "results" are theorems rather than empirical benchmarks: existence, uniqueness, comparison and stability of bounded finite-horizon solutions; a unique bounded infinite-horizon solution under strict monotonicity; and <em>exponential</em> convergence of finite-horizon approximations on compact intervals. Constructively, they build feedback rules under which the compensated log-price converges exponentially to a prescribed bounded state-dependent profile while the asymptotic yield equals a specified target.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>$G$-expectation / volatility uncertainty</strong> — a way of pricing that does not commit to one volatility number but to a whole range, always evaluating against the worst plausible case in that range.</li>
+<li><strong>BSDE (backward stochastic differential equation)</strong> — an equation solved from a known future value <em>backward</em> to today, the natural language for pricing and hedging under uncertainty.</li>
+<li><strong>Quadratic driver</strong> — the term steering the BSDE grows with the square of the hedging control, which makes solutions much harder to guarantee than the linear case.</li>
+<li><strong>Short-rate feedback</strong> — the interest rate used for discounting depends on the bond's own price, creating a self-referential loop.</li>
+<li><strong>Fixed-point problem</strong> — an equation of the form "the answer appears on both sides," solved by finding the value that maps to itself.</li>
+<li><strong>Inverse design</strong> — running the model backward to pick its coefficients so that it outputs a target you specify in advance.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a rigorous existence-and-uniqueness contribution, not a calibrated pricing tool — there are no market data, no fitted curves, and no numerical error bars yet. The $G$-expectation "worst-case" stance is mathematically clean but conservative, and real desks may find pure worst-case pricing too pessimistic to quote. Whether the elegant inverse-design results correspond to feedback mechanisms that actually exist in traded markets is left open. Its value is foundational: it tells you the self-referential robust bond problem is <em>well-posed</em> before anyone tries to compute with it.</p>
+<h3>Bottom Line</h3>
+<p>When you are unsure how jumpy rates will be <em>and</em> the rate feeds back on the price, the pricing equation still has exactly one sensible answer — this paper proves it and shows you how to steer it.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Principal component error in high-dimensional factor models</h2>
+  <p class="meta">Alex Bernstein, Lisa R. Goldberg, Nicholas Gunther, Alec N. Kercheval, Tian Lan, Yian Lin et al.<br>
+    <span class="cat">math.ST</span> &middot; 2026-09-17 &middot; <a href="http://arxiv.org/abs/2609.20550v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.20550v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you use principal component analysis to find the hidden forces driving a set of stocks, this paper splits your estimation error into two named pieces — one you can measure and one you fundamentally cannot.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Hundreds of stocks move together, and quants explain this co-movement with a handful of hidden "factors" — think of them as a few master dials (a market dial, an industry dial) that jointly nudge everything. The standard way to <em>discover</em> those dials from data is principal component analysis (PCA): find the directions in which the stocks vary the most. The catch, which every practitioner half-knows and half-ignores, is that PCA gives you <em>estimates</em> of those dials, not the truth, and the error can be large — especially when you have many stocks but only a limited history of returns. If your estimated factors are off, then every downstream number built on them — risk forecasts, performance attributions, predictions — inherits that error silently.</p>
+<p><strong>The idea.</strong> Rather than just say "there is error," the authors <em>decompose</em> it into two interpretable parts. The first they call <strong>out-of-subspace error</strong>: how far your estimated factor directions sit from the true space the real factors live in. The pleasant surprise is that this piece can be estimated <em>from the data itself</em> — it gives you an honest, computable floor on how wrong you might be. The second piece is <strong>in-subspace error</strong>: even if you nailed the right space, you only ever observe a finite stretch of the factors' own history, and that limited sample introduces an error you <em>cannot</em> diagnose from the data alone. The analogy: out-of-subspace error is aiming at the wrong dartboard (and you can tell how far off the board is); in-subspace error is aiming at the right board but with shaky hands you cannot fully characterize just by looking at where the darts landed.</p>
+<p><strong>What they found.</strong> Both error terms have precise limiting values as the number of variables grows while the sample size stays bounded — the exact regime finance lives in (thousands of assets, a few years of data). In a realistic three-factor simulation of the US equity market, the <strong>out-of-subspace error dominates</strong> — meaning the biggest problem is usually that your estimated directions are simply pointed slightly wrong, and, crucially, that is the part you <em>can</em> measure. This turns a vague warning ("PCA is noisy") into an actionable, quantifiable diagnostic.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Observe a data matrix of $p$ variables over $n$ time periods with population covariance $\Sigma$. A statistical factor model posits a low-rank structure $\Sigma = B\,\Sigma_f B^\top + \Sigma_\varepsilon$, where $B$ is the $p\times r$ matrix of factor <em>exposures</em> (loadings), $\Sigma_f$ is the $r\times r$ covariance of the $r$ latent factor returns, and $\Sigma_\varepsilon$ is idiosyncratic noise. PCA uses eigenvectors of the <em>sample</em> covariance $\hat{\Sigma}$ as estimates of the true principal directions — the columns spanning the range of $B$.</p>
+<p><strong>The key equation.</strong> For an estimated principal direction $\hat{u}$ targeting a true direction $u$, the error decomposes as
+$$\underbrace{\|\hat{u} - \Pi_{\mathcal{S}}\hat{u}\|^2}_{\text{out-of-subspace}} \;+\; \underbrace{\|\Pi_{\mathcal{S}}\hat{u} - u\|^2}_{\text{in-subspace}},$$
+where $\|\cdot\|$ is Euclidean length, $\mathcal{S} = \operatorname{col}(B)$ is the true factor subspace, and $\Pi_{\mathcal{S}}$ is orthogonal projection onto $\mathcal{S}$. The first term measures the leakage <em>out</em> of the true subspace (estimable from data, providing a floor); the second measures error <em>within</em> the subspace, arising from the fixed sample size of the latent factor returns and not estimable from data alone. Each term has an almost-sure asymptotic limit as $p\to\infty$ with $n$ bounded.</p>
+<p><strong>The method.</strong> The tools are high-dimensional random matrix theory and asymptotic analysis in the "$p$ grows, $n$ fixed" regime: characterize the almost-sure limits of eigenvector projections, then express the out-of-subspace component in terms of observable data quantities so it can be plugged in as an estimator.</p>
+<p><strong>Results with numbers.</strong> In a three-factor simulation calibrated to the US public equity market, the analysis tracks how total error and each component scale with dimension $p$ and sample size $n$; the headline empirical finding is that the out-of-subspace error dominates the in-subspace error in that setting, so the larger part of PCA's factor-estimation error is exactly the part that can be estimated and reported.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Principal component analysis (PCA)</strong> — a method that finds the directions of greatest variation in data, used here to estimate the hidden factors driving many assets at once.</li>
+<li><strong>Factor model</strong> — the assumption that many observed variables are driven by a small number of shared latent forces plus individual noise.</li>
+<li><strong>Eigenvector / principal direction</strong> — a special direction of a covariance matrix; the leading ones point along the dominant shared movements.</li>
+<li><strong>Subspace</strong> — the lower-dimensional "plane" spanned by the true factor exposures; getting the plane right is separate from getting the exact direction within it right.</li>
+<li><strong>Orthogonal projection $\Pi_{\mathcal{S}}$</strong> — the operation that drops a vector straight down onto a subspace, used to separate the two error pieces.</li>
+<li><strong>Almost-sure asymptotic limit</strong> — a value the random error converges to with probability one as the number of variables grows.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean two-part decomposition rests on the linear Gaussian-ish factor-model idealization; real returns have heavy tails, time-varying loadings, and regime shifts that the asymptotics do not directly cover. The "$p\to\infty$ with $n$ bounded" limit is a good caricature of finance but still a limit — finite-sample behavior may differ. Most importantly, the honest half of the message is a <em>limitation</em>: the in-subspace error genuinely <em>cannot</em> be measured from data, so this quantifies your ignorance rather than removing it. That said, giving practitioners a computable error floor is a real, usable advance.</p>
+<h3>Bottom Line</h3>
+<p>PCA-based factor models come with an error you can finally put a number on — and an error you must simply admit you can never see.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Same Book, Different Fills: Partial Identification of FIFO Execution from Aggregate Order Books</h2>
+  <p class="meta">Riya Danait, Yuliana Zamora, Ioana Boier<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-11 &middot; <a href="http://arxiv.org/abs/2609.13597v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.13597v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The same visible order book can hide many different hidden queues, and which one you assume can change your backtested execution results by economically meaningful amounts — so the paper measures the range instead of pretending there is one answer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you place a passive buy order on an exchange, you join a queue at your price and wait your turn — first in, first out (FIFO). Whether you actually get filled depends on your exact position in that queue and on how <em>cancellations</em> are handled when other traders pull their orders. The trouble is that the data most researchers and desks can afford — "level 2" snapshots showing <em>how much</em> is resting at each price — do <strong>not</strong> show the ordered queue. You see that 500 shares are bid at a price, but not who is ahead of you or who cancels from where. So any backtest that claims "your order would have filled" is secretly assuming a queue rule it cannot observe. Everyday analogy: you can see how many people are in line at the deli, but not their order tickets — and whether the people who leave were at the front or the back completely changes when <em>you</em> get served.</p>
+<p><strong>The idea.</strong> Instead of guessing a single queue rule and reporting one number, the authors treat this as a <strong>partial identification</strong> problem: given everything you <em>can</em> see (prices, quantities, trades, total removals), how wide is the set of hidden queue histories consistent with it? They build a "path-preserving compiler" that holds all the observable facts fixed and varies <em>only</em> the cancellation-allocation rule across three natural choices — cancellations hit the <strong>front</strong> of the queue, a <strong>quantity-weighted-random</strong> position, or the <strong>back</strong>. For a hypothetical tagged order, they prove that front-cancellation and back-cancellation bracket the possible fill outcomes during a single spell at a price. So instead of one fragile estimate, you get an honest interval.</p>
+<p><strong>What they found.</strong> Using seven months of Tokyo Stock Exchange data for two stocks, the <em>aggressive</em> benchmark (crossing the spread to trade immediately) is essentially unaffected by the queue assumption — but <em>passive</em> execution is sensitive to it, and materially so. For one stock (RIC 1301.T), assuming front rather than back cancellation raised completion by about 8 percentage points and cut implementation shortfall by roughly 1 basis point; for the other (RIC 7911.T) the gap was about 7.4 points and 0.38 basis points. The lesson: passive-execution results computed from aggregate data should come with a <em>sensitivity range</em>, not a single confidently-quoted number.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The observable is an aggregate L2 path: at each price level, a time series of resting quantity, plus L1 trade prints from which market removals and the resting side are reconciled. The unobservable is the market-by-order (L3) history — the ordered queue. Let $\mathcal{H}$ be the set of L3 histories consistent with a fixed aggregate path, reconciled market removals, latent order partitions, and additions. This $\mathcal{H}$ is generally not a singleton — the core of partial identification.</p>
+<p><strong>The key idea, formally.</strong> For a virtual tagged order and a fill functional $\Phi(h)$ measuring its completion under history $h\in\mathcal{H}$, the paper establishes a <strong>front–back ordering</strong> during one touch-price spell:
+$$\Phi_{\text{back}}(h) \;\le\; \Phi(h) \;\le\; \Phi_{\text{front}}(h),$$
+where $\Phi_{\text{front}}$ and $\Phi_{\text{back}}$ are the fill outcomes when cancellations are allocated to the front and back of the queue respectively, and the quantity-weighted-random rule lies between. Because the aggregate path, market removals, partitions, and additions are all held fixed, the <em>only</em> free choice is the cancellation-allocation rule, so these two extremes bound the identified interval.</p>
+<p><strong>The method.</strong> This is conditional partial identification implemented by a "path-preserving compiler": an algorithm that reconstructs candidate L3 histories reproducing the identical aggregate L2/L1 path, varying only the cancellation rule across {front, quantity-weighted-random, back}. Execution outcomes are then computed over this compiler class and reported as a range rather than a point.</p>
+<p><strong>Results with numbers.</strong> Data: seven months of synchronized 2025 Tokyo Stock Exchange L2 (ten-level snapshots) and L1 trades for RIC 1301.T and RIC 7911.T; each instrument contributes 1,080 matched five-minute episodes over 18 held-out trading days. Findings: the aggressive benchmark is invariant across FIFO realizations; for 1301.T, front vs. back cancellation raises preterminal completion by <strong>8.01 percentage points</strong> and reduces implementation shortfall by <strong>1.010 bps</strong>; for 7911.T the differences are <strong>7.39 percentage points</strong> and <strong>0.384 bps</strong>.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>FIFO / price–time priority</strong> — the exchange rule that fills resting orders in the order they arrived at a given price; your queue position decides your fill.</li>
+<li><strong>Level 2 (L2) vs. market-by-order (L3)</strong> — L2 shows total quantity resting at each price; L3 shows the individual, ordered queue that L2 aggregates away.</li>
+<li><strong>Partial identification</strong> — when data pin the answer down only to a set (an interval), not a single value; you report the whole set honestly.</li>
+<li><strong>Cancellation allocation</strong> — the assumption about <em>where</em> in the queue a withdrawn order sat (front, random, or back), which the data do not reveal.</li>
+<li><strong>Implementation shortfall</strong> — the cost of trading, measured as the gap between the price you targeted and the price you actually achieved.</li>
+<li><strong>Basis point (bps)</strong> — one hundredth of a percent (0.01%), the standard unit for small trading costs.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The interval is only as wide as the three rules considered; reality might involve mixed or state-dependent cancellation behavior outside the {front, random, back} class, so the bound is a disciplined caricature, not a guarantee. Results come from two Japanese stocks over seven months — informative but not obviously universal across venues, tick regimes, or asset classes. The core message is uncomfortable but correct: single-point passive-execution backtests on L2 data are quietly overconfident, and this paper makes that overconfidence measurable. A desk could adopt the sensitivity-range discipline immediately.</p>
+<h3>Bottom Line</h3>
+<p>If your execution backtest quotes one number from level-2 data, it is hiding a queue it never saw — report the range, not the point.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Demystifying the Bergomi-Guyon expansion</h2>
+  <p class="meta">Florian Bourgey, Jim Gatheral<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-15 &middot; <a href="http://arxiv.org/abs/2609.17869v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.17869v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A famous but mysterious formula for the shape of the option "volatility smile" is re-derived so cleanly that the baffling cancellations disappear, revealing a simple heat-equation recursion behind it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Options on the same stock but with different strike prices trade at different implied volatilities — plot them and you get a curved line called the <em>volatility smile</em>. Quants desperately want accurate formulas for that curve, because it encodes how the market prices the risk of big moves, and every options desk calibrates models to it daily. One celebrated tool, the Bergomi–Guyon expansion, approximates the smile as a power series in a small parameter (roughly, "how much volatility itself wiggles"). It works, but its derivation has an unsettling feature: when you grind through the algebra matching term by term, all sorts of high-degree junk terms appear and then <em>mysteriously cancel out</em>, leaving something clean. Physicists and quants distrust magic cancellations — they usually signal a hidden structure nobody has named.</p>
+<p><strong>The idea.</strong> The authors hunt down that hidden structure. The original derivation builds the smile out of combinatorial objects whimsically called "diamond trees" (bookkeeping devices for correlations between volatility and price). By switching to the <em>right variables</em>, the authors show the whole matching procedure is secretly one familiar equation in disguise: a nonlinear <strong>heat equation</strong> — the same kind of equation that describes heat spreading through a metal bar. Once you see it that way, the recursion computes each new coefficient purely from simpler ones, and the troublesome high-degree terms are <em>never generated in the first place</em>. No cancellation magic needed — it was an artifact of using the wrong coordinates.</p>
+<p><strong>What they found.</strong> With the heat-equation formulation, at each order of the approximation every coefficient in front of the "diamond trees" has <em>exactly</em> the degree it should in the log-strike variable — no more, no less. The coefficients turn out to be <strong>universal</strong>: they do not depend on the specific model, so you compute them once and reuse them forever. The only model-specific ingredient is a single cumulant series, which they write down in closed form. In short: they turned a mysterious, error-prone expansion into a transparent, reusable recipe (with code).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider the implied variance smile as a function of log-strike $k = \log(K/F)$, where $K$ is the strike and $F$ the forward price. Expand in a small parameter $\varepsilon$ controlling the magnitude of volatility fluctuations. The Bergomi–Guyon expansion writes the coefficients as sums of products of <strong>diamond trees</strong> — recursive integro-differential operators encoding the covariation between the spot and its instantaneous variance — with prefactors that are polynomials in $k$.</p>
+<p><strong>The key equations.</strong> Naïve moment-matching at order $\varepsilon^\ell$ produces prefactor terms of degree greater than $\ell$ in $k$ that cancel. The paper recasts the matching condition, in suitable variables, as a <strong>nonlinear heat equation</strong> of the schematic form
+$$\partial_\tau u = \tfrac{1}{2}\,\partial_{xx} u + \mathcal{N}(u),$$
+where $u$ encodes the (transformed) cumulant generating function, $\tau$ is an expansion "time," $x$ the transformed strike variable, $\partial_{xx}$ the second derivative in $x$, and $\mathcal{N}(u)$ a nonlinear term collecting the tree interactions. Solving order by order yields a recursion: the prefactor of each product of trees is computed from those of products of <em>fewer</em> trees, and the only model-independent input is a cumulant series computed in closed form. The consequence is a degree theorem: at order $\varepsilon^\ell$ every prefactor has degree <strong>exactly</strong> $\ell$ in $k$.</p>
+<p><strong>The method.</strong> The technique is an asymptotic (perturbative) expansion re-derived via a nonlinear heat equation solved recursively — a PDE reformulation replacing brute-force moment matching. Because the recursion never produces the higher-degree terms, it is both cleaner and cheaper than the original combinatorial matching.</p>
+<p><strong>Results with numbers.</strong> This is a structural/analytical result rather than a benchmark comparison: the payoff is the exact-degree theorem (degree $=\ell$ at order $\varepsilon^\ell$), the universality of the prefactors (computed once, model-independent), and a closed-form cumulant series as the sole model input. The authors provide code and the tabulated coefficients so the expansion can be used directly.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility smile</strong> — the curve of option-implied volatilities across strike prices; its shape encodes the market's view of extreme-move risk.</li>
+<li><strong>Bergomi–Guyon expansion</strong> — an established power-series approximation of the smile in terms of how strongly volatility fluctuates.</li>
+<li><strong>Diamond trees</strong> — recursive bookkeeping operators that package the correlations between an asset's price and its own volatility.</li>
+<li><strong>Log-strike $k$</strong> — the (logarithm of the) option strike relative to the forward price, the natural horizontal axis for the smile.</li>
+<li><strong>Cumulant generating function</strong> — a transform whose derivatives give the cumulants (mean, variance, skew, ...) of the return distribution.</li>
+<li><strong>Nonlinear heat equation</strong> — a diffusion-type PDE with an added nonlinear term; here it is the hidden engine driving the expansion's recursion.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clarifying, "tidy-the-house" contribution rather than a new pricing model: it makes an existing expansion cleaner, cheaper, and more trustworthy, but does not extend its regime of validity, which remains a small-fluctuation asymptotic that can degrade for very short maturities or extreme strikes where the smile is steep. Its main users are quants who already rely on Bergomi–Guyon-type expansions and want a principled, reusable coefficient recipe with provable degree structure. For them the universality result and the shipped code are genuinely useful; for everyone else it is a satisfying demystification.</p>
+<h3>Bottom Line</h3>
+<p>The volatility-smile formula's "magic" cancellations were never magic — pick the right coordinates and it is just the heat equation, now with the coefficients tabulated once and for all.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
