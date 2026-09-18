@@ -21,7 +21,7 @@ WINDOW_DAYS = 8      # prefer papers from roughly the last week
 MAX_FETCH = 80       # candidate pool size to pull from arXiv
 MIN_CANDIDATES = 12  # if the window is too sparse, widen to most-recent-N
 
-API = "http://export.arxiv.org/api/query"
+API = "https://export.arxiv.org/api/query"
 ATOM = "{http://www.w3.org/2005/Atom}"
 ARXIV = "{http://arxiv.org/schemas/atom}"
 
