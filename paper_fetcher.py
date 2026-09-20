@@ -31,7 +31,12 @@ def fetch_raw():
     url = (f"{API}?search_query={query}"
            f"&start=0&max_results={MAX_FETCH}"
            f"&sortBy=submittedDate&sortOrder=descending")
-    req = urllib.request.Request(url, headers={"User-Agent": "quant-paper-digest/1.0"})
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "quant-paper-digest/1.0",
+        # Some upstreams (and the egress proxy) return 406 Not Acceptable for
+        # requests without an explicit Accept header; send one to be safe.
+        "Accept": "application/atom+xml,*/*",
+    })
     last_err = None
     for attempt in range(3):
         try:
