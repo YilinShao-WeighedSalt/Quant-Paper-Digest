@@ -6,7 +6,9 @@ picks the top 5 from this pool. Uses only the Python standard library so it
 runs in a clean sandbox with no pip install and no third-party deps.
 """
 import json
+import subprocess
 import sys
+import time
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
@@ -26,25 +28,59 @@ ATOM = "{http://www.w3.org/2005/Atom}"
 ARXIV = "{http://arxiv.org/schemas/atom}"
 
 
+HEADERS = {
+    "User-Agent": "quant-paper-digest/1.0",
+    # Some upstreams (and the egress proxy) return 406 Not Acceptable for
+    # requests without an explicit Accept header; send one to be safe.
+    "Accept": "application/atom+xml,*/*",
+}
+
+
+def _fetch_curl(url):
+    """Fetch via the curl CLI. In the sandbox egress proxy, curl reaches
+    export.arxiv.org reliably where urllib intermittently gets a spurious
+    406 Not Acceptable for the identical request, so curl is preferred."""
+    proc = subprocess.run(
+        ["curl", "-sS", "--fail", "--max-time", "60",
+         "-H", f"User-Agent: {HEADERS['User-Agent']}",
+         "-H", f"Accept: {HEADERS['Accept']}",
+         url],
+        capture_output=True, timeout=90,
+    )
+    if proc.returncode != 0:
+        err = proc.stderr.decode("utf-8", "replace").strip()
+        raise RuntimeError(f"curl exit {proc.returncode}: {err}")
+    if not proc.stdout:
+        raise RuntimeError("curl returned empty body")
+    return proc.stdout
+
+
+def _fetch_urllib(url):
+    req = urllib.request.Request(url, headers=HEADERS)
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return resp.read()
+
+
 def fetch_raw():
     query = "+OR+".join("cat:" + c for c in CATEGORIES)
     url = (f"{API}?search_query={query}"
            f"&start=0&max_results={MAX_FETCH}"
            f"&sortBy=submittedDate&sortOrder=descending")
-    req = urllib.request.Request(url, headers={
-        "User-Agent": "quant-paper-digest/1.0",
-        # Some upstreams (and the egress proxy) return 406 Not Acceptable for
-        # requests without an explicit Accept header; send one to be safe.
-        "Accept": "application/atom+xml,*/*",
-    })
+    # Try curl first (reliable through the proxy), then urllib as a fallback;
+    # a few attempts each with backoff to ride out transient 406s / hiccups.
     last_err = None
-    for attempt in range(3):
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                return resp.read()
-        except urllib.error.URLError as e:
-            last_err = e
-    raise SystemExit(f"arXiv request failed after 3 attempts: {last_err}")
+    for attempt in range(4):
+        for name, fetch in (("curl", _fetch_curl), ("urllib", _fetch_urllib)):
+            try:
+                data = fetch(url)
+                if data:
+                    return data
+            except Exception as e:  # noqa: BLE001 - report and keep trying
+                last_err = f"{name}: {e}"
+                print(f"attempt {attempt + 1} {name} failed: {e}",
+                      file=sys.stderr)
+        time.sleep(2 * (attempt + 1))
+    raise SystemExit(f"arXiv request failed after retries; last error: {last_err}")
 
 
 def parse(xml_bytes):

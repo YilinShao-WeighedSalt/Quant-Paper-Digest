@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 22, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 22, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Affine Volterra covariance processes and application to commodity markets</h2>
+  <p class="meta">Boris Günther, Ludger Overbeck<br>
+    <span class="cat">math.PR</span> &middot; 2026-09-21 &middot; <a href="http://arxiv.org/abs/2609.24548v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.24548v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can build a model where the <em>whole</em> web of volatilities and correlations between commodities has long memory, and prices of options on them are still computable with a single transform.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Commodities like crude oil, natural gas, and their futures contracts do not move independently, and they do not move smoothly. How turbulent oil is today, how strongly oil and gas swing together, and how that co-movement itself drifts over time all matter enormously to anyone pricing an option on a spread between two of them or hedging a basket. Worse, markets have <em>memory</em>: a big shock today keeps echoing for weeks, with its influence fading slowly rather than vanishing overnight. A model that treats today's volatility as forgetting yesterday tends to misprice exactly the long-dated, path-sensitive contracts traders care about.</p>
+<p><strong>The idea.</strong> The authors model the entire covariance structure — not just each asset's volatility but every pairwise correlation — as one object that wanders randomly through time. Picture a matrix of variances and covariances that is itself a stochastic process, always staying "valid" (a covariance matrix can never imply a negative variance). The classic way to do this is a <em>Wishart process</em>, the matrix cousin of the square-root process used for a single stock's variance. Their twist is to give it memory by convolving the noise with a <em>Volterra kernel</em> — a weighting function that lets past shocks keep reverberating with power-law decay, like an echo chamber whose echoes fade slowly. Crucially, they keep the model <em>affine</em>, which is the magic property that makes the pricing transform an exponential of a linear function of the state, so options remain computable by Fourier methods instead of brute-force simulation.</p>
+<p><strong>What they found.</strong> They prove such memory-laden matrix processes actually exist and stay inside the cone of valid covariance matrices, and they derive the conditional Fourier–Laplace transform in closed form (governed by a matrix Riccati–Volterra equation). Applied to the Gibson–Schwartz commodity model, this upgrades a memoryless variance-covariance structure to one with power-law memory and <em>stochastic</em> instantaneous correlation, all while keeping the affine tractability that made the original usable.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state lives on $S_d^+$, the cone of $d \times d$ symmetric positive semidefinite matrices — the mathematical home of covariance matrices. The covariance process $X_t \in S_d^+$ solves an affine <em>stochastic Volterra equation</em> of the schematic form
+$$X_t = X_0 + \int_0^t K(t-s)\,b(X_s)\,ds + \int_0^t K(t-s)\,\Sigma(X_s)\,dW_s,$$
+where $X_t$ is the instantaneous variance-covariance matrix, $K$ is a scalar <em>Volterra kernel</em> applied entrywise, $b(\cdot)$ is an affine drift, $\Sigma(\cdot)$ is the diffusion coefficient, and $W_s$ is a matrix of Brownian motions. When $K \equiv 1$ this collapses to a standard Wishart process; a nontrivial $K$ injects memory.</p>
+<p><strong>The key equation.</strong> "Affine" means the conditional Fourier–Laplace transform is exponential-affine:
+$$\mathbb{E}\!\left[\exp\big(\langle u, X_T\rangle\big)\,\middle|\,\mathcal{F}_t\right] = \exp\big(\phi(t,T) + \langle \psi(t,T),\, X_t\rangle\big),$$
+where $u$ is the transform argument (a symmetric matrix), $\langle A,B\rangle = \mathrm{tr}(AB)$ is the matrix inner product, $\mathcal{F}_t$ is the information available at time $t$, and $\phi$ (scalar) and $\psi$ (matrix-valued) solve a coupled <em>matrix Riccati–Volterra</em> system. The Riccati–Volterra equations are the memory-aware analogue of the ordinary Riccati ODEs that govern affine models like Heston.</p>
+<p><strong>The method.</strong> Existence is established via <em>stochastic invariance</em> results for Volterra equations on convex domains — proving the process never leaves the PSD cone — which gives weak existence of a solution. The transform is then obtained by solving the matrix Riccati–Volterra equation. This is a closed-form-in-transform result: pricing reduces to solving a deterministic (if nonlocal) equation, then inverting a Fourier transform, rather than Monte-Carlo simulating the whole matrix path.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper, so the "results" are structural rather than benchmarked Sharpe ratios: (i) weak existence on $S_d^+$ for scalar kernels acting entrywise; (ii) the exponential-affine transform with matrix Riccati–Volterra characterization; (iii) a concrete Volterra–Wishart extension of Gibson–Schwartz that admits <em>shifted fractional kernels</em> $K(t) = (t+\varepsilon)^{H-1/2}$-type specifications, delivering power-law memory while remaining admissible.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Affine process</strong> — a model whose transform is the exponential of a linear function of the state, which is what makes Fourier-based option pricing feasible.</li>
+<li><strong>Volterra kernel</strong> — a weighting function convolved with the noise so past shocks keep influencing the present with a chosen (often power-law) decay.</li>
+<li><strong>Wishart process</strong> — a matrix-valued square-root process that keeps a covariance matrix positive semidefinite as it evolves randomly.</li>
+<li><strong>PSD cone ($S_d^+$)</strong> — the set of symmetric matrices with no negative eigenvalues, i.e. all mathematically legal covariance matrices.</li>
+<li><strong>Riccati–Volterra equation</strong> — the memory-carrying, integral-equation version of the Riccati ODEs that characterize affine models.</li>
+<li><strong>Fourier–Laplace transform</strong> — the expectation of an exponential of the state, whose closed form lets you recover option prices by inversion.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational theory: it proves existence and tractability but does not calibrate to market data or report pricing errors, so a practitioner would still need to build and test the numerical Riccati–Volterra solver. The existence theory also <em>excludes</em> kernels singular at the origin, which rules out the roughest fractional specifications; only shifted (regularized) fractional kernels are admissible, a mild but real modeling compromise.</p>
+<h3>Bottom Line</h3>
+<p>Memory and stochastic correlation can coexist with closed-form transforms — if you are willing to trade a truly singular kernel for a shifted one.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Extremal Mean-Variance Functionals over Wasserstein Balls: Applications to Risk Sharing</h2>
+  <p class="meta">Wenjun Jiang, Yiying Zhang, Zhenfeng Zou<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-20 &middot; <a href="http://arxiv.org/abs/2609.23571v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.23571v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you only half-trust your estimate of how returns are distributed, this pins down the best- and worst-case risk you could face nearby — and shows it depends only on your estimate's mean and variance.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every risk calculation starts from an assumed probability distribution of losses or returns, and that assumption is always somewhat wrong. A pension fund, an insurer, or a trader who optimizes a mean-variance objective against a distribution estimated from limited data can be badly surprised when reality deviates. The honest question is not "what is my risk under my best guess?" but "how bad (and how good) could it get if the truth is <em>close</em> to my guess?" Concretely, two insurers deciding how to split a shared risk each have their own beliefs about the loss distribution; a robust rule should not blow up when those beliefs are slightly off.</p>
+<p><strong>The idea.</strong> "Close to my guess" is made precise with a <em>Wasserstein ball</em>: the set of all distributions within a fixed transport distance of a reference distribution. Wasserstein distance measures the least "work" to reshape one distribution into another — imagine the cheapest way to shovel a pile of sand into a differently shaped pile. The authors compute the worst-case and best-case <em>mean-variance functional</em> over that ball. The beautiful payoff: the extremal (most damaging or most favorable) distributions turn out to be simple <em>location-scale</em> transformations of your reference — just shifted and stretched — and their values depend on the reference only through its first two moments. So an infinite-dimensional "search over all nearby distributions" collapses to solving a couple of scalar equations.</p>
+<p><strong>What they found.</strong> They reduce both robust problems to scalar equations, construct the extremal laws explicitly, and derive dual representations. Applied to <em>proportional risk sharing</em>, they show that under homogeneous beliefs the classical proportional allocation stays optimal for <em>every</em> ambiguity radius and every $\alpha$-maxmin weighting — a strong robustness guarantee — while heterogeneous beliefs reduce to a finite-dimensional optimization. A coupled distortion-variance functional needs a richer answer: there the worst-case law can change <em>shape</em>, characterized by a convex-envelope construction.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a reference law $\mu_0$ on the real line with finite second moment. The ambiguity set is the <em>2-Wasserstein ball</em>
+$$\mathcal{B}_\varepsilon(\mu_0) = \{\mu : W_2(\mu, \mu_0) \le \varepsilon\}, \qquad W_2(\mu,\nu)^2 = \int_0^1 \big(F_\mu^{-1}(u) - F_\nu^{-1}(u)\big)^2\,du,$$
+where $W_2$ is the 2-Wasserstein distance, $\varepsilon$ is the ambiguity radius (how far the truth may stray), and $F_\mu^{-1}$ is the <em>quantile function</em> (inverse CDF) of $\mu$. The quantile representation on the right is what makes everything tractable.</p>
+<p><strong>The key equation.</strong> The object of study is the mean-variance functional
+$$\rho_\lambda(X) = \mathbb{E}[X] + \lambda\,\mathrm{sd}(X),$$
+with $\mathbb{E}[X]$ the mean, $\mathrm{sd}(X)$ the standard deviation, and $\lambda$ a risk-aversion weight. The robust problem is $\sup_{\mu \in \mathcal{B}_\varepsilon(\mu_0)} \rho_\lambda$ (worst case) and its infimum (best case). The extremal law is shown to be a <em>location-scale</em> map of the reference, $X^\star = a + b\,Z$, where $Z$ is the standardized reference variable and $(a,b)$ solve scalar first-order conditions tied to the moments $(m_0, s_0)$ of $\mu_0$ and the radius $\varepsilon$.</p>
+<p><strong>The method.</strong> The engine is the quantile (comonotone) representation of $W_2$ plus the geometry of attainable (mean, standard-deviation) pairs: optimizing over distributions becomes optimizing over a two-dimensional set. Convex duality yields dual representations, and for the harder distortion-variance functional a <em>convex-envelope</em> (biconjugate) construction pins down the worst-case quantile function — the point at which the extremal law is allowed to deform in shape, not merely shift and scale.</p>
+<p><strong>Results with numbers.</strong> As a characterization paper the deliverables are exact formulas rather than backtested returns: closed-form worst/best mean-variance values depending only on $(m_0, s_0, \varepsilon, \lambda)$; a proof that proportional allocation is optimal for all $\varepsilon \ge 0$ and all $\alpha \in [0,1]$ maxmin weights under homogeneous beliefs; and a finite-dimensional reformulation of the heterogeneous-belief sharing problem.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Wasserstein distance</strong> — the minimal cost of transporting one probability distribution into another, used here to define "distributions near my estimate."</li>
+<li><strong>Quantile function</strong> — the inverse cumulative distribution function; evaluating it at $u \in (0,1)$ returns the $u$-th quantile.</li>
+<li><strong>Mean-variance functional</strong> — a risk score combining expected value and a multiple of standard deviation.</li>
+<li><strong>$\alpha$-maxmin</strong> — a preference that blends the worst case and best case with weight $\alpha$, interpolating between pure pessimism and pure optimism.</li>
+<li><strong>Location-scale family</strong> — distributions obtained from one template by only shifting (location) and stretching (scale).</li>
+<li><strong>Convex envelope</strong> — the largest convex function below a given one; here it selects the shape of the worst-case distribution.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean results lean on the mean-variance functional depending only on the first two moments, so the elegance partly reflects that special structure; the distortion-variance extension already shows the answer gets more delicate once you leave it. It is a rigorous decision-theory contribution rather than a plug-and-play trading system, but the proportional-sharing robustness result is a genuinely reassuring, directly usable message for insurers and reinsurers.</p>
+<h3>Bottom Line</h3>
+<p>When you only trust your mean and variance, the worst nearby world is just your best guess, shifted and stretched.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> On Control of Drawdown: Robust Invariance and Optimality</h2>
+  <p class="meta">Chung-Han Hsieh<br>
+    <span class="cat">math.OC</span> &middot; 2026-09-20 &middot; <a href="http://arxiv.org/abs/2609.23272v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.23272v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A portfolio rule that mathematically <em>guarantees</em> you never fall more than a set percentage below your peak wealth — and still earns as much as possible under that promise.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> <em>Drawdown</em> is the drop in your wealth from its highest point so far, and it is the risk investors feel most viscerally. A fund that is down 30% from its all-time high loses clients even if its long-run average is fine, because people cannot stomach watching a peak evaporate. Most risk controls target volatility or one-period loss, but drawdown is <em>path-dependent</em>: it depends on the entire history of wealth, not just today's return. Enforcing a hard cap like "never more than 20% below the peak" against <em>whatever the market does</em> is genuinely hard.</p>
+<p><strong>The idea.</strong> The author asks: among all trading decisions, which ones are <em>guaranteed</em> to keep drawdown within a chosen limit no matter which return (from a known set of possibilities) shows up next? The answer has a clean shape. Every safe policy is a <em>cushion</em> times a <em>direction</em>: the cushion measures how much room you have before breaching the limit, and the direction is any normalized bet you like. As you approach the drawdown limit, the cushion shrinks toward zero, so the rule automatically de-risks you — like a car that eases off the accelerator as it nears a cliff edge, all on its own. Then, among all these safe policies, he finds the one that maximizes expected return by solving a simple one-variable dynamic program.</p>
+<p><strong>What they found.</strong> He proves an exact "robust invariance" theorem characterizing <em>every</em> drawdown-safe action, shows they all take the cushion-times-direction form, and shows that finding the <em>best</em> safe policy collapses to a one-dimensional Bellman recursion. He also compares against constant-fraction (linear time-invariant) rules and proves that his adaptive drawdown modulation earns at least as much for the same limit — and strictly more over horizons of two or more stages whenever the fixed rule has positive expected one-period return.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $W_k$ be wealth at stage $k$, $M_k = \max_{0 \le j \le k} W_j$ the running peak, and define the drawdown
+$$D_k = 1 - \frac{W_k}{M_k} \in [0,1),$$
+the fractional decline from the peak. The safety requirement is $D_k \le \bar{d}$ for all $k$, where $\bar{d} \in (0,1)$ is the prescribed maximum drawdown. Returns $r_k$ live in a known bounded support set (this is what "robust against all supported returns" means).</p>
+<p><strong>The key equation.</strong> The central structural result is that a control $u_k$ (the vector of dollar allocations across assets) is robustly drawdown-safe if and only if it has the <em>drawdown-modulated</em> form
+$$u_k = c_k \cdot v_k, \qquad c_k = W_k - (1-\bar{d})\,M_k,$$
+where $c_k \ge 0$ is the <em>cushion</em> (distance from the drawdown floor $(1-\bar d)M_k$) and $v_k$ is any <em>feasible normalized direction</em> drawn from a fixed set that depends only on the return support. As $W_k \to (1-\bar d)M_k$ the cushion $c_k \to 0$ and exposure vanishes automatically.</p>
+<p><strong>The method.</strong> Two tools. First, <em>robust invariance</em>: characterizing the control set that keeps the state inside the safe region for every admissible return — a worst-case (min over returns) feasibility condition. Second, <em>dynamic programming</em>: under stagewise-independent returns the optimization over all robustly safe causal policies reduces to a one-dimensional Bellman recursion in the normalized state, yielding an optimal safe state-feedback policy.</p>
+<p><strong>Results with numbers.</strong> The results are theorems rather than backtest tables: (i) a complete parameterization of all robustly drawdown-safe policies; (ii) reduction of the optimal safe policy to a 1-D Bellman recursion; (iii) a comparison theorem — optimal drawdown modulation achieves <em>no lower</em> expected return than any admissible linear time-invariant policy under the same limit, with <em>strict</em> improvement for horizons $\ge 2$ whenever the LTI policy has positive expected one-stage net return.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Drawdown</strong> — the fractional drop in wealth from its running maximum, a path-dependent risk measure.</li>
+<li><strong>Robust invariance</strong> — a guarantee that the state stays in a safe set for <em>every</em> possible realization of the uncertainty, not just on average.</li>
+<li><strong>Cushion</strong> — the distance between current wealth and the wealth level that would breach the drawdown limit.</li>
+<li><strong>Bellman recursion</strong> — the backward step-by-step equation of dynamic programming that builds an optimal policy from optimal continuation values.</li>
+<li><strong>LTI policy</strong> — a linear time-invariant rule that holds a fixed exposure profile regardless of state, used here as the benchmark.</li>
+<li><strong>State feedback</strong> — a control that is a function of the current (observed) state rather than a preset schedule.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The hard guarantee relies on returns living in a <em>known bounded support</em>; real markets produce gaps and jumps that can exceed any assumed support, so the "never breach" promise is only as good as that assumption. Stagewise independence is also a simplification real returns violate. Still, the cushion-times-direction structure is intuitive, implementable, and a principled improvement over ad-hoc stop-loss rules.</p>
+<h3>Bottom Line</h3>
+<p>Keep a cushion, scale your bets to it, and a hard drawdown cap costs you nothing you did not have to give up anyway.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Universal Diffusion Models for Implied Volatility Surfaces: Learning Shared Dynamics Across Stocks</h2>
+  <p class="meta">Mingzhi Yang, Sheng Wang, Chao Zhang, Ruikun Li<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-19 &middot; <a href="http://arxiv.org/abs/2609.22893v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.22893v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>One generative AI model, trained across many stocks at once, learns to conjure realistic next-day option volatility surfaces — even for stocks it never saw in training.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option's price is usually quoted through its <em>implied volatility</em>: the volatility number that, plugged into a pricing formula, reproduces the market price. Collect these across every strike and expiry and you get an <em>implied volatility surface</em> — a landscape that encodes how the market prices risk at every horizon and level. To manage a book of options you need to simulate <em>plausible</em> versions of tomorrow's surface: for stress tests, hedging, and risk capital. The catch is that a realistic surface must obey no-arbitrage rules (you cannot have prices that let someone lock in a riskless profit), and historically each stock got its own bespoke model, which is data-hungry and does not transfer.</p>
+<p><strong>The idea.</strong> The authors borrow the technology behind AI image generators: a <em>diffusion model</em>. The trick is to take real surfaces, gradually corrupt them into pure noise, and train a network to <em>reverse</em> that corruption — denoising random static back into a realistic surface, step by step. Because it is <em>conditional</em>, it generates tomorrow's surface change and the stock's return <em>given</em> today's state. The bold move is training one <em>universal</em> model on 50 stocks pooled together, so it learns dynamics common to all of them, and adding penalties that push generated surfaces to be smooth and arbitrage-free. Think of it as learning the grammar of how volatility surfaces breathe, rather than memorizing one stock's dialect.</p>
+<p><strong>What they found.</strong> The universal diffusion model beats the prior GAN-based benchmark (VolGAN) on the things that matter: fewer static-arbitrage violations, better prediction of the stock's risk, and better alignment of the variance explained by the top principal components of surface movements. Most strikingly, it extrapolates to 50 stocks <em>excluded from training</em>, evidence that the learned dynamics are genuinely shared across names rather than overfit to the training set.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Discretize the implied volatility surface on a grid of strikes and maturities into a vector $x_t \in \mathbb{R}^m$, and let $R_t$ be the underlying's return. The model generates the joint next-day pair $(\Delta x_{t+1}, R_{t+1})$ conditional on context $c_t$ (today's surface and features). A <em>forward</em> diffusion adds Gaussian noise over $N$ steps:
+$$q\big(x^{(n)} \mid x^{(n-1)}\big) = \mathcal{N}\!\big(\sqrt{1-\beta_n}\,x^{(n-1)},\ \beta_n I\big),$$
+where $x^{(n)}$ is the partially noised sample at step $n$, $\beta_n \in (0,1)$ is the noise schedule, $I$ the identity matrix, and $\mathcal{N}(\text{mean}, \text{cov})$ a Gaussian.</p>
+<p><strong>The key equation.</strong> A network $\epsilon_\theta$ learns to predict the injected noise, trained by the denoising objective
+$$\mathcal{L}(\theta) = \mathbb{E}_{n,\,x^{(0)},\,\epsilon}\Big[\big\|\epsilon - \epsilon_\theta\big(x^{(n)},\, n,\, c\big)\big\|^2\Big] + \lambda_{\text{sm}}\,\mathcal{P}_{\text{sm}} + \lambda_{\text{arb}}\,\mathcal{P}_{\text{arb}},$$
+where $\epsilon$ is the true Gaussian noise, $\epsilon_\theta$ the network's estimate, $\theta$ its weights, $c$ the conditioning information, $\mathcal{P}_{\text{sm}}$ a smoothness penalty, $\mathcal{P}_{\text{arb}}$ a static-arbitrage penalty (calendar and butterfly violations), and $\lambda_{\text{sm}}, \lambda_{\text{arb}}$ their weights. Sampling runs the learned reverse chain from noise back to a surface.</p>
+<p><strong>The method.</strong> This is a conditional <em>denoising diffusion probabilistic model</em> (DDPM): learn the score/noise at every corruption level, then sample by iteratively denoising. Training pools data across 50 stocks so one parameter set $\theta$ serves all names; the arbitrage and smoothness penalties inject financial structure the raw MSE objective would not enforce.</p>
+<p><strong>Results with numbers.</strong> Evaluated on 50 in-sample and 50 out-of-sample stocks, the model outperforms the VolGAN benchmark on three axes: reduced static-arbitrage violations, improved stock-return risk prediction, and closer alignment of the explained-variance ratios of the first three principal components with the data. The headline is qualitative in the abstract — consistent wins across metrics <em>and</em> successful out-of-sample transfer — rather than a single reported error percentage.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the volatility implied by option prices across all strikes and maturities, viewed as a 2-D landscape.</li>
+<li><strong>Diffusion model</strong> — a generator that learns to turn noise into realistic data by reversing a gradual noising process.</li>
+<li><strong>Static arbitrage</strong> — a riskless profit available from the surface itself (e.g. calendar or butterfly violations); a valid surface must have none.</li>
+<li><strong>Principal components</strong> — the dominant independent modes of variation of the surface, capturing most of its day-to-day movement.</li>
+<li><strong>Conditional generation</strong> — sampling that is steered by side information (here today's surface and market state).</li>
+<li><strong>Noise schedule</strong> — the sequence $\beta_n$ controlling how much noise is added at each diffusion step.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The evaluation is largely relative to one prior model (VolGAN) and reported through aggregate metrics, so exact economic gains for a real hedging desk are not yet quantified; diffusion sampling is also slower than a parametric model, which matters intraday. That the model transfers to unseen stocks is the genuinely exciting part, but "shared dynamics" was demonstrated within one asset class and market regime, and out-of-regime robustness remains open.</p>
+<h3>Bottom Line</h3>
+<p>Teach one model the shared grammar of volatility surfaces and it can dream up realistic ones for stocks it has never met.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Equilibrium prices under hidden Markov fundamentals</h2>
+  <p class="meta">Henri Pagès, Dylan Possamaï, Mateo Rodriguez Polo<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-18 &middot; <a href="http://arxiv.org/abs/2609.21684v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.21684v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>In an economy whose true growth rate is hidden and flips between regimes, this work pins down exactly what asset prices must be — and shows they depend only on investors' beliefs.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A stock is worth the expected value of the dividends it will pay, but that expectation hinges on the economy's true growth rate — which nobody can observe directly and which switches between regimes (boom versus recession). Investors can only <em>infer</em> which regime they are probably in from the data they see, updating a set of beliefs over time. The deep question of asset-pricing theory is: given rational investors who filter their beliefs this way, what prices are actually consistent with market equilibrium? Get this right and you explain <em>why</em> volatility clusters and why option prices are skewed, from first principles rather than by assumption.</p>
+<p><strong>The idea.</strong> The authors build a <em>representative-agent</em> economy — one stand-in investor whose choices set prices — with dividends that grow geometrically but with a <em>hidden finite-state Markov</em> drift. The investor has <em>Epstein–Zin</em> preferences, the modern utility that cleanly separates how much you dislike risk from how much you dislike having your consumption bounce around over time. They then ask what the price-dividend ratio can be, allowing an extra "valuation factor," and prove that equilibrium <em>forces that factor to be constant</em>. The upshot is that prices become <em>belief-Markovian</em>: everything you need to price the market is summarized by the current belief about which regime you are in. It is as if the whole tangled economy compresses down to a single number — your probability that times are good.</p>
+<p><strong>What they found.</strong> In the two-regime case they prove the pricing equation has a unique, well-behaved (smooth at the endpoints, analytic inside, bounded) positive solution, and that it supports an equilibrium for any continuous short rate meeting a mild condition. From that solution they derive belief-dependent stock volatility, a proper option-pricing PDE, and a short-maturity expansion of the risk-neutral skewness of log-returns — so the model <em>generates</em> stochastic volatility and skew endogenously, from learning about hidden regimes, rather than assuming them.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Dividends follow
+$$\frac{dD_t}{D_t} = \mu(Z_t)\,dt + \sigma\,dB_t,$$
+where $D_t$ is the dividend, $\mu(Z_t)$ the drift depending on the hidden state $Z_t \in \{1,\dots,K\}$, $\sigma$ the dividend volatility, and $B_t$ a Brownian motion. The state $Z_t$ is a continuous-time Markov chain with transition intensities $q_{ij}$ (the rate of jumping from regime $i$ to $j$). Investors do not see $Z_t$; they track the belief vector $\pi_t = \big(\mathbb{P}(Z_t = i \mid \mathcal{F}_t)\big)_i$ via the <em>Wonham filter</em>, where $\mathcal{F}_t$ is the observed information.</p>
+<p><strong>The key equation.</strong> Preferences are Epstein–Zin with the aggregator parameter
+$$\theta = \frac{1-\gamma}{1 - 1/\psi},$$
+where $\gamma$ is relative risk aversion and $\psi$ the elasticity of intertemporal substitution. The price-dividend ratio is a function $f(\pi_t)$ of beliefs alone, and $f$ solves a second-order ordinary differential equation (in the two-state case, in the scalar belief $p \in [0,1]$) of the schematic form $\mathcal{L}f = 0$, where $\mathcal{L}$ is the equilibrium pricing operator built from the filter dynamics and the Epstein–Zin marginal-utility conditions. The central theoretical claim is that the extra positive, absolutely continuous valuation factor must be <em>constant</em> in equilibrium, collapsing prices to this belief-Markovian form.</p>
+<p><strong>The method.</strong> Two ingredients: nonlinear filtering (the Wonham filter turns the hidden-state problem into a tractable belief process) and ODE/PDE analysis with a verification argument establishing existence, uniqueness, endpoint smoothness, interior analyticity, and uniform bounds of the positive solution. From the solved $f$ they read off volatility, the option-pricing PDE, and a leading-order short-maturity skewness expansion.</p>
+<p><strong>Results with numbers.</strong> As a theory paper the deliverables are structural: existence and uniqueness of the pricing solution in the two-state case for $0 < \theta \le 1$; belief-dependent (hence stochastic) stock volatility; a European option-pricing PDE; and a closed leading-order expansion for short-maturity conditional risk-neutral log-return skewness — a concrete, testable qualitative prediction rather than a calibrated error figure.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Representative agent</strong> — a single hypothetical investor whose optimal choices are taken to set market-clearing prices.</li>
+<li><strong>Epstein–Zin preferences</strong> — a utility form that disentangles risk aversion from the willingness to substitute consumption across time.</li>
+<li><strong>Hidden Markov drift</strong> — an unobserved regime-switching growth rate governed by a Markov chain.</li>
+<li><strong>Wonham filter</strong> — the exact equation for updating beliefs about a hidden finite-state Markov process from continuous observations.</li>
+<li><strong>Price-dividend ratio</strong> — the price of the asset divided by its dividend, the standard scale-free valuation measure.</li>
+<li><strong>Risk-neutral skewness</strong> — the asymmetry of returns under the pricing (risk-neutral) measure, which governs option-implied skew.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The sharp existence-and-uniqueness results are proved specifically for the two-state case and a restricted preference range ($0 < \theta \le 1$); the general $K$-state economy and calibration to real dividend and option data are left open. It is a rigorous equilibrium foundation, not a ready-made pricing engine — but its endogenous, belief-driven volatility and skew are exactly the features practitioners usually bolt on by hand.</p>
+<h3>Bottom Line</h3>
+<p>Let investors merely <em>guess</em> the hidden state of the economy, and stochastic volatility and option skew fall out of equilibrium on their own.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
