@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 24, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 24, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal Investment and Consumption in Financial Markets with Integrated Variance Clocks</h2>
+  <p class="meta">Jaber, Eduardo Abi, Gutekunst, Florian, Herdegen, Martin, Hobson, David<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-22 &middot; <a href="https://arxiv.org/abs/2609.26349">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.26349">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you pace financial decisions not by the calendar but by how much market "turbulence" has piled up, the classic rule for how much to invest and how much to spend still holds — you just have to solve it on a random clock.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Almost everyone eventually faces two tangled questions: how much of my money should sit in risky things like stocks versus safe things like a savings account, and how much should I spend now versus leave invested for later? A retiree deciding how aggressively to stay in the market while drawing down a pension is living this exact problem. The classic 1960s answer (Merton's) is beautiful but leans on a fantasy: that markets are smooth, with a constant "riskiness" that never changes. Real markets are nothing like that. Volatility comes in bursts — sleepy weeks punctuated by violent days — and modern data suggests volatility can be so jagged ("rough") that there isn't even a well-defined "volatility right now" to plug into the old formula.</p>
+<p><strong>The idea.</strong> The authors change what "time" means. Instead of ticking off calendar days, they let the clock be <em>accumulated variance</em> — a stress-odometer that spins fast during turmoil and barely moves when markets are calm. Think of a car serviced not "every six months" but "every so many engine revolutions": the engine's own wear-clock. Markets have a wear-clock too — total variance experienced — and the claim is that the right way to pace your invest-and-spend decisions is by <em>that</em> clock, not the wall calendar. Reframing the problem this way lets a single piece of machinery handle everything from the tame classical models to the wildest rough ones in which spot volatility doesn't exist.</p>
+<p><strong>What they found.</strong> They prove the best possible invest-and-consume strategy genuinely exists, is unique, and behaves stably (small changes in assumptions don't make it blow up) — in a sweeping setting that older methods could not touch. For a workhorse family (Volterra Heston models, including "rough" and "hyper-rough" variants) they get honest, explicit formulas. The payoff is unification: a scattered pile of earlier special-case results turns out to be corollaries of one theorem.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Take a probability space carrying a riskless asset and one risky asset $S_t$. Uncertainty is driven through a continuous, non-decreasing <em>stochastic clock</em> $A_t$ representing accumulated variance, so the risky log-price has quadratic variation $d\langle \log S\rangle_t = dA_t$. The investor chooses a portfolio weight $\pi_t$ (fraction in the risky asset) and a consumption rate $c_t \ge 0$ to maximize infinite-horizon expected utility of consumption. With power (CRRA) utility of risk-aversion parameter $\gamma$, the objective is
+$$\sup_{\pi,\,c}\ \mathbb{E}\!\left[\int_0^\infty e^{-\delta t}\,\frac{c_t^{1-\gamma}}{1-\gamma}\,dt\right],$$
+where $\mathbb{E}$ is expectation, $\delta>0$ is the impatience (time-preference) rate, and $\gamma>0$ controls how much the investor dislikes risk.</p>
+<p><strong>The key equation.</strong> The value process $Y_t$ is characterized by a nonlinear infinite-horizon <em>backward stochastic differential equation driven jointly by calendar time and the variance clock</em> — the paper's "IVC-BSDE":
+$$dY_t = -f\big(t, Y_t, Z_t\big)\,dA_t \;+\; Z_t\,dW_t ,$$
+where $Y_t$ is the (log) value of following the optimal strategy from time $t$ onward, $Z_t$ is the sensitivity of that value to the driving noise $W_t$ (a Brownian motion), $A_t$ is the variance clock so that shocks are integrated <em>against accumulated variance rather than time</em>, and $f$ is the nonlinear driver that packs in the market price of risk and the utility. For the Volterra Heston case the instantaneous variance $V_t$ obeys
+$$V_t = V_0 + \int_0^t K(t-s)\,\kappa(\theta - V_s)\,ds + \int_0^t K(t-s)\,\nu\sqrt{V_s}\,dB_s,\qquad A_t=\int_0^t V_s\,ds,$$
+with kernel $K$, mean-reversion speed $\kappa$, long-run variance $\theta$, vol-of-vol $\nu$, and Brownian motion $B_t$. The model is <em>rough</em> when $K(t)=t^{H-1/2}/\Gamma(H+\tfrac12)$ with Hurst parameter $H<\tfrac12$.</p>
+<p><strong>The method.</strong> Well-posedness of the IVC-BSDE (existence, uniqueness, stability) is proved by the method of <em>sub- and supersolutions</em> — squeezing the true solution between a provable lower and upper bound. They then use <em>Malliavin calculus</em> (a stochastic calculus of variations) to pin down the sign of the sensitivity component $Z_t$, which is what lets them verify the candidate strategy is truly optimal. Finally the <em>affine structure</em> of Volterra Heston reduces everything to (Volterra) Riccati equations, giving an explicit solution in the complete-market case and a verification argument in incomplete markets.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper, so the "results" are structural rather than error bars: a general existence–uniqueness–stability theorem for a brand-new class of BSDEs, an explicit closed form in the complete-market limit, and verified optimality across the full rough range $H\in(0,\tfrac12)$ including hyper-rough kernels where classical Markovian tools simply do not apply. Several previously separate results (classical Heston, Markovian stochastic-vol consumption problems) drop out as special cases.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>BSDE (backward SDE)</strong> — an equation solved backward from a terminal/asymptotic condition, whose solution here <em>is</em> the optimal value and its risk sensitivities.</li>
+<li><strong>Stochastic clock / time change</strong> — replacing calendar time with a random, market-driven notion of elapsed "activity," here accumulated variance.</li>
+<li><strong>Rough volatility</strong> — volatility so jagged that its paths are rougher than Brownian motion (Hurst $H<1/2$), matching how real option markets behave.</li>
+<li><strong>CRRA / power utility</strong> — a utility function $c^{1-\gamma}/(1-\gamma)$ whose risk aversion $\gamma$ stays constant regardless of wealth level.</li>
+<li><strong>Malliavin calculus</strong> — a calculus of derivatives <em>with respect to the randomness itself</em>, used to control the $Z$ (sensitivity) term.</li>
+<li><strong>Volterra Heston / affine model</strong> — a stochastic-volatility model with a memory kernel whose tractability comes from an affine (Riccati) structure.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It is a frictionless, continuous-trading idealization with power utility and no transaction costs, taxes, or borrowing limits — so it is a conceptual unification, not a turnkey trading system. Its real value is giving rough-volatility models, which fit data far better than smooth ones, a rigorous consumption-investment theory they previously lacked. A practitioner would still need numerical schemes and calibration before using it live.</p>
+<h3>Bottom Line</h3>
+<p>Re-clock your life-savings problem to run on market turbulence instead of the calendar, and even today's roughest volatility models yield a clean, provably optimal invest-and-spend rule.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Liquidity Provision and Rebate Design in Option Markets</h2>
+  <p class="meta">Cohen, Samuel N., Drake, Lyndon, Guo, Zihan, Reisinger, Christoph<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-22 &middot; <a href="https://arxiv.org/abs/2609.26606">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.26606">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper works out how a professional options market-maker should quote prices — and, separately, how the exchange should bribe her with rebates to keep the market liquid.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy or sell an option, a <em>market maker</em> is usually on the other side: a firm that continuously offers to buy a little cheaper and sell a little dearer, pocketing the tiny gap. Doing this well is genuinely hard, because every option they hold exposes them to the underlying stock moving (that's "delta" risk) and to volatility itself changing ("vega" risk), and they hold many options at once. Meanwhile the <em>exchange</em> has its own headache: if market makers don't show up, spreads widen, everyone trades less, and the exchange earns less. Exchanges routinely pay <em>rebates</em> — small kickbacks for posting quotes — to lure liquidity in. So there are two nested optimizations: the maker optimizing against the rebate schedule, and the exchange optimizing the rebate schedule itself.</p>
+<p><strong>The idea.</strong> Model the market maker as constantly choosing two kinds of action. She <em>makes</em> — quietly posts passive quotes and lets trades trickle in (a smooth, always-on control) — and she <em>takes</em> — occasionally reaches out and aggressively trades to dump unwanted risk (a lumpy, once-in-a-while action, mathematically an "impulse"). Her goal is to grow her portfolio's value plus the rebates she collects, while being penalized whenever her net stock-exposure (delta) or volatility-exposure (vega) drifts too far from flat. Then flip perspectives: the exchange, knowing the maker will respond optimally, <em>designs</em> the rebate so the maker's self-interested behavior happens to hit the exchange's liquidity target. It's a principal–agent game — the exchange sets the incentives, the maker plays best-response.</p>
+<p><strong>What they found.</strong> They solve the maker's problem (optimal make-and-take strategies) inside a realistic <em>local-stochastic-volatility</em> market, and then give the exchange a concrete three-step recipe for choosing rebates to reach whatever liquidity goal it names. Numerical experiments confirm the rebate scheme actually steers the maker's behavior as intended — turning a vague "please provide more liquidity" wish into a tunable dial.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a probability space with a Brownian filtration. The underlying follows a <em>local-stochastic volatility (LSV)</em> model,
+$$dS_t = \sigma(t,S_t)\,\sqrt{V_t}\,S_t\,dW_t,\qquad dV_t = \kappa(\theta - V_t)\,dt + \nu\sqrt{V_t}\,dB_t,$$
+where $S_t$ is the underlying price, $V_t$ its stochastic variance, $\sigma(t,S_t)$ the local-vol multiplier, $\kappa,\theta,\nu$ the variance's mean-reversion speed, level and vol-of-vol, and $W_t,B_t$ correlated Brownian motions. The maker trades $n$ European call options; her <em>make</em> activity is a continuous control (quoting intensities) and her <em>take</em> activity is an impulse control $\{(\tau_k,\xi_k)\}$ — she chooses stopping times $\tau_k$ at which to trade blocks $\xi_k$.</p>
+<p><strong>The key equation.</strong> Her value function $u$ solves a <em>Hamilton–Jacobi–Bellman quasi-variational inequality (HJBQVI)</em> — the standard object when smooth and impulsive controls coexist:
+$$\max\Big\{\, \partial_t u + \mathcal{L}u + \sup_{\ell}\big(\text{make gain}\big) - \lambda_\Delta\,\Delta^2 - \lambda_{\mathcal V}\,\mathcal{V}^2,\;\; \mathcal{M}u - u \,\Big\} = 0,$$
+where $\partial_t u + \mathcal{L}u$ is the drift of the value under the market dynamics ($\mathcal{L}$ the generator), the $\sup_\ell$ term is the best passive-quoting (make) gain including rebate revenue, $\Delta$ and $\mathcal{V}$ are the portfolio's residual delta and vega penalized by weights $\lambda_\Delta,\lambda_{\mathcal V}$, and $\mathcal{M}u$ is the <em>intervention operator</em> giving the value right after an optimal take (impulse) trade net of transaction cost. The equation says: at each instant, either it is optimal to keep quoting (left branch zero) or to jump and trade (right branch zero).</p>
+<p><strong>The method.</strong> The maker's HJBQVI is solved numerically (finite-difference / policy iteration over the make-and-take regions). The rebate design sits <em>on top</em> as a nested optimization: given the maker's optimal response map, the exchange runs a <em>three-step scheme</em> to pick the rebate function that attains a specified liquidity target — a Stackelberg (leader–follower) structure where the exchange leads.</p>
+<p><strong>Results with numbers.</strong> The reported evidence is the numerical validation: solving the coupled make–take problem in the LSV market yields well-defined optimal quoting and impulse regions, and the three-step rebate scheme is shown to hit imposed liquidity targets, demonstrating the exchange can actively raise provided liquidity by tuning rebates rather than hoping makers show up.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market maker</strong> — a trader who continuously quotes both a buy and a sell price, earning the spread while bearing inventory risk.</li>
+<li><strong>Make vs. take</strong> — "make" is posting passive resting quotes; "take" is aggressively hitting existing quotes to trade immediately.</li>
+<li><strong>Impulse control</strong> — a strategy consisting of discrete, optimally-timed interventions (jumps) rather than a continuous adjustment.</li>
+<li><strong>Delta / vega</strong> — an option portfolio's sensitivity to the underlying's price (delta) and to its volatility (vega); market makers try to keep both near zero.</li>
+<li><strong>Local-stochastic volatility (LSV)</strong> — a model where volatility depends both on a deterministic function of price/time (local) and on its own random process (stochastic).</li>
+<li><strong>HJB quasi-variational inequality</strong> — the optimality equation that appears when continuous and impulse controls are used together.</li>
+<li><strong>Rebate / principal–agent (Stackelberg)</strong> — a payment the exchange offers the maker; the exchange (leader) sets it anticipating the maker's (follower's) best response.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It is a single-market-maker, single-underlying idealization, so it sidesteps competition among many makers and adverse selection from better-informed traders — both of which dominate real rebate economics. The penalties on delta and vega are a stand-in for true risk limits, and the numerics validate the mechanism rather than a live venue. Still, for an exchange's quant team it is a usable blueprint for reasoning about how a rebate schedule maps to liquidity.</p>
+<h3>Bottom Line</h3>
+<p>Treat market-making as continuous quoting plus occasional aggressive trades, and an exchange can then turn a rebate schedule into a precise dial for the liquidity it wants.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Risk Measures under Paired-Ambiguity: A Deep Learning Reflected BSDE Framework</h2>
+  <p class="meta">Agram, Nacira, Rems, Jan, Gianin, Emanuela Rosazza<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-09-20 &middot; <a href="https://arxiv.org/abs/2609.23768">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.23768">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It builds a way to decide <em>when</em> to exercise an option when you distrust both your probability model <em>and</em> your discount rate — and trains a neural network to compute the answer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many financial decisions are really "when do I pull the trigger?" problems: when to exercise an American option, when to sell an asset, when to abandon a project. Two things make this genuinely scary in practice. First, you never truly know the <em>probabilities</em> governing the future — your model of how prices move is at best an educated guess. Second, you're also unsure about the <em>discount rate</em> — how you should trade off a dollar today against a dollar later, which itself wobbles with interest rates and your own caution. Most textbook methods pretend you know both perfectly. If your model is wrong in either dimension, your "optimal" exercise rule can be badly off.</p>
+<p><strong>The idea.</strong> Be a pessimist on purpose. The authors let <em>both</em> uncertainties float at once — call it <em>paired ambiguity</em> — and then compute the exercise rule that is best under the <em>worst plausible</em> combination of the two. For the probability side they wiggle the model within a family of nearby scenarios (a mathematically clean way to say "the true dynamics might be a bit different"); for the discounting side they use a <em>cash-subadditive</em> risk measure, which is just a rigorous way of saying "a dollar of uncertain future value is penalized more than a simple fixed discount would." Then they wrap it all in an <em>entropic</em> risk measure — a knob that dials how much you fear bad tail outcomes. The result is a robust stopping rule that won't fall apart when reality deviates from your model.</p>
+<p><strong>What they found.</strong> They characterize the whole problem with a single mathematical object — a <em>reflected</em> backward stochastic differential equation — and, in clean benchmark cases, get explicit "stop here" rules. Because these equations are hard and nonlinear, they build a <em>deep-learning</em> solver and <em>prove</em> it converges (bounding both the discretization error and the neural-network approximation error). Numerical experiments on American options then show concretely how the exercise decision shifts as you turn up either the discount-rate ambiguity or the entropic fear-of-tails knob.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space with Brownian motion $W_t$ and an asset $X_t$. Model ambiguity is introduced à la <em>Girsanov</em>: the true measure $\mathbb{Q}$ may be any equivalent measure obtained by tilting the drift within an admissible set $\Theta$, so the "worst case" is an infimum over $\theta\in\Theta$. Time-preference ambiguity is handled by a <em>cash-subadditive</em> dynamic risk measure with an uncertain discount rate. The quantity of interest is the value of an optimal-stopping payoff $g(X_\tau)$ over stopping times $\tau$.</p>
+<p><strong>The key equation.</strong> The stopping value is characterized by an <em>upper reflected BSDE</em>:
+$$\begin{cases} -dY_t = f(t,Y_t,Z_t)\,dt + dK_t - Z_t\,dW_t,\\[2pt] Y_t \ge g(X_t)\quad\text{for all } t,\qquad \displaystyle\int_0^T \big(Y_t - g(X_t)\big)\,dK_t = 0, \end{cases}$$
+where $Y_t$ is the robust value of the option if not yet exercised, $Z_t$ its sensitivity to the Brownian shock $W_t$, $g(X_t)$ the immediate exercise payoff, and $K_t$ a non-decreasing <em>reflection</em> process that pushes just hard enough to keep $Y_t$ from ever dropping below the payoff. The last line (the <em>Skorokhod condition</em>) says the push $K$ only acts exactly when $Y_t=g(X_t)$ — i.e. at the exercise boundary. The driver $f$ is <em>quadratic</em> in $Z$ because entropic risk measures generate quadratic drivers,
+$$f(t,y,z) = \operatorname*{ess\,inf}_{\theta\in\Theta}\Big\{\theta_t z - \tfrac{1}{2\alpha}\,|z|^2 - \beta_t\, y\Big\},$$
+with $\alpha>0$ the entropic risk-aversion parameter and $\beta_t$ the (ambiguous) discount rate.</p>
+<p><strong>The method.</strong> Because the quadratic driver is not globally Lipschitz (a technical headache for both theory and computation), they <em>truncate</em> and <em>discretely reflect</em> to reduce it to a globally Lipschitz system, then approximate the conditional expectations defining $(Y,Z)$ with neural networks trained by stochastic gradient descent. The convergence proof stacks two error sources: the reflected-BSDE time-discretization error and the neural-network approximation error, showing their sum vanishes as the mesh refines and the networks grow.</p>
+<p><strong>Results with numbers.</strong> The paper gives explicit stopping rules in several benchmark entropic cases and, for American options, numerical experiments quantifying how stopping values and exercise regions move with the discount-rate ambiguity and the entropic parameter $\alpha$ — larger ambiguity and larger $\alpha$ shrink the continuation region (you exercise sooner), exactly the robust, cautious behavior the framework is built to produce.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal stopping</strong> — choosing the best random time to take an irreversible action (like exercising an option) to maximize expected reward.</li>
+<li><strong>Reflected BSDE</strong> — a backward SDE whose solution is forced to stay above a barrier by a minimal "pushing" process; it encodes early-exercise (American) features.</li>
+<li><strong>Girsanov / model ambiguity</strong> — changing the probability measure by re-weighting the drift, used here to sweep over "nearby" models you can't rule out.</li>
+<li><strong>Cash-subadditive risk measure</strong> — a risk measure that does not simply subtract cash one-for-one, capturing an uncertain or state-dependent discount rate.</li>
+<li><strong>Entropic risk measure</strong> — a risk measure $\tfrac1\alpha\log\mathbb{E}[e^{\alpha \cdot}]$ whose parameter $\alpha$ tunes aversion to bad tail outcomes; it produces a quadratic BSDE driver.</li>
+<li><strong>Skorokhod condition</strong> — the rule that the reflecting process only acts exactly at the barrier, pinning down where you stop.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The ambiguity sets and the entropic knob are modeler-chosen, so "robust" is only as honest as those choices — pick them too wide and every option screams "exercise now." The deep-BSDE solver has convergence guarantees but, like all such methods, its accuracy in higher dimensions rests on training quality and compute. It is closer to a rigorous research prototype than a desk-ready pricer, but the direction — jointly robustifying model <em>and</em> discount rate — is exactly what post-crisis risk teams care about.</p>
+<h3>Bottom Line</h3>
+<p>Distrust your model and your discount rate at the same time, and a reflected BSDE plus a neural net tells you when a cautious investor should still pull the trigger.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Stochastic Mortality Model with Fractional Lévy Dynamics</h2>
+  <p class="meta">He, Congxin, Hu, Lilian, Kwok, Yue Kuen, Ye, Yifan<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-18 &middot; <a href="https://arxiv.org/abs/2609.21232">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.21232">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Death rates have a long memory, and ignoring it makes pension funds underestimate how long people live — so this paper builds a mortality model with built-in memory using a "fractional" random process.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Pension funds and life insurers live or die by one forecast: how long will people actually live? Guess too short and you under-reserve, then run out of money paying out longer-than-expected retirements. This "longevity risk" is enormous and one-directional — an improvement in medicine that adds a couple of years across a whole population blows a hole in every pension balance sheet at once. Standard mortality models treat each year's random mortality shock as forgetful: this year's surprise tells you nothing about next year's. But real mortality data has <em>memory</em> — trends and shocks persist for years (think of how a wartime or pandemic mortality spike casts a long shadow). Models without memory systematically <em>underestimate</em> life expectancy, which is exactly the dangerous direction.</p>
+<p><strong>The idea.</strong> Give the model a memory. The authors drive mortality with a <em>fractional Lévy process</em> — a random process engineered to have <em>long-range dependence</em>, meaning today's shock keeps influencing the future far longer than in ordinary models — mixed with a standard Brownian motion for the short-term wiggles. Analogy: ordinary models treat mortality shocks like a coin flip each year (no memory); this one treats them like a slow-draining reservoir, where a big splash keeps affecting the water level for years. They deliberately keep the math <em>tractable</em> so that actuaries can still compute the prices of longevity products, and they make the "flavor" of shocks flexible (you can pick different Lévy building blocks to allow jumps or fat tails).</p>
+<p><strong>What they found.</strong> The long-memory feature genuinely shows up in the data — their model captures the drawn-out mortality shocks of World War II and COVID-19 far better than memoryless models. The catch with memory is that it makes the process <em>non-Markovian</em> (you can't summarize the past in a single current state), which normally wrecks fast numerical pricing. They fix this with a clever <em>singular value decomposition</em> approximation that compresses the memory, plus a correction step to shrink the leftover error — making pricing of longevity-linked securities practical again.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $\mu_x(t)$ denote the <em>force of mortality</em> (instantaneous death rate) for a cohort aged $x$ at time $t$. The authors model its stochastic driver as a mixture
+$$dm(t) = \text{(drift)}\,dt + \sigma\,dB_t + \eta\,dL^H_t,$$
+where $B_t$ is a standard Brownian motion capturing short-term noise, $L^H_t$ is a <em>fractional Lévy process</em> with Hurst parameter $H\in(\tfrac12,1)$ encoding long-range dependence, $\sigma$ and $\eta$ scale the two noise sources, and the drift carries the trend. The Hurst parameter is the memory dial: $H=\tfrac12$ is memoryless, and $H>\tfrac12$ gives persistent, long-memory shocks.</p>
+<p><strong>The key equation.</strong> A fractional Lévy process is built by convolving an ordinary Lévy process $L_s$ with a power-law memory kernel:
+$$L^H_t = \frac{1}{\Gamma(H+\tfrac12)}\int_{-\infty}^{t}\Big[(t-s)^{H-1/2}-(-s)^{H-1/2}_{+}\Big]\,dL_s,$$
+where $\Gamma$ is the gamma function, the bracketed power-law weight is what makes distant-past shocks $dL_s$ still matter today (the essence of long memory), and $H$ controls how slowly that influence decays. Survival probabilities — the objects you actually need to price annuities and longevity bonds — then take the actuarial form
+$$\,_tp_x = \mathbb{E}\!\left[\exp\!\Big(-\!\int_0^t \mu_{x+s}(s)\,ds\Big)\right],$$
+with $\,_tp_x$ the probability someone aged $x$ survives another $t$ years and the expectation taken under the mortality dynamics above.</p>
+<p><strong>The method.</strong> Because $L^H_t$ is <em>non-Markovian</em>, the usual PDE/tree pricing machinery fails. They discretize the memory kernel and apply a <em>singular value decomposition (SVD)</em> to the resulting covariance/kernel matrix, keeping only the top singular values to compress the long history into a low-rank summary — turning an intractable integral into a fast finite computation. A <em>residual correction scheme</em> then adds back a cheap estimate of the truncated tail to control the SVD approximation error.</p>
+<p><strong>Results with numbers.</strong> The empirical studies show the long-range-dependence model reproduces the persistent mortality elevations of World War II and COVID-19 that memoryless models miss, and the SVD-plus-correction scheme delivers accurate, efficient valuation of longevity derivatives despite the non-Markovian driver — the paper's central quantitative claim being fidelity to those historical shock episodes and controlled truncation error.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Force of mortality</strong> — the instantaneous rate at which a person of a given age is dying, the continuous-time analogue of an annual death probability.</li>
+<li><strong>Long-range dependence</strong> — a property where correlations decay so slowly that shocks influence the far future, i.e. the process "remembers."</li>
+<li><strong>Fractional Lévy process</strong> — a Lévy process convolved with a power-law kernel to inject long memory, generalizing fractional Brownian motion to allow jumps and fat tails.</li>
+<li><strong>Hurst parameter $H$</strong> — the memory dial: $H=1/2$ means no memory, $H>1/2$ means persistent long memory.</li>
+<li><strong>Non-Markovian</strong> — a process whose future depends on its whole past, not just its present state, which breaks standard fast pricing methods.</li>
+<li><strong>Singular value decomposition (SVD)</strong> — a matrix factorization that keeps only the most important components, used here to compress the mortality process's long memory into a low-rank, computable form.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Fractional and long-memory models are notoriously hard to estimate — pinning down $H$ from noisy, relatively short mortality series is delicate, and the SVD truncation trades exactness for speed. The framework also inherits the usual assumption that historical dependence patterns persist, which extreme regime shifts (a pandemic, a medical breakthrough) can violate. That said, for actuaries the analytical tractability and the honest treatment of persistent shocks make this a plausibly usable upgrade to standard mortality models.</p>
+<h3>Bottom Line</h3>
+<p>Death rates remember their past, and pricing longevity risk as if they don't quietly bets that everyone dies sooner than they will.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Design and pricing of a transparent parametric-modeled loss CAT bond: application to German windstorm</h2>
+  <p class="meta">Ery, John, Koch, Erwan<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-09-18 &middot; <a href="https://arxiv.org/abs/2609.22052">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.22052">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It designs a catastrophe bond whose payout trigger is fully transparent — computed from wind-speed physics rather than a black-box loss model — and shows how to price it, using German windstorms as the test case.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a giant windstorm flattens a region, insurers can face claims far bigger than they can comfortably cover. To spread that risk they issue <em>catastrophe (cat) bonds</em>: investors buy the bond and earn a juicy coupon, but if a qualifying disaster strikes, they forfeit their principal, which goes to pay claims. The hard part is the <em>trigger</em> — the rule deciding whether the disaster "counts." Two bad options dominate the market. An <em>indemnity</em> trigger pays based on the insurer's actual reported losses, which invites <em>moral hazard</em> (the insurer has weak incentives to keep losses down since bondholders foot the bill) and is slow and opaque to verify. A pure <em>parametric</em> trigger pays on a simple physical measurement (say, wind speed above a threshold), which is fast and clean but creates <em>basis risk</em> — the payout might not match the insurer's real loss, so they can be hit hard yet get nothing.</p>
+<p><strong>The idea.</strong> Build a trigger that sits <em>between</em> the two and is completely transparent. The authors construct the trigger from a physics-based recipe: take the actual wind field of a storm, run it through a <em>vulnerability function</em> (how much damage a given wind speed does to buildings) and an <em>exposure map</em> (how much insured value sits where), and combine them into a modeled cost. Because every ingredient is public and reproducible — wind data, a published damage curve, standard industry exposure grids — anyone can verify the payout, killing the opacity problem, while the exposure weighting keeps the payout close to true losses, taming basis risk. It's a "show your work" cat bond.</p>
+<p><strong>What they found.</strong> They demonstrate the whole pipeline on historical German windstorms: fit a spatial statistical model of extreme wind, calibrate the damage curve to real industry loss data, price the resulting bond, and — crucially — <em>measure</em> the leftover basis risk so buyers can see exactly how well the trigger tracks real losses. The upshot is a cat bond that is simultaneously transparent, reasonably loss-accurate, and priceable with standard tools.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model the physical hazard as a spatial random field. The storm's wind speed $W(\mathbf{s})$ at location $\mathbf{s}$ over a region $\mathcal{D}$ is described by a <em>max-stable random field</em> — the natural limit law for spatial maxima (the spatial analogue of extreme-value theory). The modeled loss combines three separable pieces:
+$$C = \int_{\mathcal{D}} v\big(W(\mathbf{s})\big)\,E(\mathbf{s})\,d\mathbf{s},$$
+where $C$ is the total modeled cost, $W(\mathbf{s})$ the wind speed at $\mathbf{s}$ (the hazard), $v(\cdot)$ the <em>vulnerability function</em> mapping wind speed to fractional damage, and $E(\mathbf{s})$ the <em>exposure</em> (insured value density) at $\mathbf{s}$. The bond's trigger fires as a function of $C$; setting $E\equiv \text{const}$ recovers a pure parametric trigger, while a real exposure map slides it toward a modeled-loss trigger.</p>
+<p><strong>The key equation.</strong> With risk-free rate $r$ and maturity $T$, the bond price is the discounted risk-neutral expectation of its cash flows,
+$$P_0 = \mathbb{E}^{\mathbb{Q}}\!\left[\sum_{i} e^{-r t_i}\,c\,\big(1-\mathbf{1}\{\text{trigger by } t_i\}\big) + e^{-rT}\,F\,\big(1-\mathbf{1}\{\text{trigger by } T\}\big)\right],$$
+where $P_0$ is today's price, $c$ the coupon, $F$ the face (principal), $t_i$ the coupon dates, $\mathbb{Q}$ the pricing measure, and $\mathbf{1}\{\text{trigger}\}$ the indicator that the modeled cost $C$ has crossed the bond's attachment threshold. <em>Basis risk</em> is quantified by comparing the trigger indicator against realized industry losses $L$, e.g. via the discrepancy between $\mathbf{1}\{C>\text{threshold}\}$ and the event $\{L>\text{threshold}\}$.</p>
+<p><strong>The method.</strong> The wind hazard is estimated by <em>fitting a max-stable process</em> to historical storm wind-speed data at reinsurance-standard spatial resolution; the vulnerability function $v$ is <em>calibrated to observed industry loss and exposure data</em>; the bond is then priced by simulating storms from the fitted field, propagating them through $v$ and $E$ to get the trigger distribution, and discounting expected cash flows. A full model assessment measures the residual basis risk of the trigger.</p>
+<p><strong>Results with numbers.</strong> In the German-windstorm case study, the fitted max-stable field plus calibrated vulnerability reproduces historical losses well enough to price the bond and to <em>report</em> the associated basis risk — the paper's headline being a working, transparent trigger whose payout tracks industry losses more faithfully than a naive parametric trigger while remaining fully auditable, with the quantitative basis-risk assessment supplied rather than assumed away.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Catastrophe (cat) bond</strong> — a bond that pays high coupons but forfeits principal to the issuer if a specified disaster occurs, transferring catastrophe risk to capital markets.</li>
+<li><strong>Trigger</strong> — the contractual rule that decides whether a disaster "counts" and the bond pays out; can be indemnity, parametric, or modeled-loss.</li>
+<li><strong>Moral hazard</strong> — the weakened incentive to limit losses when someone else (here, bondholders) bears them, a problem with indemnity triggers.</li>
+<li><strong>Basis risk</strong> — the gap between the bond's payout and the insurer's actual loss, the main drawback of simple parametric triggers.</li>
+<li><strong>Vulnerability function</strong> — a curve mapping hazard intensity (wind speed) to the fraction of insured value destroyed.</li>
+<li><strong>Max-stable random field</strong> — the extreme-value limit model for spatial maxima, used to represent the worst-case wind field over a region.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The trigger is only as trustworthy as the vulnerability curve and exposure map behind it, and both are hard to calibrate precisely — a mis-specified damage function reintroduces basis risk through the back door. Max-stable fields are also data-hungry and assume a stationarity that climate change is actively eroding, exactly the regime the bond is meant for. Still, transparency is a real, marketable improvement, and for a reinsurer or public authority this is a credible template rather than a toy.</p>
+<h3>Bottom Line</h3>
+<p>A cat bond whose payout you can recompute yourself from wind data can be both trustworthy and loss-accurate — transparency and hedging effectiveness need not be a trade-off.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
