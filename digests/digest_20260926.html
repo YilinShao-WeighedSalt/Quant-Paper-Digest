@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 26, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 26, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Affine Pricing Models from Group Quantization and Holonomy</h2>
+  <p class="meta">Santiago Garcia<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-24 &middot; <a href="https://arxiv.org/abs/2609.28863">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.28863">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two different-looking ways to price bonds and options turn out to be two coordinate readings of a single geometric object.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A huge fraction of everyday quant finance runs on <em>affine models</em> — the models used to price interest rates, credit risk, and stochastic volatility. They are popular for one reason: they are analytically tractable, meaning you can get prices in almost closed form instead of grinding through slow simulations. But there are two standard ways practitioners write these models down, and they look nothing alike. One is a "pricing operator" that acts directly on functions of the current state (say, today's interest rate). The other is a "transform" formula, where the price is an exponential of a simple linear function of the state, with the coefficients obtained by solving a system of ordinary differential equations called Riccati equations. Everyone knows these two recipes spit out the same numbers — but <em>why</em> has been treated as a happy coincidence, and people maintain two separate mental toolkits.</p>
+<p><strong>The idea.</strong> Santiago Garcia shows the two recipes are not cousins — they are the same thing seen from two angles. The analogy: imagine you'd been taught that Fahrenheit and Celsius were two unrelated instruments, and someone finally shows you both are just coordinate labels on one underlying quantity, temperature. Garcia does this with geometry. He splits the "engine" of an affine model into two pieces: a <em>quadratic</em> part that behaves like a rigid rotating-and-shearing motion (mathematicians call the collection of such motions a Lie group), and a leftover <em>affine</em> part that acts like a twist you accumulate as you walk around a path — a "holonomy." Snap those two pieces together and you get one geometric object. Look at that object one way and its natural motion <em>is</em> the Riccati equations; look at it another way and you recover the classic pricing operator.</p>
+<p><strong>What they found.</strong> This is a <em>structural</em> result, not a faster calculator: he doesn't claim better prices or speed. What he delivers is a unified origin story, demonstrated on the two most famous affine families — the Gaussian (Vasicek-style) and square-root (Cox–Ingersoll–Ross) models — showing both fall out of the same construction.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state $X_t$ lives in some domain $D \subseteq \mathbb{R}^d$ (e.g. the short interest rate) and follows a continuous-path, time-homogeneous <em>affine</em> process — meaning the drift and squared-volatility are affine (linear-plus-constant) functions of the state. A price is a discounted expectation
+$$P(t,x) = \mathbb{E}\!\left[\,e^{-\int_t^T r(X_s)\,ds}\, f(X_T)\ \middle|\ X_t = x\right].$$
+Here $r(\cdot)$ is the short rate, $f$ the payoff, $T$ maturity.</p>
+<p><strong>The key equations.</strong> The transform representation says the characteristic function is exponential-affine,
+$$\mathbb{E}\!\left[e^{\langle u,\,X_T\rangle}\mid X_t=x\right] = \exp\!\big(\phi(t,u) + \langle \psi(t,u),\,x\rangle\big),$$
+where $u$ is the transform argument, and the coefficients $\phi$ (scalar) and $\psi$ (vector) solve the <em>generalized Riccati system</em>
+$$\partial_t \psi = R(\psi), \qquad \partial_t \phi = F(\psi),$$
+with $R,F$ quadratic maps fixed by the model. Garcia's move is to split the affine generator (its "symbol") as $\mathcal{A} = \mathcal{A}_2 + \mathcal{A}_1$: a homogeneous quadratic sector $\mathcal{A}_2$ in the momentum variable $p$ (the dual of $x$, playing the role of $u$), and a complementary affine sector $\mathcal{A}_1$. The quadratic sector generates a symplectic flow on the phase space $(x,p)$ — an element of a centrally extended Lie group — while the affine sector is carried as a multiplicative holonomy along a "thin-path groupoid." Together they define an affine Poincaré–Cartan form $\Theta \approx p\,dx - H\,dt$, whose characteristic (Hamiltonian) dynamics reduce, in momentum coordinates, exactly to the Riccati system, and whose coordinate representation recovers the pricing operator.</p>
+<p><strong>The method.</strong> The technique is <em>geometric quantization</em>: represent the Lie group by operators (that representation is the pricing operator), and represent the holonomy as parallel transport of a line bundle (that supplies the scalar amplitude $\phi$). Feynman–Kac is the bridge that ties the coordinate-space PDE to the probabilistic expectation.</p>
+<p><strong>Results with numbers.</strong> None — deliberately. This is a unification paper; its "result" is that Gaussian and square-root models are two worked instances of one geometric construction, with no numerical benchmark claimed.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Affine model</strong> — a model where drift and variance are linear-plus-constant in the state, which is what makes prices near-closed-form.</li>
+<li><strong>Riccati equation</strong> — an ODE that is quadratic in the unknown; here it produces the transform coefficients.</li>
+<li><strong>Lie group / symplectic flow</strong> — a continuous family of smooth transformations; symplectic ones preserve the phase-space area structure of position-and-momentum.</li>
+<li><strong>Holonomy</strong> — the net twist or rotation you accumulate by transporting something around a path.</li>
+<li><strong>Poincaré–Cartan form</strong> — a geometric object from classical mechanics whose flow encodes a system's dynamics.</li>
+<li><strong>Feynman–Kac</strong> — the theorem linking a PDE's solution to an expectation over a stochastic process.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This buys understanding, not performance: no new prices, no speedups, and the machinery (metaplectic representations, groupoids, holonomy) is heavy for a working desk. It is also confined to continuous-path, time-homogeneous affine models — no jumps and no time-varying parameters yet. Its real value is conceptual, and possibly as a principled recipe for constructing genuinely new tractable models.</p>
+<h3>Bottom Line</h3>
+<p>The two faces of affine pricing are finally shown to be one geometric coin.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Market Completeness and Optional Projections under Restricted Information</h2>
+  <p class="meta">Levin David Schwab<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-23 &middot; <a href="https://arxiv.org/abs/2609.28463">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.28463">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When traders can't observe everything that moves prices, the question "can any payoff be perfectly hedged?" gets a subtle and surprising new answer.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A central idea in mathematical finance is <em>market completeness</em>: a market is complete if every possible payoff — every contingent claim, every option you could dream up — can be exactly replicated by trading the available assets. Completeness is why Black–Scholes can quote a single "fair" option price: the option is just a trading strategy in disguise. But the classical theory quietly assumes traders can see the same information that drives prices. Reality is messier. Your trading decisions rest on a <em>coarser</em> information set — you see the daily close, not the hidden order flow or the private signal that actually pushed the price. So what does "complete" even mean when you're trading on partial information?</p>
+<p><strong>The idea.</strong> Levin David Schwab models this with two separate information flows. There is the <em>trading filtration</em> — the information you actually base decisions on — and the finer information that the prices themselves respond to. Prices as filtered through your coarser eyes become what's called the <em>optional projection</em>: your best guess of the true price given only what you can see. The classical no-arbitrage theorem gets restated in terms of this projected price. The dinner-table analogy: you're betting on a horse race but you can only watch a blurry, delayed TV feed. Some bets you can still cover perfectly by trading; others you simply cannot, and — crucially — which is which differs from the full-information world.</p>
+<p><strong>What they found.</strong> For a fixed projection, a payoff that depends only on the <em>projected</em> price history can be replicated exactly when all the compatible pricing measures agree on its value. The headline surprise is a counterexample: even a tiny three-state model with a <em>unique</em> pricing measure can fail to be complete — uniqueness of the price and replicability come apart. And in the familiar binomial (coin-flip) model, delaying your information by $k$ periods yields a complete projected market, but with a shortened effective horizon of $(T-k)^+$ periods.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work in finite discrete time $t = 0,1,\dots,T$ on a probability space $(\Omega,\mathcal{F},\mathbb{P})$. Asset prices $S = (S_t)$ are adapted to a filtration $\mathbb{F} = (\mathcal{F}_t)$. Trading strategies, however, must be predictable with respect to a coarser <em>trading filtration</em> $\mathbb{G} = (\mathcal{G}_t)$ with $\mathcal{G}_t \subseteq \mathcal{F}_t$. Let $\tilde S$ be the discounted price. The object you can actually trade against is the <strong>optional projection</strong>
+$$Y_t = {}^{o,\mathbb{G}}\tilde S_t = \mathbb{E}\!\left[\tilde S_t \mid \mathcal{G}_t\right],$$
+the conditional expectation of the discounted price given your information at time $t$.</p>
+<p><strong>The key equations.</strong> The <em>first fundamental theorem of asset pricing</em>, restated: there is no arbitrage if and only if there exists an equivalent measure $\mathbb{Q} \sim \mathbb{P}$ under which the projected price $Y$ is a $\mathbb{G}$-martingale,
+$$\mathbb{E}_{\mathbb{Q}}\!\left[Y_{t+1}\mid \mathcal{G}_t\right] = Y_t.$$
+Such a $\mathbb{Q}$ is an <em>equivalent martingale measure</em> (EMM) of $Y$. The completeness criterion: for a fixed projection $Y$, a claim $C$ measurable with respect to the terminal projected history $\sigma(Y_0,\dots,Y_T)$ is attainable <strong>iff</strong> all EMMs of $Y$ assign it the same value, i.e. they agree on the claim sigma-field. Symbols: $\mathcal{G}_t$ is what you know at $t$; $Y_t$ your projected price; $\mathbb{Q}$ a pricing measure; $C$ the payoff; $(T-k)^+ = \max(T-k,0)$ the effective horizon after a $k$-period information delay.</p>
+<p><strong>The method.</strong> Because time and the state space are finite, the whole problem is finite-dimensional linear algebra on the geometry of martingale measures — the set of EMMs is a convex polytope, and completeness is the statement that a payoff's price is a single point rather than an interval. Schwab keeps the <em>trading filtration</em> $\mathbb{G}$ and the <em>claim sigma-field</em> rigorously distinct, then builds explicit replication strategies and explicit counterexamples.</p>
+<p><strong>Results with numbers.</strong> A three-state model is exhibited with a <em>unique</em> optional martingale measure in which projected completeness nonetheless fails — so the converse "unique price ⇒ complete" is false. For the binomial model under its product martingale measure, a $k$-period delay gives a complete projected market on effective horizon $(T-k)^+$.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Filtration</strong> — a growing family of information sets, one per time step, recording what is known so far.</li>
+<li><strong>Optional projection</strong> — your best estimate of a price given only your (coarser) information at each time.</li>
+<li><strong>Contingent claim</strong> — any payoff whose value depends on future market outcomes, e.g. an option.</li>
+<li><strong>Equivalent martingale measure (EMM)</strong> — a re-weighting of probabilities under which discounted prices are fair bets (martingales).</li>
+<li><strong>Completeness</strong> — the property that every claim can be perfectly replicated by trading.</li>
+<li><strong>First fundamental theorem</strong> — no arbitrage exists exactly when an equivalent martingale measure exists.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is finite discrete-time theory, and real markets are continuous-time with far richer, dynamic information asymmetries; there are no empirics here. But partial-information hedging is exactly the setting for insiders, latency-disadvantaged traders, and anyone pricing off delayed data, so the conceptual correction — that hedgeability hinges on what you're <em>allowed to see</em>, not just on prices — matters well beyond the toy models.</p>
+<h3>Bottom Line</h3>
+<p>Whether you can hedge a payoff depends not only on the prices, but on what the market lets you watch.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Surface-Driven Stochastic Volatility for Commodity Options: Identification of Stochastic Vol-of-Vol and Leverage from Smile Dynamics</h2>
+  <p class="meta">Arthur Steve Tchoneteck, Tingjia Zhang, Frederi Viens<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-22 &middot; <a href="https://arxiv.org/abs/2609.27138">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.27138">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The entire shape of the option-price "smile" — its height, tilt, and curvature — is turned into the moving parts of a soybean-option pricing model.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> If you line up options on the same asset at different strike prices, they don't imply one single volatility — they imply a whole curve, the "volatility smile," and across maturities a "volatility surface." Simple models track only the middle of that curve: the at-the-money (ATM) volatility level. But the <em>tilt</em> (skew) and <em>curvature</em> (convexity) carry real information, and for commodities like soybeans — where a drought or a bumper harvest can jolt the market — the whole surface heaves around. Ignoring the tilt and curvature throws away exactly the signal that matters when weather shocks hit.</p>
+<p><strong>The idea.</strong> Tchoneteck, Zhang, and Viens promote three summary numbers of the surface — level, skew, and convexity — into <em>latent state variables</em> that evolve over time and actually drive option prices. Using twelve years of CME's commodity volatility index (CVOL) for soybean futures, they notice the statistical personality of each: level and convexity are always positive and lopsided toward big values, so they're modeled on a log scale with a mean-reverting "spring" (an Ornstein–Uhlenbeck process — something repeatedly pulled back toward a resting point). The skew, by contrast, flips between positive and negative, so it's modeled directly on the real line. Then they connect the dots to what those factors <em>mean</em> physically: the ATM level is the volatility itself, convexity is the "volatility of volatility," and skew is the "leverage" — how strongly price moves and volatility moves are correlated.</p>
+<p><strong>What they found.</strong> The 2021 La Niña drought lights up as a period of elevated volatility and skew — the model's state variables track a real weather regime. On the numerical side, prices from a Monte Carlo simulation and from directly solving the pricing equation agree closely, and a trained neural-network "surrogate" reproduces the whole pricing map at a fraction of the computational cost — useful when you need to reprice thousands of times.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $F_t$ be the soybean-futures price and $\nu_t$ a latent log-volatility state. Under the log-OU stochastic-volatility model,
+$$dF_t = \sigma(\nu_t)\,F_t\,dW_t^{F}, \qquad d\nu_t = \kappa(\theta - \nu_t)\,dt + \eta\,dW_t^{\nu}, \qquad d\langle W^{F},W^{\nu}\rangle_t = \rho\,dt.$$
+Symbols: $F_t$ futures price; $\nu_t$ the (log) volatility state; $\sigma(\nu_t)$ the instantaneous volatility; $\kappa$ the mean-reversion speed (how fast the spring pulls back); $\theta$ the long-run level; $\eta$ the volatility-of-volatility; $\rho$ the leverage correlation between price and volatility shocks; and $W^F, W^\nu$ Brownian motions.</p>
+<p><strong>The key equations.</strong> From daily data they extract three surface factors — ATM level $\ell_t$, skew $s_t$, convexity $c_t$ — and posit a joint mean-reverting system for them. A leading-order smile expansion then <em>maps</em> the observable surface onto the latent model: $\ell_t \mapsto$ the volatility state, $c_t \mapsto$ an effective vol-of-vol $\eta$, and $s_t \mapsto$ an effective leverage $\rho$. Pricing follows from the risk-neutral PDE and its Feynman–Kac representation: a price $P(t,F,\nu)$ solves
+$$\partial_t P + \mathcal{L}P - rP = 0,$$
+where $\mathcal{L}$ is the two-dimensional diffusion generator built from the dynamics above and $r$ is the risk-free rate.</p>
+<p><strong>The method.</strong> They derive the pricing PDE and its Feynman–Kac (expectation) form, benchmark prices by Monte Carlo simulation, independently validate the PDE by finite-difference solving, and finally train a neural network as a fast surrogate for repeated valuation.</p>
+<p><strong>Results with numbers.</strong> Over the validation grid, finite-difference and Monte Carlo prices show close agreement, cross-checking that the PDE and the simulation describe the same model. The neural-network surrogate reproduces the pricing map at "substantially lower inference cost." Empirically, the level, skew, and convexity states vary strongly across market regimes, with the 2021 La Niña drought window showing markedly elevated volatility and skewness.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Volatility surface / smile</strong> — the pattern of implied volatilities across strikes and maturities; rarely flat.</li>
+<li><strong>At-the-money (ATM)</strong> — an option whose strike equals the current price; its implied vol is the surface's "center."</li>
+<li><strong>Skew / convexity</strong> — the tilt and curvature of the smile, respectively.</li>
+<li><strong>Ornstein–Uhlenbeck process</strong> — a random process pulled back toward a mean, like a jittery spring.</li>
+<li><strong>Vol-of-vol and leverage</strong> — the volatility of the volatility, and the correlation between price moves and volatility moves.</li>
+<li><strong>Feynman–Kac</strong> — the theorem expressing a PDE's solution as an expectation over a stochastic process.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model is calibrated to a single market (soybean futures) using one vendor's volatility index, so its generality is unproven; the leading-order smile approximations can degrade for deep out-of-the-money strikes and very short maturities; and the neural surrogate must be retrained as regimes shift. Still, treating level, skew, and convexity as jointly dynamic states is a practical, honest step up from ATM-only models, and doubles as a diagnostic for when a model is missing something.</p>
+<h3>Bottom Line</h3>
+<p>Read the whole smile, not just its middle, and the surface itself becomes the engine of the pricing model.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Local Weak Limits for Equilibrium and Risk in Economic Networks</h2>
+  <p class="meta">Hamed Amini, Zhecheng Wu<br>
+    <span class="cat">math.PR</span> &middot; 2026-09-22 &middot; <a href="https://arxiv.org/abs/2609.27107">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.27107">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To gauge systemic risk in a giant financial network, you often only need to study one typical node and its immediate neighbors.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks, firms, and payment systems are wired together into enormous networks: a loan here, a supply contract there, an interbank exposure somewhere else. When one node takes a shock, losses can cascade — one firm's default becomes its lender's loss becomes the next firm's default. Regulators desperately want to compute the <em>equilibrium</em> of such a network (who ultimately defaults, how big the losses are) and to measure its risk. But two things make this brutal: the networks are astronomically large, so solving the whole system is computationally hopeless, and you usually don't even know the exact global wiring diagram.</p>
+<p><strong>The idea.</strong> Hamed Amini and Zhecheng Wu exploit the fact that these networks are <em>sparse</em> — each node connects to only a handful of others. When that's true and the network is large, you can zoom all the way in on a single "typical" node and its local neighborhood, which looks like a rooted tree. Solve the equilibrium <em>there</em>, on that small local structure, and it accurately approximates the distribution of outcomes across the entire network. The dinner-table analogy: to predict how a rumor spreads through a whole city, you don't need to map every friendship — you study one representative person and their few friends, and that local pattern already predicts the city-wide statistics.</p>
+<p><strong>What they found.</strong> They prove that as the network grows, the <em>empirical distribution</em> of equilibrium outcomes converges (in probability) to the outcome computed on the limiting local structure — a rigorous guarantee, not just a heuristic. Strikingly, this holds even when the network has <em>multiple</em> equilibria: the limiting answer doesn't depend on which equilibrium the finite network happens to select. The result then extends from raw outcomes to <em>risk measures</em> like conditional value-at-risk, complete with error bounds that shrink as you look deeper into the local neighborhood. They demonstrate it on production networks and payment-clearing systems.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider a sequence of random networks $G_n$ with $n$ nodes, each node carrying <em>marks</em> (its type, its shock, its bilateral exposures). Equilibrium is a fixed point of a response map: each node's outcome $x_i$ satisfies
+$$x_i = f_i\!\left(x_{\partial i},\ \text{shocks}\right),$$
+where $\partial i$ denotes the neighbors of node $i$ and $f_i$ is $i$'s response to their outcomes. The key structural assumption is <strong>marked local weak convergence</strong>: $G_n$ converges to a rooted random network $(G,o)$ — a "typical node's-eye view" of the network.</p>
+<p><strong>The key equations.</strong> They prove convergence of the empirical equilibrium measure to the law of the root's equilibrium on the limit:
+$$\frac{1}{n}\sum_{i=1}^{n}\delta_{x_i}\ \xrightarrow{\ \mathbb{P}\ }\ \mu,$$
+where $\delta_{x_i}$ is a point mass at node $i$'s outcome and $\mu$ is the distribution of the root node's equilibrium on the limiting structure. This is established in two regimes: (a) <em>uniformly contractive</em> responses (each $f_i$ is a contraction, so the fixed point is unique); and (b) <em>bounded monotone nonexpansive</em> responses, where the lower and upper fixed-point iterations $\underline{x}^{(k)} \uparrow$ and $\overline{x}^{(k)} \downarrow$ coalesce — and there $\mu$ is <em>independent of the finite-network equilibrium selection</em>. The result transfers to any law-invariant risk measure, e.g. conditional value-at-risk
+$$\mathrm{CVaR}_\alpha(L) = \frac{1}{\alpha}\int_0^\alpha \mathrm{VaR}_u(L)\,du,$$
+with $L$ the loss, $\alpha$ the tail level, and explicit error bounds in the recursion depth $k$.</p>
+<p><strong>The method.</strong> The engine is the theory of <em>local weak limits</em> of sparse graphs (unimodular / rooted random networks), combined with monotone fixed-point iteration and convergence-in-probability arguments; numerics confirm the theory on production and payment networks.</p>
+<p><strong>Results with numbers.</strong> The abstract reports no single headline figure, but establishes convergence in probability, recursion-depth-$k$ error bounds for the risk measures, and numerical experiments demonstrating both accuracy and substantial computational savings versus solving the full network.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Sparse network</strong> — one where each node connects to only a few others, not to everybody.</li>
+<li><strong>Equilibrium / fixed point</strong> — a self-consistent set of outcomes where nobody's best response changes anything.</li>
+<li><strong>Local weak convergence</strong> — the sense in which a growing network "looks like" a fixed rooted neighborhood from a typical node's vantage.</li>
+<li><strong>Unimodular / rooted network</strong> — the limiting object: a random graph seen from a randomly chosen root node.</li>
+<li><strong>Law-invariant risk measure</strong> — a risk number depending only on the loss distribution, not on labels; CVaR is the leading example.</li>
+<li><strong>Conditional value-at-risk (CVaR)</strong> — the average loss in the worst $\alpha$-fraction of scenarios.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The whole approach leans on sparsity and local tree-like structure, yet real financial networks have dense, highly connected cores and a few giant hubs that break the tree approximation exactly where contagion is scariest. You also need to know the <em>distribution</em> of local structures, which is itself hard to estimate. Within the genuinely sparse regime, though, this is a rigorous and scalable tool with honest error control.</p>
+<h3>Bottom Line</h3>
+<p>In a big sparse network, a typical neighborhood is a faithful stand-in for the whole.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Propose, Don&#x27;t Judge: An Anytime-Valid Referee for LLM Agents That Mine Investment Factors</h2>
+  <p class="meta">Bo Qu, Mingguang Chen, Licheng Wang<br>
+    <span class="cat">cs.AI</span> &middot; 2026-09-22 &middot; <a href="https://arxiv.org/abs/2609.27051">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.27051">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Let an AI freely dream up trading signals, but hand the verdict to a tamper-proof statistical referee that stays honest even if you peek at the results every single day.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> AI agents now run the entire pipeline of quantitative "factor" research: they invent candidate trading signals, backtest them, keep the winners, and retire the losers. The danger is obvious to anyone who's overfit a spreadsheet — if the same agent both <em>proposes</em> signals and <em>judges</em> them, it will inevitably fool itself, mining noise until something looks profitable. This is the multiple-testing plague of quant finance: test enough random factors and some will shine by pure luck. The result is a stream of "discoveries" that evaporate the moment real money is deployed.</p>
+<p><strong>The idea.</strong> Qu, Chen, and Wang propose splitting the two jobs. The agent may propose anything it likes — that's where creativity belongs. But a <em>frozen</em> referee, which the agent cannot touch or tune, decides which factors are real. Crucially, the referee only scores each candidate on market data revealed <em>after</em> the factor was submitted, and it does so by "betting." The everyday analogy: a scientist can propose any hypothesis at all, but a <em>pre-registered, sealed</em> test decides — and this particular test stays statistically valid even if you check the results every day and stop the instant they look good. That "peek whenever you want, stop whenever you want, still valid" property is called <em>anytime-valid</em> inference, and it's what defeats the usual multiple-testing cheat.</p>
+<p><strong>What they found.</strong> Two clean lessons. <em>Who judges</em> sets the false-discovery rate: the frozen referee admits 5–11 times fewer sub-threshold (junk) factors than "leaky" referees that peek at pre-submission data — and no proposer, however clever, can close that gap. <em>Who proposes</em> sets the yield: the language-model proposer beats a simple script, matches a bandit algorithm, and adds one thing a bandit can't — it writes its own diagnostic probes. The catch is time: because the certificate insists on post-submission evidence, an admitted true factor waits about 500 trading days to be certified, so the certified portfolio's Sharpe ratio trails an ungated one. The honest verdict: judging belongs to the fixed procedure; proposing and probe-making belong to the agent.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Candidate factors arrive in a stream, each submitted at some (data-dependent) stopping time; after submission, factor $i$ produces returns $r_{i,t}$. The null hypothesis $H_0$ for each factor is "no edge" (its expected excess return is $\le 0$). Instead of a fixed-sample $p$-value, the referee runs an <em>anytime-valid</em> test built from a <strong>test martingale</strong> (equivalently an <em>e-process</em>): a nonnegative wealth process $M_t$ that starts at $1$ and satisfies
+$$\mathbb{E}_{H_0}\!\left[M_t\right] \le 1 \quad \text{for all } t,$$
+i.e. if the factor is truly worthless, betting on it cannot grow your wealth in expectation.</p>
+<p><strong>The key equations.</strong> The guarantee comes from <strong>Ville's inequality</strong>, the sequential analogue of Markov's inequality:
+$$\mathbb{P}_{H_0}\!\left(\sup_{t}\ M_t \ \ge\ \tfrac{1}{\alpha}\right)\ \le\ \alpha.$$
+So the referee admits a factor the moment $M_\tau \ge 1/\alpha$, and the false-admission probability stays $\le \alpha$ at <em>every</em> stopping time $\tau$ and for <em>any</em> proposal policy — that is the anytime-valid, policy-agnostic false-discovery guarantee. Symbols: $M_t$ the referee's accumulated betting wealth on a factor; $\alpha$ the tolerated error level; $\tau$ the (arbitrary) time you stop and decide; the terminal value $e = M_\tau$ is the factor's <em>e-value</em>, its weight of evidence.</p>
+<p><strong>The method.</strong> A betting-based sequential test (e-processes) plays referee. The experiment crosses three proposers — a script, a bandit, and a language model — against the frozen referee and three deliberately <em>leaky</em> referees, across a synthetic world with planted ground-truth factors, a probe-authoring environment, and a ten-year walk-forward backtest on the CSI 500 index.</p>
+<p><strong>Results with numbers.</strong> Under a scripted proposer, the frozen referee admits <strong>5–11×</strong> fewer sub-threshold factors than the leaky referees, and no proposer narrows that gap. The language-model proposer beats the script and matches the bandit on yield while additionally writing its own probes. The certificate's price is latency: an admitted true factor waits <strong>~500 trading days</strong>, so the certified portfolio's Sharpe ratio trails an ungated one.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Factor</strong> — a rule-based signal (e.g. "cheap stocks that are also trending up") used to build a trading strategy.</li>
+<li><strong>Anytime-valid inference</strong> — a test whose error guarantee holds no matter how often you peek or when you stop.</li>
+<li><strong>Test martingale / e-value</strong> — a "betting wealth" process against the null; a large final value is strong evidence the null is false.</li>
+<li><strong>Ville's inequality</strong> — the theorem bounding the chance that such a betting process ever crosses a high threshold under the null.</li>
+<li><strong>Stopping time</strong> — a decision time that depends only on information available up to that moment.</li>
+<li><strong>Walk-forward backtest</strong> — testing a strategy on rolling out-of-sample windows to mimic live deployment.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The ~500-day certification lag is a real cost: capital sits underdeployed while the referee waits for out-of-sample proof, which is why the certified Sharpe trails. The guarantees also inherit the return model's assumptions (roughly stationary, well-behaved returns), and testing covers one equity universe (CSI 500) plus synthetic worlds. Even so, this is a genuinely principled antidote to backtest overfitting, and the proposer/judge split is a clean design any factor shop could adopt.</p>
+<h3>Bottom Line</h3>
+<p>Separate the dreamer from the judge, and make the judge un-bribable at every glance.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>

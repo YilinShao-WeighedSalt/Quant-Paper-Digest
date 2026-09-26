@@ -6,6 +6,7 @@ picks the top 5 from this pool. Uses only the Python standard library so it
 runs in a clean sandbox with no pip install and no third-party deps.
 """
 import json
+import re
 import subprocess
 import sys
 import time
@@ -13,6 +14,7 @@ import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
+from html import unescape
 
 # The "mathy" end of quant finance: modeling / pricing / trading / computational
 # / statistical / risk. Portfolio (q-fin.PM), general finance (q-fin.GN) and
@@ -83,6 +85,138 @@ def fetch_raw():
     raise SystemExit(f"arXiv request failed after retries; last error: {last_err}")
 
 
+# ---------------------------------------------------------------------------
+# Web fallback. arXiv's Fastly edge intermittently returns 406 Not Acceptable
+# for the Atom API (export.arxiv.org/api/query) regardless of headers, while
+# the public website (arxiv.org/list, arxiv.org/abs) keeps serving HTTP 200.
+# When the API is blocked we scrape the same real papers from those pages so
+# the digest can still run. This fetches identical arXiv content through a
+# working endpoint; it does not invent anything.
+# ---------------------------------------------------------------------------
+WEB_LISTING = "https://arxiv.org/list/{cat}/recent?skip=0&show={n}"
+WEB_ABS = "https://arxiv.org/abs/{arxiv_id}"
+WEB_PER_CAT = 25     # ids to pull from each category listing
+WEB_MAX_ABS = 40     # cap on /abs page fetches (politeness + runtime)
+
+
+def _curl_text(url):
+    proc = subprocess.run(
+        ["curl", "-sS", "--fail", "--max-time", "60",
+         "-H", "User-Agent: quant-paper-digest/1.0 (mailto:ely.shao31@gmail.com)",
+         url],
+        capture_output=True, timeout=90,
+    )
+    if proc.returncode != 0:
+        err = proc.stderr.decode("utf-8", "replace").strip()
+        raise RuntimeError(f"curl exit {proc.returncode}: {err}")
+    return proc.stdout.decode("utf-8", "replace")
+
+
+def _listing_ids(cat):
+    """Return arXiv ids from a category's 'recent' listing, newest first."""
+    html = _curl_text(WEB_LISTING.format(cat=cat, n=WEB_PER_CAT))
+    ids = []
+    for m in re.finditer(r'/abs/(\d{4}\.\d{4,5})', html):
+        if m.group(1) not in ids:
+            ids.append(m.group(1))
+    return ids
+
+
+def _meta(html, name):
+    m = re.search(
+        r'<meta[^>]+name="' + re.escape(name) + r'"[^>]+content="([^"]*)"',
+        html)
+    return unescape(m.group(1)).strip() if m else ""
+
+
+def _meta_all(html, name):
+    return [unescape(x).strip() for x in re.findall(
+        r'<meta[^>]+name="' + re.escape(name) + r'"[^>]+content="([^"]*)"',
+        html)]
+
+
+def _fetch_abs(arxiv_id):
+    html = _curl_text(WEB_ABS.format(arxiv_id=arxiv_id))
+    title = " ".join(_meta(html, "citation_title").split())
+
+    # citation_author is "Last, First"; flip to "First Last" for readability.
+    authors = []
+    for a in _meta_all(html, "citation_author"):
+        if "," in a:
+            last, first = (p.strip() for p in a.split(",", 1))
+            a = f"{first} {last}".strip()
+        authors.append(a)
+
+    m = re.search(r'<blockquote class="abstract[^"]*">(.*?)</blockquote>',
+                  html, re.S)
+    abstract = ""
+    if m:
+        txt = re.sub(r'<[^>]+>', ' ', m.group(1))
+        txt = unescape(txt).replace("Abstract:", "", 1)
+        abstract = " ".join(txt.split())
+
+    date = _meta(html, "citation_date") or _meta(html, "citation_online_date")
+    published = ""
+    if date:
+        try:
+            published = datetime.strptime(
+                date, "%Y/%m/%d").replace(tzinfo=timezone.utc).isoformat()
+        except ValueError:
+            published = date
+
+    ps = re.search(r'<span class="primary-subject">([^<(]*)\(([^)]+)\)', html)
+    primary = ps.group(2).strip() if ps else ""
+    cats = re.findall(r'\(([a-z\-]+\.[A-Z]{2})\)', html)
+    cats = list(dict.fromkeys([primary] + cats)) if primary else list(dict.fromkeys(cats))
+
+    return {
+        "title": title,
+        "authors": authors,
+        "abstract": abstract,
+        "venue": f"arXiv {primary}" if primary else "arXiv",
+        "year": published[:4] if published else (date[:4] if date else ""),
+        "citations": None,
+        "url": f"https://arxiv.org/abs/{arxiv_id}",
+        "pdf_url": _meta(html, "citation_pdf_url")
+                   or f"https://arxiv.org/pdf/{arxiv_id}",
+        "domain": primary,
+        "categories": cats,
+        "published": published,
+    }
+
+
+def fetch_via_web():
+    """Scrape recent q-fin papers from the arXiv website (HTTP 200) when the
+    Atom API edge-returns 406. Gathers ids across categories, then fetches
+    each /abs page for the full abstract."""
+    seen, ordered = set(), []
+    for cat in CATEGORIES:
+        try:
+            for i in _listing_ids(cat):
+                if i not in seen:
+                    seen.add(i)
+                    ordered.append(i)
+        except Exception as e:  # noqa: BLE001
+            print(f"web listing {cat} failed: {e}", file=sys.stderr)
+        time.sleep(0.3)
+
+    papers = []
+    for arxiv_id in ordered[:WEB_MAX_ABS]:
+        try:
+            p = _fetch_abs(arxiv_id)
+            if p["title"] and p["abstract"]:
+                papers.append(p)
+        except Exception as e:  # noqa: BLE001
+            print(f"web abs {arxiv_id} failed: {e}", file=sys.stderr)
+        time.sleep(0.2)
+
+    # Sort newest-first to mirror the API's sortBy=submittedDate descending.
+    papers.sort(key=lambda p: p.get("published", ""), reverse=True)
+    print(f"web fallback gathered {len(papers)} papers from "
+          f"{len(ordered)} ids", file=sys.stderr)
+    return papers
+
+
 def parse(xml_bytes):
     root = ET.fromstring(xml_bytes)
     papers = []
@@ -130,7 +264,16 @@ def parse(xml_bytes):
 
 
 def main():
-    papers = parse(fetch_raw())
+    try:
+        papers = parse(fetch_raw())
+    except SystemExit as e:
+        # The Atom API is unreachable (typically a Fastly-edge 406). Fall back
+        # to scraping the arXiv website, which keeps serving HTTP 200.
+        print(f"API path failed ({e}); trying web fallback", file=sys.stderr)
+        papers = fetch_via_web()
+        if not papers:
+            raise SystemExit(
+                "both the arXiv Atom API and the website fallback failed")
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=WINDOW_DAYS)
 
