@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 28, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 28, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Algorithmic trading and stochastic integration</h2>
+  <p class="meta">Aleksandar Arandjelovic, Uwe Schmock<br>
+    <span class="cat">math.PR</span> &middot; 2026-09-25 &middot; <a href="https://arxiv.org/abs/2609.31578">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.31578">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can build any trading strategy out of tiny neural-network "recipes" without losing anything that matters — the theory of what's possible to hedge and profit from stays exactly the same.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you manage money and you want to hedge a risk — say you owe someone a payment linked to a stock price a year from now. To protect yourself you trade the stock continuously, buying and selling in response to what you observe. Mathematically, the running profit-and-loss of such a strategy is a <em>stochastic integral</em>: you add up "how much I hold" times "how the price moved," instant by instant, forever. The whole modern theory of pricing and hedging is written in this language. But the theory allows almost unimaginably flexible strategies — any measurable function of the entire history of prices. Real traders don't have that. A real trading rule is a concrete formula, ideally something a computer can evaluate from a handful of recent observations. The nagging question: if we restrict ourselves to <em>practical, computable</em> rules, do we quietly give up some hedging power or some pricing conclusions?</p>
+<p><strong>The idea.</strong> The authors take the most fashionable "concrete formula" of our era — a neural network — and ask whether trading strategies whose knobs are set by neural networks are <em>rich enough</em>. Think of a neural network as a very flexible adjustable stencil: with enough dials you can trace almost any shape. Their claim, made rigorous, is that these stencils can trace out any admissible trading strategy arbitrarily well, in exactly the sense of "closeness" that the pricing theory cares about (a topology tailored to semimartingales, the class of well-behaved price processes). They show a neural network reading only <em>finitely many</em> past observations — even at random stopping times like "the first time the price crosses 100" — can approximate the idealized quantities the theory uses.</p>
+<p><strong>What they found.</strong> Restricting traders to neural-network strategies changes <em>nothing</em> essential. The smallest achievable mean-variance hedging error under partial information is identical. The famous "no free lunch" condition — no riskless profit — still translates into the existence of an equivalent martingale measure. And the deep Bichteler–Dellacherie theorem, which characterizes exactly which price processes admit a sensible integration theory at all, survives unchanged even when you only allow neural-network integrands. In short: the machine-learning class is a faithful, lossless proxy for the full theoretical class.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space $(\Omega, \mathcal{F}, (\mathcal{F}_t)_{t\ge 0}, \mathbb{P})$ where the filtration $(\mathcal{F}_t)$ encodes information available over time, generated by an observed process $X$. Prices follow a semimartingale $S$ — the largest class of processes for which a good stochastic integral exists. A trading strategy is a <em>predictable</em> process $H$ (you must decide your holding just before the market moves), and the gains process is the stochastic integral
+$$ (H \cdot S)_t = \int_0^t H_u\, dS_u, $$
+where $H_u$ is the position held at time $u$ and $dS_u$ the price increment. <em>Simple predictable</em> processes are piecewise-constant strategies of the form
+$$ H_u = \sum_{i=1}^{n} h_i \,\mathbf{1}_{(\tau_i,\, \tau_{i+1}]}(u), $$
+with stopping times $\tau_1 \le \cdots \le \tau_{n+1}$ and $\mathcal{F}_{\tau_i}$-measurable weights $h_i$ (the amount held on each interval). The novelty: each $h_i$ is a <strong>neural network</strong> $\phi(X_{s_1},\dots,X_{s_k})$ evaluated on finitely many observations.</p>
+<p><strong>The key results.</strong> First, a density statement in Orlicz spaces $L^\Phi$ (spaces graded by a growth function $\Phi$ rather than a fixed power $p$): on a finite measure space, neural networks are dense in $L^\Phi$. Consequently any $\mathcal{F}_\tau$-measurable random variable is approximable by networks of finitely many observations. This lifts to: for any admissible integrand $H$, there exist neural-network simple strategies $H^{(m)}$ with
+$$ (H^{(m)} \cdot S) \longrightarrow (H \cdot S) \quad \text{in the semimartingale topology.} $$
+Second, the mean-variance hedging problem under partial information,
+$$ \inf_{H} \; \mathbb{E}\!\left[\left(\xi - c - (H\cdot S)_T\right)^2\right], $$
+where $\xi$ is the payoff to hedge, $c$ an initial capital, and $T$ the horizon, attains the <em>same</em> infimum over the neural-network class as over all admissible $H$. Third, "no free lunch with vanishing risk" over the restricted class is still equivalent to the existence of an equivalent (local) martingale measure $\mathbb{Q}\sim\mathbb{P}$.</p>
+<p><strong>The method.</strong> The engine is functional approximation: universal-approximation theorems in Orlicz norm, combined with the continuity of the stochastic-integral map in the semimartingale topology, so that approximating integrands yields approximating gains. The Bichteler–Dellacherie characterization (a semimartingale is exactly a "good integrator" against simple integrands) is re-derived with the simple integrands narrowed to neural-network ones — showing the class is large enough to detect non-semimartingales.</p>
+<p><strong>Results with numbers.</strong> This is a qualitative, theorem-driven paper: the "numbers" are the invariances themselves — the minimal hedging error is <em>unchanged</em> (a zero-gap result), the no-free-lunch/martingale-measure equivalence is <em>preserved</em>, and Bichteler–Dellacherie <em>remains valid</em>. No empirical error rates; the contribution is exactness of the reductions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Semimartingale</strong> — the broadest class of price processes against which a sensible stochastic integral (gains from trading) can be defined.</li>
+<li><strong>Predictable process</strong> — a strategy whose position at each instant is fixed using only information strictly before that instant, i.e. no peeking.</li>
+<li><strong>Stochastic integral $(H\cdot S)$</strong> — the accumulated profit-and-loss from holding $H$ units while the price $S$ moves.</li>
+<li><strong>Equivalent martingale measure</strong> — an alternative probability measure, agreeing on impossible events, under which discounted prices are fair games; its existence rules out arbitrage.</li>
+<li><strong>Orlicz space $L^\Phi$</strong> — a generalization of the usual $L^p$ spaces where integrability is measured by a flexible growth function $\Phi$ instead of a fixed power.</li>
+<li><strong>Semimartingale topology</strong> — the notion of "two strategies' P&amp;L are close" under which stochastic integration behaves continuously.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational plumbing, not a trading edge: it reassures us that swapping idealized integrands for neural networks costs nothing <em>in theory</em>, but it says nothing about how many parameters, how much data, or how much training you need in practice — the approximation is existential, not constructive. Real markets also add transaction costs and discrete trading, which the clean continuous-time results sidestep. Its value is conceptual license: a green light to model strategies with networks without fear of secretly shrinking the feasible set.</p>
+<h3>Bottom Line</h3>
+<p>Neural-network trading strategies are a lossless stand-in for the full mathematical theory — the machines can, in principle, do everything the equations allow.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Taming the Option Factor Zoo: A High-Dimensional Analysis</h2>
+  <p class="meta">Alexander Walter, Lukas Zimmer, Maxim Ulrich<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-09-25 &middot; <a href="https://arxiv.org/abs/2609.31263">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.31263">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The explosion of "option-based signals" for predicting stock returns is mostly a rebranding of stock signals we already knew — but a handful, tied to crash risk, genuinely add something new.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Over decades, researchers have proposed <em>hundreds</em> of "factors" — measurable stock characteristics (size, value, momentum, and so on) claimed to predict returns or explain risk. This sprawling collection is affectionately called the "factor zoo." More recently a <em>second</em> zoo has emerged from the options market: signals built from the prices of options on stocks, like how expensive crash protection is, or how lopsided the implied bets are. The worry is data-mining: with enough candidate signals, some will look predictive by luck alone. The sharper worry here: are option signals actually <em>new</em> information, or just the equity signals wearing a costume? If a fund pays for expensive options data to compute them, that matters.</p>
+<p><strong>The idea.</strong> The authors run a disciplined face-off. They build 137 option-implied characteristics for U.S. optionable stocks (2004–2023), distill them to 20 representative long-short factors (portfolios that go long high-signal stocks, short low-signal ones), then ask: after accounting for 160 known <em>equity</em> factors, does each option factor still carry independent pricing power? The statistical referee is a modern "double-selection" technique designed exactly to avoid being fooled when you have far more candidate controls than you can eyeball. Think of it as a rigorous way of asking "holding constant everything the stock market already tells us, does this option signal still move the needle?"</p>
+<p><strong>What they found.</strong> Mostly, the option zoo is redundant: the equity factors explain about 91% of the option factors' variance, and adding the option factors does <em>not</em> meaningfully raise the best achievable risk-adjusted return (the maximum Sharpe ratio). But it's not all noise — 8 of the 20 option factors retain genuine, non-zero pricing loadings even after controlling for the equity zoo, and 4 survive an aggressive multiple-testing correction. The survivors cluster around <em>jump/tail risk, kurtosis, and the curvature of the implied-volatility smile</em> — precisely the crash-and-fat-tail information options are uniquely positioned to reveal. The verdict: options add a few new pricing dimensions, not a whole new zoo.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The organizing object is the <em>stochastic discount factor</em> (SDF) $m$, which prices every asset via $\mathbb{E}[m\,R^e]=0$ for excess returns $R^e$. Model the SDF linearly in a set of factors $f=(f_1,\dots,f_p)^\top$:
+$$ m = 1 - (f - \mathbb{E}[f])^\top \lambda, $$
+where $\lambda$ is the vector of factor risk prices (SDF loadings). A factor is "priced" if its entry $\lambda_j \ne 0$. The challenge: $p$ is huge (137 option candidates plus 160 equity controls), so naive regression overfits.</p>
+<p><strong>The key equation(s).</strong> They use the double-selection LASSO of Feng, Giglio, and Xiu (2020) to test whether a candidate factor $g$ has non-zero price $\lambda_g$ while controlling for a high-dimensional set of factors $h$. The idea is to run two LASSO variable-selection passes,
+$$ \min_{\beta}\ \tfrac{1}{n}\big\|\bar R - H\beta\big\|_2^2 + \mu\|\beta\|_1, \qquad \min_{\gamma}\ \tfrac{1}{n}\big\|g - H\gamma\big\|_2^2 + \nu\|\gamma\|_1, $$
+where $\bar R$ are average returns, $H$ the matrix of control factors, $\beta,\gamma$ coefficient vectors, $\|\cdot\|_1$ the LASSO (sparsity-inducing) penalty, and $\mu,\nu$ tuning parameters. The union of controls selected by <em>both</em> passes is kept, then $\lambda_g$ is estimated in a final low-dimensional regression that is provably robust to selection mistakes. In-sample explanatory power is summarized by the fraction of option-factor variance spanned by equity factors,
+$$ R^2_{\text{span}} \approx 0.91. $$</p>
+<p><strong>The method.</strong> Post-double-selection LASSO delivers valid confidence intervals for one target coefficient even when the number of controls exceeds intuition, by selecting controls that matter for <em>either</em> the outcome or the target and thereby neutralizing omitted-variable bias. Significance is then judged individually, and a Bonferroni correction guards against the multiple-testing inflation of testing 20 factors at once.</p>
+<p><strong>Results with numbers.</strong> Equity factors span $\approx 91\%$ of option-factor variance; adding option factors gives no statistically significant lift to the maximum Sharpe ratio. Of 20 option factors, <strong>8</strong> have non-zero SDF loadings after controlling for 160 equity factors, and <strong>4</strong> survive Bonferroni correction — chiefly jump-tail, kurtosis, and implied-vol-convexity measures. Sample: optionable U.S. stocks, 2004–2023.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Factor (long-short)</strong> — a portfolio that buys stocks scoring high on a characteristic and shorts those scoring low, isolating that characteristic's return.</li>
+<li><strong>Stochastic discount factor (SDF)</strong> — a single random variable that, multiplied into any asset's payoff and averaged, reproduces its price; the master pricing object.</li>
+<li><strong>SDF loading / risk price $\lambda$</strong> — how much expected return a factor commands; non-zero means the factor is genuinely priced.</li>
+<li><strong>LASSO</strong> — a regression that adds an $\ell_1$ penalty to zero out weak predictors, giving sparse, interpretable models in high dimensions.</li>
+<li><strong>Double selection</strong> — running two LASSO passes (on outcome and on target) and keeping the union of controls, so valid inference on one coefficient survives selection errors.</li>
+<li><strong>Bonferroni correction</strong> — dividing the significance threshold by the number of tests to keep the chance of any false positive low.</li>
+<li><strong>Implied-volatility convexity / jump tail</strong> — curvature of the option-implied volatility smile and the price of protection against sudden large moves; option-specific crash-risk information.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The "91% spanned" and "few survivors" story is in-sample; real out-of-sample trading with transaction costs on options (which are far less liquid and pricier to trade than stocks) could erode even the surviving factors' edge. The double-selection LASSO controls for <em>linear</em> redundancy, so genuinely non-linear overlaps between option and equity signals could be under- or over-counted. Still, the practical message is usefully deflationary: don't pay for the whole option zoo — a few tail-risk signals are where the incremental information lives.</p>
+<h3>Bottom Line</h3>
+<p>The option factor zoo is mostly the equity zoo in disguise, with a small, crash-risk-flavored core that is authentically new.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Agentic Limit Order Books: Phase Transitions and Market Impact</h2>
+  <p class="meta">Jan Rosenzweig<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-09-25 &middot; <a href="https://arxiv.org/abs/2609.31260">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.31260">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you fill a market entirely with self-learning trading bots, the market can abruptly flip from calm price discovery into violent cascades — and the textbook "square-root" law of trading costs breaks down.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Modern markets increasingly run on <em>limit order books</em> (LOBs): a live ledger of everyone's standing buy and sell offers, matched by price and time. More and more of the participants are algorithms that <em>learn</em> — they adapt their behavior from experience rather than following a fixed rule. This raises an unnerving systemic question: if most traders are adaptive bots reacting to each other, does the market stay orderly, or can it spontaneously tip into chaos? And when you push a big order through, how much does it move the price — the "market impact" that determines real trading costs? These aren't academic: flash crashes and liquidity evaporations have real money and real panic attached.</p>
+<p><strong>The idea.</strong> The author builds a simulated market where <em>every</em> trader is a reinforcement-learning agent — a bot that tries actions, sees rewards (profits), and gradually tunes its strategy — all plugged into a realistic order-matching engine. Then he studies the <em>emergent</em> behavior, borrowing the physicist's toolkit for many-interacting-particles systems. The key concept is a <strong>phase transition</strong>: just as water suddenly turns to ice at a critical temperature, the market suddenly changes character when a control knob crosses a threshold. Here the knobs are things like <em>how many agents</em> are trading and <em>how deep</em> into the order book they can see. Cross a critical value and orderly trading gives way to a hyper-volatile "cascade" regime, where one bot's move triggers another's, snowballing.</p>
+<p><strong>What they found.</strong> The agentic market has sharp phase boundaries separating calm price discovery from cascade chaos, controlled by critical thresholds in agent count and visible market depth. And market impact — how price responds to trade size — does <em>not</em> obey the classical "square-root law" that decades of empirical trading assume. Instead impact shows three distinct regimes: <em>dissipative</em> (impact fades, like a ripple dying out), <em>balanced</em>, and <em>non-dissipative</em> (impact persists or amplifies through nonlinear feedback). In plain terms: in a world of learning bots, the cost of trading and the stability of the market itself can behave in ways the old rules of thumb don't predict.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A microscopic order-matching engine defines the state: at each time the LOB is a configuration of resting orders at discrete price levels, with best bid $b_t$, best ask $a_t$, and depth profile. There are $N$ agents; agent $i$ observes a partial state $o^i_t$ (limited to depth $D$) and chooses an action $u^i_t$ (place/cancel/market order). Each agent solves a reinforcement-learning problem: maximize expected discounted reward
+$$ J^i(\pi^i) = \mathbb{E}\!\left[\sum_{t=0}^{\infty} \gamma^t\, r^i_t\right], $$
+where $\pi^i$ is agent $i$'s policy (its strategy), $\gamma\in(0,1)$ the discount factor, and $r^i_t$ its per-step profit-and-loss. The joint dynamics of $N$ coupled learners form a stochastic dynamical system whose macroscopic observables (volatility, order-flow imbalance) are studied.</p>
+<p><strong>The key equation(s).</strong> Two phenomena are formalized. (1) <strong>Phase transitions</strong>: an order parameter $\varphi$ (e.g. a volatility or cascade indicator) undergoes a sharp change as a control parameter crosses a critical value $c^*$,
+$$ \varphi(c) \sim |c - c^*|^{\beta}\quad\text{near } c=c^*, $$
+with $c$ the number of agents $N$ or observable depth $D$, and $\beta$ a critical exponent — the hallmark of a genuine phase boundary rather than a smooth change. (2) <strong>Market impact</strong>: instead of the classical square-root law
+$$ \Delta p(Q) \propto \sigma\,\sqrt{Q/V}, $$
+where $\Delta p$ is the price move from trading volume $Q$, $\sigma$ the volatility, and $V$ a reference volume, the agentic book yields a nonlinear impact function $\Delta p(Q) = g(Q)$ whose <em>dissipation</em> — whether the pushed price relaxes back — depends on the feedback regime, giving dissipative, balanced, and non-dissipative branches.</p>
+<p><strong>The method.</strong> Multi-agent reinforcement learning (each bot learns a policy by trial-and-error against the others) is simulated inside an explicit order-matching engine; the emergent macroscopic dynamics are then analyzed with statistical-physics concepts (order parameters, critical thresholds, dissipation) to classify regimes. It is a <em>computational</em> study: regimes are mapped by sweeping control parameters and measuring the resulting collective behavior.</p>
+<p><strong>Results with numbers.</strong> The findings are structural rather than a single headline statistic: the existence of distinct phase boundaries governed by critical thresholds in agent count $N$ and observable depth $D$, and the identification of <em>three</em> market-impact regimes (dissipative, balanced, non-dissipative) that depart from the single classical square-root scaling. The quantitative payload is the <em>shape</em> of impact and the <em>location</em> of phase boundaries as functions of $N$ and $D$.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book (LOB)</strong> — the live list of all resting buy and sell orders at each price, the mechanism most electronic markets use to match trades.</li>
+<li><strong>Reinforcement-learning agent</strong> — a bot that improves its strategy by trying actions, observing rewards, and adjusting to earn more over time.</li>
+<li><strong>Phase transition / order parameter</strong> — a sudden qualitative change in a system's collective behavior as a control knob crosses a critical value, tracked by a summary quantity that jumps or kinks there.</li>
+<li><strong>Market impact</strong> — how much your own trading moves the price against you, the dominant cost of executing large orders.</li>
+<li><strong>Square-root law</strong> — the empirical rule that price impact grows roughly like the square root of order size relative to volume.</li>
+<li><strong>Dissipative vs. non-dissipative</strong> — whether a price shock relaxes back toward equilibrium (dissipative) or persists/amplifies through feedback (non-dissipative).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a simulation of a stylized all-bot world, so its phase boundaries and impact regimes are properties of the <em>model</em>, not yet measured facts about real markets, which mix humans, bots, and institutions with far messier incentives. The choice of reward functions, learning algorithm, and book microstructure will shape the results, and the paper reports regimes qualitatively rather than pinning down exponents you could trade on. Its worth is as a warning and a lens: adaptive-agent markets can be structurally unstable in ways linear intuition misses.</p>
+<h3>Bottom Line</h3>
+<p>Fill a market with learning machines and it can crystallize into calm or shatter into cascade — and the old square-root cost law is not guaranteed to hold.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> How Much Must a Private Mempool Hide? Exact Leakage Thresholds for Sandwich Attacks</h2>
+  <p class="meta">Tingyi Lin, Jiazhuo Li, Ruoran Lai<br>
+    <span class="cat">cs.GT</span> &middot; 2026-09-25 &middot; <a href="https://arxiv.org/abs/2609.31379">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.31379">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Even a "private" blockchain mempool that hides your transaction can still be sandwiched for profit unless it hides <em>one specific number</em> — the lower bound on your trade size — well enough.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On decentralized exchanges like Uniswap, your pending trade sits in a public waiting room (the "mempool") before it's finalized. Bots watch that room and run <em>sandwich attacks</em>: they see your buy coming, buy first to push the price up, let your trade execute at the worse price, then sell — pocketing the difference at your expense. This is a flavor of MEV (maximal extractable value), and it's a real tax on ordinary users. The proposed fix is <em>private</em> or <em>encrypted</em> mempools that hide pending transactions. But hiding is rarely total: an attacker might still learn the token <em>pair</em>, the <em>direction</em> (buy or sell), and a rough <em>range</em> for the size. The precise question: exactly how much leakage is enough to make sandwiching profitable — and therefore, exactly how much must a privacy layer hide to be safe?</p>
+<p><strong>The idea.</strong> The authors solve this <em>exactly</em> for the simplest, most common exchange rule: a fee-free constant-product automated market maker (the math behind Uniswap v2, where the product of the two token reserves stays constant). Suppose attackers only learn that your trade size lies in some interval, and they bid in an auction for the exclusive right to sandwich you — but the winner's front-run must not break your trade for <em>any</em> size in that interval (they don't know the exact size). The surprising punchline: everything hinges on the <em>smallest</em> size consistent with the leak. That lower endpoint alone decides which attacks are feasible, the biggest feasible front-run is the most profitable one, and the guaranteed profit has a clean closed-form formula. The upper end of the range is <em>irrelevant</em>.</p>
+<p><strong>What they found.</strong> A privacy layer that wants to make sandwiching unprofitable (when attacking has costs) can safely reveal <em>almost anything</em> about your size — except it must keep the <em>lower bound</em> from rising above an explicit computable threshold. Reveal too tight a floor on your size and you're exposed; keep the floor low enough and no attack pays. They also show that with two or more identical attackers bidding in the auction, competition hands the <em>entire</em> expected profit to the auctioneer (the block builder) — the attackers bid it all away. If <em>direction</em> is hidden too, no single fixed front-run can profit from both possible directions at once — though clever <em>post-trade</em> arbitrage can still sneak profit even under perfect pre-trade hiding.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A constant-product AMM holds reserves $(x, y)$ of two tokens with the invariant $x\cdot y = k$. A trade of size $\delta$ moves reserves along this curve; the execution price degrades with size (slippage). The victim's true size $s$ is unknown to attackers, who observe only an interval $s \in [\underline{s}, \overline{s}]$ (the "leak"). An attacker chooses a front-run size $f$; the sandwich buys $f$ first, lets the victim trade, then unwinds. Feasibility requires the victim's trade to remain executable — not exceed slippage limits — for <em>every</em> $s$ in the interval.</p>
+<p><strong>The key equation(s).</strong> Constant-product execution: swapping $\delta_{\text{in}}$ of token $x$ yields
+$$ \delta_{\text{out}} = y - \frac{k}{x + \delta_{\text{in}}} = \frac{y\,\delta_{\text{in}}}{x + \delta_{\text{in}}}, $$
+where $\delta_{\text{out}}$ is the amount received, $(x,y)$ the reserves, and $k=xy$ the invariant. The feasibility constraint — the front-run must keep the victim executable at the worst (smallest) size — collapses to a bound depending only on $\underline{s}$, the smallest leaked size; the <em>largest</em> feasible front-run
+$$ f^\star = f^\star(\underline{s}) $$
+is optimal for pointwise, expected, and worst-case profit simultaneously. The guaranteed sandwich profit is a closed-form function $\Pi(f^\star,\underline{s})$, and the safety condition against a cost-$c$ attacker becomes a threshold on the revealed lower bound:
+$$ \Pi(f^\star(\underline{s}),\,\underline{s}) \le c \iff \underline{s} \le \underline{s}_{\text{safe}}, $$
+so the privacy layer may leak any upper structure but must cap $\underline{s}$ at the explicit threshold $\underline{s}_{\text{safe}}$.</p>
+<p><strong>The method.</strong> Exact optimization over feasible front-runs on the constant-product curve (deriving closed forms rather than simulating), plus <strong>game theory</strong>: the right to sandwich is sold in a first-price auction, and the authors compute the <em>perfect Bayesian equilibria</em> — bidding strategies that are optimal given beliefs about rivals. With $\ge 2$ symmetric bidders, every pure-strategy equilibrium transfers the full expected net rent to the auctioneer.</p>
+<p><strong>Results with numbers.</strong> The results are exact closed forms rather than empirical estimates: (i) the optimal front-run $f^\star$ depends <em>only</em> on the lower bound $\underline{s}$; (ii) guaranteed profit $\Pi$ has an explicit formula; (iii) the safety threshold $\underline{s}_{\text{safe}}$ is explicit in the AMM reserves and attack cost $c$; (iv) with $n\ge 2$ symmetric traders, the auctioneer captures $100\%$ of expected net rent; (v) hiding direction defeats any single non-contingent front-run, but post-trade arbitrage can persist.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Mempool</strong> — the waiting area of pending, not-yet-finalized blockchain transactions, visible to bots unless privately encrypted.</li>
+<li><strong>Sandwich attack / MEV</strong> — front-running and back-running a victim's trade to extract value (maximal extractable value) from the price move it causes.</li>
+<li><strong>Constant-product AMM</strong> — an automated exchange that prices trades by holding the product of its two token reserves constant ($xy=k$), the Uniswap-v2 rule.</li>
+<li><strong>Slippage</strong> — the gap between the expected and realized price of a trade, worsening with trade size.</li>
+<li><strong>First-price auction</strong> — a sealed-bid auction where the highest bidder wins and pays their own bid.</li>
+<li><strong>Perfect Bayesian equilibrium</strong> — a strategy profile where each player acts optimally given consistent beliefs about others' hidden information.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The exact answers live in an idealized world — <em>fee-free</em> constant-product pricing, symmetric rational bidders, a single victim — whereas real Uniswap has fees, multiple pools, gas costs, and messy order flow that shift the thresholds. The result that hiding direction plus a low enough size-floor defeats <em>pre-trade</em> sandwiching is genuinely useful design guidance, but the authors are candid that <em>post-trade arbitrage</em> survives even perfect hiding, so privacy alone isn't a complete shield. For protocol designers this is a sharp, actionable knob; for users it's a reminder that "private mempool" is not a synonym for "safe."</p>
+<h3>Bottom Line</h3>
+<p>To stop sandwich bots you don't have to hide everything about your trade — just keep the floor on its size low enough, and let an auction bleed the attackers dry.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Stability of Change-of-Num\&#x27;eraire Reweighting: An Exact Wasserstein Boundary</h2>
+  <p class="meta">Shaosai Huang<br>
+    <span class="cat">math.PR</span> &middot; 2026-09-24 &middot; <a href="https://arxiv.org/abs/2609.30329">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.30329">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you switch the "measuring stick" used to price financial contracts, the answer stays reliably stable — except in one precise situation, which this paper pins down exactly.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In finance you constantly re-express prices relative to some reference asset called a <em>numéraire</em> — a measuring stick. Price a swaption relative to an annuity, price a bond relative to a money-market account, and so on. Each choice comes with its own probability measure under which prices are "fair." This <em>change of numéraire</em> is one of the most-used tricks in quantitative finance. But models are never exact — you calibrate to data, you approximate, you take limits. The practical worry: if your <em>inputs</em> (the payoff, the numéraire) are only <em>approximately</em> right, is the re-weighted price also approximately right? Or can a tiny error in the input blow up into a large error in the price? Knowing <em>when</em> the operation is stable tells you when your approximations are trustworthy.</p>
+<p><strong>The idea.</strong> The author studies the change-of-numéraire "re-weighting" as a mathematical operation that takes an input distribution and spits out a re-weighted one (the payoff-to-numéraire ratio under the new measure). The question is stability in the <em>Wasserstein</em> sense — a way of measuring the distance between two probability distributions by the cheapest way to "transport" one into the other, like the minimal effort to reshape one sandpile into another. He asks: if inputs converge (get closer and closer in this transport distance), do the re-weighted outputs converge too? The elegant answer is a single, sharp <em>if-and-only-if</em> condition. To first order the numéraire's own fluctuations <em>cancel out</em> — remarkably, the reciprocal of the numéraire doesn't even need to be well-behaved. The <em>only</em> thing that can break stability is <strong>payoff mass sitting exactly where the numéraire vanishes</strong> — value concentrated at points where your measuring stick shrinks to zero.</p>
+<p><strong>What they found.</strong> He proves that, along weakly convergent inputs with well-behaved (uniformly integrable) numéraires and a positive limiting average numéraire, convergence of the re-weighted laws is <em>equivalent</em> to one explicit uniform-integrability condition. Absent payoff mass where the numéraire vanishes, prices and first moments pass cleanly to the limit needing only mild control on the payoff — nothing on the reciprocal numéraire. He even builds simple two-point examples that hit the stability threshold <em>exactly</em>, showing the condition is tight. The applications: this clarifies a standing assumption in the martingale-optimal-transport literature and tells you which annuity-measure statistics survive approximation.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $(\mu_n)$ be input probability laws on a payoff–numéraire pair, converging weakly to $\mu$. Write the payoff as $X$ and the numéraire as $N>0$. The <em>change-of-numéraire reweighting</em> replaces $\mu$ by the law tilted by $N$ and pushes forward the ratio $X/N$: the new measure has density proportional to $N$, and one studies the distribution of $X/N$ under it. This single construction covers the swap-rate law under the annuity measure, the numéraire-inversion involution of martingale optimal transport, and self-normalized importance sampling.</p>
+<p><strong>The key equation(s).</strong> The reweighting sends a test function's expectation to the <em>self-normalized</em> ratio
+$$ T(\mu)[\,\varphi\,] = \frac{\mathbb{E}_\mu[\,N\,\varphi(X/N)\,]}{\mathbb{E}_\mu[\,N\,]}, $$
+where $N$ is the numéraire, $X$ the payoff, $X/N$ the payoff-to-numéraire ratio, $\varphi$ a bounded test function, and the denominator $\mathbb{E}_\mu[N]$ the normalizing numéraire mean (assumed strictly positive in the limit). The main theorem: given weak convergence $\mu_n \Rightarrow \mu$, uniform integrability of $(N_n)$, and $\mathbb{E}_\mu[N]>0$, one has Wasserstein convergence of the reweighted laws $T(\mu_n)\to T(\mu)$ <em>if and only if</em> a uniform-integrability condition holds on one explicit family built from the payoff and numéraire — concretely, control of
+$$ \sup_n\ \mathbb{E}_{\mu_n}\!\big[\,|X_n|\,\mathbf{1}\{\text{numéraire small / payoff large}\}\,\big] \to 0, $$
+the only obstruction being payoff mass where $N\to 0$. At first order the numéraire cancels: absent such mass, prices $\mathbb{E}[X/N]$ and first moments pass to the limit under uniform integrability of the <em>payoff alone</em>, with no condition on $1/N$.</p>
+<p><strong>The method.</strong> Pure probability: weak-convergence (portmanteau) arguments combined with uniform-integrability characterizations of $L^1$/Wasserstein convergence, yielding a tight <em>iff</em>. Sharpness is demonstrated by explicit <strong>two-atom examples</strong> — distributions supported on two points with bounded inputs — engineered to sit <em>exactly</em> at the stability threshold, proving no weaker condition suffices.</p>
+<p><strong>Results with numbers.</strong> As a theorem paper the "numbers" are the <em>exactness</em> claims: a necessary-and-sufficient (not merely sufficient) condition; first-order cancellation of the numéraire; and two-atom witnesses attaining the boundary. The concrete deliverables are a characterization of a standing moment assumption in the transport literature and a delimitation of which annuity-measure statistics survive weak limits.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Numéraire</strong> — the reference asset prices are quoted relative to; changing it changes the pricing probability measure.</li>
+<li><strong>Change-of-numéraire measure</strong> — the probability measure, tilted by the numéraire, under which prices relative to that numéraire are martingales (fair games).</li>
+<li><strong>Wasserstein distance</strong> — the minimal "transport cost" to reshape one probability distribution into another; a strong notion of distributional closeness.</li>
+<li><strong>Weak convergence</strong> — distributions getting close in the sense that expectations of every bounded continuous function converge.</li>
+<li><strong>Uniform integrability</strong> — a condition ensuring no probability mass escapes to infinity, exactly what upgrades weak convergence to convergence of means.</li>
+<li><strong>Martingale optimal transport</strong> — the study of transport plans between distributions constrained to respect a martingale (fair-game) structure, used for model-free pricing bounds.</li>
+<li><strong>Self-normalized importance sampling</strong> — a Monte-Carlo technique that reweights samples and divides by the sum of weights, the statistical twin of change of numéraire.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean, tight theoretical result, and its honesty is built in — it tells you precisely the <em>one</em> failure mode (payoff value where the numéraire dies) rather than overclaiming universal stability. The catch for practitioners is that verifying the uniform-integrability condition on real calibrated models still takes work, and the framework is about limits and approximation quality, not a pricing recipe you run tomorrow. Its real service is diagnostic: it certifies when your change-of-numéraire approximations are safe and flags exactly the pathological configurations to watch.</p>
+<h3>Bottom Line</h3>
+<p>Switching your pricing yardstick is stable almost always — the sole danger is value hiding exactly where the yardstick vanishes, and this paper draws that line precisely.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
