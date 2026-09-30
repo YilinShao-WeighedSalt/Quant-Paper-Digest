@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — September 30, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">September 30, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> A Generalized Langevin Model of Latent Liquidity and Concave Price Impact</h2>
+  <p class="meta">Andrey Itkin<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-09-29 &middot; <a href="http://arxiv.org/abs/2609.37872v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.37872v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When you buy a lot of a stock, the price moves against you — and this paper explains <em>why</em> that push grows like the square root of your order size, using the same math physicists use for a particle jiggling in a fluid.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you want to buy a million shares of a company. You can't just snap them up at today's price: as you buy, you eat through the sellers willing to sell cheaply, and the price climbs. By the time you're done, you've paid more on average than the price you started at. This gap is called <em>market impact</em>, and it's one of the biggest hidden costs in trading — for a large fund it can dwarf commissions and fees. Understanding it precisely is worth real money: if you know your buying will move the price by a predictable amount, you can slice your order up cleverly to pay less.</p>
+<p><strong>The idea.</strong> For decades traders have noticed a strange empirical regularity: the price impact of an order grows not linearly with its size, but roughly like its <em>square root</em>. Buy four times as much, and you push the price only twice as far. Nobody buying groceries expects that — so where does the square root come from? This paper builds a mechanical story. Think of the visible order book as the tip of an iceberg. Beneath it sits a hidden pool of "latent" traders — people who <em>would</em> trade, but only once the price has drifted far enough from where it would have been to tempt them. As your order pushes the price, you wake up these hidden traders, who lean against you (they sell as you buy), cushioning the move. Your buying also <em>depletes</em> this pool, and the pool slowly refills afterward — like a crowd around a splash slowly closing back in. The clever part: the refilling happens over <em>several different time scales at once</em> (some traders react in seconds, others in minutes), and the authors model this exactly with a tool borrowed from physics — the <em>generalized Langevin equation</em>, originally written for a heavy particle being buffeted by many fast molecules.</p>
+<p><strong>What they found.</strong> Out of this mechanical picture, the square-root impact law <em>emerges</em> in a middle range of order sizes, sandwiched between a linear regime for tiny orders and a different linear regime for enormous ones — and crucially, they did <strong>not</strong> assume the square root; it fell out. They also show impact becomes proportional to volatility and independent of how long you take to trade, both matching what practitioners observe. And they find that if you've already been trading heavily (depleting the pool), the square-root range shrinks — a warning that impact isn't a fixed law but depends on recent history.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $p_t$ be the observed price and let $p_t^0$ be the "unperturbed" price that would prevail with no order. The displacement is $x_t = p_t - p_t^0$. Latent liquidity is a pool that supplies counterflow once $|x_t|$ exceeds a trader's individual threshold. The net order flow drives the displacement, whose recovery obeys a <em>generalized Langevin equation</em> (GLE):
+$$\dot{x}_t = -\int_0^t K(t-s)\, x_s \, ds + \eta(t) + \phi(t),$$
+where $x_t$ is the price displacement, $K(\cdot)$ is a <strong>memory kernel</strong> encoding how past states resist the present, $\eta(t)$ is a noise term, and $\phi(t)$ is the forcing from submitted order flow. The key modeling choice is that the kernel is a finite sum of exponentials,
+$$K(\tau) = \sum_{i=1}^{n} c_i\, e^{-\tau/\tau_i},$$
+with weights $c_i$ and relaxation times $\tau_i$. Because each exponential term is itself the solution of a simple linear ODE, the whole memory-laden (non-Markovian) process can be rewritten <em>exactly</em> as a higher-dimensional Markov process — the so-called <strong>Markovian lift</strong> — with no approximation error.</p>
+<p><strong>The key equation.</strong> Aggregating individual latent traders, each activated when displacement crosses their threshold $\theta$, gives impact as an integral over the threshold distribution $\rho(\theta)$. For an undepleted pool the impact of an order of size $Q$ behaves as
+$$I(Q) \sim \sqrt{Q} \quad \text{for intermediate } Q,$$
+bracketed by $I(Q)\propto Q$ as $Q\to 0$ and a different linear law as $Q\to\infty$. If thresholds and responses scale with the price-noise amplitude $\sigma$, then in the square-root regime $I \propto \sigma$; if thresholds grow with execution horizon $T$, then $I$ becomes independent of $T$.</p>
+<p><strong>The method.</strong> The technique is <em>statistical mechanics of a driven linear system</em>: write the response as a convolution against the memory kernel, use the exponential-sum structure to get an exact finite-dimensional Markovian representation, and compute round-trip costs and impact curves either in closed form or by fast numerical integration of the lifted ODEs.</p>
+<p><strong>Results with numbers.</strong> Under the log-price convention with constant displayed depth, expected round-trip trading costs are proven <strong>nonnegative regardless of the memory</strong> — a no-free-lunch consistency check. Numerically, depletion of the latent pool <em>narrows</em> the square-root range, and two memory spectra that produce nearly identical single-order impact curves can diverge sharply in their response <em>after</em> substantial prior trading — impact has a hysteresis. (Calibration to real data is deferred to a companion paper.)</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the amount the price moves against you because of your own trading.</li>
+<li><strong>Latent liquidity</strong> — hidden trading interest that only becomes active once the price has moved far enough.</li>
+<li><strong>Generalized Langevin equation</strong> — a physics equation for a variable pushed by noise and pulled back by a memory of its own past, not just its present.</li>
+<li><strong>Memory kernel</strong> — the function $K(\tau)$ saying how strongly the state $\tau$ seconds ago still influences now.</li>
+<li><strong>Markovian lift</strong> — rewriting a process-with-memory as a bigger memoryless process, so standard tools apply exactly.</li>
+<li><strong>Round-trip cost</strong> — the total impact cost of buying and then selling the same quantity back.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a clean, mechanistic derivation of a law usually just assumed — a genuine contribution. But the whole thing is a <em>model</em> whose parameters (threshold distributions, kernel weights) aren't yet fit to any real market; the authors admit calibration is left to a future paper, so we don't yet know if real order books actually behave like this. The linear GLE also can't capture strong nonlinear feedback or regime changes.</p>
+<h3>Bottom Line</h3>
+<p>The famous square-root law of price impact isn't a mysterious axiom — it's what you get when hidden traders with different reaction speeds slowly close in around your order.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Dyson-Schwinger Effective-Action Methods for Rough Volatility: A Correlation-Response Architecture for Calibration, Exotics and Risk</h2>
+  <p class="meta">Frédéric Pauquay<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-29 &middot; <a href="http://arxiv.org/abs/2609.37741v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.37741v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper borrows the heavy machinery of quantum field theory to price options fast under "rough volatility" models that normally require slow, expensive simulation.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option is a contract giving you the right to buy or sell a stock at a fixed price later. To price it, you need a model of how the stock's <em>volatility</em> — its jitteriness — behaves over time. Modern evidence shows volatility is "rough": it wiggles far more erratically than the smooth random walks classic models assume. These <em>rough volatility</em> models fit market data beautifully, but they have a nasty side effect: they have infinite memory (today's roughness depends on the entire past), which breaks the fast pricing formulas quants rely on. So banks are stuck running enormous Monte-Carlo simulations — shooting millions of random price paths — just to price and risk-manage a single exotic option. That's slow and power-hungry, and it makes real-time risk almost impossible.</p>
+<p><strong>The idea.</strong> The authors reach for a toolbox from <em>quantum field theory</em> (QFT) — the physics of particles and fields. In QFT, physicists constantly face the same headache: a system with countless interacting pieces that you can't solve exactly. Their trick is the <em>effective action</em>, a reorganized description that automatically bundles up all the tangled interactions into a self-consistent average. The analogy: instead of tracking every molecule in a gas, you find the single "effective" pressure and temperature that behave as if they already accounted for all the collisions. Here the "field" is the random log-volatility over time, and the QFT method finds a self-consistent <em>Gaussian</em> (bell-curve) approximation to its full behavior. Because Gaussians have exact, closed-form formulas for the quantities options depend on, the pricing becomes a deterministic calculation instead of a random simulation.</p>
+<p><strong>What they found.</strong> The resulting "engine" reproduces the answers from gold-standard slow methods across a whole family of volatility models, from very accurate (sub-basis-point) for simple ones to still-usable (tens of basis points) for the roughest. Even better, computing an option's <em>sensitivity</em> to volatility — its risk — which normally means re-running the whole simulation twice, drops to a single extra calculation, one to two orders of magnitude cheaper.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state is a vector of variables — log-price, log-volatility, or their <em>Lamperti</em> transform — living on a probability space. For rough models the log-variance is a <em>Volterra</em> process (an integral against a singular kernel), giving it long memory. The joint law of the state is approximated by a self-consistent Gaussian, organized by the <strong>two-particle-irreducible (2PI) effective action</strong> $\Gamma[G]$, a functional of the two-time correlation $G(t,s)$.</p>
+<p><strong>The key equations.</strong> Stationarity of the 2PI action yields the <strong>Dyson-Schwinger gap equation</strong> for the dressed inverse propagator $G^{-1}$:
+$$G^{-1}(t,s) = G_0^{-1}(t,s) - \Sigma(t,s),$$
+where $G(t,s)$ is the (dressed) two-time covariance of the state field, $G_0$ is the free/undressed covariance, and $\Sigma$ is the <strong>self-energy</strong> — the correction built from the model's interactions. The mean and effective diffusion follow from the stationarity conditions, with the drift's linear part supplied by <em>statistical linearisation</em>. Smile-generating terms of the form $e^{a X}$ and CEV interactions are evaluated <em>exactly</em> using the Gaussian moment-generating function
+$$\mathbb{E}\!\left[e^{a^\top X}\right] = \exp\!\Big(a^\top \mu + \tfrac12 a^\top \Sigma_X\, a\Big),$$
+where $X$ is the (approximately Gaussian) state vector, $\mu$ its mean and $\Sigma_X$ its covariance — rather than truncating a Taylor series.</p>
+<p><strong>The method.</strong> The distinction that organizes everything: whether the dressed inverse propagator is <em>local in time</em>. For <strong>Markovian</strong> models it is, so the gap equation collapses to a handful of ODEs. For <strong>rough (Volterra)</strong> models it is not, so the full two-time propagator $G(t,s)$ is retained and the option's characteristic function becomes a Gaussian integral over the entire log-variance field. Forward-start smiles and barrier options then reduce to <em>field-only quadratures</em> (ordinary numerical integrals). Volatility sensitivities come from a <em>causal response block</em> evaluated in one contraction.</p>
+<p><strong>Results with numbers.</strong> Against PDE or quasi-Monte-Carlo references, the method matches to <strong>sub-basis-point</strong> accuracy for exp-OU, <strong>single-digit basis points</strong> for SABR and rough Bergomi, and <strong>tens of basis points</strong> for rough SABR, with rough Heston as an exactly-transformable control. The full impulse-vega (volatility-risk) curve is produced at <strong>one-to-two orders of magnitude</strong> below the cost of bump-and-revalue.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Rough volatility</strong> — a model where volatility fluctuates so irregularly its paths are "rougher" than ordinary Brownian motion, matching real markets.</li>
+<li><strong>Volterra process</strong> — a process defined by integrating noise against a memory kernel, giving it long-range dependence.</li>
+<li><strong>Effective action / 2PI</strong> — a QFT reorganization that packages all interactions into equations for the average and the correlations, solved self-consistently.</li>
+<li><strong>Propagator</strong> — physicists' name for the correlation function saying how the field at one time relates to another.</li>
+<li><strong>Self-energy</strong> — the correction term capturing how interactions "dress" the free correlation.</li>
+<li><strong>Basis point</strong> — one hundredth of a percent; the unit for measuring pricing error here.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a genuinely elegant import of physics technology, and the speedups for risk are the headline practitioners would love. But it's an <em>approximation</em>: it replaces the true law with a self-consistent Gaussian, and the error grows for the roughest models (tens of basis points on rough SABR may be too coarse for tight markets). It also demands serious QFT fluency to implement and validate, so adoption outside specialist quant teams will be slow.</p>
+<h3>Bottom Line</h3>
+<p>Treat volatility like a quantum field, and the crushing memory of rough-volatility models turns into a fast, deterministic pricing engine — most valuable exactly where speed matters, in risk.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> When Hedging Changes the Payoff: Option Replication with Price Impact and Execution Costs</h2>
+  <p class="meta">David Itkin, Leandro Sánchez-Betancourt<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-28 &middot; <a href="http://arxiv.org/abs/2609.36257v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.36257v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a big trader hedges an option by buying and selling the underlying stock, their own trading moves the price — so the thing they're trying to protect against changes shape as they chase it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose a bank sells you an option and now wants to <em>hedge</em> it — protect itself from losing money if the stock moves. The textbook recipe (Black-Scholes) says: continuously buy and sell the stock in just the right amounts, and you'll perfectly offset your risk, as if by magic. But that recipe assumes your trading is a drop in the ocean — that you can buy and sell without nudging the price. For a large position, that's false. As the bank buys stock to hedge, it <em>pushes the price up</em>; as it sells, it pushes it down. So the very act of hedging distorts the price of the thing being hedged. It's like trying to steady a canoe by leaning — your leaning is itself what's rocking the boat. This feedback matters enormously for anyone trading size, and getting it wrong means the "hedge" leaves you exposed or costs a fortune in slippage.</p>
+<p><strong>The idea.</strong> The authors take the feedback seriously and ask: what does it even <em>mean</em> to replicate an option when your replication changes the target? They set it up as a chase-your-own-tail problem and solve it two ways. In a simple two-outcome ("binomial") world, they show the hedge is defined by a <em>fixed-point equation</em> — the hedge that's consistent with the price it itself creates. In continuous time, they derive a <em>nonlinear pricing equation</em> with a twist: the final payoff you're aiming for isn't fixed in advance, because your trading up to the last moment reshapes it. Remarkably, for ordinary calls and puts they prove you <em>can</em> still replicate exactly under a particular ("midpoint") cost convention. They even quantify the eerie possibility that a hedger's own buying can drag an option that would have expired worthless <em>into the money</em>.</p>
+<p><strong>What they found.</strong> Price impact effectively <em>shifts the strike</em> of the option (the price level that matters), makes the option's price a <em>nonlinear</em> function of how many contracts you hold (two options cost more than twice one), and — through execution costs — smooths out the last-minute trading frenzy the naive hedge would demand. They also use the framework to explain, from first principles, why the bid-ask spread and the shape of the order book in the <em>options</em> market look the way they do, tracing it back to the impact and order book of the <em>underlying</em>.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The underlying asset trades with price impact and execution costs; the hedger's own trading rate feeds back into the asset's dynamics. Let $S_t$ be the (impacted) asset price and $\theta_t$ the hedger's holding in the underlying. Trading at rate $\dot{\theta}_t$ displaces the price, so the effective price obeys something like
+$$dS_t = \mu(S_t)\,dt + \sigma(S_t)\,dW_t + \lambda\,d\theta_t,$$
+where $\mu$ is the drift, $\sigma$ the volatility, $W_t$ a Brownian motion, $\lambda$ the price-impact coefficient, and $d\theta_t$ the hedger's trade. The payoff to be replicated, $g(S_T)$, therefore depends on a terminal price that the hedge itself helped set.</p>
+<p><strong>The key equation.</strong> In continuous time the option value $V(t,S)$ solves a <strong>nonlinear pricing PDE</strong> of Black-Scholes type but with an impact-modified diffusion and an <em>implicit terminal condition</em>:
+$$\partial_t V + \tfrac12\, \tilde{\sigma}(S, V_{SS})^2\, S^2\, V_{SS} = 0, \qquad V(T,\cdot) = g\big(\text{effective strike}\big),$$
+where $V_{SS}=\partial^2 V/\partial S^2$ is the option's gamma, and the effective volatility $\tilde{\sigma}$ depends on $V_{SS}$ because the hedger's rebalancing (proportional to gamma) moves the price. The terminal condition is <em>implicit</em>: the payoff's effective strike is determined jointly with the hedging path. In the binomial model the analogue is a <strong>fixed-point equation</strong> $\theta = F(\theta)$ whose solution is the self-consistent hedge.</p>
+<p><strong>The method.</strong> Discrete time: prove existence/uniqueness of the fixed point and construct the replicating strategy by backward induction. Continuous time: derive the nonlinear PDE, and for <strong>monotone convex Lipschitz payoffs</strong> (calls, puts) establish <em>exact replication</em> under <em>midpoint execution costs</em> — a specific rule for charging the cost at the average of pre- and post-trade prices. Solutions and the phenomena are then explored numerically.</p>
+<p><strong>Results with numbers.</strong> The experiments show, quantitatively: (i) impact shifts the <em>effective strike</em> of the option; (ii) the option price depends <em>nonlinearly</em> on the number of contracts (no simple per-unit price); (iii) execution costs <em>smooth</em> terminal holdings, removing the naive strategy's last-instant blow-up; (iv) a hedger's own trading can move an otherwise-worthless option <em>into the money</em>; and (v) the model reproduces the observed spread and order-book shape in options markets from the underlying's impact and book.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hedging</strong> — trading one asset to cancel the risk of another position.</li>
+<li><strong>Replication</strong> — building a trading strategy whose payoff exactly matches an option's, so the option is "manufactured."</li>
+<li><strong>Price impact</strong> — the price move caused by your own trading.</li>
+<li><strong>Execution cost</strong> — the extra you pay for immediacy, e.g. crossing the bid-ask spread.</li>
+<li><strong>Gamma ($V_{SS}$)</strong> — how fast the required hedge changes as the price moves; large gamma forces heavy rebalancing.</li>
+<li><strong>Fixed-point equation</strong> — an equation $x=F(x)$ whose solution is consistent with itself, here the hedge that matches the price it creates.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The self-consistency framing is exactly right and the exact-replication result for calls/puts is a real theoretical win. But it leans on a stylized, mostly deterministic impact model and a specific "midpoint" cost convention; real markets have stochastic, transient, cross-asset impact that could break exact replication. Still, the qualitative lessons — impact shifts strikes, option prices are nonlinear in size, you can move your own option into the money — are robust warnings any large options desk should heed.</p>
+<h3>Bottom Line</h3>
+<p>For a big enough player, hedging an option is chasing a moving target you yourself keep moving — and pricing has to solve for the hedge and the target at once.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Optimal Liquidation with Support and Resistance Levels under Multi-Skew Brownian Motion</h2>
+  <p class="meta">Jun Maeda<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-09-28 &middot; <a href="http://arxiv.org/abs/2609.35063v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.35063v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper turns the chartist's folklore of "support and resistance levels" into rigorous mathematics and solves exactly when to sell a position given those levels.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Traders who read price charts swear by <em>support</em> and <em>resistance</em> — price levels where a falling market tends to bounce (support) and a rising market tends to stall (resistance), as if there were invisible floors and ceilings. Most economists dismiss this as superstition because it's vague. But suppose these levels are real. Then a very practical question arises: if you're holding a stock and want to sell (liquidate) at the best expected price, <em>when</em> should you pull the trigger, given that the price keeps getting nudged up off the floor and pushed down from the ceiling? Timing a sale well versus badly is the difference between a good exit and a bad one, so making this precise is genuinely useful.</p>
+<p><strong>The idea.</strong> The authors give support and resistance an exact mathematical meaning using <em>skew Brownian motion</em> — a random walk that, whenever it touches a special level, gets a tiny probabilistic "kick" in a preferred direction, more often than not bouncing the favorable way. Put a kick <em>upward</em> at the support level and a kick <em>downward</em> at the resistance level, and you've encoded the chartist's picture in a single clean process. Crucially, the price <em>alone</em> still tells you everything you need (the process stays "Markov in the price"), so the optimal selling rule can depend only on the current price — no need to track history. They then solve the "sell for the best expected discounted price" problem completely.</p>
+<p><strong>What they found.</strong> The optimal strategy always has a <em>continuation band</em>: a range of prices where you should keep holding and wait, selling only once the price leaves it. There are exactly three possible shapes, sorted by a clean closed-form test: the band sits entirely below resistance, straddles it, or gets pinned right at resistance. A striking conclusion falls out rather than being assumed: it's often optimal to <em>sell into resistance</em> — to unload right as the price hits the ceiling. They also find an asymmetry in what you can learn from watching a trader: their exercise behavior pins down the <em>support</em> strength exactly, but the <em>resistance</em> strength can only be narrowed to an interval.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The log-price (or price) follows a <strong>geometric multi-skew Brownian motion</strong>: a diffusion that accumulates <em>local time</em> at two special levels and receives signed pushes there. Informally,
+$$dX_t = \mu\,dt + \sigma\,dW_t + \beta_s\, dL_t^{a} - \beta_r\, dL_t^{b},$$
+where $X_t$ is the log-price, $\mu$ the drift, $\sigma$ the volatility, $W_t$ a Brownian motion, $L_t^{a}$ and $L_t^{b}$ the <strong>local times</strong> at the support level $a$ and resistance level $b$, and $\beta_s,\beta_r \in (-1,1)$ the <em>skewness</em> strengths of the upward push at support and downward push at resistance. Because the pushes act only through local time at fixed levels, the price remains a Markov process in one variable.</p>
+<p><strong>The key equation.</strong> The value of holding until an optimal sale time $\tau$ is
+$$V(x) = \sup_{\tau}\ \mathbb{E}^{x}\!\left[ e^{-r\tau}\, S_{\tau} \right],$$
+where $V(x)$ is the maximal expected discounted sale price starting from price $x$, $r>0$ is the discount rate, $S_\tau = e^{X_\tau}$ the price at the stopping time $\tau$, and the supremum is over all stopping times. $V$ solves a variational inequality: on the continuation region $\mathcal{L}V - rV = 0$ (where $\mathcal{L}$ is the generator of the skew diffusion), while $V = S$ on the sell region, with special <em>transmission conditions</em> at $a$ and $b$ encoding the skew pushes.</p>
+<p><strong>The method.</strong> This is an <strong>optimal stopping / free-boundary</strong> problem. The authors solve the ODE for $V$ away from the skew levels, glue solutions across $a$ and $b$ using the skew transmission conditions, and locate the free boundaries of the continuation band in <em>closed form</em>. A single closed-form criterion sorts which of the three geometries occurs; verification arguments confirm the candidate is truly optimal.</p>
+<p><strong>Results with numbers.</strong> The paper's "numbers" are structural rather than statistical: exactly <strong>three</strong> boundary geometries, separated by a <strong>closed-form</strong> criterion; the upper edge of the continuation band can <em>pin</em> exactly at resistance $b$. On identification, <strong>support parameters are recovered exactly</strong> from observed exercise, while <strong>resistance strength is identifiable only on an interval</strong> with a closed-form endpoint.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Support / resistance</strong> — chart levels where price tends to bounce up (support) or stall and fall (resistance).</li>
+<li><strong>Skew Brownian motion</strong> — a Brownian motion given a biased "kick" in a chosen direction each time it hits a special level.</li>
+<li><strong>Local time</strong> — a measure of how much time (in a precise sense) the process spends exactly at a given level; it's what "activates" the skew push.</li>
+<li><strong>Optimal stopping</strong> — choosing the best random moment to take an action (here, to sell) to maximize expected reward.</li>
+<li><strong>Free boundary</strong> — the price threshold, solved for as part of the problem, that separates "keep holding" from "sell now."</li>
+<li><strong>Continuation band</strong> — the range of prices where waiting beats selling.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>It's a lovely piece of theory that dignifies a piece of trading folklore with exact solutions, and the "sell into resistance" conclusion is a satisfying emergent result. But it assumes the support/resistance levels are <em>known and fixed</em>, that impact is absent, and that a single skew-diffusion captures real price behavior — all strong. Real support/resistance levels drift, break, and are partly self-fulfilling; the asymmetric identifiability result also warns you can't reliably back out resistance strength from data.</p>
+<h3>Bottom Line</h3>
+<p>Give "support and resistance" a precise probabilistic meaning and the optimal exit rule pops out in closed form — often telling you to sell right into the ceiling.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Deep kernel hedging</h2>
+  <p class="meta">Jean-Loup Dupret, Donatien Hainaut, Edouard Motte<br>
+    <span class="cat">cs.LG</span> &middot; 2026-09-28 &middot; <a href="http://arxiv.org/abs/2609.34474v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2609.34474v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper hedges options by blending two rival machine-learning philosophies — flexible neural networks and structured kernel methods — so it hedges well even when training data is scarce.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A bank holding options wants a rule that says, at any moment, how much of the underlying stock to hold so its portfolio barely moves when markets do — a <em>hedge</em>. Classic formulas assume an idealized model; real markets have costs, jumps, and quirks those formulas miss. So quants increasingly <em>learn</em> the hedge from data. Two camps dominate. <em>Deep learning</em> (neural networks) is wonderfully flexible but data-hungry and prone to overfit when you don't have much history — and in finance you often have painfully little relevant data. <em>Kernel methods</em> are more disciplined: they build in smoothness assumptions ("similar market states need similar hedges") and come with clean mathematical guarantees, but their fixed notion of "similar" can be too rigid. Each camp has what the other lacks.</p>
+<p><strong>The idea.</strong> The authors marry them. They keep the disciplined <em>kernel</em> skeleton — the hedge must live in a well-behaved space of functions (a <em>reproducing kernel Hilbert space</em>) — but they let a <em>neural network</em> learn what "similar market states" actually means, by shaping the kernel from data. It's like keeping the guardrails of a structured method while letting a smart, adaptive engine steer within them. To handle <em>path-dependent</em> options (where the payoff depends on the whole price journey, not just the endpoint), they feed in <em>signature features</em> — a compact mathematical summary of a path's shape. A classic result called the <em>representer theorem</em> guarantees that even though they're searching an infinite-dimensional space of hedges, the best one is a finite combination of the training examples, so the problem is actually solvable. To keep it fast on large datasets, they use a well-known trick (<em>random Fourier features</em>) that approximates the kernel cheaply, with a proof that the approximation converges.</p>
+<p><strong>What they found.</strong> On both synthetic and real market data, the deep-kernel hedge is competitive with — and more <em>robust</em> than — both plain kernel methods and standard deep-hedging networks, and its edge is biggest exactly in the <strong>low-data regime</strong> where pure neural networks struggle. That's the practically valuable finding: it's the setting real desks actually face.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The hedging functional $h$ is restricted to a <strong>reproducing kernel Hilbert space (RKHS)</strong> $\mathcal{H}_k$ whose kernel $k_\vartheta$ is itself parameterized by a neural-network embedding $\phi_\vartheta$ of the input features:
+$$k_\vartheta(x, x') = \langle \phi_\vartheta(x),\, \phi_\vartheta(x') \rangle,$$
+where $x, x'$ are market-state feature vectors, $\phi_\vartheta$ is a neural embedding with weights $\vartheta$, and $\langle\cdot,\cdot\rangle$ an inner product. Path dependence enters by taking $x$ to include truncated, time-augmented <strong>signature</strong> features of the price path.</p>
+<p><strong>The key equation.</strong> Training minimizes a <em>regularized empirical risk</em> under a convex loss $\ell$:
+$$\min_{h \in \mathcal{H}_k,\ \vartheta}\ \frac{1}{N}\sum_{i=1}^{N} \ell\big(P_i - h(x_i)\big) + \frac{\gamma}{2}\,\|h\|_{\mathcal{H}_k}^2,$$
+where $N$ is the number of samples, $P_i$ the hedging error/PnL of sample $i$, $h(x_i)$ the hedge, $\gamma>0$ the regularization strength, and $\|h\|_{\mathcal{H}_k}$ the RKHS norm penalizing complexity. A <strong>generalized representer theorem</strong> shows the optimal $h$ is a finite combination of kernel evaluations at the training points:
+$$h^\star(\cdot) = \sum_{i=1}^{N} \alpha_i\, k_\vartheta(x_i, \cdot),$$
+reducing an infinite-dimensional search to solving for the coefficients $\alpha_i$.</p>
+<p><strong>The method.</strong> For scalability they replace the exact kernel with a <strong>random Fourier feature</strong> approximation $k_\vartheta(x,x') \approx z(x)^\top z(x')$ using a fixed random draw of frequencies sampled once and held constant, while the neural embedding keeps adapting; they prove convergence of this approximation. The neural weights $\vartheta$ and coefficients $\alpha$ are trained jointly by gradient descent on the regularized loss.</p>
+<p><strong>Results with numbers.</strong> On synthetic and real data, the deep-kernel hedge delivers <strong>competitive and robust</strong> performance versus both standard kernel methods and classical deep-hedging architectures, with the clearest advantage in <strong>low-data regimes</strong> — the paper's central empirical claim.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hedge</strong> — the amount of the underlying you hold to cancel an option's market risk.</li>
+<li><strong>Reproducing kernel Hilbert space (RKHS)</strong> — a mathematically tidy space of functions where "closeness" is set by a kernel, giving smoothness and guarantees.</li>
+<li><strong>Kernel</strong> — a similarity function $k(x,x')$ saying how alike two inputs are.</li>
+<li><strong>Representer theorem</strong> — the result that the best function in an RKHS is a finite weighted sum over the training points.</li>
+<li><strong>Signature (of a path)</strong> — a hierarchy of iterated integrals that compactly encodes the shape of a price path.</li>
+<li><strong>Random Fourier features</strong> — a randomized trick that approximates a kernel by a low-dimensional feature map, making big problems fast.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The hybrid is principled and the low-data robustness is exactly what finance needs, since relevant history is always short. But "competitive" is a modest claim — it doesn't crush the alternatives — and the results lean on synthetic data plus limited real data, so out-of-sample robustness across genuine regime changes (crashes, liquidity droughts) is unproven. The signature and RKHS machinery also add real implementation and tuning complexity for a desk to adopt.</p>
+<h3>Bottom Line</h3>
+<p>Let a neural network <em>shape</em> a kernel instead of replacing it, and you get a hedger that keeps its footing precisely when data is thin — the situation quants always find themselves in.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
