@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 08, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 08, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> On Bonart&#x27;s interpretation of the Square-Root Impact Law</h2>
+  <p class="meta">J. -P. Bouchaud, I. Mastromatteo, B. Toth<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-07 &middot; <a href="http://arxiv.org/abs/2610.10053v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.10053v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a big trader quietly splits a huge order into many small pieces, the price moves against them in proportion to the <em>square root</em> of how much they trade — and this paper argues that "law" only holds because the market is secretly identifying who is behind the stream of trades.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you want to buy a million shares of a stock, but the stock only trades a few hundred thousand shares a day. If you slam in the whole order at once, the price rockets up before you finish — you'd pay a fortune. So traders break the order into a long "stream" of small child-orders (called a <em>metaorder</em>) spread over hours or days. The practical question every large fund cares about is: <em>how much will the price drift against me as I do this?</em> Decades of data give a startlingly robust answer, the <strong>square-root impact law</strong>: the total price move is proportional to the square root of the quantity you trade. Trade four times as much, and you move the price only twice as much. Even stranger, the proportionality constant is roughly the same size (order 1) across stocks, eras, and how aggressively you trade. Why nature picks a square root — and not, say, a straight line — has been one of the great puzzles of market microstructure.</p>
+<p><strong>The idea.</strong> A researcher named Bonart recently offered an elegant explanation, and this paper reformulates and pressure-tests it. The argument goes: if both the <em>real</em> price and the hypothetical <em>counterfactual</em> price (what the price "would have been" without your trades) wander around like diffusing particles — no memory, random steps — then the impact caused by information-free trading must have "white" (uncorrelated) increments. Run the math forward and the square-root shape pops out automatically, with the right order-1 amplitude. The crucial, subtle ingredient the authors spotlight is this: the market doesn't whiten <em>one</em> isolated order. It whitens the entire <em>stationary stream</em> of each participant's metaorders. In plain terms, the market behaves as if it recognizes "oh, this is the same big player coming back again and again," and prices accordingly.</p>
+<p><strong>What they found.</strong> The authors show that a classic model (Lillo–Mike–Farmer) satisfies Bonart's premises yet gives a <em>lone</em> metaorder a <em>stronger-than-square-root</em> impact. The reason is revealing: a single, isolated order is statistically invisible, so the market prices it crudely and mechanically. Only when orders come as a recognizable, attributable stream does the clean square-root law appear. They then build an explicit multi-agent "propagator" model that reproduces the clean law — but <em>only</em> when the market can correctly attribute anonymous trades back to their issuer. Their verdict: that re-attribution is a "formidable task," demanding the market behave like an implausibly good signal-processing machine. The payoff is a sharp, falsifiable prediction: truly isolated metaorders, well separated in time, should <em>not</em> obey the square-root law.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $Q$ be the total signed volume of a metaorder, $V$ a reference market volume (e.g., daily), $\sigma$ the price volatility, and $\varphi$ the <em>participation rate</em> — the fraction of market volume that is yours. The square-root impact law (SRIL) states
+$$I = Y\,\sigma\sqrt{Q/V},$$
+where $I$ is the realized price impact and $Y = O(1)$ is a dimensionless constant <em>independent of</em> $\varphi$. The law bundles two separate facts: a <strong>shape</strong> (impact $\propto \sqrt{Q}$) and an <strong>amplitude</strong> ($Y$ order 1, not scaling with participation).</p>
+<p><strong>The key equation(s).</strong> Bonart's premise is that the realized price $P_t$ and the counterfactual (no-trade) price $\tilde P_t$ are both diffusive martingales. Impact is the gap $J_t = P_t - \tilde P_t$. Diffusivity of both forces the increments of the information-neutral part of $J_t$ to be <em>white</em> (serially uncorrelated). Integrating a white-increment impact over a metaorder of size $Q$ yields a variance that grows linearly in executed volume, and taking the square root gives the $\sqrt{Q}$ shape. The contrast case is the Lillo–Mike–Farmer order-flow model, where signed order flow has long memory with autocorrelation decaying as a power law with exponent $\gamma \in (0,1)$. There an <em>isolated</em> metaorder gets super-square-root impact
+$$I_{\text{isolated}} \sim \varphi^{(1-\gamma)/2}\, Q^{(1+\gamma)/2},$$
+with $\gamma$ the long-memory exponent of the order-flow autocorrelation. Since $(1+\gamma)/2 > 1/2$, the exponent exceeds the square root, and the impact now depends on participation $\varphi$ — the "wart" the clean law lacks.</p>
+<p><strong>The method.</strong> The analysis is a <em>propagator</em> (linear response) construction: price impact is written as a convolution of past signed order flow against a decaying kernel $G$, and the authors solve for the kernel and multi-agent flow structure that make aggregate impact diffusive while reproducing SRIL. The key move is modeling the market as <em>whitening a stationary stream</em> — deconvolving each agent's recurring order flow — rather than responding to one order in isolation.</p>
+<p><strong>Results with numbers.</strong> The headline is structural rather than numerical: the clean SRIL (exponent exactly $1/2$, amplitude $Y=O(1)$, no $\varphi$ dependence) is recovered <em>precisely when</em> trades are correctly re-attributed to their issuers; otherwise one gets the super-square-root exponent $(1+\gamma)/2$ with an explicit $\varphi^{(1-\gamma)/2}$ participation dependence. The falsifiable claim: time-isolated metaorders deviate from the square root.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Metaorder</strong> — one trader's large intended trade, chopped into many small child orders executed over time.</li>
+<li><strong>Market impact</strong> — the adverse price movement your own trading causes as you buy or sell.</li>
+<li><strong>Participation rate ($\varphi$)</strong> — the fraction of total market volume that your trading represents over the execution window.</li>
+<li><strong>Diffusive / martingale price</strong> — a price whose future expected change is zero and whose increments behave like random noise, so it neither trends predictably nor mean-reverts.</li>
+<li><strong>Propagator model</strong> — a framework writing current impact as past order flow convolved with a decaying response kernel.</li>
+<li><strong>Long memory (exponent $\gamma$)</strong> — the tendency of signed order flow to stay autocorrelated far into the past, decaying only as a slow power law.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a conceptual, mechanism-level paper, not an empirical calibration, so the sharp prediction about isolated metaorders still needs real data to confirm or kill it. The central assumption — that markets can reliably de-anonymize and re-attribute order flow to its true issuer — is, as the authors themselves stress, strong to the point of implausibility, which ironically makes the clean square-root law look almost like a coincidence. A practitioner won't trade off this directly, but risk and execution desks should take seriously the warning that impact models fit on streaming flow may badly misprice genuinely one-off trades.</p>
+<h3>Bottom Line</h3>
+<p>The square-root impact law may be less a law of nature than a signature of markets quietly figuring out who keeps showing up to trade.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Optimal Investment to Reach a Financial Goal: A Stochastic Control Framework</h2>
+  <p class="meta">Gechun Liang, Moris S. Strub, Yuwei Wang, Zhaojun Yang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-07 &middot; <a href="http://arxiv.org/abs/2610.10046v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.10046v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If your goal is to hit a specific number — "I want 2 million dollars by retirement" — rather than just "get rich," the mathematically optimal investment strategy can look backwards: sometimes you should hold <em>less</em> of a stock precisely when its expected return is <em>higher</em>.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Most textbook investing is about maximizing happiness from your final wealth: more money, more utility, done. But real people don't think that way. A couple saving for a house down payment doesn't care about having "as much as possible" — they care about reaching a <em>target</em>, and about reaching it <em>soon</em>. A pension fund wants to be fully funded by a deadline. This is <em>goal-based</em> investing: you trade until you either hit your number or run out of time. The quant problem is to find the trading strategy that best balances two things — the joy of reaching the goal early, and the regret of falling short when the deadline arrives.</p>
+<p><strong>The idea.</strong> The authors formalize "I'd rather reach my goal sooner than later" with a <em>discount function</em> — the same tool economists use to say a dollar today beats a dollar next year. Reaching your goal at time $\tau$ is worth some discounted amount; the earlier $\tau$, the better. If the clock runs out before you arrive, you instead get utility from your <em>funding ratio</em> — how close you got, as a fraction of the goal. Crucially, both the stock market <em>and your goal</em> move with a hidden "stochastic factor" — think of it as the economic weather (interest rates, inflation) that simultaneously nudges asset prices and shifts how expensive your target is. The investor's job: pick, moment by moment, how much risk to take to maximize expected satisfaction.</p>
+<p><strong>What they found.</strong> The punchline is counterintuitive. In classic "maximize final wealth" problems, a higher expected stock return makes you want <em>more</em> stock. Here, for goal-reaching, the optimal stock holding can <em>decrease</em> as the asset's drift (expected return) rises. The intuition: if the drift is high, you'll probably coast to your goal anyway, so there's no reason to court extra risk that might blow you <em>past</em> it inefficiently or expose you to a bad shock before you arrive. Even more strikingly, as volatility explodes toward infinity, the optimal policy does <em>not</em> collapse to "hold only the safe asset" — a gambler chasing a fixed target may rationally keep some risky exposure even in a wildly volatile market, because volatility is the only thing that can carry them to the goal.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a filtered probability space $(\Omega, \mathcal F, (\mathcal F_t), \mathbb P)$ supporting a Brownian motion. Wealth $X_t$ evolves in a continuous-time market with one (or more) risky assets and a risk-free rate. A <strong>stochastic factor</strong> $Y_t$ drives both the asset dynamics and the (possibly moving) goal $G_t$. The investor chooses a portfolio process $\pi_t$ (dollars in the risky asset). Define the <strong>goal-reaching time</strong>
+$$\tau = \inf\{t \ge 0 : X_t \ge G_t\},$$
+i.e., the first instant wealth meets the goal, and let $T$ be an exogenous deadline.</p>
+<p><strong>The key equation(s).</strong> The objective combines a discount earned at the goal and a utility of shortfall at the deadline:
+$$V(t,x,y) = \sup_{\pi}\ \mathbb E\!\left[\, D(\tau)\,\mathbf 1_{\{\tau \le T\}} + U\!\left(\frac{X_T}{G_T}\right)\mathbf 1_{\{\tau > T\}} \,\Big|\, X_t = x,\, Y_t = y \right],$$
+where $V$ is the value function, $D(\cdot)$ is the discount function rewarding early goal attainment, $\mathbf 1_{\{\cdot\}}$ is the indicator (1 if the event holds, else 0), $U(\cdot)$ is a utility function of the <strong>funding ratio</strong> $X_T/G_T$, and the supremum is over admissible strategies $\pi$. The value function is characterized as a <em>viscosity solution</em> of the Hamilton–Jacobi–Bellman (HJB) equation
+$$\partial_t V + \sup_{\pi}\Big\{ \mathcal L^\pi V \Big\} = 0,$$
+with $\mathcal L^\pi$ the second-order differential generator of the controlled $(X_t, Y_t)$ process and appropriate boundary conditions at the goal and the deadline.</p>
+<p><strong>The method.</strong> Three moves. (1) They establish <strong>Bellman's principle of optimality</strong> and show $V$ is a viscosity solution of the HJB PDE — the right notion because $V$ need not be smooth. (2) In the special case of an <em>infinite</em> deadline and a <em>constant</em> goal, the HJB equation reduces to something related to the <strong>backward heat equation</strong>, for which they give a complete characterization of smooth solutions — a rare analytical handle on a hard control problem. (3) When closed forms fail, they solve the HJB numerically via <strong>Howard's algorithm</strong> (policy iteration): guess a policy, solve the resulting linear PDE for its value, greedily improve the policy, repeat to convergence.</p>
+<p><strong>Results with numbers.</strong> The results are qualitative/structural rather than a horse-race of Sharpe ratios: optimal goal-reaching investment can be <em>monotonically decreasing</em> in the risky asset's drift $\mu$, directly opposite to standard utility-of-wealth intuition; and the optimal risky allocation does <em>not</em> converge to the fully risk-free portfolio even as volatility $\sigma \to \infty$. Both facts are proven within the viscosity-solution framework and illustrated with the numerical HJB solver.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Stochastic control</strong> — optimizing decisions you make continuously over time when the future is random.</li>
+<li><strong>HJB equation</strong> — the partial differential equation whose solution is the best-achievable expected value of a control problem.</li>
+<li><strong>Viscosity solution</strong> — a generalized notion of "solving" a PDE that works even when the solution has kinks and isn't differentiable everywhere.</li>
+<li><strong>Funding ratio</strong> — current (or terminal) wealth divided by the goal, a measure of how close you are to fully funded.</li>
+<li><strong>Discount function $D(\tau)$</strong> — a decreasing function encoding that reaching the goal sooner is worth more than reaching it later.</li>
+<li><strong>Howard's algorithm (policy iteration)</strong> — an iterative scheme that alternates between evaluating a strategy and greedily improving it until it stops changing.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The framework is elegant but leans on idealizations real investors don't enjoy: continuous, frictionless trading, a cleanly specified stochastic factor, and a utility/discount pair the modeler must pick somewhat arbitrarily. The headline counterintuitions are mathematically clean but depend on the exact objective chosen, so they're insights into <em>goal-based preferences</em>, not universal trading advice. Still, for pension and liability-driven desks who genuinely face a target-and-deadline structure, the qualitative lesson — that chasing drift can be wrong and that volatility isn't always the enemy — is a useful corrective.</p>
+<h3>Bottom Line</h3>
+<p>When you're aiming at a target instead of maximizing wealth, more expected return can be a reason to take <em>less</em> risk, not more.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Robust distortion riskmetrics under Wasserstein ambiguity</h2>
+  <p class="meta">Yang Liu, Qiuqi Wang, Yihan Wang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-07 &middot; <a href="http://arxiv.org/abs/2610.09622v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.09622v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper solves, in closed and computable form, the hardest version of "how bad can my risk really be?" — the worst-case value of almost any risk measure when you only trust that the true distribution is <em>close</em> to your model, measured by optimal-transport distance.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every risk number a bank or fund reports — Value-at-Risk, Expected Shortfall, and their cousins — is computed <em>assuming</em> you know the probability distribution of your losses. But you never truly do; you estimate it from limited, noisy, possibly-outdated data. So a more honest question is: <em>given that the real distribution might be somewhat different from my estimate, what is the worst risk I could be facing?</em> This is "distributionally robust" risk evaluation. The catch is defining "somewhat different." A popular, geometrically natural choice is a <strong>Wasserstein ball</strong>: the set of all distributions you could reach from your reference model by moving probability mass around, where the cost is how far mass has to travel. Small ball = you trust your model a lot; big ball = you admit deep uncertainty.</p>
+<p><strong>The idea.</strong> The authors crack a long-open problem: computing the <em>worst-case</em> value of a whole broad family of risk measures — called <strong>distortion riskmetrics</strong> — when the only constraint on the adversary is that the true distribution lies within a Wasserstein ball. What makes this hard is that they deliberately refuse the usual nice assumptions. Normally you assume the risk measure is convex, monotone, and continuous to make the optimization tractable. They drop all three. That's important because many risk and <em>deviation</em> measures people actually use (variance-style spreads, certain regulatory measures) violate those properties. Think of it as finding the single most adversarial reshuffling of probability, allowed to move mass only so far, for a risk gauge that may be jagged and badly behaved.</p>
+<p><strong>What they found.</strong> Three results. First, they pin down exactly <em>when</em> you can "convexify" the problem — replace the ugly distortion function with its convex envelope — without changing the worst-case answer; when that trick is valid, the hard problem becomes easy. Second, when convexification <em>fails</em>, they give a constructive recipe to compute the exact worst case anyway. Third — the practical gift — they build explicit <em>approximate</em> worst-case distributions together with <em>computable error bounds</em>, so you can get a trustworthy answer without solving the full exact problem. They then apply all this to distributionally robust portfolio selection and test how tight the approximations are.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $F$ be a reference distribution of a loss random variable on $\mathbb R$. A <strong>distortion riskmetric</strong> is defined through a distortion function $g:[0,1]\to\mathbb R$ as
+$$\rho_g(X) = \int_{-\infty}^{0}\!\big(g(\bar F_X(x)) - g(1)\big)\,dx + \int_{0}^{\infty}\! g(\bar F_X(x))\,dx,$$
+where $\bar F_X(x) = \mathbb P(X > x)$ is the survival function and $g$ need <strong>not</strong> be convex, monotone, or continuous. This single formula encompasses Value-at-Risk, Expected Shortfall, range-based deviation measures, and more, depending on the choice of $g$.</p>
+<p><strong>The key equation(s).</strong> The ambiguity set is a <strong>Wasserstein ball</strong> of radius $\varepsilon$ around $F$:
+$$\mathcal B_\varepsilon(F) = \{ Q : W_p(Q, F) \le \varepsilon \},$$
+where $W_p(Q,F) = \left(\inf_{\pi}\int |x-y|^p\, d\pi(x,y)\right)^{1/p}$ is the order-$p$ Wasserstein distance, the infimum taken over all couplings $\pi$ with marginals $Q$ and $F$. The object of interest is the worst-case risk
+$$\rho_g^{\star}(\varepsilon) = \sup_{Q \in \mathcal B_\varepsilon(F)} \rho_g(Q).$$
+The authors characterize conditions under which $\rho_g^\star$ equals the worst case computed with $g$ replaced by its <strong>concave/convex envelope</strong> $\hat g$ — "direct convexification preserves the worst-case value" — and, when those conditions fail, give a constructive solution.</p>
+<p><strong>The method.</strong> The engine is a <strong>quantile reformulation</strong>: distortion riskmetrics are linear in the quantile function $F^{-1}$, and the Wasserstein constraint becomes a constraint on how far the quantile function can be perturbed. The worst case then reduces to an isoperimetric-type optimization over quantile functions. Where the distortion is non-convex, the exact solution is built by a careful envelope-and-correction construction; the approximate worst-case distributions come with explicit, <em>a priori</em> <strong>error bounds</strong> that quantify the gap to the true optimum without needing the exact optimizer.</p>
+<p><strong>Results with numbers.</strong> The paper's contributions are the closed/constructive characterizations plus computable error bounds rather than a single benchmark number; the numerical experiments apply the machinery to <strong>distributionally robust portfolio selection</strong>, assessing how accurate the explicit approximate worst-case distributions are and how the induced robust portfolios differ from non-robust ones. The key quantitative deliverable is the error-bound guarantee: you get a certified interval bracketing the true worst-case risk.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Distortion riskmetric</strong> — a risk measure built by re-weighting the tail probabilities of losses through a distortion function $g$; VaR and Expected Shortfall are special cases.</li>
+<li><strong>Wasserstein distance</strong> — a way to measure how far apart two probability distributions are, equal to the cheapest cost of transporting one into the other.</li>
+<li><strong>Ambiguity set / Wasserstein ball</strong> — the collection of all distributions within a fixed Wasserstein distance of your reference model, representing your model uncertainty.</li>
+<li><strong>Distributionally robust optimization</strong> — optimizing against the <em>worst</em> distribution in an ambiguity set, rather than trusting a single estimated one.</li>
+<li><strong>Convexification / convex envelope</strong> — replacing a function by the largest convex function lying below it (or concave above), which often makes an optimization tractable.</li>
+<li><strong>Quantile function ($F^{-1}$)</strong> — the inverse of the cumulative distribution; it returns the loss level at each probability percentile.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The generality is the selling point and the caveat at once: by dropping convexity and monotonicity the results cover exotic measures, but the constructions in the non-convex case are intricate and may be heavy to implement at portfolio scale. Choosing the Wasserstein radius $\varepsilon$ remains an art — too small and robustness is cosmetic, too large and every portfolio looks equally terrible. For a risk desk that already runs Wasserstein-DRO, the certified error bounds are genuinely useful; for everyone else this is more a foundational toolbox than a plug-in.</p>
+<h3>Bottom Line</h3>
+<p>Even for a jagged, misbehaving risk measure, you can now compute — with a certificate — the worst loss hiding within a trust radius of your model.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Adversarial Training for Deep Hedging in Nonstationary Markets</h2>
+  <p class="meta">Philipp J. Schneider, Lukas Looser, Antoine Garin, Shuhan Liu, Daniel Kuhn<br>
+    <span class="cat">cs.LG</span> &middot; 2026-10-05 &middot; <a href="http://arxiv.org/abs/2610.07162v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.07162v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper teaches a neural-network hedging strategy to survive markets that <em>change over time</em> by training it against a clever adversary that reweights and nudges historical scenarios to be as nasty as plausibly possible.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> "Hedging" means holding offsetting positions so that whatever the market does, you don't get wiped out — like an airline buying fuel contracts so a spike in oil prices doesn't bankrupt it. <em>Deep hedging</em> replaces the old hand-derived formulas with a neural network that learns a hedging policy directly from thousands of market trajectories, real or simulated. The trouble: the network learns from the <em>past</em>, but it has to perform in the <em>future</em>, and markets are <strong>nonstationary</strong> — their statistical character drifts. Volatility regimes shift, correlations break, the calm training data may look nothing like the storm ahead. A policy that aced yesterday's paths can fail tomorrow.</p>
+<p><strong>The idea.</strong> The authors propose <strong>WRAP</strong> (Wasserstein-Reweighting Adversarial Perturbation): train the hedger not on the raw history but against an <em>adversary</em> allowed to make the world harder in two complementary ways. First, the adversary can <strong>reweight</strong> the historical trajectories — put more weight on the ugly ones — subject to a budget (it can't distort reality beyond a limit). Second, it can <strong>perturb the paths themselves</strong> — push prices along each trajectory in adverse directions — subject to a transport budget. This is a two-budget <em>distributionally robust optimization</em>: the hedger must do well not just on average over history, but against the worst plausible reweighting-and-nudging an adversary can cook up. Think of a boxer who trains against a sparring partner specifically instructed to exploit their weaknesses, within the rules.</p>
+<p><strong>What they found.</strong> The elegant technical result is that you don't need to solve the adversary's brutal inner optimization exactly. By expanding the worst-case loss to first order, WRAP decomposes the extra risk into two clean pieces: a <em>reweighting</em> term driven by how much hedging losses vary across trajectories, and a <em>transport</em> term driven by how sensitive the loss is to perturbing each path. This yields an explicit, cheap-to-compute adversarial attack that stands in for the expensive worst-case search. Tested across stationary and nonstationary Heston (stochastic-volatility) dynamics and a generalized affine diffusion, WRAP-trained hedgers hold up better when the market drifts away from the training regime than nominally-trained ones.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A hedger chooses positions over time to minimize a risk functional of terminal hedging error (e.g., a convex risk measure of the P&amp;L). Trajectories are drawn from a <strong>weighted empirical reference distribution</strong> $\hat{\mathbb P}_w = \sum_i w_i \delta_{x_i}$, where $x_i$ is the $i$-th observed path and the fixed baseline weights $w_i$ are chosen to balance <strong>sampling uncertainty</strong> (few data) against <strong>temporal drift</strong> (old data is stale). Around $\hat{\mathbb P}_w$ the adversary may move within an <strong>ambiguity set</strong> with two budgets.</p>
+<p><strong>The key equation(s).</strong> The training objective is a two-budget DRO problem:
+$$\min_{\theta}\ \sup_{\mathbb Q \in \mathcal A}\ \mathbb E_{\mathbb Q}\big[\ell(\theta, X)\big],$$
+where $\theta$ are the neural-network hedger's parameters, $\ell$ is the hedging loss, $X$ a market path, and the ambiguity set is
+$$\mathcal A = \big\{ \mathbb Q : D_\phi(\text{reweighting}) \le \rho_1,\ \ W_{\mathrm{OT}}(\text{path perturbation}) \le \rho_2 \big\},$$
+with $D_\phi$ a $\phi$-divergence controlling how far the adversary may <strong>reweight</strong> trajectories (budget $\rho_1$) and $W_{\mathrm{OT}}$ an optimal-transport cost controlling how far it may <strong>perturb</strong> paths (budget $\rho_2$). The central analytical result is a <strong>joint first-order expansion</strong>:
+$$\sup_{\mathbb Q \in \mathcal A}\mathbb E_{\mathbb Q}[\ell] \approx \mathbb E_{\hat{\mathbb P}_w}[\ell] + \underbrace{c_1\,\mathrm{Disp}(\ell)}_{\text{reweighting}} + \underbrace{c_2\,\mathbb E\big[\|\nabla_x \ell\|_*\big]}_{\text{transport}},$$
+where $\mathrm{Disp}(\ell)$ measures the dispersion (spread) of losses across trajectories, $\nabla_x \ell$ is the loss sensitivity to path perturbation, $\|\cdot\|_*$ a dual norm, and $c_1, c_2$ constants set by the budgets $\rho_1, \rho_2$.</p>
+<p><strong>The method.</strong> The expansion replaces the intractable inner supremum with a <strong>tractable first-order approximation</strong>, yielding an explicit finite-dimensional adversarial attack: at each training step, reweight trajectories toward high-loss ones and perturb paths along the loss gradient, each scaled by its budget. The hedger's network is then trained by gradient descent against this attack — standard adversarial training, but with the perturbations derived from the DRO geometry rather than chosen ad hoc.</p>
+<p><strong>Results with numbers.</strong> Evaluation spans <strong>stationary and nonstationary Heston dynamics</strong> and a <strong>generalized affine diffusion</strong>. The reported pattern: WRAP-trained hedgers show improved robustness — lower tail/worst-case hedging loss under distribution shift — relative to hedgers trained on the nominal (un-attacked) weighted empirical distribution, with the two decomposition terms letting the user dial robustness against drift (transport budget) separately from robustness against sampling noise (reweighting budget).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Deep hedging</strong> — using a neural network, trained on market trajectories, to decide hedging trades instead of a closed-form formula.</li>
+<li><strong>Nonstationarity</strong> — the property that a market's statistical behavior (volatility, correlations) changes over time, so the past is an imperfect guide.</li>
+<li><strong>Distributionally robust optimization (DRO)</strong> — optimizing against the worst distribution within an "ambiguity set" rather than the single estimated one.</li>
+<li><strong>$\phi$-divergence</strong> — a family of measures of how different two distributions are, used here to cap how aggressively the adversary may reweight data.</li>
+<li><strong>Optimal transport (Wasserstein) constraint</strong> — a budget on how far the adversary may physically move/perturb each trajectory's path.</li>
+<li><strong>First-order expansion</strong> — a Taylor approximation keeping only the leading (linear) term, turning an intractable optimization into a cheap explicit formula.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline elegance — a closed-form first-order attack — is also its main limitation: a first-order expansion is only trustworthy for <em>small</em> ambiguity budgets, and real regime breaks can be large, where higher-order terms the method drops may dominate. The tests are on simulated Heston/affine dynamics, not live markets with jumps, transaction-cost frictions, and liquidity holes, so robustness on real desks is unproven. Still, as a principled, cheap way to make deep hedgers less brittle to drift, WRAP is a sensible and implementable upgrade over plain empirical-risk training.</p>
+<h3>Bottom Line</h3>
+<p>Train your hedging robot against a budgeted adversary, and it stops panicking when the market stops behaving like the textbook.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Shapley-based Structural Analysis of Neural Calibration for Stochastic Volatility Models</h2>
+  <p class="meta">Shaïn Afzali, Serena Della Corte, Antonis Papapantoleon<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-10-02 &middot; <a href="http://arxiv.org/abs/2610.03076v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.03076v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper opens the black box of neural networks that calibrate option-pricing models, using game-theory "credit scores" to reveal that the short-dated, far-out-of-the-money corners of the volatility smile do almost all the work of recovering a model's parameters.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Options are contracts whose price depends on how volatile a stock is expected to be. Quants price them with <strong>stochastic volatility models</strong> (Heston, rough Heston) that have a handful of parameters — things controlling the level of volatility, how fast it mean-reverts, how bumpy its own path is. <em>Calibration</em> is the inverse problem: given today's market option prices (summarized as an <em>implied volatility surface</em> across strikes and maturities), find the parameters that reproduce them. Traditionally this is slow numerical optimization. Lately people train a neural network to do it instantly — feed in the surface, out come the parameters. The problem: these networks are black boxes. They're accurate, but <em>which</em> parts of the surface is the network actually using? If we don't know, we can't trust them, simplify them, or diagnose when they'll fail.</p>
+<p><strong>The idea.</strong> Borrow a tool from explainable AI called <strong>Shapley values</strong> — originally a fair way to split credit among players in a cooperative game. Here the "players" are the input features (points on the volatility surface), and the "payout" is the network's calibration accuracy. A Shapley value tells you how much each input point <em>contributes</em> to recovering each model parameter. The authors go further and use two complementary flavors: <strong>SHAP</strong>, which measures <em>sensitivity</em> (how much wiggling a feature moves the output), and <strong>$\nu$SHAP</strong>, which measures <em>sufficiency</em> (whether a subset of features alone is enough to get the answer). They run this across three network architectures (plain multilayer perceptron, highway, softmax-highway) and two models (Heston, rough Heston).</p>
+<p><strong>What they found.</strong> Strikingly consistent structure. <strong>Short maturities and the wings of the smile</strong> (deep in/out-of-the-money options) dominate parameter inference, no matter the architecture — even though the networks differ in accuracy and size. SHAP and $\nu$SHAP diverge in revealing ways: certain surface regions are <em>sensitive</em> but redundant, others are genuinely <em>sufficient</em>. Best of all, the redundancy they expose is actionable: for the rough Heston model, $\nu$SHAP explanations let them <strong>cut the input dimensionality significantly</strong> — the network needs far fewer surface points than it's being fed — without wrecking accuracy. So the explainability analysis isn't just diagnostic; it yields a leaner, cheaper calibrator.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A stochastic volatility model has parameters $\theta \in \Theta \subset \mathbb R^d$. For Heston, under the risk-neutral measure,
+$$dS_t = r S_t\,dt + \sqrt{v_t}\,S_t\,dW_t^S, \qquad dv_t = \kappa(\bar v - v_t)\,dt + \xi\sqrt{v_t}\,dW_t^v,\quad d\langle W^S, W^v\rangle_t = \rho\,dt,$$
+where $S_t$ is the asset price, $v_t$ the instantaneous variance, $r$ the rate, $\kappa$ the mean-reversion speed, $\bar v$ the long-run variance, $\xi$ the vol-of-vol, and $\rho$ the correlation between the two Brownian motions $W^S, W^v$. Rough Heston replaces the variance dynamics with a fractional (memory) kernel of Hurst parameter $H < 1/2$. The model maps $\theta$ to an implied-volatility surface $\sigma_{\mathrm{IV}}(k, T)$ over log-moneyness $k$ and maturity $T$. The <strong>calibration network</strong> learns the inverse map $\Phi: \sigma_{\mathrm{IV}}(\cdot,\cdot) \mapsto \hat\theta$.</p>
+<p><strong>The key equation(s).</strong> Treat the inputs (discretized surface points) as a set $N$ of "players." For a predictive value function $v(S)$ measuring accuracy using only feature subset $S \subseteq N$, the <strong>Shapley value</strong> of feature $i$ is
+$$\phi_i = \sum_{S \subseteq N\setminus\{i\}} \frac{|S|!\,(|N|-|S|-1)!}{|N|!}\,\big[\, v(S \cup \{i\}) - v(S)\,\big],$$
+the average marginal contribution of feature $i$ over all orderings of the other features. <strong>SHAP</strong> instantiates $v$ via a sensitivity-based (conditional-expectation) value function; <strong>$\nu$SHAP</strong> instantiates $v$ via a <em>sufficiency</em> notion — how well subset $S$ alone reconstructs the target — so the two assign credit under different definitions of "importance."</p>
+<p><strong>The method.</strong> Train three architectures — <strong>multilayer perceptron, highway network, softmax-parametrized highway</strong> — to invert the pricing map for Heston and rough Heston. Then compute SHAP and $\nu$SHAP attributions per output parameter, aggregate them across the $(k,T)$ grid, and compare attribution maps across architectures. Finally, use the $\nu$SHAP sufficiency rankings to prune low-value inputs and <strong>retrain on reduced input dimension</strong>, checking accuracy is preserved — turning an interpretability diagnostic into a dimensionality-reduction method.</p>
+<p><strong>Results with numbers.</strong> The qualitative findings are robust: <strong>short maturities and smile wings consistently dominate</strong> attribution for parameter inference, and the <strong>dominant attribution structure stays stable across architectures</strong> despite differences in predictive accuracy and parameter count. The concrete payoff is quantitative dimensionality reduction: $\nu$SHAP-guided pruning achieves a <strong>significant reduction in input dimensionality for rough Heston</strong> while retaining calibration quality, exposing <strong>substantial redundancy</strong> in the implied-vol surface inputs.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Stochastic volatility model</strong> — an option-pricing model in which volatility itself is random and evolves over time (e.g., Heston).</li>
+<li><strong>Implied volatility surface</strong> — the grid of volatilities implied by market option prices across strike and maturity; the input to calibration.</li>
+<li><strong>Calibration (inverse problem)</strong> — finding the model parameters that make the model reproduce observed market prices.</li>
+<li><strong>Shapley value</strong> — a game-theoretic measure assigning each input a fair share of credit for a model's output, averaged over all feature orderings.</li>
+<li><strong>SHAP vs. $\nu$SHAP</strong> — SHAP scores a feature's <em>sensitivity</em> (effect of perturbing it); $\nu$SHAP scores a feature subset's <em>sufficiency</em> (can it alone produce the answer).</li>
+<li><strong>Rough Heston / Hurst parameter $H$</strong> — a version of Heston whose volatility has long memory and rough sample paths, governed by $H < 1/2$.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is an interpretability study of <em>synthetic</em> calibration (model-generated surfaces), so the clean attribution maps may blur on real, noisy, arbitrage-tainted market surfaces. Shapley values are famously expensive and depend on how you define the value function and reference distribution, so SHAP-vs-$\nu$SHAP differences partly reflect those choices, not just the data. That said, the practical takeaway — that short maturities and wings carry the calibration signal, and inputs can be pruned — is immediately useful for anyone building faster, more trustworthy neural calibrators.</p>
+<h3>Bottom Line</h3>
+<p>The far corners of the volatility smile quietly carry the signal, and game theory can prove it — letting you build a leaner calibrator that still gets the model right.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
