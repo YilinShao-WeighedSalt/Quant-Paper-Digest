@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 12, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 12, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> CorrFlow: Exact and Permutation-Equivariant Flow Matching on the Correlation Elliptope</h2>
+  <p class="meta">Gautier Marti<br>
+    <span class="cat">stat.ML</span> &middot; 2026-10-09 &middot; <a href="http://arxiv.org/abs/2610.13606v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.13606v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new AI generator makes up realistic "correlation maps" of how stocks move together, and — unlike older methods — every single map it produces is automatically a <em>valid</em> correlation matrix, no repairs needed.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine you track 80 companies on the Taiwan stock exchange and you want to know, for every pair, how much they tend to move together: do TSMC and MediaTek rise and fall in lockstep, or independently? Stack all those pairwise numbers into a grid and you get a <em>correlation matrix</em> — a square table where each cell is a number between −1 (move oppositely) and +1 (move identically), with 1's down the diagonal (everything correlates perfectly with itself). Banks and funds need <em>many</em> plausible versions of such a grid to stress-test portfolios: "if correlations shifted like <em>this</em>, would we blow up?" But you can't just scribble random numbers into the grid. A correlation matrix has to be internally consistent — if A tracks B and B tracks C, then A and C can't be wildly opposed. Most random grids violate this and are mathematically impossible.</p>
+<p><strong>The idea.</strong> Older AI approaches treated the grid like an image, let a neural network paint entries freely, and then <em>repaired</em> the illegal results by nudging them back toward legality — like letting someone write any date, including "February 30th," then fixing it afterward. The authors' system, <strong>CorrFlow</strong>, instead changes the <em>coordinate system</em> first. There's a clever reversible transformation (a generalization of the Fisher transform) that re-expresses any valid correlation grid as a list of totally unconstrained numbers — numbers the network can set to anything at all. The network learns in <em>that</em> free space, and when you transform back, you <em>always</em> land on a legal grid. No repairs, ever. On top of that, CorrFlow is "permutation-equivariant": if you shuffle the order of the 80 companies, the output just shuffles the same way — it doesn't secretly depend on an arbitrary row ordering, which is how you'd want it, since the companies have no natural order.</p>
+<p><strong>What they found.</strong> CorrFlow produced <strong>100% valid</strong> correlation matrices with no repair step, and its generated grids matched the statistical fingerprint of real market data far better than the competitors: a distance-to-reality score of <strong>0.712</strong> versus <strong>4.339</strong> for a GAN-based method and <strong>4.610</strong> for image diffusion (lower is better — it was roughly six times closer).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A valid $n\times n$ correlation matrix $C$ lives on the <em>correlation elliptope</em> $\mathcal{E}_n = \{C \in \mathbb{R}^{n\times n} : C = C^\top,\ C_{ii}=1,\ C \succeq 0\}$ — symmetric, unit diagonal, and positive semi-definite ($C \succeq 0$ means all eigenvalues $\ge 0$). This set is curved and bounded, so naive generation escapes it. For full-rank matrices the authors use a bijection $\phi:\mathcal{E}_n^{+} \to \mathbb{R}^{d}$, a generalized Fisher transform, mapping the constrained manifold to unconstrained Euclidean coordinates $z=\phi(C)$, with $d = n(n-1)/2$ the number of free off-diagonal entries.</p>
+<p><strong>The key equations.</strong> The generator is a <em>flow-matching</em> model. It defines a continuous path between a simple noise distribution $p_0$ (standard Gaussian) and the data distribution $p_1$ in $z$-coordinates, governed by an ordinary differential equation</p>
+<p>$$\frac{d z_t}{dt} = v_\theta(z_t, t), \qquad t\in[0,1],$$</p>
+<p>where $z_t$ is the sample at interpolation time $t$, and $v_\theta$ is a neural <em>velocity field</em> with parameters $\theta$. Training uses the conditional flow-matching loss</p>
+<p>$$\mathcal{L}(\theta) = \mathbb{E}_{t,\,x_0,\,x_1}\big[\,\lVert v_\theta(z_t,t) - (x_1 - x_0)\rVert^2\,\big],$$</p>
+<p>where $x_0\sim p_0$ is a noise draw, $x_1\sim p_1$ a real data point, $z_t = (1-t)x_0 + t x_1$ the straight-line interpolant, and $x_1 - x_0$ the target velocity along it. Minimizing this teaches $v_\theta$ to transport noise into data. Generation then integrates the ODE from a fresh noise sample $z_0$ up to $z_1$, and outputs $C = \phi^{-1}(z_1)$, which is guaranteed to lie in $\mathcal{E}_n$.</p>
+<p><strong>The method.</strong> The velocity field $v_\theta$ is a <em>graph neural network</em> so that relabeling the variables permutes inputs and outputs identically (permutation equivariance). Sampling is deterministic ODE integration rather than iterative denoising.</p>
+<p><strong>Results with numbers.</strong> On $80\times80$ Taiwan equity matrices, across five random seeds per method: CorrFlow achieved feature sliced-Wasserstein distance $0.712 \pm 0.141$, versus $4.339 \pm 0.252$ (CorrGAN) and $4.610 \pm 0.191$ (image diffusion) after projecting their invalid outputs back. Validity: 100% for CorrFlow with no projection. It also beat naive historical lookup on this distance, though lookup kept higher <em>local coverage</em>.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Positive semi-definite ($C \succeq 0$)</strong> — the mathematical condition that makes a grid a <em>possible</em> correlation structure: no combination of the variables can have negative variance.</li>
+<li><strong>Correlation elliptope</strong> — the curved, bounded set of all legal correlation matrices.</li>
+<li><strong>Fisher transform</strong> — a reversible reshaping that turns constrained correlation values into free, unconstrained numbers.</li>
+<li><strong>Flow matching</strong> — training a neural network to learn a smooth "velocity" that carries random noise into realistic data by following an ODE.</li>
+<li><strong>Permutation equivariance</strong> — reordering the inputs reorders the outputs the same way and changes nothing else.</li>
+<li><strong>Sliced-Wasserstein distance</strong> — a way to measure how far apart two probability distributions are by comparing them along many random 1-D projections.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The authors are refreshingly candid: their gains hold <em>under the evaluated training budget</em> and do not prove superiority over fully tuned image models, nor do they isolate which ingredient (the transform vs. the graph network) does the heavy lifting. Historical lookup still won on local coverage, meaning CorrFlow may oversmooth rare local structures. It's tested on one market and one size; whether it scales to the thousands of assets a real risk desk cares about is unproven.</p>
+<h3>Bottom Line</h3>
+<p>Fix the coordinate system so every draw is born legal, and a generative model of market correlations stops cheating and starts matching reality.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Three options are roughly enough - Variance-optimal semi-static hedging in the rough Heston model</h2>
+  <p class="meta">Paolo Di Tella, Martin Keller-Ressel, Beatrice Ongarato<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-09 &middot; <a href="http://arxiv.org/abs/2610.13543v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.13543v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To hedge a bet on how bumpy a stock will be, you don't need a complicated ever-changing portfolio — buying just three plain options up front removes over 95% of your risk.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>variance swap</em> is a contract that pays off based on how much a stock actually jiggles around over the next few months — it's a direct bet on volatility itself, not on whether the price goes up or down. Banks sell these to clients and then need to <em>hedge</em>: offset their own exposure so they don't lose a fortune if volatility surprises them. The classic way is "dynamic hedging" — continuously buying and selling the underlying stock, rebalancing all day long. But real volatility behaves in a jagged, "rough" way (bursts and lulls that are far spikier than textbook models assume), and against that roughness, pure stock-trading leaves a lot of risk on the table. Can we do better without trading frantically?</p>
+<p><strong>The idea.</strong> Mix two kinds of hedging. Keep <em>some</em> ongoing stock trading (the "dynamic" part), but <em>also</em> buy a small, fixed basket of ordinary call and put options at the start and just hold them ("static" — set and forget). This is <em>semi-static</em> hedging: part active, part buy-and-hold. The intuition is that volatility bets are curved in a way plain stock positions can't mimic, but options — whose payoffs bend — can absorb exactly that curvature. The question the paper answers precisely is: <em>how many</em> options do you actually need, and <em>which</em> ones? Their striking finding, under realistic settings, is that <strong>three</strong> well-chosen vanilla options do almost the entire job.</p>
+<p><strong>What they found.</strong> Adding just three static options cut the leftover hedging error by <strong>more than 95%</strong> compared to trading the stock alone — and this held across every "roughness" setting they tried (from very rough markets to smooth ones). The punchline title says it: <em>three options are roughly enough</em>.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The stock price follows the <em>rough Heston</em> model under a risk-neutral measure $\mathbb{Q}$. Variance is driven by a fractional (rough) process. Concretely the log-price $X_t = \log S_t$ and variance $V_t$ obey, schematically,</p>
+<p>$$dX_t = -\tfrac12 V_t\,dt + \sqrt{V_t}\,dW_t, \qquad V_t = V_0 + \int_0^t K(t-s)\,\lambda(\theta - V_s)\,ds + \int_0^t K(t-s)\,\nu\sqrt{V_s}\,dB_s,$$</p>
+<p>with fractional kernel $K(t) = t^{H-1/2}/\Gamma(H+1/2)$. Here $S_t$ is the stock price, $V_t$ its instantaneous variance, $W_t,B_t$ correlated Brownian motions, $\lambda$ the mean-reversion speed, $\theta$ the long-run variance, $\nu$ the vol-of-vol, and $H\in(0,1/2]$ the <em>Hurst index</em> controlling roughness (smaller $H$ = rougher). The kernel $K$ gives the model memory.</p>
+<p><strong>The key equation.</strong> The hedger chooses a dynamic position $\xi$ in the stock and static weights $w = (w_1,\dots,w_m)$ on $m$ European options with payoffs $H_1,\dots,H_m$, to minimize the <em>variance of the residual</em>:</p>
+<p>$$\min_{\xi,\,w}\ \mathrm{Var}_{\mathbb{Q}}\!\Big[\, \Pi - \int_0^T \xi_t\, dS_t - \sum_{j=1}^m w_j\, H_j \,\Big],$$</p>
+<p>where $\Pi$ is the variance-swap payoff, $T$ the horizon, and the integral is the cumulative P&amp;L from dynamic trading. This is a <em>variance-optimal</em> hedging criterion.</p>
+<p><strong>The method.</strong> The rough variance process is non-Markovian, so they use the <em>Markovian lift</em>: track the whole <em>forward variance curve</em> $t\mapsto \mathbb{E}_t[V_u]$ as an infinite-dimensional state that <em>is</em> Markovian. Then, using Fourier representations of the option payoffs and the <em>Laplace-transform</em> characterization of the log-price (the affine/Riccati structure of rough Heston), they derive <strong>semi-explicit formulas</strong> for the optimal $\xi$, the optimal weights $w$, and the resulting minimal error — reducing the problem to computable transforms rather than brute-force simulation. A separate numerical optimization picks <em>which</em> strikes/maturities to include (the "optimal claim selection").</p>
+<p><strong>Results with numbers.</strong> Across roughness regimes $H = 0.1,\ 0.3,\ 0.5$, three static vanilla options reduced the residual hedging-error variance by <strong>more than 95%</strong> relative to the purely dynamic hedge, under standard parametrization.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Variance swap</strong> — a contract paying the difference between realized volatility and a fixed strike; a pure bet on how much a stock moves.</li>
+<li><strong>Semi-static hedging</strong> — a hedge combining continuous trading in the stock with a fixed, held-to-maturity basket of options.</li>
+<li><strong>Rough Heston model</strong> — a stochastic-volatility model whose variance is driven by a "rough" (fractional) noise, matching the jagged volatility seen in real markets.</li>
+<li><strong>Hurst index $H$</strong> — a number measuring roughness/memory of a path; below $1/2$ means rough and anti-persistent.</li>
+<li><strong>Markovian lift</strong> — rewriting a memory-laden (non-Markovian) process as a Markov process on a bigger state space (here, the forward variance curve).</li>
+<li><strong>Laplace/Fourier transform methods</strong> — turning pricing and hedging integrals into transform-domain formulas you can evaluate quickly.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The result lives entirely under the risk-neutral measure and assumes the rough Heston model is literally true, with known parameters — real desks face model misspecification and must estimate $H$, $\nu$, etc., noisily. "Three options enough" is shown for standard parameters; exotic regimes or stressed markets could need more. And the static basket's effectiveness depends on those specific strikes being liquid and cheap to trade, which isn't guaranteed.</p>
+<h3>Bottom Line</h3>
+<p>Volatility risk is curved, and three well-placed options bend to fit it — so a mostly passive hedge beats frantic trading.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Diffusive Market Impact: A Consistent Microfoundation</h2>
+  <p class="meta">Julius F. Bonart<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-08 &middot; <a href="http://arxiv.org/abs/2610.11691v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.11691v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a big trader buys over time, their own buying pushes prices in a way that looks like pure random noise to everyone else — and this paper builds, from the ground up, <em>why</em> that happens.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy a large amount of a stock, you move its price against yourself — the more you buy, the higher it climbs, so your average purchase price worsens. This is <em>market impact</em>, and it's the single biggest hidden cost for large investors. Decades of data reveal two stubborn patterns: impact grows like the <em>square root</em> of how much you trade (trade four times as much, pay only twice the impact), and for slow trading it flattens into a straight line. A recent "structural" theory explained these by assuming the price, once impacted, wanders <em>diffusively</em> — like a drunkard's random walk — rather than snapping back cleanly. But that was an assumption. This paper asks: can we <em>derive</em> that diffusive wandering from the behavior of actual market participants, instead of just positing it?</p>
+<p><strong>The idea.</strong> Picture a big trader plus a crowd of <em>arbitrageurs</em> — sharp players who sniff out and erase any predictable price pattern. Each arbitrageur sees the realized returns plus a tiny private clue about one piece of the "true" value. No single one can reconstruct the big trader's plan. But collectively, as their private clues add up to complete information, they grind away every forecastable wiggle. What's left — the price impact the big trader creates — ends up <em>white</em>, meaning statistically unpredictable noise, like static on a radio. So the diffusive behavior isn't magic; it's the fingerprint of many competing arbitrageurs each erasing predictability. The authors then ask which specific "shape" of impact is most natural and argue for the one that distorts the trader's own flow the least while still guaranteeing trading always <em>costs</em> (never secretly pays) the trader.</p>
+<p><strong>What they found.</strong> The derivation reproduces the empirical regularities, and a simple version of the model predicts that impact "decays" — how much of the price kick fades afterward — sits in a narrow <strong>50%–60%</strong> band, matching some real-world measurements. The model also predicts a weak, very-long-term mean reversion (prices slowly drift back).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The economy has one trader submitting a trade schedule and many arbitrageurs. The trade flow is generated by filtering an innovation sequence: $q = L\cdot w$, where $w$ is a white innovation (the genuinely new, unpredictable part of the trading schedule) and $L$ is a causal linear filter shaping it over time. Each arbitrageur observes realized returns plus a private signal of one component of the fundamental return.</p>
+<p><strong>The key equation.</strong> The central result is that, as aggregate private information becomes complete and the system converges to a stationary limit, the <em>impact return</em> satisfies</p>
+<p>$$j = U\cdot w,$$</p>
+<p>where $j$ is the impact-return process, $w$ the innovation in the trading schedule, and $U$ is a <em>causal all-pass</em> filter. "Causal" means it uses only past and present (no peeking ahead); "all-pass" means $|U(e^{i\omega})| = 1$ at every frequency $\omega$ — it changes the <em>phase</em> (timing) but not the <em>magnitude</em> of each frequency. Because $w$ is white and $U$ is all-pass, $j$ is also <strong>white</strong>: impact returns are serially unpredictable, i.e. diffusive, even though no individual arbitrageur can reconstruct the trading strategy.</p>
+<p><strong>The method.</strong> The authors <em>microfound</em> the diffusive-impact assumption: rather than postulating diffusivity, they derive it as the limit of an information economy with competing arbitrageurs, using stationary linear-filter (frequency-domain) analysis and a convergence-to-stationarity argument. Among all admissible all-pass $U$, they single out the one of <em>minimum distance from</em> $L$ (the trade-flow filter): this minimally distorts the flow under impact and arbitrage, and guarantees positive impact costs.</p>
+<p><strong>Results with numbers.</strong> Under a biexponential trade-flow filter $L$ (the simplest form the model allows), impact decline is confined to a <strong>50%–60%</strong> band — lower than some empirical estimates and consistent with others. More complex flow models yield different decays. The framework reproduces the square-root impact law and its crossover to a linear regime at low trading rates, and predicts weak long-term mean-reversion of the impact state.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the adverse price move your own trading causes, worsening your execution price.</li>
+<li><strong>Square-root law</strong> — the empirical rule that impact scales with the square root of traded quantity, not linearly.</li>
+<li><strong>Arbitrageur</strong> — a trader who profits by detecting and erasing predictable price patterns, making prices more efficient.</li>
+<li><strong>White noise</strong> — a signal with no predictable structure; every future value is uncorrelated with the past.</li>
+<li><strong>Causal all-pass filter</strong> — a transformation using only past/present data that reshuffles the timing of frequencies but leaves their amplitudes untouched.</li>
+<li><strong>Microfoundation</strong> — deriving an aggregate pattern from explicit, individually rational agent behavior rather than assuming it.</li>
+<li><strong>Impact propagator / decay</strong> — the function describing how a past trade's price kick fades over time.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a stylized equilibrium story: arbitrageurs are idealized, information aggregates cleanly, and the cleanest results come from the simplest biexponential flow. The authors themselves note real markets likely have "distorted" long-term impact tails the pure model misses. It explains <em>why</em> diffusive impact can arise, but turning it into a tool a trading desk calibrates and uses to schedule orders is left for future work.</p>
+<h3>Bottom Line</h3>
+<p>A crowd of pattern-erasing arbitrageurs is exactly what turns your trading footprint into unpredictable noise — diffusive impact, derived rather than assumed.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> SOTA: Stock Options Trading Agents Guided by Option-Implied Return Distributions</h2>
+  <p class="meta">Yizhen Xie, Mengyang Liu<br>
+    <span class="cat">cs.AI</span> &middot; 2026-10-07 &middot; <a href="http://arxiv.org/abs/2610.10407v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.10407v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>An AI agent that picks <em>option strategies</em> (not individual contracts) earned 18% over six months — and, surprisingly, feeding it news during training made it <em>worse</em>.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Options are contracts giving the right to buy or sell a stock at a set price by a set date. A single stock can have <em>thousands</em> of these at once — different strike prices, different expirations — and skilled traders rarely buy just one; they combine several into named "strategies" (a straddle, an iron condor, a spread) that profit under specific market views. For an AI to trade options well, it faces a brutal choice problem: which contracts, and in what combination? Most prior AI systems dodge this by locking the agent into one fixed strategy forever, which can't adapt when the market mood changes.</p>
+<p><strong>The idea.</strong> Separate the <em>what</em> from the <em>how</em>. Let a language-model-based agent reason at the <strong>strategy level</strong> — "given current conditions, I want a volatility-selling posture" — and hand the messy job of choosing exact contracts to deterministic "resolver" code. The agent is guided by <em>option-implied return distributions</em>: the market's own forecast of where the stock might land, extracted from option prices. The authors build this agent, <strong>SOTA</strong>, by taking an open language model (Qwen) and <em>post-training</em> it in two stages: first imitate expert example trades (supervised fine-tuning), then improve by trial-and-error against a reward (reinforcement learning). A natural question is whether letting the agent read <em>news headlines</em> helps. It does — but only sometimes, and that asymmetry is the paper's most interesting discovery.</p>
+<p><strong>What they found.</strong> Over a six-month out-of-sample test on options for nine big U.S. stocks plus SPY, SOTA earned an <strong>18.3% total return</strong>, a <strong>Sharpe ratio of 1.60</strong> (good risk-adjusted performance), and a <strong>maximum drawdown of 8.96%</strong> (worst peak-to-trough loss), beating rule-based and machine-learning strategy-pickers. The twist: news <em>helped</em> when generating the expert demonstrations, but <em>keeping</em> news during reinforcement learning collapsed returns from <strong>+18.3% to −2.7%</strong> — the agent overfit to noisy headlines.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The decision is factored into two levels. At each time $t$, the agent observes a state $s_t$ (market features, and an <em>option-implied return distribution</em> $p_t(r)$ recovered from the cross-section of option prices via the Breeden–Litzenberger relation, $p_t(r)\propto \partial^2 C/\partial K^2$, where $C$ is the call price and $K$ the strike). It selects a high-level <em>strategy</em> $a_t$ from a finite menu $\mathcal{A}$ (straddle, spread, condor, …). A deterministic resolver $\rho$ then maps $(a_t, s_t)$ to concrete contracts and sizes, so $\rho:\mathcal{A}\times\mathcal{S}\to\text{portfolio}$.</p>
+<p><strong>The key objective.</strong> Training is framed as a Markov decision process maximizing expected discounted reward,</p>
+<p>$$J(\pi_\theta) = \mathbb{E}_{\pi_\theta}\!\Big[\sum_{t} \gamma^t\, R_t\Big],$$</p>
+<p>where $\pi_\theta$ is the agent's policy (the language model with parameters $\theta$), $\gamma\in(0,1)$ the discount factor, and $R_t$ a risk-aware reward tied to realized P&amp;L. Post-training has two phases: supervised fine-tuning minimizes imitation loss against frontier-teacher trajectories,</p>
+<p>$$\mathcal{L}_{\text{SFT}}(\theta) = -\mathbb{E}_{(s,a)\sim \mathcal{D}}\big[\log \pi_\theta(a\mid s)\big],$$</p>
+<p>with $\mathcal{D}$ the demonstration dataset; then reinforcement learning improves $\pi_\theta$ on the reward $J$.</p>
+<p><strong>The method.</strong> Hierarchical decision-making (LLM strategy selector + deterministic contract resolver) trained by supervised fine-tuning followed by reinforcement learning on Qwen3.8-27B. This abstracts the thousands-of-contracts action space down to a handful of strategy choices, making RL tractable.</p>
+<p><strong>Results with numbers.</strong> Six-month out-of-sample, options on nine large-cap U.S. equities plus SPY: total return <strong>18.3%</strong>, Sharpe <strong>1.60</strong>, max drawdown <strong>8.96%</strong>, outperforming rule-based and ML strategy selectors in the same environment. News asymmetry: present in teacher trajectories it helped; retained through RL it cut return to <strong>−2.7%</strong>.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Option / strike / expiration</strong> — a contract to buy or sell at a set price (strike) by a set date (expiration).</li>
+<li><strong>Straddle / spread / condor</strong> — named multi-leg option strategies, each profiting under a particular view on direction or volatility.</li>
+<li><strong>Option-implied return distribution</strong> — the probability distribution of future returns the market is pricing in, backed out of option prices.</li>
+<li><strong>Sharpe ratio</strong> — average return divided by its volatility; higher means more reward per unit of risk.</li>
+<li><strong>Maximum drawdown</strong> — the largest peak-to-trough loss over the period.</li>
+<li><strong>Supervised fine-tuning then reinforcement learning</strong> — first copy expert examples, then self-improve by chasing a reward signal.</li>
+<li><strong>Markov decision process</strong> — the formal framework of states, actions, and rewards used to train sequential decision agents.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Six months out-of-sample on ten tickers is a thin slice — one favorable regime could flatter the 18.3%, and options strategies notoriously hide tail risk that short windows don't reveal. The news result is a caution flag, not a solved problem: it shows the agent is fragile to noisy inputs, which is worrying for live deployment. Transaction costs, slippage, and the liquidity of multi-leg option trades can erode paper returns fast.</p>
+<h3>Bottom Line</h3>
+<p>Let the AI choose the <em>strategy</em> and let code fill in the contracts — and know that more information isn't always better, because news nearly sank the ship.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> $L_0$ Feature Selection via Monte Carlo Tree Search in High-Dimensional Financial Regression</h2>
+  <p class="meta">Cameron Mouangue, Tristan Cazenave<br>
+    <span class="cat">cs.LG</span> &middot; 2026-10-09 &middot; <a href="http://arxiv.org/abs/2610.13574v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.13574v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of the usual shrink-everything trick for picking which of a thousand signals matter, a game-playing search algorithm hunts for the best small subset directly — and explains the stock market better.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose you want to explain the weekly return of the NASDAQ-100 and you've engineered <em>1,072</em> candidate signals — market indicators, macroeconomic series, factor exposures. Most are useless or redundant, and many move together (if two signals say nearly the same thing, keeping both just adds confusion). You want a <em>small, honest</em> handful that genuinely explains returns, both because fewer signals are easier to trust and interpret, and because a bloated model overfits noise. The standard tool, <em>Lasso</em>, handles this by penalizing the size of the coefficients, which gently pushes most to zero. But that penalty also <em>shrinks</em> the signals you keep, blurring exactly the cases where the real information is spread across several correlated variables.</p>
+<p><strong>The idea.</strong> Treat feature selection as a <em>game</em>. Picking features one at a time is a sequence of moves, like a board game where each move adds a variable to your lineup, and the "score" at the end is how well the chosen lineup explains returns <em>on data it hasn't seen</em>. Then use <strong>Monte Carlo Tree Search</strong> — the same family of algorithm that powers computer Go and chess engines — to explore this game tree intelligently: play out many random continuations, learn which early moves tend to lead to high scores, and focus the search there. Crucially, subsets are judged by <em>out-of-sample</em> performance, not by how well they fit the training data, and the method can also penalize bigger subsets and multicollinearity directly. No shrinkage of the kept signals — you select the subset, then fit it cleanly.</p>
+<p><strong>What they found.</strong> On explaining weekly NASDAQ-100 returns from 1,072 features, the search found sparse subsets with an <strong>out-of-sample $R^2$ of 0.6961</strong>, versus <strong>0.6313</strong> for an optimized Lasso — meaningfully more explanatory power, with the interpretability bonus of a genuinely small, clean feature set.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The task is <em>contemporaneous explanatory regression</em>: explain the target $y$ (weekly NASDAQ-100 return) from a design matrix $X \in \mathbb{R}^{T\times p}$ with $p = 1{,}072$ engineered features over $T$ weeks. The goal is an $L_0$-sparse model — select a subset $S\subseteq\{1,\dots,p\}$ and fit ordinary least squares on only those columns. $L_0$ sparsity means limiting the <em>count</em> of nonzero coefficients:</p>
+<p>$$\min_{\beta}\ \lVert y - X\beta \rVert_2^2 \quad \text{subject to}\quad \lVert\beta\rVert_0 \le k,$$</p>
+<p>where $\beta$ is the coefficient vector, $\lVert\beta\rVert_0$ counts its nonzero entries, and $k$ is the budget. This is combinatorial (NP-hard) — you can't just try all $\binom{p}{k}$ subsets.</p>
+<p><strong>The key idea vs. the baseline.</strong> Lasso relaxes the $L_0$ count to an $L_1$ penalty,</p>
+<p>$$\min_{\beta}\ \lVert y - X\beta \rVert_2^2 + \lambda \lVert\beta\rVert_1,\qquad \lVert\beta\rVert_1 = \textstyle\sum_j |\beta_j|,$$</p>
+<p>with $\lambda$ the shrinkage strength. The $L_1$ term both selects <em>and shrinks</em>. The paper instead attacks $L_0$ directly via search, scoring a candidate subset $S$ by out-of-sample validation error (and optionally a lexicographic objective trading off subset size and multicollinearity) rather than in-sample fit.</p>
+<p><strong>The method.</strong> <em>Monte Carlo Tree Search</em> with <em>Generalized Nested Rollout Policy Adaptation (GNRPA)</em>. Feature selection is a sequential decision process: each node adds a feature; rollouts estimate a subset's out-of-sample value; GNRPA adapts a rollout <em>policy</em> (a learned bias over which features to try) across nested search levels, concentrating effort on promising subsets without exhaustively enumerating them.</p>
+<p><strong>Results with numbers.</strong> Explaining weekly NASDAQ-100 returns from 1,072 features: out-of-sample $R^2 = 0.6961$ for MCTS/GNRPA versus $0.6313$ for an optimized Lasso baseline — a gain of about 0.065 in explained variance, achieved with a sparse, interpretable subset.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>$L_0$ / $L_1$ regularization</strong> — $L_0$ limits the <em>number</em> of nonzero coefficients (true sparsity); $L_1$ (Lasso) penalizes their <em>total magnitude</em>, which both selects and shrinks.</li>
+<li><strong>Lasso</strong> — a regression that adds an $L_1$ penalty to drive many coefficients to zero.</li>
+<li><strong>Out-of-sample $R^2$</strong> — the fraction of variance explained on data not used for fitting; the honest measure of generalization.</li>
+<li><strong>Multicollinearity</strong> — when predictors are highly correlated, making individual coefficients unstable and hard to interpret.</li>
+<li><strong>Monte Carlo Tree Search</strong> — an algorithm that explores a tree of decisions by simulating many random playouts and biasing toward high-scoring branches.</li>
+<li><strong>GNRPA</strong> — a rollout-policy-adaptation scheme that learns, across nested search levels, which moves to favor.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is an <em>explanatory</em> (contemporaneous) study, deliberately separate from <em>predictive</em> forecasting — a higher explanatory $R^2$ does not mean you can trade on it, since the features are measured at the same time as the return. The approach is far more compute-hungry than Lasso, and MCTS results can vary with the search budget and random seeds. It's tested on a single index over one feature set; robustness across markets and periods is unestablished.</p>
+<h3>Bottom Line</h3>
+<p>Turn feature selection into a game and let a Go-style searcher play it — you get a smaller, sharper set of signals than shrinkage ever hands you.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
