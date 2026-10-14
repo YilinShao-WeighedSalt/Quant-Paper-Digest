@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 14, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 14, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> GROMM: Generative Risk-neutral Option Market Models</h2>
+  <p class="meta">Magnus Wiese, Hans Buehler, Blanka Horvath<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-12 &middot; <a href="http://arxiv.org/abs/2610.16732v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.16732v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of building one formula to price options, they build a living, breathing <em>map</em> of the entire option market that is guaranteed never to offer a free lunch — and then let that map evolve randomly through time.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option is a contract that lets you buy or sell a stock at a fixed price later on. At any moment the market quotes prices for hundreds of these contracts — different strike prices, different expiry dates. Together they form a <em>surface</em> of prices, like a landscape of hills and valleys. Traders desperately want two things from a model of this surface. First, it should never imply <em>arbitrage</em>: a risk-free way to make money out of nothing, which a sane market will not allow. Second, it should describe how that whole surface <em>wobbles</em> from day to day, because that wobble is what a bank hedging thousands of options is truly exposed to. Classic models (like Black–Scholes or local-volatility models) start from an assumption about how the stock price moves and then derive option prices. The authors flip this around: they model the option prices <em>directly</em>, as the primary objects, and make the stock a secondary consequence.</p>
+<p><strong>The idea.</strong> Picture the price surface as a trampoline. Most models describe the person jumping on it (the stock) and let the trampoline shape follow. GROMM instead writes down the rules for how the trampoline's surface itself is allowed to flex, with a strict guarantee built in: no matter how it flexes, you can never pocket a guaranteed profit, neither from today's static shape (<em>static</em> arbitrage) nor from how it moves tomorrow (<em>dynamic</em> arbitrage). They do this inside a framework called SANOS, treating "local volatility" not as a pricing engine but simply as a clever coordinate system — a well-behaved way to <em>describe</em> the surface so that smooth, sensible shapes stay smooth and sensible as they move.</p>
+<p><strong>What they found.</strong> Fed real S&amp;P 500 index-option data from January 2022 to August 2025, the model's starting shape lands inside the bid/ask spread (the gap between buy and sell quotes) for more than 95% of the relevant contracts — so it genuinely matches the market, not a cartoon of it. They then trained its random dynamics both under the real-world probabilities and under the "risk-neutral" pricing probabilities, and confirmed with statistical tests that the evolving surface stays arbitrage-free while still moving like the real market does.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The state of the world is an entire option price surface, represented through a local-volatility-type parametrization $\ell$. The surface lives on a probability space $(\Omega,\mathcal F,(\mathcal F_t),\mathbb P)$ with a risk-neutral measure $\mathbb Q$. Rather than positing $dS_t=\sigma S_t\,dW_t$ and computing option prices from it, GROMM posits dynamics for the <em>code</em> of the whole surface and derives consistency conditions that forbid arbitrage.</p>
+<p><strong>The key ideas.</strong> Static no-arbitrage of a call-price surface $C(T,K)$ in maturity $T$ and strike $K$ is the classical Dupire condition: prices must be increasing in maturity, decreasing then convex in strike,
+$$\frac{\partial C}{\partial T}\ge 0,\qquad \frac{\partial^2 C}{\partial K^2}\ge 0 .$$
+Here $C(T,K)$ is the price of a call expiring at $T$ with strike $K$; the second derivative in $K$ being nonnegative is just the statement that the implied probability density of the future price is never negative. GROMM encodes the surface so these hold <em>by construction</em>. The surface then evolves as a stochastic process; schematically
+$$d\ell_t = b(\ell_t)\,dt + a(\ell_t)\,dW_t ,$$
+where $\ell_t$ is the surface's parametrization at time $t$, $b$ is its drift, $a$ its volatility (diffusion) coefficient, and $W_t$ a multi-dimensional Brownian motion. <em>Dynamic</em> no-arbitrage imposes a drift condition linking $b$ to $a$ (an HJM-style constraint): the drift is not free, but pinned down by the volatility so that no tradable combination can grow risk-free. The authors prove this stochastic evolution admits a <strong>unique strong solution</strong> — meaning that given the randomness $W$, the surface's future path is well-defined and not ambiguous.</p>
+<p><strong>The method.</strong> The backbone is the SANOS representation, which turns the awkward infinite-dimensional object (a full surface) into a tractable parametrized family with no-arbitrage baked in, plus stochastic-analysis tools (Itô calculus and an HJM-type drift restriction) to guarantee dynamic consistency. Calibration fits the initial state $\ell_0$ to market quotes; the dynamics are then estimated separately under $\mathbb P$ and $\mathbb Q$. To <em>check</em> the result they run <strong>BHW tests</strong> — statistical hypothesis tests for the absence of arbitrage in the simulated price paths.</p>
+<p><strong>Results with numbers.</strong> The calibrated initial surface fits within bid/ask for <strong>more than 95%</strong> of relevant S&amp;P option prices across a 3.5-year window. The trained dynamics pass the BHW arbitrage tests under both measures while reproducing realistic market movement — a combination earlier direct-surface models struggled to achieve simultaneously.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Arbitrage</strong> — a trading strategy that cannot lose and might win, i.e. a risk-free profit; healthy markets have none.</li>
+<li><strong>Local volatility</strong> — a volatility that depends on the current price and time; here used as a <em>coordinate system</em> for the surface, not as a pricing model.</li>
+<li><strong>Risk-neutral measure ($\mathbb Q$)</strong> — the re-weighted probabilities under which discounted asset prices are fair bets, used for pricing.</li>
+<li><strong>HJM drift condition</strong> — a rule forcing a model's drift to be determined by its volatility so that no arbitrage sneaks in dynamically.</li>
+<li><strong>Strong solution</strong> — a solution of a stochastic differential equation that is uniquely determined by the driving Brownian path.</li>
+<li><strong>Bid/ask spread</strong> — the gap between the highest buy quote and lowest sell quote; a price "inside" it is consistent with the market.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Fitting 95% of quotes and passing arbitrage tests on index options is impressive, but index options are among the cleanest, most liquid markets — single stocks, FX, or sparse surfaces would stress the smooth-interpolation assumptions far harder. The model's realism depends on the chosen parametrization and the estimated dynamics being stable out-of-sample, which three years of one index cannot fully establish. A desk could plausibly use it for scenario generation and hedging today, but with caution around calibration drift.</p>
+<h3>Bottom Line</h3>
+<p>GROMM treats the option market itself as the thing to model, giving you a surface that dances realistically while never handing anyone a free lunch.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Reinforcement Learning with Hawkes-Structured Networks for Market Making</h2>
+  <p class="meta">Fernando Acero, Philipp Plank, Yufei Zhang<br>
+    <span class="cat">cs.LG</span> &middot; 2026-10-12 &middot; <a href="http://arxiv.org/abs/2610.16524v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.16524v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>They teach a trading bot to quote buy and sell prices in a market where orders arrive in self-reinforcing bursts, by giving its neural network a memory shaped exactly like the mathematics of those bursts.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>market maker</em> is a trader who continuously offers to both buy and sell an asset, earning the small gap (the spread) between the two quotes. The danger is inventory: if you keep buying right before the price drops, you lose. Real order flow is not smooth — trades cluster. One big order tends to trigger others, like popcorn kernels setting each other off, so quiet spells alternate with frantic bursts. A market maker who ignores this clustering sets stale quotes and gets run over exactly when activity spikes.</p>
+<p><strong>The idea.</strong> Mathematicians model bursty, self-triggering events with <em>Hawkes processes</em> — processes where each event temporarily raises the chance of the next, then that excitement fades. The catch is that acting optimally in such a world technically requires remembering the <em>entire</em> history of order flow, an infinite amount of information. The authors' trick is to prove you can summarize that infinite history well using a handful of fading "echoes" — exponentially weighted summaries of past activity, each decaying at its own speed. They bake this structure directly into a neural network, the <strong>Hawkes-Structured Network (HSN)</strong>, whose first layer is a <em>learnable mixture of fading echoes</em>. The rest of the network then uses those echoes to decide how to quote. Crucially they never tell the bot the true order-flow model; it learns everything from trial-and-error reward (model-free reinforcement learning), the same way a game-playing agent learns from its score.</p>
+<p><strong>What they found.</strong> Because its memory is shaped to match how order flow actually behaves, HSN beats generic neural networks at market making across many simulated scenarios — including flows driven by power-law and regime-switching bursts, not just the simple exponential kind. Along the way it <em>implicitly reconstructs</em> the hidden intensity of order arrivals: it learns to sense how "hot" the market is without ever being told the formula.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Order arrivals follow a multivariate Hawkes process with conditional intensity
+$$\lambda(t)=\mu+\int_0^t \phi(t-s)\,dN_s ,$$
+where $\lambda(t)$ is the instantaneous arrival rate, $\mu$ the baseline rate, $N_s$ the counting process of past events, and $\phi$ the <em>kernel</em> that says how strongly an event at time $s$ excites arrivals later at $t$. The market maker chooses bid and ask quotes to maximize expected risk-adjusted profit, which is a reinforcement-learning control problem whose true state — the full history needed to compute $\lambda(t)$ — is infinite-dimensional.</p>
+<p><strong>The key idea.</strong> Approximate the kernel, and hence the state, by a finite mixture of exponentials:
+$$\phi(u)\approx\sum_{k=1}^{K} \alpha_k\, e^{-\beta_k u}.$$
+Each term is one fading echo: $\alpha_k$ is its strength, $\beta_k$ its decay speed, and $u=t-s$ the elapsed time. The beauty is that each exponential feature $z_k(t)=\int_0^t e^{-\beta_k(t-s)}dN_s$ is <em>Markovian</em> — it updates with a simple recursion when a new event lands, so $K$ numbers replace the whole history. The authors prove a <strong>non-asymptotic bound</strong>: the performance lost by using $K$ features instead of the true infinite state shrinks in a controlled way as $K$ grows, so a modest $K$ suffices.</p>
+<p><strong>The method.</strong> HSN's first layer <em>is</em> that mixture-of-exponentials filter, but with $\{\alpha_k,\beta_k\}$ <strong>learnable</strong> rather than fixed — the network discovers the right echoes from data. Downstream layers map the features to quoting actions. The whole thing is trained end-to-end with <strong>model-free RL</strong> (policy optimization from reward feedback), so representation and policy improve together, with no knowledge of the generating process.</p>
+<p><strong>Results with numbers.</strong> Across single- and multi-asset experiments with mixture-of-exponentials, <strong>power-law</strong>, and <strong>regime-switching</strong> kernels, HSN achieves higher trading rewards than general-purpose neural architectures, and its internal features implicitly recover the latent order-flow intensities — generalizing even to kernel shapes (power-law) that are not literally sums of exponentials.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market making</strong> — continuously quoting both a buy and a sell price and profiting from the spread while managing inventory.</li>
+<li><strong>Hawkes process</strong> — a point process in which each event temporarily increases the rate of future events, producing clustered bursts.</li>
+<li><strong>Kernel ($\phi$)</strong> — the function describing how much a past event excites future arrivals and how fast that excitement decays.</li>
+<li><strong>Mixture of exponentials</strong> — a sum of fading terms used to approximate a memory kernel with a few Markovian state variables.</li>
+<li><strong>Model-free reinforcement learning</strong> — learning a good policy purely from reward feedback, without a model of the environment's dynamics.</li>
+<li><strong>Non-asymptotic bound</strong> — a performance guarantee that holds for a finite, specified size (here, number of features), not only in the limit.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The results are all on simulated order flow with known kernels, which is exactly the setting HSN's architecture is designed for — a fair test of the idea, but not proof it survives real exchange data with latency, adverse selection, and non-stationary microstructure. Recovering intensities "implicitly" is elegant but hard to audit when real money is at stake. Still, the exponential-feature trick is genuinely practical and could slot into existing RL market-making stacks.</p>
+<h3>Bottom Line</h3>
+<p>Give a trading bot a memory shaped like the math of bursty order flow, and it quotes smarter without ever being handed the formula.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Consumption adjustment with mean-reverting risk premia: A singular stochastic control approach</h2>
+  <p class="meta">Gugyum Ha, Junkee Jeon, Jehan Oh<br>
+    <span class="cat">math.OC</span> &middot; 2026-10-10 &middot; <a href="http://arxiv.org/abs/2610.14524v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.14524v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If changing how much you spend is itself costly, the best strategy is to let your consumption drift freely inside a band and only nudge it when it hits the edges — and those edges move with the market's expected reward.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Economists usually assume you can costlessly fine-tune your spending every instant. Reality is stickier: cutting your lifestyle is painful and raising it has frictions, so people adjust consumption in lumps, not continuous trickles. Meanwhile the <em>risk premium</em> — the extra return you expect from risky assets over safe ones — is not constant; it drifts up and down and tends to revert toward an average over time. The question is: how should a person spend and invest when both facts are true — adjustment is costly, and the reward for bearing risk keeps changing?</p>
+<p><strong>The idea.</strong> Think of your consumption rate as a puck sitting on a table, and your optimal "comfort zone" as two walls on either side. As long as the puck stays between the walls you leave it alone — adjusting isn't worth the cost. When it drifts to a wall, you give it the gentlest possible tap to keep it inside. This is <em>singular stochastic control</em>: you don't act continuously, you act minimally and only at the boundaries. The twist here is that the walls are not fixed — they slide depending on the current risk premium. When risk is richly rewarded, the comfortable band sits in one place; when it isn't, the band shifts. The authors also show a beautiful equivalence: finding these moving walls is the same as solving a <em>Dynkin game</em>, a tug-of-war between two players each deciding when to stop.</p>
+<p><strong>What they found.</strong> They prove the optimal policy really does reflect consumption between two moving thresholds, and they pin down how well-behaved those thresholds are: smooth almost everywhere, and gently sloped (Lipschitz) when viewed on a logarithmic scale. They also show that as it becomes very expensive to <em>cut</em> consumption, the strategy collapses into the famous <em>ratcheting</em> policy — never reduce spending, only ever let it climb.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> This is a two-sided singular stochastic control problem. The investor's consumption rate $c_t$ is the controlled process; adjusting it carries utility costs (asymmetric: raising vs. lowering differ). The risk premium follows the <strong>Kim–Omberg model</strong>, a mean-reverting (Ornstein–Uhlenbeck-type) diffusion
+$$dX_t = \kappa(\theta - X_t)\,dt + \sigma\,dW_t ,$$
+where $X_t$ is the risk premium at time $t$, $\kappa>0$ the speed of mean reversion, $\theta$ the long-run mean, $\sigma$ the volatility, and $W_t$ a Brownian motion. The state is two-dimensional — consumption and risk premium — but driven by a <em>single</em> Brownian motion.</p>
+<p><strong>The key result.</strong> The optimal consumption is <strong>reflected</strong> between two moving barriers $a(X_t)$ and $b(X_t)$ that depend on the current risk premium: consumption is left alone while strictly inside $(a,b)$ and pushed minimally when it reaches an edge. These barriers are exactly the <strong>stopping boundaries of a Dynkin game</strong> — a zero-sum optimal-stopping game for the two-dimensional diffusion. The authors establish a sharp <strong>occupation-time estimate</strong> and use it to prove the thresholds are <strong>Lipschitz in logarithmic scale</strong>, uniformly in the cost of reducing consumption, and that <strong>smooth fit</strong> holds along the diffusion direction at every contact point:
+$$\frac{\partial V}{\partial c}\Big|_{\text{boundary}} \ \text{is continuous},$$
+where $V$ is the investor's value function (the best achievable expected utility). Outside a bounded interval of risk-premium values — and at most two extra points — the thresholds are infinitely differentiable ($C^\infty$).</p>
+<p><strong>The method.</strong> The engine is the correspondence between singular control and optimal stopping: differentiating the control problem turns "how much to push" into "when to stop," yielding the Dynkin game. Regularity of the free boundaries is then obtained analytically via the occupation estimate and smooth-fit conditions, rather than by numerical approximation.</p>
+<p><strong>Results with numbers.</strong> The paper's "numbers" are structural theorems rather than simulations: thresholds are Lipschitz in log-scale <em>uniformly</em> in the downward-adjustment cost; they are $C^\infty$ except on a bounded interval plus at most two points; and as the reduction cost $\to\infty$, the optimal policy <strong>converges to the ratcheting policy</strong> (consumption never decreases).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Risk premium</strong> — the extra expected return investors demand for holding risky assets instead of safe ones.</li>
+<li><strong>Singular stochastic control</strong> — control exerted in minimal "pushes" only at boundaries, rather than continuously.</li>
+<li><strong>Mean reversion (Kim–Omberg / Ornstein–Uhlenbeck)</strong> — a process that drifts back toward a long-run average after being pushed away.</li>
+<li><strong>Dynkin game</strong> — a two-player zero-sum game where each player chooses an optimal time to stop.</li>
+<li><strong>Smooth fit</strong> — a condition that the value function's derivative is continuous across a free boundary, pinning the boundary's location.</li>
+<li><strong>Ratcheting policy</strong> — a spending rule that only ever increases consumption and never cuts it.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theorem-driven paper: it characterizes the optimal policy's <em>shape</em> beautifully but does not hand a practitioner calibrated spending bands or tested dollar figures. The Kim–Omberg risk-premium model and the specific utility-cost structure are stylized; real adjustment costs are lumpier and more behavioral than a smooth penalty. The ratcheting limit is a satisfying sanity check that matches intuition about sticky lifestyles.</p>
+<h3>Bottom Line</h3>
+<p>When spending changes cost something, optimal behavior is a sliding comfort band — leave consumption alone inside it, and tap it only at the moving edges.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Structured SDEs for Realized GARCH: Continuous-Time Volatility Modelling and Component-Level Analysis</h2>
+  <p class="meta">Hongyu Yao, Zhengyang Chi, Junbin Gao<br>
+    <span class="cat">q-fin.ST</span> &middot; 2026-10-13 &middot; <a href="http://arxiv.org/abs/2610.17732v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.17732v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>They rebuild the workhorse volatility-forecasting model as a continuous-time random process that feeds yesterday's <em>measured</em> volatility straight into tomorrow's forecast — and it beats five standard benchmarks.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Volatility — how violently a price swings — is the raw material of risk management and option pricing, yet you never observe it directly; you have to forecast it. For decades the standard tool has been GARCH, which updates its volatility guess day by day in discrete steps. But modern data gives us something better: <em>realized measures</em> of volatility, computed from high-frequency intraday trades, that act like a daily thermometer reading of how turbulent the day actually was. The question is how to pour that thermometer reading into a forecasting model in the most principled way — especially one that lives in <em>continuous</em> time, matching how prices actually move, rather than in clunky daily jumps.</p>
+<p><strong>The idea.</strong> Imagine two dials evolving together moment to moment: one is the hidden "true" variance, the other is the realized measurement you can actually see. In this model they are wired together — the measurement dial feeds <em>directly</em> into the hidden-variance dial's motion, and their random jitters are correlated so that bad return days and volatility spikes move in lockstep (the well-known "leverage" effect, where falling prices and rising fear go together). It's like forecasting tomorrow's weather not just from your model but by continuously piping in live sensor readings. The authors write all this as a system of <em>stochastic differential equations</em> — the mathematical language for quantities that drift and jitter continuously.</p>
+<p><strong>What they found.</strong> Across 17 equity indices, their model forecasts next-day <em>integrated variance</em> (the day's total volatility) better than a whole lineup of established methods — plain GARCH, GARCH-Itô, Realized GARCH, HAR, and HEAVY — judged by three different accuracy scores. When they switch pieces off one at a time (an <em>ablation</em> study), the big winner is the direct realized-measure feedback; the correlated-return channel helps too, but more modestly.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The model is a structured continuous-time stochastic-volatility system. Let $V_t$ be the latent instantaneous variance and $M_t$ a realized-measure state (built from high-frequency data). They evolve jointly as
+$$dV_t = \mu_V(V_t, M_t)\,dt + \sigma_V(V_t)\,dB_t^{V}, \qquad dM_t = \mu_M(V_t, M_t)\,dt + \sigma_M(M_t)\,dB_t^{M},$$
+where $V_t$ is the hidden variance, $M_t$ the observed realized measure, the $\mu$'s are drift functions, the $\sigma$'s diffusion (volatility-of-volatility) functions, and $B_t^{V}, B_t^{M}$ are Brownian motions whose correlation $\mathrm{corr}(dB_t^V, dB_t^M)=\rho\,dt$ captures return-linked dependence. The key structural choice is that $M_t$ enters the drift of $V_t$ — measurement-driven feedback — so what you <em>measured</em> literally steers where latent variance goes next.</p>
+<p><strong>The target.</strong> The forecast object is one-day-ahead <strong>integrated variance</strong>,
+$$IV_{[t,t+1]}=\int_t^{t+1} V_s\,ds ,$$
+the accumulated instantaneous variance over the next day — the honest definition of "how volatile tomorrow will be."</p>
+<p><strong>The method.</strong> Parameters are estimated by <strong>simulation-based predictive learning</strong> (fitting the model so its simulated forecasts match realized outcomes), and the one-day-ahead $IV$ forecast is produced by <strong>Monte Carlo simulation</strong> — simulate many future paths of $(V,M)$ and average the integrated variance. Accuracy is scored with <strong>QLIKE, MSE, and MAE</strong>, three standard loss functions for variance forecasts (QLIKE being the one most sensitive to the kind of errors that matter in risk work).</p>
+<p><strong>Results with numbers.</strong> Out-of-sample across <strong>17 equity indices</strong>, the model outperforms <strong>GARCH, GARCH-Itô, Realized GARCH, HAR, and HEAVY</strong> under all three losses (QLIKE, MSE, MAE). Ablations show <strong>realized-measure feedback</strong> delivers the <strong>substantial</strong> share of the improvement, while <strong>return-linked Brownian dependence</strong> ($\rho$) adds <strong>modest</strong> complementary gains.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Volatility / variance</strong> — how much a price swings; variance is volatility squared and is what these models forecast.</li>
+<li><strong>Realized measure</strong> — an estimate of a day's volatility computed from high-frequency intraday data, used as a noisy observation of true variance.</li>
+<li><strong>Integrated variance</strong> — the total variance accumulated over a time interval, the integral of instantaneous variance.</li>
+<li><strong>Stochastic differential equation (SDE)</strong> — an equation describing a quantity that evolves with both a drift and continuous random jitter.</li>
+<li><strong>Leverage effect</strong> — the empirical tendency for falling returns to coincide with rising volatility, here via correlated Brownian shocks.</li>
+<li><strong>QLIKE</strong> — a loss function for comparing variance forecasts, penalizing under-prediction of volatility especially heavily.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Beating five benchmarks on 17 indices is a solid, broad result, but all the competitors are forecasting the same hard-to-pin-down latent object, so "best" is relative and the margins matter more than the ranking. Simulation-based estimation and Monte Carlo forecasting are computationally heavier than running a one-line GARCH update, which may deter desks that re-fit intraday. The realized-measure feedback is the real contribution; the continuous-time packaging is elegant but not obviously necessary for the forecasting win alone.</p>
+<h3>Bottom Line</h3>
+<p>Pipe yesterday's measured volatility directly into a continuous-time variance process, and tomorrow's volatility forecast gets measurably sharper.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Diffusive Market Impact: A Consistent Microfoundation</h2>
+  <p class="meta">Julius F. Bonart<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-08 &middot; <a href="http://arxiv.org/abs/2610.11691v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.11691v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>They explain <em>why</em> trading a lot moves prices the way it empirically does — the famous "square-root law" — by building a market of competing arbitrageurs who, collectively, scramble your trades' fingerprints until the price footprint looks like pure noise.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every large trader faces a brutal fact: buying pushes the price up against you, selling pushes it down, and the bigger or faster you trade, the worse the damage. This is <em>market impact</em>, and it is one of the most robustly measured regularities in finance. Empirically the cost grows not linearly but like the <em>square root</em> of how much you trade — trade four times as much and you pay only about twice the impact per share — crossing over to a straight-line relationship when you trade very slowly. The puzzle is not whether this happens (it clearly does) but <em>why</em> it should, from the ground up, out of the behavior of actual market participants.</p>
+<p><strong>The idea.</strong> Picture a big trader whose orders ripple through a pond. Around the pond sit many <em>arbitrageurs</em> — sharp traders each holding one small, private clue about what the true value should be. Individually none of them can see the big trader's full plan, but collectively they keep betting away any predictable pattern in prices until nothing predictable remains. The authors show that once these arbitrageurs have "completed" the information between them, the price impact of the big trader's trades becomes <em>white</em> — statistically indistinguishable from random noise over time, with no lingering predictable echo. In other words, the crowd of arbitrageurs acts like a shredder: it takes the trader's structured trading schedule and smears it into something that looks patternless, which is exactly the signature that produces diffusive (random-walk-like) prices and the square-root impact law.</p>
+<p><strong>What they found.</strong> From this microfoundation they derive how impact decays after a trade. For the simplest realistic trading pattern, impact relaxes by a specific, bounded amount — a <strong>50%–60%</strong> decline — which sits right in the range of some real-world measurements (and a bit below others). They also argue the "phase" of impact (its timing structure) is slightly distorted in the long tail in real markets, producing a weak, slow <em>mean-reversion</em> of the price footprint.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The economy contains one trader and a continuum of arbitrageurs. Each arbitrageur observes realized returns plus a <strong>private signal</strong> of one component of the fundamental return; aggregate private information becomes <em>complete</em> in the limit. The trader's trading schedule generates an impact state, and the central object is the map from the trader's order flow to the price impact it creates.</p>
+<p><strong>The key equation.</strong> In the stationary limit the impact law takes the linear-filter form
+$$j = U\cdot w ,$$
+where $w$ is the <strong>innovation</strong> (the unpredictable part) of the trading schedule, $U$ is a <strong>causal all-pass filter</strong>, and $j$ is the resulting impact. "Causal" means impact depends only on past and present trades; "all-pass" means $U$ passes every frequency with unit gain but reshuffles their <em>phases</em> — it preserves energy while scrambling timing. Because $U$ is all-pass acting on innovations, the <strong>impact returns are white</strong> (serially uncorrelated), even though no single arbitrageur can reconstruct the trading strategy. Among all admissible $U$, the authors single out the one of <strong>minimum distance from the filter $L$</strong> that generates the trade flow: this minimally distorts trade flow under impact and arbitrage, and guarantees <strong>positive impact costs</strong> (you always pay to trade, never get paid).</p>
+<p><strong>The method.</strong> The result is a <em>microfoundation</em> — a derivation from agent behavior — using rational-expectations/filtering arguments (arbitrageurs eliminating predictable returns) and signal-processing tools (causal all-pass filters, spectral/phase analysis) to pin down $U$. Structural price diffusivity then reproduces the square-root law and its linear crossover at low trading rates.</p>
+<p><strong>Results with numbers.</strong> For a <strong>biexponential</strong> generating filter $L$ (the simplest form the model allows), impact decline is confined to a narrow <strong>50%–60%</strong> band — lower than some empirical estimates, consistent with others. More complex flow models yield different decays. The long-tail phase is argued to be mildly distorted in reality, allowing <strong>full relaxation</strong> of the impact propagator via weak, long-term mean-reversion.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the adverse price move caused by your own trading; larger/faster trades cost more.</li>
+<li><strong>Square-root law</strong> — the empirical finding that impact scales roughly with the square root of traded quantity.</li>
+<li><strong>Arbitrageur</strong> — a trader who profits by betting against predictable price patterns, thereby removing them.</li>
+<li><strong>All-pass filter</strong> — a filter that preserves the magnitude of every frequency but alters its phase (timing).</li>
+<li><strong>White (returns)</strong> — serially uncorrelated over time, with no predictable structure — the fingerprint of a random walk.</li>
+<li><strong>Impact propagator</strong> — the function describing how a trade's price impact decays over the time after it.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theoretical microfoundation, not a calibrated trading tool: it explains <em>why</em> impact behaves as observed rather than giving a desk a ready formula to minimize costs. The clean "white impact" result leans on strong limits — a continuum of arbitrageurs and complete aggregate information — that real, frictional, latency-bound markets only approximate. The 50%–60% decay matching some data but not all is honest but also a sign the simplest version is incomplete.</p>
+<h3>Bottom Line</h3>
+<p>A crowd of partially informed arbitrageurs acts like a shredder on your trades, scrambling their footprint into noise — and that scrambling is exactly what gives rise to the square-root impact law.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
