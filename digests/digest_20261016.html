@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 16, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 16, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Fundamental Theorem of Discrete Asset Pricing</h2>
+  <p class="meta">Masaaki Fukasawa<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21442v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21442v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Even when prices only ever move in discrete ticks, "you can't make money from nothing" turns out to mean exactly the same thing as "there is a fair-odds probability world in which prices are martingales."</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Real exchanges don't quote prices on a smooth continuum. A stock goes from USD 100.00 to USD 100.01 — never to USD 100.005. Prices live on a grid of ticks. But the cornerstone theorem of mathematical finance — the Fundamental Theorem of Asset Pricing (FTAP) — was built assuming prices can take any real value. The FTAP is the bedrock that every pricing model quietly stands on: it says that a market with no "free money" is precisely a market in which you can find a consistent set of fair odds for pricing everything else. So a natural, slightly nervous question is: does that beautiful equivalence still hold once you admit that prices only ever land on discrete tick values? If it quietly broke, a lot of theory would be standing on sand.</p>
+<p><strong>The idea.</strong> The author takes prices that live on a grid (a "locally finite" set — meaning any bounded region contains only finitely many allowed price levels) but still evolve in continuous time, jumping from tick to tick at random moments. Then they ask whether the familiar chain of "no-free-lunch" conditions still collapses into one another. Think of a casino that only pays out in whole chips: the claim is that "there's no betting system that wins for sure" is equivalent to "there exists a set of fair odds under which the game is a martingale" — a game where your expected future wealth equals your current wealth. The nice surprise is that discreteness, far from breaking things, actually makes the proof <em>simpler</em>.</p>
+<p><strong>What they found.</strong> Four conditions — No Arbitrage, No Free Lunch with Vanishing Risk, No Free Lunch, and the existence of an equivalent local martingale measure — are all equivalent for these discrete-valued, locally bounded price paths. And crucially, the proof needs none of the heavy stochastic-calculus machinery (no Itô integration) that the continuous versions lean on. It's elementary and pathwise.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $(\Omega,\mathcal F,(\mathcal F_t)_{t\ge 0},P)$ be a filtered probability space. The discounted price process $S=(S_t)_{t\ge 0}$ is càdlàg, locally bounded, and takes values in a locally finite set $\Lambda\subset\mathbb R^d$. A trading strategy is a predictable process $H$, and because $S$ only moves in finitely many jumps on any bounded horizon, the trading gain is a genuine finite Stieltjes sum
+$$(H\cdot S)_t=\sum_{i:\,\tau_i\le t} H_{\tau_i}\,(S_{\tau_i}-S_{\tau_{i-1}})$$
+where $\tau_i$ are the jump times of $S$, $H_{\tau_i}$ is the position held just before the jump, and $S_{\tau_i}-S_{\tau_{i-1}}$ is the price move realized at that jump.</p>
+<p><strong>The key equation.</strong> An <em>equivalent local martingale measure</em> (ELMM) is a probability $Q\sim P$ (same null sets) under which $S$ is a local martingale:
+$$E_Q[S_t\mid\mathcal F_s]=S_s,\qquad s\le t$$
+(in the localized sense). <em>Arbitrage</em> is an admissible $H$ with terminal gain $(H\cdot S)_T\ge 0$ almost surely and $P\big((H\cdot S)_T>0\big)>0$ — a trade that never loses and sometimes wins. The theorem: <strong>NA $\Leftrightarrow$ NFLVR $\Leftrightarrow$ NFL $\Leftrightarrow$ $\exists$ ELMM.</strong></p>
+<p><strong>The method.</strong> The engine is a finite-dimensional reduction: because admissible portfolios over a discrete grid can be collapsed onto finitely many directions, one gets a <em>common pathwise bound</em> on admissible wealth. That bound is exactly what's needed to show the cone of attainable claims is closed, which here reduces to convex averaging in a weighted Hilbert space (an $L^2$-type space with a reweighting). Once closedness is in hand, the classical <strong>Kreps–Yan separation theorem</strong> produces the separating measure $Q$ — the ELMM. No Itô integral ever appears; the gains are honest finite sums.</p>
+<p><strong>Results with numbers.</strong> This is a structural theorem rather than a numerical study, so the "result" is the equivalence itself plus the payoff that it holds under weaker hypotheses (discrete prices, no limiting-trading condition) and with a dramatically more elementary proof than the continuous-time Delbaen–Schachermayer original.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Arbitrage</strong> — a trading strategy that can't lose and has a positive chance of winning, i.e. free money.</li>
+<li><strong>Martingale</strong> — a process whose expected future value equals its present value, a "fair game."</li>
+<li><strong>Equivalent local martingale measure</strong> — an alternative set of probabilities, agreeing on what's possible, under which (localized) prices are a fair game.</li>
+<li><strong>Càdlàg</strong> — a path that is right-continuous with left limits, the standard shape for jump processes.</li>
+<li><strong>Locally finite set</strong> — a set of values where every bounded region contains only finitely many points (a grid of ticks).</li>
+<li><strong>Kreps–Yan theorem</strong> — a functional-analytic separation result that extracts a pricing measure from a closed no-arbitrage cone.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is pure existence theory: it certifies that discrete-tick markets are internally consistent, but it prices nothing on its own and runs no data. The "locally bounded" assumption excludes some wild jump dynamics, and the practical content is foundational reassurance rather than a tool a desk would run. Its real value is methodological — showing the FTAP survives realistic discreteness with a proof an advanced student could follow.</p>
+<h3>Bottom Line</h3>
+<p>Discreteness doesn't break the Fundamental Theorem of Asset Pricing — it actually makes it easier to prove.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Long-Horizon Investment with Delayed Information in a Mean-Reverting Market</h2>
+  <p class="meta">Yan Dolinsky<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21447v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21447v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If your market signal reaches you even slightly late, your long-run profit from mean reversion collapses from growing like time-squared to growing only like time.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Some assets <em>mean-revert</em>: a price or spread that wanders away from its average tends to drift back. If you could trade instantly on the signal telling you where that average is, you'd harvest an edge and compound it over a long horizon. But in the real world information always arrives a little stale — data feeds lag, filings are reported late, your model finishes computing a beat behind the market. The question this paper answers precisely is: how much does that delay actually cost an investor who is in it for the long haul? A concrete example: a pairs trader watching a spread that reverts to par, but whose data is a few minutes old.</p>
+<p><strong>The idea.</strong> The authors model the tradable signal as an Ornstein–Uhlenbeck (OU) process — the canonical "spring pulling a random walk back to center" model — and give the investor exponential (constant-risk-aversion) utility. They then compute how much <em>certainty-equivalent</em> wealth (the guaranteed amount the investor would accept in place of the risky strategy) can be generated over a horizon $T$, comparing two worlds: one where the investor sees the signal in real time, and one where they only ever see it delayed by a fixed lag. Picture steering a car by looking in a mirror that shows the road as it was a second ago.</p>
+<p><strong>What they found.</strong> With full information, the certainty equivalent grows <em>quadratically</em> in the horizon — doubling your horizon roughly quadruples your edge. With <em>any</em> fixed positive delay, that advantage drops to merely <em>linear</em> growth, at an asymptotic rate they compute explicitly. Worse, naively taking the optimal full-information strategy and feeding it stale data is not just suboptimal — the resulting loss can become infinite for sufficiently long horizons. Delay doesn't shave the edge; it changes its fundamental scaling.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The signal is an OU diffusion
+$$dX_t=-\kappa X_t\,dt+\sigma\,dW_t$$
+where $X_t$ is the state (the deviation driving expected returns), $\kappa>0$ is the mean-reversion speed, $\sigma$ the volatility, and $W_t$ a Brownian motion. The risky asset's expected return is proportional to $X_t$. The investor maximizes exponential utility
+$$U(w)=-e^{-\gamma w}$$
+with $\gamma>0$ the risk-aversion coefficient and $w$ terminal wealth, choosing a trading strategy adapted either to the full filtration $\mathcal F_t$ or to the delayed filtration $\mathcal F_{t-\delta}$ for a fixed lag $\delta>0$.</p>
+<p><strong>The key equations.</strong> Let $CE(T)$ be the certainty equivalent at horizon $T$. The headline asymptotics are
+$$CE_{\text{full}}(T)\sim c\,T^2,\qquad CE_{\delta}(T)\sim r_\delta\,T$$
+where $c$ depends on $\kappa,\sigma,\gamma$, and $r_\delta$ is the explicitly computed linear rate under delay $\delta$. The gap between $T^2$ and $T$ is the entire economic cost of delay.</p>
+<p><strong>The method.</strong> For the finite-horizon problem they solve the Hamilton–Jacobi–Bellman (HJB) equation explicitly, which for this linear-quadratic exponential-utility structure reduces to a Riccati ordinary differential equation. For the delayed case they derive an explicit <em>causal</em> representation of the optimal portfolio — essentially filtering the unobserved current state from delayed observations — and then push $T\to\infty$ to extract the rates. They also show that <em>projecting</em> the full-information strategy onto delayed information (the naive fix) produces an exponential-utility loss that diverges.</p>
+<p><strong>Results with numbers.</strong> The quantitative core is the scaling contrast — quadratic ($T^2$) versus linear ($T$) growth of the certainty equivalent — plus the explicit formula for $r_\delta$ and the demonstration that the naive projected strategy incurs infinite loss beyond a horizon threshold. Numerical examples illustrate the magnitude of the economic hit for representative parameters.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Ornstein–Uhlenbeck process</strong> — a random process pulled back toward a central value, like a spring with noise.</li>
+<li><strong>Mean reversion</strong> — the tendency of a quantity to drift back toward its long-run average.</li>
+<li><strong>Exponential (CARA) utility</strong> — a preference form with constant absolute risk aversion, making the math tractable.</li>
+<li><strong>Certainty equivalent</strong> — the sure amount an investor would trade their risky payoff for.</li>
+<li><strong>Filtration / information delay</strong> — the growing record of what's observable over time; a delay means you only see it lagged.</li>
+<li><strong>HJB equation</strong> — the differential equation characterizing the optimal value in stochastic control.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model is stylized: a single asset, Gaussian OU signal, a fixed known delay, and CARA preferences chosen largely for tractability. Real signals aren't exactly OU, and real delays are random and state-dependent. But the qualitative lesson — that latency collapses the <em>scaling</em> of long-horizon profit, not just its level — is robust and sobering, and the infinite-loss result is a sharp warning against bolting stale data into a strategy designed for live data.</p>
+<h3>Bottom Line</h3>
+<p>A stale signal doesn't merely cost you a little; it rewrites the arithmetic of what long horizons can ever earn.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Loss-versus-rebalancing with external proportional transaction costs</h2>
+  <p class="meta">Masaaki Fukasawa<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21057v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21057v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Once you measure against a benchmark that also pays real trading costs, the famous "loss" that automated-market-maker liquidity providers supposedly suffer to arbitrageurs can vanish to exactly zero.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In decentralized finance, an <em>automated market maker</em> (AMM) — like Uniswap — is a pool of two assets that anyone can deposit into and that quotes prices from a fixed formula. When the outside market moves, arbitrageurs trade against the pool to realign its price, and those trades are widely said to bleed money from the liquidity providers (LPs). That bleed has a name: <em>loss-versus-rebalancing</em> (LVR), the gap between what the LP ends up with and what a trader holding the same assets and rebalancing in the open market would have. Billions of dollars sit in these pools, so whether LPs are structurally doomed to lose is not an academic question. The catch in the standard LVR story: it compares the LP to a <em>frictionless</em> rebalancer who pays nothing to trade.</p>
+<p><strong>The idea.</strong> This paper puts proportional transaction costs — the bid–ask spread and fees you'd really pay — into the external market, and then compares the pool to an honest benchmark: a self-financing strategy that holds the same risky inventory but must trade at the real external bid and ask. The analogy: don't compare the pool to a ghost who trades for free; compare it to a flesh-and-blood trader who also pays the spread. They study two fee conventions — fees collected separately, and fees retained inside the pool's reserves.</p>
+<p><strong>What they found.</strong> Under continuously-moving external prices and pure-arbitrage flow, the pool and this cost-paying benchmark end up with <em>identical</em> liquidation wealth whenever either the pool fee or the external spread is positive — so LVR against this benchmark is zero. It's zero even with no pool fee at all, as long as the external spread is positive. They go further and show pool <em>design</em> is a steering wheel: by choosing the pool's rules, an LP can make the arbitrageurs execute a trading strategy of the LP's choosing.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> An AMM holds reserves evolving along a bonding curve; the external reference price $P_t$ is continuous. Trading externally incurs a proportional cost $\theta$, so one buys at the ask $(1+\theta)P_t$ and sells at the bid $(1-\theta)P_t$. The pool charges a fee $\phi\ge 0$. The benchmark is a self-financing strategy holding the same total risky inventory as the pool and trading at those external bid/ask prices.</p>
+<p><strong>The key equation.</strong> Writing $W^{\text{pool}}_T$ and $W^{\text{bench}}_T$ for the liquidation wealth of pool and benchmark at horizon $T$, the central result is
+$$W^{\text{pool}}_T=W^{\text{bench}}_T\quad\text{whenever }\phi>0\text{ or }\theta>0,$$
+so that
+$$\mathrm{LVR}:=W^{\text{bench}}_T-W^{\text{pool}}_T=0.$$
+Here $\phi$ is the pool fee rate and $\theta$ the external proportional cost; the equality holds pathwise under continuous prices and pure arbitrage.</p>
+<p><strong>The method.</strong> The proof is pathwise no-arbitrage accounting: with a positive spread or fee there is a no-trade band around the pool price, and inside it arbitrageurs don't act, which exactly offsets the rebalancing cost the benchmark pays. On the constructive side, they build <em>retained-fee utility-indifference pools</em> that implement admissible decreasing inventory schedules, and <em>geometric-mean pools</em> that implement feasible constant no-trade boundaries for portfolio weights — i.e. pool parameters chosen so the arbitrage-driven dynamics trace out a desired strategy.</p>
+<p><strong>Results with numbers.</strong> The quantitative heart is the exact zero-LVR identity above, holding under the stated frictions, plus the two families of explicit pool constructions that realize prescribed inventory schedules and no-trade boundaries.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Automated market maker (AMM)</strong> — a smart-contract pool that quotes prices from a fixed reserve formula rather than an order book.</li>
+<li><strong>Liquidity provision</strong> — depositing assets into such a pool to earn fees while bearing its inventory risk.</li>
+<li><strong>Loss-versus-rebalancing (LVR)</strong> — the wealth gap between an LP and a trader who holds the same inventory and rebalances in the market.</li>
+<li><strong>Proportional transaction cost</strong> — a cost that scales with trade size, i.e. the bid–ask spread.</li>
+<li><strong>Self-financing strategy</strong> — a portfolio that neither takes in nor pays out cash except through its own trades.</li>
+<li><strong>No-trade boundary</strong> — a band of prices within which it's optimal not to rebalance, created by trading costs.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean zero relies on idealizations: continuous external prices, purely arbitrage-driven flow, and proportional costs only. Real chains have discrete blocks, gas fees, latency, jumps, and toxic (informed) order flow beyond arbitrage, all of which reintroduce real LP losses. So the result is best read as a benchmark correction — showing that part of "LVR" was an artifact of measuring against a frictionless ghost — rather than a promise that LPs break even in the wild.</p>
+<h3>Bottom Line</h3>
+<p>Measured against a benchmark that actually pays to trade, loss-versus-rebalancing can be zero — the "loss" was partly the yardstick's fault.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> The end-of-month option in futures contracts and the Gittins index of holding the underlying</h2>
+  <p class="meta">Erhan Bayraktar<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21196v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21196v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The short's freedom to pick which day to deliver a futures contract is priced by exactly the same "index" mathematics that tells you which slot machine to keep playing.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> In many commodity futures contracts, the party obligated to deliver (the "short") gets to choose <em>when</em> to deliver within an end-of-month window, at a delivery price that's already fixed. That freedom is worth something — it's an embedded option — and it nudges the futures price away from the spot price. Pricing it matters to anyone trading or clearing commodity futures. A concrete picture: you owe someone a barrel of oil on any day this month at a price locked in advance; when should you hand it over, and what is that choice worth today?</p>
+<p><strong>The idea.</strong> The authors characterize the optimal delivery decision through a single "universal index" that comes from a deep result called the Bank–El Karoui representation theorem. The punchline is that this index is the <em>Gittins index</em> — the celebrated tool from the theory of multi-armed bandits for deciding which arm to pull — applied to the problem of holding the underlying commodity and collecting its <em>convenience yield</em> (the benefit of physically possessing the good). The analogy is exact: deciding when to stop holding a slowly-paying asset is the same kind of problem as deciding when to retire a project in a bandit, and the Gittins index is the known optimal rule for both.</p>
+<p><strong>What they found.</strong> The futures price equals the "retirement reward" at which the value of the holding-and-delivering project exactly matches the spot price. This gives clean price bounds and a crisp test for when immediate delivery is optimal. Computationally, Dinkelbach's iteration reduces the whole pricing problem to a sequence of ordinary optimal-stopping problems with an explicit contraction (so it converges fast). Applied to geometric Brownian motion they get a square-root delivery boundary near expiry; applied to the Gibson–Schwartz stochastic-convenience-yield model they find a critical yield below which the futures price simply equals spot.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The underlying price $S$ is a semimartingale with a convenience yield $\delta$. The short chooses a delivery time $\tau$ inside the window to minimize cost at the fixed delivery price — an optimal-stopping problem. The key device is the Bank–El Karoui representation of an optional process, which encodes the optimal stopping rule through a single adapted index process.</p>
+<p><strong>The key equation.</strong> The Gittins index $\mathcal G_t$ of "holding the underlying and collecting its convenience yield" characterizes optimal delivery, and the futures price $F$ is pinned down as the retirement reward solving
+$$\text{value of the holding project at reward }F \;=\; S_0,$$
+i.e. $F$ is the level at which continuing to hold is worth exactly the spot price. Here $S_0$ is the current spot, $\delta$ the convenience yield feeding the project's running reward, and $\tau^\star$ the first time the index crosses the delivery trigger.</p>
+<p><strong>The method.</strong> The Bank–El Karoui representation theorem supplies the index; <strong>Dinkelbach's iteration</strong> — a fractional-programming scheme — then converts the price computation into a sequence of standard optimal-stopping problems, each cheaper to solve, with a proven contraction bound guaranteeing geometric convergence. The framework is instantiated on geometric Brownian motion and on the Gibson–Schwartz model.</p>
+<p><strong>Results with numbers.</strong> For geometric Brownian motion they characterize exactly when the futures price equals spot and derive a square-root boundary asymptotic $\sim\sqrt{T-t}$ near expiry. For Gibson–Schwartz they prove monotonicity of the price in the convenience yield and identify the critical yield below which price $=$ spot. Numerical experiments display the price iteration and the resulting delivery regions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Futures short / delivery option</strong> — the seller's obligation to deliver, plus the freedom to choose the delivery day within a window.</li>
+<li><strong>Convenience yield</strong> — the implicit benefit of physically holding a commodity rather than a paper claim on it.</li>
+<li><strong>Optimal stopping</strong> — choosing the best moment to take an action to optimize expected reward.</li>
+<li><strong>Gittins index</strong> — the index that solves multi-armed bandit problems by scoring each option's "fair retirement reward."</li>
+<li><strong>Bank–El Karoui representation</strong> — a theorem expressing an optimal-stopping value through a single adapted index process.</li>
+<li><strong>Dinkelbach iteration</strong> — an algorithm for fractional optimization that here reduces pricing to repeated optimal-stopping solves.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The results are elegant but model-bound: concrete answers come from geometric Brownian motion and Gibson–Schwartz, and real delivery bundles several interacting options (quality, location, <em>and</em> timing) that this isolates to timing alone. Convenience yield is also notoriously hard to observe. This is more a sharp theoretical lens — and a fast numerical recipe — than a plug-and-play desk tool.</p>
+<h3>Bottom Line</h3>
+<p>The delivery-timing option is a multi-armed bandit in disguise, and its Gittins index tells you precisely when to deliver.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> E-Backtesting Expected Shortfall without Value-at-Risk Forecasts under Time-series Models</h2>
+  <p class="meta">Ruodu Wang, Jingcheng Yu<br>
+    <span class="cat">stat.ME</span> &middot; 2026-10-13 &middot; <a href="http://arxiv.org/abs/2610.17681v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.17681v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new "betting" test can catch a bank under-reporting its tail-loss estimate using only the losses and the estimate itself — no separate risk number required — and you can peek at the running score any time without cheating.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Regulators make banks forecast <em>Expected Shortfall</em> (ES): the average loss on the worst, say, 2.5% of days. To check whether a bank's ES forecasts are honest, the standard statistical backtests also demand a <em>Value-at-Risk</em> (VaR) forecast — the loss threshold those worst days exceed. But what if you only have the ES report and not a matching VaR? And there's a second, subtler trap: classical tests fix the sample size in advance. If a supervisor monitors continuously and "stops the clock" the moment the numbers look bad, the false-alarm rate silently balloons. We'd like a test that needs only the ES number <em>and</em> lets you look whenever you want.</p>
+<p><strong>The idea.</strong> The authors build <em>e-backtests</em> on top of <strong>e-values</strong> and <strong>e-processes</strong> — a modern alternative to p-values best pictured as a fair betting game against the hypothesis "this ES report is valid." You start with one dollar of notional and bet each period; if your wealth balloons, that's accumulated evidence the report is wrong. The beauty is that such a betting score is <em>anytime-valid</em>: you can stop at any moment, even an adaptively chosen one, and still control the false-rejection probability. They give one method for independent losses and another for realistic <em>time series</em> where volatility clusters (an AR–GARCH structure). Think of it as a tamper-proof running tally of evidence that survives being peeked at.</p>
+<p><strong>What they found.</strong> Both methods control false rejections at <em>any</em> stopping time. The time-series version cleverly handles not knowing the true VaR path by taking an infimum over all candidate VaR values, and picks its bets to maximize an empirical growth rate. They prove the grid approximations converge to the ideal continuous test, apply it to daily NASDAQ losses, and show it detects a report that drifts from over-reporting to under-reporting — pinpointing <em>when</em> the forecasts went bad.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $L_t$ be the realized loss at time $t$ and $e_t$ the bank's reported ES at level $\alpha$. An <em>e-process</em> $(E_t)_{t\ge 0}$ is a nonnegative process with $E_0=1$ that is a supermartingale under the null, so $E_Q[E_\tau]\le 1$ at any stopping time $\tau$. By <strong>Ville's inequality</strong> this guarantees
+$$P\Big(\sup_{t} E_t\ge 1/\alpha\Big)\le \alpha,$$
+meaning rejecting when wealth hits $1/\alpha$ controls the false-alarm rate at $\alpha$ no matter when you look. $E_t$ is built multiplicatively from a <em>betting process</em> $(\lambda_t)$.</p>
+<p><strong>The key equations.</strong> The e-process has the form
+$$E_t=\prod_{s\le t}\big(1+\lambda_s\,\phi(L_s,e_s,\dots)\big),$$
+where $\phi$ is an ES <em>identification function</em> (zero in expectation when the report is valid) and $\lambda_s$ is the stake. For the time-series case the statistic takes an infimum over a parameter–quantile pair $(\theta,q)$ representing the unknown conditional-VaR path:
+$$E_t^{\inf}=\inf_{(\theta,q)}\;E_t(\theta,q),$$
+and $\lambda$ is chosen to maximize the empirical growth rate $\frac1t\sum_s\log(1+\lambda_s\phi)$ averaged across candidate parameters. Here $\theta$ indexes the AR–GARCH conditional-VaR model and $q$ the quantile level.</p>
+<p><strong>The method.</strong> This is <em>testing by betting</em> via e-processes, specialized to ES without VaR through the identification function, and extended to serial dependence by assuming an AR–GARCH conditional-VaR structure with a positive report margin. The infimum is computed by <em>continuous VaR profiling</em> on a dense parameter grid; they prove the grid statistic converges to the continuous infimum and that the false-rejection probability converges too as the grid refines over a fixed monitoring window, with explicit lower/upper bounds controlling the profiling accuracy.</p>
+<p><strong>Results with numbers.</strong> Simulations — including a scenario where the ES report switches from over-reporting to under-reporting — plus an application to daily NASDAQ losses compare the method's detection frequency and <em>timing of rejection</em> against VaR–ES e-processes and fixed-sample ES backtests, showing competitive, often faster detection using only the ES report.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Expected Shortfall (ES)</strong> — the average loss in the worst tail of outcomes, beyond a given probability level.</li>
+<li><strong>Value-at-Risk (VaR)</strong> — the loss threshold that the worst tail exceeds; ES averages what lies past it.</li>
+<li><strong>E-value / e-process</strong> — a betting-based evidence measure whose growth signals violation of a hypothesis.</li>
+<li><strong>Anytime-valid</strong> — a test whose error guarantee holds even if you stop and decide at a data-dependent time.</li>
+<li><strong>Ville's inequality</strong> — the bound that a nonnegative supermartingale rarely gets large, underwriting anytime validity.</li>
+<li><strong>AR–GARCH</strong> — a time-series model with autoregressive mean and clustering (conditionally changing) volatility.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The time-series guarantee leans on the AR–GARCH conditional-VaR structure being roughly right and on a positive "report margin," and the grid profiling is a real computational cost. Statistical power still depends on how badly the report is wrong — a near-honest bank is hard to catch quickly. That said, needing only the ES forecast and being safe to monitor continuously is genuinely useful for supervisors in practice.</p>
+<h3>Bottom Line</h3>
+<p>You can now police a bank's tail-risk number continuously and fairly, armed with nothing but that number and the losses that followed.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
