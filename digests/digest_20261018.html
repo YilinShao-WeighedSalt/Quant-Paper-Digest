@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 18, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 18, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Pricing American Commodity Options Under the Schwartz Two-Factor Model Using the Alternating Direction Explicit (ADE) Method</h2>
+  <p class="meta">Sanjith Prabhu, Daniel J. Duffy<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21145v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21145v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It prices American options on commodities like oil using a fast grid method that stays numerically stable without the usual cost of stability.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option is a contract giving you the right — but not the duty — to buy or sell something at a fixed price. An <em>American</em> option lets you exercise that right at any moment up to expiry, not just on the final day, which makes it far harder to value: at every instant you must ask "is it better to cash in now or wait?" Now point this at commodities. Oil, natural gas, and metals do not behave like stocks. Holding the physical barrel carries storage costs but also a hidden benefit — the "convenience yield" of having the stuff on hand when you need it. Prices mean-revert (drift back toward a long-run level) and swing with the seasons (heating oil in winter). A trader who sells an American option on crude needs a number for it, and a wrong number is money lost.</p>
+<p><strong>The idea.</strong> The authors use the classic <strong>Schwartz two-factor model</strong>: track two random quantities at once — the spot price and the convenience yield — that move together and nudge each other. Valuing the option then becomes solving a partial differential equation (PDE): imagine a grid over price and yield, and march the option's value backward in time across that grid. The clever part is <em>how</em> they march. Explicit grid methods are cheap but blow up unless you take tiny time steps; implicit methods are stable but require solving a big system every step. Their <strong>Alternating Direction Explicit (ADE)</strong> scheme does two cheap "sweeps" — one updating left-to-right, one right-to-left, each using neighbors it has already refreshed — and averages them. You get explicit-method speed with implicit-method stability. The American feature is bolted on by a simple rule at each grid point: the option is never worth less than exercising it right now.</p>
+<p><strong>What they found.</strong> They first check the machinery on a European option (exercise only at expiry), where a formula and Monte Carlo simulation give known answers to match — and it matches. Then they switch on the early-exercise rule and benchmark against Longstaff–Schwartz Monte Carlo, the industry-standard American pricer. The ADE solver reproduces it while being much faster than brute-force simulation. On a commodity trader's advice, they extend it to exercise against futures prices and to use season-dependent parameters.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $S_t$ be the commodity spot price and $\delta_t$ the convenience yield at time $t$. Under the risk-neutral measure the Schwartz two-factor dynamics are
+$$dS_t = (r - \delta_t)\,S_t\,dt + \sigma_S\,S_t\,dW_t^S$$
+$$d\delta_t = \kappa(\alpha - \delta_t)\,dt + \sigma_\delta\,dW_t^\delta,$$
+where $r$ is the risk-free rate, $\sigma_S$ the price volatility, $\sigma_\delta$ the yield volatility, $\kappa$ the speed at which the yield reverts to its long-run mean $\alpha$, and $W_t^S, W_t^\delta$ are Brownian motions (continuous random walks) correlated by $dW_t^S\,dW_t^\delta = \rho\,dt$.</p>
+<p><strong>The key equation.</strong> By the Feynman–Kac theorem, the option value $V(S,\delta,t)$ solves a two-dimensional parabolic PDE of the form
+$$\frac{\partial V}{\partial t} + \tfrac12\sigma_S^2 S^2 \frac{\partial^2 V}{\partial S^2} + \rho\sigma_S\sigma_\delta S \frac{\partial^2 V}{\partial S\,\partial \delta} + \tfrac12\sigma_\delta^2 \frac{\partial^2 V}{\partial \delta^2} + (r-\delta)S\frac{\partial V}{\partial S} + \kappa(\alpha-\delta)\frac{\partial V}{\partial \delta} - rV = 0,$$
+with the early-exercise constraint $V(S,\delta,t) \ge g(S)$ where $g$ is the exercise payoff. The $\partial^2 V/\partial S\,\partial\delta$ cross-term is what makes two-factor pricing genuinely harder than one-factor.</p>
+<p><strong>The method.</strong> The semi-infinite $(S,\delta)$ domain is mapped to a finite rectangle, and <strong>Fichera theory</strong> fixes the boundary conditions where the diffusion degenerates — the sign of the Fichera function tells you where you may legitimately impose a condition and where the PDE already dictates behavior. The PDE is then solved by the <strong>double-sweep ADE</strong> finite-difference scheme (unconditionally stable for the diffusion part), with the American constraint enforced as $V \leftarrow \max(V_{\text{PDE}}, g)$ at each node. It is implemented in C++.</p>
+<p><strong>Results with numbers.</strong> The European results agree with the closed-form PDE solution and with Monte Carlo; the American results track Longstaff–Schwartz Monte Carlo. The paper reports accuracy and convergence qualitatively rather than headline error percentages, with ADE delivering the marching efficiency of an explicit scheme while retaining implicit-like stability — and it is compared against the single-sweep Saul'yev variant.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>American option</strong> — an option exercisable at any time up to expiry, not only at the end.</li>
+<li><strong>Convenience yield</strong> — the implicit benefit of physically holding a commodity rather than holding a claim on it.</li>
+<li><strong>Mean reversion</strong> — the tendency of a quantity to drift back toward a long-run average.</li>
+<li><strong>Finite-difference method</strong> — approximating a PDE by values on a grid and stepping through time.</li>
+<li><strong>Feynman–Kac theorem</strong> — the bridge turning an expected discounted payoff into a PDE.</li>
+<li><strong>Fichera theory</strong> — a rule for which boundaries of a degenerate PDE need (or forbid) imposed conditions.</li>
+<li><strong>Longstaff–Schwartz</strong> — the standard least-squares Monte Carlo method for American options.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This reads as a careful numerics project: the validations are convincing but reported more qualitatively than with hard error tables, and the two-factor model omits stochastic volatility and price jumps that real commodities show. Still, ADE is a genuinely practical tool, and the trader-driven extensions to futures exercise and seasonality push it toward something usable on a desk.</p>
+<h3>Bottom Line</h3>
+<p>A grid-based pricer that buys you implicit-method stability at explicit-method speed for two-factor commodity options.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Regime Detection in Latent Factor Models -- A Bayesian Decision-Theoretic Approach</h2>
+  <p class="meta">Karl Kristian Engelund<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-14 &middot; <a href="http://arxiv.org/abs/2610.20366v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.20366v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of just estimating the probability that the market has flipped into a new regime, it decides the exact moment acting on that belief is worth the cost.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Markets live in regimes: calm versus turbulent, trending versus choppy, low-rate versus high-rate. A strategy tuned for one can bleed money in another, so you want to notice a switch quickly. Standard tools do <em>filtering</em> — they output a running probability that you are now in a new regime. But a probability is not a decision. If you react the instant the probability ticks up, you will cry wolf constantly (false alarms cost money); if you wait for certainty, you will act too late (detection delay costs money). Someone has to decide <em>when the evidence is strong enough to pull the trigger</em>.</p>
+<p><strong>The idea.</strong> The authors treat this as a <strong>decision problem</strong>, not an estimation problem. Picture a dial slowly moving as evidence accumulates; you choose a rule for when to shout "regime change!" so as to minimize your total expected pain — false-alarm penalty plus delay penalty plus the cost of mislabeling which regime you landed in. This is the mathematics of <strong>optimal stopping</strong> (the same family as "when should I sell?"). The hard part: your running belief is a whole probability distribution that doesn't update in a tidy, memoryless way, so they lift the problem into one whose "state" is that entire distribution and solve it with simulation — <strong>particle filtering</strong> (a swarm of weighted guesses tracking the hidden state) combined with <strong>Monte Carlo dynamic programming</strong>.</p>
+<p><strong>What they found.</strong> When the market's variance is directly observable, the problem collapses to a clean two-dimensional free-boundary problem they use as a benchmark. When variance is hidden, decisions must ride on the filtered belief. In experiments on Heston and regime-switching Vasicek models, the belief-based procedure beats simple "plug-in" rules that just threshold the filter's probability output — the extra sophistication earns its keep.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Latent factors $X_t$ drive observations $Y_t$, and a hidden regime $\theta_t$ (e.g. $\theta_t \in \{0,1\}$ with a single change-point at time $\tau$) governs the dynamics. A benchmark is the single-change-point <strong>Heston model</strong>, where the instantaneous variance $v_t$ itself may be observed or latent.</p>
+<p><strong>The key equations.</strong> The agent tracks the posterior
+$$\Pi_t = \mathbb{P}\big(\theta_t = \cdot \mid \mathcal{F}_t^Y\big),$$
+the conditional distribution of the regime given everything observed up to $t$ (here $\mathcal{F}_t^Y$ is the information generated by the observations). Because $\Pi_t$ is generally <strong>non-Markovian</strong> in any finite state, the problem is posed as a <em>measure-valued</em> optimal stopping problem: choose a stopping time $\tau^\*$ to minimize
+$$\mathbb{E}\Big[c_1\,\mathbf{1}\{\tau^\* < \tau\} + c_2\,(\tau^\* - \tau)^+ + c_3\,\ell(\hat\theta,\theta)\Big],$$
+where $c_1$ prices false alarms (stopping before the true change $\tau$), $c_2$ prices delay (the $(\cdot)^+$ is the positive part), and $c_3\,\ell$ prices misclassification of the declared regime $\hat\theta$.</p>
+<p><strong>The method.</strong> With observed variance the problem reduces to a two-dimensional Markov <strong>free-boundary problem</strong> (a PDE with an unknown exercise frontier), solvable directly. With latent variance, a <strong>particle filter</strong> approximates the posterior $\Pi_t$ and <strong>Monte Carlo dynamic programming</strong> approximates the value function and the optimal stopping boundary over that filtered state.</p>
+<p><strong>Results with numbers.</strong> Across numerical experiments in Heston and regime-switching Vasicek settings, the latent-information stopping rule outperforms feasible plug-in rules (which simply threshold the posterior probability), with the margin depending on the chosen cost weights and signal strength.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Regime switching</strong> — a model where dynamics jump between a few hidden states.</li>
+<li><strong>Filtering / posterior</strong> — the running probability distribution over a hidden state given observations.</li>
+<li><strong>Optimal stopping</strong> — choosing the best moment to take an irreversible action.</li>
+<li><strong>Free-boundary problem</strong> — a PDE whose domain is split by an unknown frontier you must solve for.</li>
+<li><strong>Particle filter</strong> — a cloud of weighted samples that approximates a hard-to-compute posterior.</li>
+<li><strong>Heston / Vasicek models</strong> — standard models for stochastic volatility and for interest rates, respectively.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The payoff rides on cost weights ($c_1, c_2, c_3$) that a user must pick, which is inherently subjective, and the whole pipeline (particle filter plus Monte Carlo dynamic programming) is computationally heavy for online use. The gains are demonstrated on simulated models rather than live data, so "can outperform" is setting-dependent — but the reframing from <em>estimate</em> to <em>decide</em> is the right one.</p>
+<h3>Bottom Line</h3>
+<p>Detecting a regime change is a cost-aware stopping decision, not just a probability you read off a filter.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> StochLOB: Heavy-Tailed Score Matching for Robust Limit Order Book Trend Prediction</h2>
+  <p class="meta">Arshia Abolghasemi, Seyed Reza Tavakoli, Parsa Naderi, Nazanin Mirzaei, Behrad Jahani, Saba Yousefzadeh et al.<br>
+    <span class="cat">cs.LG</span> &middot; 2026-10-15 &middot; <a href="http://arxiv.org/abs/2610.21081v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.21081v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Train a market-trend predictor by corrupting its data with jumpy, heavy-tailed noise that actually resembles order flow, instead of the gentle Gaussian noise everyone defaults to.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The limit order book (LOB) is the live queue of buy and sell orders sitting at each price — the raw plumbing of a market. Its order flow is <strong>bursty and heavy-tailed</strong>: mostly small ripples, then occasionally a huge jump. Modern machine-learning predictors often borrow the "diffusion" recipe: during training you deliberately corrupt the data with random noise and teach the model to undo it, which forces it to learn structure. But the standard recipe adds smooth <strong>Gaussian</strong> noise — a bell curve with thin tails. Feeding a thin-tailed noise model into a fat-tailed world is like training a driver only on calm roads; the model is brittle exactly when markets get violent.</p>
+<p><strong>The idea.</strong> StochLOB changes <em>the noise you train with</em> so it matches the data's real character. Instead of gentle Gaussian corruption, it uses two heavy-tailed alternatives: <strong>jump-Lévy noise</strong> (built from a compound-Poisson variance mixture, which sprinkles in sudden finite jumps) and <strong>clipped α-stable noise</strong> (a positive-stable Gaussian scale mixture, which produces genuinely fat tails but trimmed so it stays trainable). Crucially this is a <em>training-only</em> change — once deployed, the predictor is an ordinary fast deterministic network; there is no slow reverse-diffusion sampling at inference. A neat consequence: the learned score's "radial factor" behaves like a <strong>posterior expected precision</strong>, automatically down- or up-weighting a residual according to how large a corruption plausibly produced it. Big surprises get handled gracefully instead of dominating the loss.</p>
+<p><strong>What they found.</strong> On chronologically held-out Coinbase LOB data, the heavy-tailed variants stay competitive with the Gaussian baseline on ordinary Bitcoin and altcoin horizons, and improve several <strong>tail-window stress diagnostics</strong> — performance precisely in the violent regimes that matter. An exploratory transfer test on Chinese A-shares checks whether the probability outputs survive transaction costs and trading-rule constraints.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Score-based methods define a <em>forward</em> corruption SDE that gradually noises data $X_0$ toward noise, and learn the <strong>score</strong> $\nabla_x \log p_t(x)$ (the gradient of the log density of the noised data). The usual forward process is Brownian:
+$$dX_t = f(X_t,t)\,dt + g(t)\,dW_t,$$
+with $W_t$ a Brownian motion — light-tailed. StochLOB replaces $dW_t$ with a heavy-tailed driver.</p>
+<p><strong>The key idea.</strong> Heavy-tailed noise is written as a <strong>scale mixture of Gaussians</strong>: $X = \sqrt{\Lambda}\,Z$ with $Z \sim \mathcal{N}(0,I)$ and a random mixing scale $\Lambda$ (compound-Poisson for jump-Lévy, positive-stable for α-stable). The score of such a mixture has a radial form whose factor
+$$h_t(r) = \mathbb{E}\big[\Lambda^{-1} \,\big|\, \lVert X_t\rVert = r\big]$$
+is the <strong>posterior expected corruption precision</strong> at residual magnitude $r$ — so large residuals are weighted by the latent scale that most plausibly generated them, rather than quadratically as under pure Gaussian noise.</p>
+<p><strong>The method.</strong> Score matching with the modified heavy-tailed forward process at training; a deterministic MLP predictor at inference (no reverse-time sampling needed). $\alpha$-stable noise is clipped to keep variance finite and training stable.</p>
+<p><strong>Results with numbers.</strong> On held-out Coinbase BTC and altcoin horizons the variants remain competitive with the Gaussian baseline on clean data and improve several realized tail-window stress diagnostics; the A-share study is exploratory, testing usability of the probability outputs under costs and trading rules. Code is released.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book (LOB)</strong> — the live queue of outstanding buy/sell orders at each price.</li>
+<li><strong>Score matching</strong> — learning the gradient of the log data-density to drive a diffusion model.</li>
+<li><strong>Forward SDE / corruption process</strong> — the training-time recipe that progressively noises the data.</li>
+<li><strong>Lévy / compound-Poisson noise</strong> — random noise that includes sudden finite jumps.</li>
+<li><strong>α-stable distribution</strong> — a heavy-tailed family generalizing the Gaussian, with genuinely fat tails.</li>
+<li><strong>Scale mixture of Gaussians</strong> — a heavy-tailed variable built as a Gaussian with a random variance.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline gains are mostly in tail-stress diagnostics rather than across-the-board accuracy, and the A-share transfer is explicitly exploratory, so it is not yet a proven edge over simpler robust losses. But matching the corruption law to the data's tails is a principled move, and keeping inference deterministic means the robustness comes at no runtime cost.</p>
+<h3>Bottom Line</h3>
+<p>If your data has fat tails, train with fat-tailed noise — you get stress-robustness without paying for it at inference time.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Common Signals, Spurious Cross-Excitation, and Identification in Multivariate Hawkes Processes</h2>
+  <p class="meta">Jiwon Jung, Kiseop Lee<br>
+    <span class="cat">stat.ME</span> &middot; 2026-10-14 &middot; <a href="http://arxiv.org/abs/2610.19428v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.19428v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two assets lighting up together need not be influencing each other — a shared hidden signal fakes "excitation," and ordinary second-order statistics simply cannot tell the real mechanism apart.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <strong>Hawkes process</strong> models events that make more events likely: one trade triggers a flurry of trades, one default raises the odds of the next. The <em>multivariate</em> version is used everywhere to claim "market A excites market B" — that activity in one causally spills into the other. But there is a trap. If A and B are both reacting to the same unseen common signal (a macro headline, a shared liquidity shock), they will fire together, and a naive fit will read that co-movement as A <em>causing</em> B. The apparent "cross-excitation" is an artifact of a lurking common cause.</p>
+<p><strong>The idea.</strong> The authors make this precise and then offer a way out. First they <em>prove</em> the problem is real: they build genuine, well-behaved Hawkes processes that have <strong>different internal mechanisms yet identical mean rates and identical spectra</strong> (the full second-order, correlation-level fingerprint). So any method that only looks at means and correlations is fundamentally unable to separate "true interaction" from "shared signal." Then the fix: go to <strong>third-order statistics</strong>. The third-order cumulant — a measure of asymmetric three-way co-occurrence — <em>does</em> differ between the two mechanisms, so it can break the tie. They also build a practical estimator (Whittle estimation from binned event counts) with honest error bars.</p>
+<p><strong>What they found.</strong> Second-order non-identification is a concrete, constructed fact, not a vague worry. Third-order information restores <em>local</em> identifiability in two- and three-dimensional systems — but with a sting: under weak signals the finite-sample behavior is poor, so in practice you may still not be able to tell. An application to cryptocurrency transactions shows inferred excitation is highly sensitive to model specification — a cautionary real-world illustration.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A $d$-dimensional Hawkes process has conditional intensities
+$$\lambda_i(t) = \mu_i + \sum_{j=1}^{d}\int_0^t \phi_{ij}(t-s)\,dN_j(s),$$
+where $\lambda_i(t)$ is the instantaneous event rate of component $i$, $\mu_i$ its baseline immigration rate, $\phi_{ij}$ the excitation kernel (how a past event in $j$ lifts the rate of $i$), and $N_j$ the counting process of component $j$. <strong>Cox immigration</strong> makes the baseline $\mu_i$ itself random — a stochastic common signal.</p>
+<p><strong>The key result.</strong> Two models can share the <strong>mean intensity</strong> and the <strong>Bartlett spectrum</strong> (the Fourier transform of the second-order cross-covariance of the counting measures) yet have different kernels $\phi_{ij}$ — a concrete <strong>second-order non-identification</strong>. The repair uses the <strong>integrated third-order cumulant</strong>
+$$C_{ijk} = \int\!\!\int \text{cum}\big(dN_i(0),\,dN_j(u),\,dN_k(v)\big),$$
+which the authors derive for Hawkes-with-Cox-immigration and show <em>does</em> distinguish the mechanisms, giving <strong>generic local identification</strong> of normalized structural parameters in $d=2,3$.</p>
+<p><strong>The method.</strong> For a restricted parametric family they develop <strong>Whittle estimation</strong> from binned counts (a frequency-domain likelihood), prove consistency and asymptotic normality under identification conditions, and construct feasible <strong>sandwich standard errors</strong> that account for the estimated mean intensities. An exact-equivalence Monte Carlo experiment demonstrates separation via third-order information.</p>
+<p><strong>Results with numbers.</strong> The Monte Carlo confirms that two models identical at second order are separated by third-order cumulants, while exposing substantial finite-sample limitations when signals are weak; the crypto-transactions application shows inferred excitation flips with specification.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hawkes process</strong> — a model where each event raises the chance of future events (self/cross-excitation).</li>
+<li><strong>Intensity</strong> — the instantaneous rate at which events occur, given the past.</li>
+<li><strong>Cox immigration</strong> — a Hawkes baseline that is itself a random process (the common signal).</li>
+<li><strong>Bartlett spectrum</strong> — the frequency-domain description of a point process's second-order structure.</li>
+<li><strong>Cumulant</strong> — a higher-order statistic; the third cumulant captures asymmetric three-way dependence.</li>
+<li><strong>Whittle estimation</strong> — fitting a model by matching its spectrum to the data in the frequency domain.</li>
+<li><strong>Identification</strong> — whether the data can, even in principle, pin down the model's parameters.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The practical catch is that third-order estimation is data-hungry and fragile under weak signals — the very regime where you most want it — so this is as much a warning as a toolkit. The headline value is cautionary: distrust cross-excitation read off a spectral fit, because a common signal can forge it.</p>
+<h3>Bottom Line</h3>
+<p>Shared signals can masquerade as causation in Hawkes models; look to third-order statistics, and never trust excitation inferred from the spectrum alone.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Neural Estimation of Irreversibility in Real and Simulated Limit Order Book Paths</h2>
+  <p class="meta">Hyeonjun Yeo, Doohwi Cha, Yoontae Hwang<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-12 &middot; <a href="http://arxiv.org/abs/2610.16151v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.16151v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Real markets have an arrow of time — run the order book backward and it looks wrong — and a neural net can measure exactly how much, exposing which simulators only pretend to.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Some processes look the same played forward or backward — a video of billiard balls in frictionless equilibrium, say. They are <em>reversible</em> and carry no arrow of time. Anything driven by a real directed mechanism leaves a trail: played in reverse it looks subtly wrong. In finance this "time irreversibility" has only ever been measured on simple scalar series like returns or volatility. But a market is not a single number — it is the whole evolving <strong>limit order book (LOB)</strong>, the live ledger of orders at every price. Can we measure the arrow of time in that full object, and use it as a lie-detector for the simulators quants rely on to test strategies?</p>
+<p><strong>The idea.</strong> Define an <strong>irreversibility rate</strong>: how distinguishable the forward path is from its own time-reversal, measured as a log-density ratio <em>per event</em>. Estimating that ratio directly is hard, so they train neural networks to do it. Two kinds: an <strong>order-invariant MLP</strong> that sees the same events but ignores their sequence, and a <strong>temporal convolutional network (TCN)</strong> that sees the actual order. The gap between the two — the <strong>"ordering increment"</strong> — isolates how much of the arrow of time lives specifically in the <em>sequence</em> of events, not just in which events occurred. Then they point the same ruler at a popular market simulator and ask whether it reproduces the real number.</p>
+<p><strong>What they found.</strong> For NVDA the order-invariant estimate is 0.036 nats per event and the order-sensitive estimate 0.054, so the ordering increment is 0.018 — and that increment is positive for all twelve symbols on every held-out daytime date. A surrogate that preserves only the one-step transition table recovers about 30% less irreversibility than the real paths. The punchline: a calibrated <strong>queue-reactive simulator</strong> matches the real <em>ordered</em> rate almost exactly (0.052 vs 0.054) yet gets the ordering increment catastrophically wrong (0.0006 vs 0.018). It manufactures time-asymmetry from the <em>mix</em> of events rather than their <em>order</em> — it fakes the arrow of time by the wrong mechanism.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Take a coarse-grained LOB path — a sequence of discretized book states/events. For a path segment $x_{1:T}$ with forward law $p$ and time-reversed law $\tilde p$, the <strong>irreversibility rate</strong> per event is
+$$\rho = \frac{1}{T}\,\mathbb{E}\!\left[\log \frac{p(x_{1:T})}{\tilde p(x_{1:T})}\right],$$
+a Kullback–Leibler-type divergence between the process and its reversal, measured in <strong>nats per event</strong>. A strictly positive $\rho$ is a necessary signature of a directed underlying mechanism.</p>
+<p><strong>The key quantities.</strong> Two estimators receive identical input blocks: an <strong>order-invariant MLP</strong> yields $\rho_{\text{inv}}$ (sensitive only to event composition) and a <strong>TCN</strong> yields $\rho_{\text{ord}}$ (sensitive to sequence). The <strong>ordering increment</strong> is
+$$\Delta = \rho_{\text{ord}} - \rho_{\text{inv}},$$
+the share of irreversibility attributable specifically to the order of events.</p>
+<p><strong>The method.</strong> The log-density ratio is learned by neural density-ratio estimation (a forward-vs-reversed discrimination task) on three weeks of Nasdaq market-by-order data. A surrogate preserving the coarse one-step transition table isolates higher-order structure, and the coarse-graining scale is varied to probe scale-dependence.</p>
+<p><strong>Results with numbers.</strong> NVDA: $\rho_{\text{inv}}=0.036$, $\rho_{\text{ord}}=0.054$, $\Delta=0.018$ nats/event; $\Delta>0$ for all 12 symbols on every tested daytime date. The transition-table surrogate recovers ~30% less irreversibility; the rate changes more than tenfold with coarse-graining scale. The queue-reactive simulator matches the ordered rate (0.052 vs 0.054) but collapses on the increment (0.0006 vs 0.018).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Time irreversibility</strong> — a process being statistically distinguishable from its time-reversal.</li>
+<li><strong>Limit order book (LOB)</strong> — the live ledger of all resting buy/sell orders at each price.</li>
+<li><strong>Nats</strong> — units of information using the natural logarithm (like bits, but base $e$).</li>
+<li><strong>KL divergence / log-density ratio</strong> — a measure of how distinguishable two probability laws are.</li>
+<li><strong>Coarse-graining</strong> — summarizing a fine process into discrete states at a chosen resolution.</li>
+<li><strong>Temporal convolutional network (TCN)</strong> — a neural net that reads ordered sequences via sliding filters.</li>
+<li><strong>Queue-reactive model</strong> — a standard LOB simulator where order rates depend on current queue sizes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a diagnostic, not a trading signal — it tells you a simulator is wrong, not how to make money, and the estimate swings more than tenfold with the coarse-graining choice, so the absolute number is less meaningful than the comparisons. Neural density-ratio estimates can also be biased. But as a benchmark for validating order-book simulators, the ordering-increment idea is genuinely new and genuinely useful.</p>
+<h3>Bottom Line</h3>
+<p>Markets have a measurable arrow of time, and the simulators we trust mostly reproduce it for the wrong reason — now we can catch them.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
