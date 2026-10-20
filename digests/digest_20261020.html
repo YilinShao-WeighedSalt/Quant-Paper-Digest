@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 20, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 20, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Arbitrage-Free Implied Volatility Surface Reconstruction via Additive Martingales</h2>
+  <p class="meta">Haochen Luo, Sifan Lin, Xiaolong Luo, An Binh Minh, Yuan Zhang, Chen Liu<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-10-19 &middot; <a href="http://arxiv.org/abs/2610.25671v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.25671v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It learns a complete, no-free-lunch map of option prices from just a handful of quotes by building the no-arbitrage rules into the model's bones rather than politely asking it to behave.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An option is a contract to buy or sell a stock at a fixed price on a future date. Different strike prices and different expiry dates have different "implied volatilities" — a single number that summarizes how much the market thinks the stock could swing. Lay all those numbers out across strikes and dates and you get a surface, like a landscape of hills and valleys. Traders need the <em>whole</em> surface to price contracts that aren't quoted and to measure risk, but the market only quotes a few points of it at any moment. So you have to fill in the gaps.</p>
+<p>The catch is that you cannot fill them in any way you like. Certain shapes of surface would let someone build a portfolio that makes money with zero risk — a free lunch, or "arbitrage." A good reconstruction must be smooth, match the quotes you have, and contain no free lunches anywhere, including in the empty regions you invented.</p>
+<p><strong>The idea.</strong> Most machine-learning approaches guess the volatility numbers directly and then add a penalty that nudges the guess toward being arbitrage-free, the way a teacher deducts points for messy work but still accepts it. The problem: a penalty discourages violations, it doesn't forbid them. This paper (they call the method AddMart) takes a different route. Instead of predicting volatilities, it predicts the building blocks of a mathematically valid price process — specifically, the little bundles of probability that describe how the stock's price can jump from one instant to the next. If you assemble the surface out of pieces that are guaranteed-legal by construction, the whole thing is legal automatically. It's the difference between telling a child "try not to draw outside the lines" and handing them a stencil.</p>
+<p><strong>What they found.</strong> Across ten real option datasets, AddMart reconstructs surfaces about as accurately as competing methods but with essentially <em>zero</em> arbitrage violations, whereas penalty-based methods leak violations into the gaps. And because what it builds is a genuine probability model, it hands you risk numbers — the chance of a crash, worst-case losses — for free.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a stock and a current price. For each future date $t$, the risk-neutral world assigns a probability distribution $\mu_t$ to the stock's price $S_t$ — this is the <em>marginal law</em>. Option prices are just averages taken under these $\mu_t$: a call paying $(S_t-K)^+$ at strike $K$ is worth its discounted expectation. The no-static-arbitrage conditions are, essentially, (i) each $\mu_t$ is a valid probability measure, and (ii) the family $\{\mu_t\}$ is increasing in the "convex order" as $t$ grows — intuitively, uncertainty only accumulates with time.</p>
+<p><strong>The key object.</strong> AddMart models the log-price as an <strong>exponential additive martingale</strong>. An additive process $X_t$ has independent (but not necessarily stationary) increments; the price is
+$$S_t = S_0\,\exp\!\big(X_t - \psi(t)\big),$$
+where $S_0$ is today's price, $X_t$ is the additive driver, and $\psi(t)$ is a deterministic compensator chosen so that the discounted $S_t$ is a true martingale (no drift you could exploit). The law of the increment over $[t,t+dt]$ is captured by a non-negative <strong>increment density</strong> $\nu_t(\cdot)$. The network's job is the map
+$$\{\text{quotes}\} \;\longmapsto\; \{\nu_t(\cdot)\}_{t\ge 0},$$
+and because any non-negative $\nu_t$ yields a legitimate additive martingale, the resulting marginals $\mu_t$ and the implied volatilities read off them are arbitrage-free by construction.</p>
+<p><strong>The method.</strong> It is a <em>few-shot</em> learning setup: a neural network is trained to output the increment densities, constrained to be non-negative (so validity is architectural, not penalized). From the densities you recover the marginals $\mu_t$, from the marginals you get option prices by integration, and from prices you invert the Black–Scholes formula to display the implied volatility surface. Risk measures follow directly: Value-at-Risk and CVaR are quantiles and tail-averages of $\mu_t$, and a crash probability is just $\mu_t(\{S_t < \text{barrier}\})$.</p>
+<p><strong>Results with numbers.</strong> On ten real-option datasets AddMart matches the reconstruction accuracy of baselines while producing <em>no material static arbitrage violations</em> across the domain — the headline contrast, since regularization-based competitors still violate in the interpolated regions. It additionally delivers VaR, CVaR, and crash-probability estimates as a direct by-product of the fitted marginals.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility</strong> — the single volatility number that, plugged into a pricing formula, reproduces an option's market price.</li>
+<li><strong>Martingale</strong> — a process with no predictable drift; your best forecast of tomorrow's value is today's value, which is what "no free lunch" requires.</li>
+<li><strong>Additive process</strong> — a process with independent increments whose statistics may change over time (a generalization of a process with identical, stationary increments).</li>
+<li><strong>Risk-neutral marginal</strong> — the probability distribution of the asset's price at a future date, under the pricing measure used to value options.</li>
+<li><strong>Convex order</strong> — an ordering of distributions capturing "more spread out"; marginals increasing in convex order over time is the no-arbitrage requirement.</li>
+<li><strong>CVaR (Conditional Value-at-Risk)</strong> — the average loss <em>given</em> that you are already in the worst tail (say the worst 5%).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>"Static" no-arbitrage is only part of the story — it says nothing about dynamic arbitrage across rebalancing, and real desks care about both. Modeling log-price as an additive (independent-increment) martingale rules out volatility clustering and leverage effects that genuinely exist, so the fitted dynamics are a convenience for pricing, not a realistic path model. Still, for the narrow and important job of interpolating a clean, arbitrage-free surface from sparse quotes, baking the constraint into the architecture is a real improvement over hoping a penalty holds.</p>
+<h3>Bottom Line</h3>
+<p>Don't penalize bad surfaces — make them impossible to draw.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> From Alpha to Execution: Trading Horizons, Regimes, and Schedules under Concave Impact and Hurst Scaling</h2>
+  <p class="meta">Dnyanesh Kulkarni, Revant Nayar<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-16 &middot; <a href="http://arxiv.org/abs/2610.23749v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.23749v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>How long you should take to work a large order, and the shape of the trading schedule, are set almost entirely by two signs — whether your edge is still arriving and how impact fades — not by the order's size.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a fund wants to buy a million shares, it can't just slam the button — doing so would push the price up against itself, a cost called "market impact." So it spreads the order out over minutes or hours. Two questions follow: <em>how long</em> should the whole execution take, and <em>at what pace</em> within that window should it trade? The textbook answer assumes the price wanders like a drunk (a "random walk") and that impact is proportional to how fast you trade. Reality is messier: trading twice as fast doesn't cost twice as much (impact is <em>concave</em> — there are economies of scale), and prices have memory and trends rather than pure randomness.</p>
+<p><strong>The idea.</strong> The authors pick the execution horizon by maximizing the <em>Sharpe ratio</em> of the trade — its expected profit divided by its risk — rather than fixing the horizon in advance. The insight is that the price movements <em>while you are trading</em> are part of your profit and loss, not noise to be ignored. Trading slowly shrinks the variance of that P&amp;L (good) and, because impact is concave, can also lower cost per share (also good). The only reason to hurry is that your predictive signal — your "alpha" — decays, and every minute you wait, some of the edge evaporates. So urgency is a tug-of-war between a fading signal and the benefits of patience.</p>
+<p>They show the whole decision collapses to the <em>signs</em> of two quantities: one measuring how impact's cost changes if you stretch the trade out, the other measuring your net urgency. If both point the right way, there's a sweet-spot horizon in the middle; otherwise you should go as fast or as slow as allowed. Strikingly, near the optimum the objective is nearly flat — for a big liquid stock, any horizon within a factor of ten of the best is within 1% of optimal. Then, given the window, they derive the <em>shape</em> of the schedule: front-load your trading and taper off, which beats slicing evenly (the industry-standard "TWAP") by 10–17%.</p>
+<p><strong>What they found.</strong> Classic models say urgency scales with order size and volume; here, at the interior optimum, the first-order condition contains <em>no</em> impact coefficient, order size, or volume — urgency comes purely from how fast alpha is realized. And a front-loaded, smoothly-tapering schedule saves real money over flat execution.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> You must trade a fixed quantity over a window $[0,T]$, choosing a rate (schedule) $\phi(t)$. Prices are <strong>Hurst-scaled</strong>: fluctuations over a horizon scale like $t^{H}$ for a Hurst exponent $H$ (with $H=\tfrac12$ the classical random walk, $H\neq\tfrac12$ meaning trending or mean-reverting memory). Market impact is a <strong>concave power law</strong> of the trading rate, with exponent $\beta$, and it persists and decays over time.</p>
+<p><strong>The key quantities.</strong> The horizon decision is governed by the signs of two scalars:
+$$a = \beta - H, \qquad \nu = (\text{rate of alpha realization}) - (\text{rate of exposure relief}).$$
+Here $a$ is the <strong>duration elasticity of impact</strong> — how the per-share cost responds to stretching the trade — which under a structural prior equals the impact-persistence gap $\beta-H$ and can be positive <em>or</em> negative; and $\nu$ is the <strong>net urgency</strong>. An interior optimal horizon exists (to leading order in $T/t_f$, with $t_f$ a reference time) only when both $a>0$ and $\nu>0$; otherwise you trade at the fastest or slowest admissible pace.</p>
+<p><strong>The schedule.</strong> Given the window, minimize an envelope cost with a per-share cost-of-delay $w(t)$. The Karush–Kuhn–Tucker (KKT) conditions give the optimal rate in closed form:
+$$\phi(t) \;\propto\; \big(\lambda - w(t)\big)_{+}^{1/\beta},$$
+where $\lambda$ is the Lagrange multiplier enforcing that the full quantity is executed, $(\cdot)_+$ is the positive part (zero once $w(t)$ exceeds $\lambda$), and $\beta$ is the impact exponent. For a Hurst-scaled envelope $w(t)\propto t^{H}$, the normalized schedule depends only on $(\beta,H)$ and has a closed form via the <strong>incomplete beta function</strong>; it is front-loaded and tapers smoothly to zero.</p>
+<p><strong>The method.</strong> Horizon selection is a one-dimensional Sharpe-ratio optimization reduced to a sign analysis via a leading-order (small $T/t_f$) expansion; schedule selection is a convex program solved exactly through its KKT conditions.</p>
+<p><strong>Results with numbers.</strong> For a large-cap example, the window within 1% of maximal Sharpe spans <strong>more than an order of magnitude</strong> — the objective is extremely flat near the optimum. The optimal front-loaded schedule saves <strong>10–17% of envelope cost</strong> versus a constant-rate (TWAP) schedule of equal duration. Whether the trade uses the entire window is decided by a single dimensionless robustness level, for which they provide a calibration.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact</strong> — the adverse price move your own trading causes; <em>concave</em> impact means each extra unit of speed costs less than the last.</li>
+<li><strong>Sharpe ratio</strong> — expected return divided by its standard deviation; reward per unit of risk.</li>
+<li><strong>Hurst exponent $H$</strong> — a number measuring price memory: $H=\tfrac12$ is a random walk, $H>\tfrac12$ trends, $H<\tfrac12$ mean-reverts.</li>
+<li><strong>Alpha</strong> — the predictive edge or expected excess return a signal provides, which here decays over time.</li>
+<li><strong>KKT conditions</strong> — the first-order optimality conditions for a constrained optimization problem, generalizing Lagrange multipliers to inequalities.</li>
+<li><strong>TWAP</strong> — Time-Weighted Average Price, the baseline schedule that trades at a constant rate across the window.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean sign-based rules and the flat-objective finding rest on a leading-order expansion in $T/t_f$ and a structural prior that ties $a$ to $\beta-H$; if that identity fails to hold in a given market, the dichotomy blurs. The impact model is still a stylized power law, and estimating $\beta$, $H$, and the alpha-decay rate from noisy data is where practitioners will actually struggle. That said, the message that horizon choice is remarkably forgiving — any of a wide band of durations is near-optimal — is genuinely useful and reassuring for execution desks.</p>
+<h3>Bottom Line</h3>
+<p>Pick roughly the right horizon, front-load the schedule, and stop worrying about the exact minute — the optimum is a plateau, not a peak.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> On the skew-curvature power law relationship in a stochastic volatility model with infinite variation Lévy jumps</h2>
+  <p class="meta">Òscar Burés, Josep Vives<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-16 &middot; <a href="http://arxiv.org/abs/2610.23488v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.23488v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Two rival explanations for why short-dated option smiles are so steeply tilted — rough volatility and wild price jumps — leave different fingerprints, and this paper shows how to read the fingerprints even when both are present at once.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Plot implied volatility against strike price for options expiring very soon, and you don't get a flat line — you get a tilted, curved "smile." Two numbers summarize it: the <em>skew</em> (how tilted it is around the at-the-money point) and the <em>curvature</em> (how much it bends). As expiry shrinks toward zero, both tend to blow up following a power law — they scale like (time-to-expiry) raised to some negative power. Quants care intensely about this because the exponent of that blow-up tells you what kind of model you must use, and the wrong model misprices and mishedges short-dated options, which are exactly the ones that explode during crises.</p>
+<p>The awkward part: two completely different mechanisms produce the same explosive smile. One is <strong>rough volatility</strong> — the idea that volatility itself is an extremely jagged, erratic process (jagged is measured by a Hurst index $H$ near zero). The other is <strong>jumps</strong> — the price doesn't move continuously but occasionally leaps, and if the jumps are of "infinite variation" (infinitely many tiny jumps adding up to something wild) they also make the smile explode. From the smile alone, which one is it? Historically you couldn't easily tell.</p>
+<p><strong>The idea.</strong> The authors study a <em>mixed</em> model that has both rough volatility and infinite-variation jumps running simultaneously, and compute the leading behavior of both the skew and the curvature as expiry goes to zero. The punchline: the skew and the curvature blow up at rates that depend differently on the roughness parameter and on the jump parameter. By looking at <em>both</em> exponents together — not just the skew — you can disentangle which mechanism is driving the power law, even in the mixed model. It's like distinguishing two suspects not by a single clue but by how two different clues co-vary.</p>
+<p><strong>What they found.</strong> The mixed model also produces a power-law smile (so adding jumps to rough vol doesn't destroy the structure), and the joint short-time behavior of skew and curvature reveals the origin of the power law. This has direct consequences for how you design and calibrate models. They back it up numerically with the rough Heston model carrying CGMY jumps — a standard, demanding test case.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The log-price $X_t = \log S_t$ follows a stochastic-volatility model with jumps:
+$$dX_t = -\tfrac12 V_t\,dt + \sqrt{V_t}\,dW_t + dJ_t,$$
+where $S_t$ is the asset price, $V_t$ is the (instantaneous) variance process, $W_t$ is a Brownian motion, and $J_t$ is a pure-jump <strong>Lévy process</strong> of <em>infinite variation</em>. The variance $V_t$ is driven by a <strong>rough</strong> process — e.g. a rough Heston specification — whose roughness is governed by a Hurst index $H\in(0,\tfrac12)$: the smaller $H$, the more jagged the volatility path.</p>
+<p><strong>The quantities of interest.</strong> Write $\mathrm{IV}(k,\tau)$ for the implied volatility at log-moneyness $k$ and time-to-maturity $\tau$. The <strong>at-the-money skew</strong> and <strong>curvature</strong> are
+$$\mathcal{S}(\tau) = \frac{\partial\,\mathrm{IV}}{\partial k}\Big|_{k=0}, \qquad \mathcal{C}(\tau) = \frac{\partial^2\,\mathrm{IV}}{\partial k^2}\Big|_{k=0}.$$
+The paper computes the <strong>leading terms of their short-time expansions</strong> as $\tau\downarrow 0$, each of the power-law form $\mathcal{S}(\tau)\sim c_{\mathcal S}\,\tau^{-p}$ and $\mathcal{C}(\tau)\sim c_{\mathcal C}\,\tau^{-q}$. The central result is that the exponents $p$ and $q$ — and the relationship between them — depend on $H$ and on the jump activity (the Blumenthal–Getoor index of $J$, i.e. how aggressively the small jumps accumulate) in a way that lets you identify the source.</p>
+<p><strong>The method.</strong> Short-time asymptotic analysis: expand the option price (or the implied volatility directly) in powers of $\tau$ near expiry, extract the leading coefficients, and read off the skew and curvature exponents. The jump part's contribution is governed by the infinite-variation Lévy measure; the rough part's by the small-$H$ singularity of the volatility kernel. Combining them yields the joint skew–curvature "power-law" signature.</p>
+<p><strong>Results with numbers.</strong> The paper provides numerical evidence for the <strong>rough Heston model with CGMY jumps</strong> (CGMY being a four-parameter infinite-activity, infinite-variation jump family), confirming that the mixed dynamics reproduce a power-law skew and curvature and that the leading-order expansions correctly diagnose which mechanism dominates.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied-volatility skew</strong> — the slope of the smile at the at-the-money strike; a measure of its tilt.</li>
+<li><strong>Curvature</strong> — the second derivative of the smile at-the-money; how sharply it bends.</li>
+<li><strong>Rough volatility</strong> — a model where the volatility process is extremely irregular, with Hurst index $H$ well below $\tfrac12$.</li>
+<li><strong>Lévy process</strong> — a process with independent, stationary increments that can include jumps; <em>infinite variation</em> means its paths are so jumpy their total movement is infinite over any interval.</li>
+<li><strong>CGMY</strong> — a flexible four-parameter jump model (Carr–Geman–Madan–Yor) that can tune jump frequency and the asymmetry of up vs. down jumps.</li>
+<li><strong>Short-time expansion</strong> — approximating a quantity by its leading behavior as time-to-maturity shrinks to zero.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theoretical identification result: it tells you the two mechanisms are <em>in principle</em> separable from the joint skew–curvature asymptotics, but real option data near expiry is sparse, noisy, and discretely quoted, so estimating two blow-up exponents cleanly is genuinely hard. The result is leading-order, so sub-leading corrections — which matter at the non-infinitesimal maturities actually traded — are not the focus. Still, for model builders deciding between "add roughness" and "add jumps," it replaces a coin-flip with a principled diagnostic.</p>
+<h3>Bottom Line</h3>
+<p>Roughness and jumps can mimic each other in the smile's tilt, but together the tilt and the bend give the game away.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Amortized Neural Filtering for Calibrated Posteriors in Statistical Arbitrage</h2>
+  <p class="meta">Minkey Chang<br>
+    <span class="cat">q-fin.GN</span> &middot; 2026-10-19 &middot; <a href="http://arxiv.org/abs/2610.25802v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.25802v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>In statistical arbitrage, keeping track of <em>how unsure you are</em> about a spread's value — not just your best guess — is what a neural filter can deliver in one shot across thousands of assets, and it meaningfully shrinks the gap between backtested and realized profits.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Statistical arbitrage bets that two related assets (or an asset and a basket) have drifted apart temporarily and will snap back together — you trade the "spread" between them. The trouble is you never observe the true spread directly; you estimate it, and that estimate is uncertain. Standard practice throws the uncertainty away: you compute a single best guess and trade on it as if it were gospel. That overconfidence is dangerous — it's the difference between "I think the spread is 2 standard deviations wide" said with a shrug versus said after seeing a hundred clean data points.</p>
+<p><strong>The idea.</strong> The authors keep the uncertainty and <em>use</em> it when sizing trades. They train a <strong>Neural Filter Estimator</strong> on simulated paths of a mean-reverting process — a process that drifts back toward a central value, like a spring pulling a weight to rest. The "noise" in the spring is tuned to match the statistical shape of real residual spreads. Once trained, the network does something economically valuable: in a <em>single</em> forward pass it returns, for every spread in a large cross-section of stocks, not a point estimate but a full <em>posterior</em> — a probability distribution over where the latent spread actually sits. "Amortized" is the key word: you pay the training cost once, then inference is cheap and instant across the whole universe, instead of re-running a bespoke filter for each asset.</p>
+<p><strong>What they found.</strong> Three findings. First, a humbling one: on simulated data where the truth is known, <em>every</em> practical estimator — theirs included — lands in a narrow band of accuracy well below an oracle that sees everything, so the posterior buys you no extra accuracy over a point estimate. Its real contribution is honesty: a correct account of its own uncertainty. Second, that honesty pays off in money. On Korean equities, the naive point estimate <em>forecasts about a thousand basis points (10 percentage points) per holding period more profit than it actually realizes</em> — a massive overoptimism — and the uncertainty-aware methods cut that gap by a factor of two to eight. Third, sizing positions from the posterior matches the Sharpe ratio of a sophisticated attention-based factor model, at no more risk.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The latent state of a residual spread is modeled as a <strong>mean-reverting (Ornstein–Uhlenbeck-type) process</strong> observed in noise. In continuous time the state $x_t$ evolves as
+$$dx_t = \kappa(\theta - x_t)\,dt + dL_t,$$
+where $x_t$ is the latent spread, $\kappa>0$ is the speed of mean reversion, $\theta$ is the long-run level the spread is pulled toward, and $L_t$ is an innovation (noise) process whose law is <em>selected</em> by testing candidate distributions against real residuals — so the noise need not be Gaussian. You observe a noisy function of $x_t$; the goal is the <strong>filtering posterior</strong> $p(x_t \mid \text{observations up to } t)$.</p>
+<p><strong>The key object.</strong> Rather than running a Kalman or particle filter per asset, a neural network $f_\psi$ with parameters $\psi$ is trained to approximate the posterior directly:
+$$f_\psi:\; (\text{observation history}) \;\longmapsto\; p(x_t \mid \mathcal{F}_t),$$
+where $\mathcal{F}_t$ denotes the information available at time $t$. This is <strong>amortized inference</strong>: one trained network returns the posterior for every spread in the cross-section in a single forward pass, instead of a separate optimization per spread. Position sizing then uses the posterior — e.g. scaling exposure by the posterior mean relative to its posterior standard deviation — so that the bet shrinks when the estimate is uncertain.</p>
+<p><strong>The method.</strong> Train the Neural Filter Estimator on <strong>simulated paths</strong> of the mean-reverting process (supervised by the known latent states in simulation), with the innovation law chosen by goodness-of-fit against real residuals. At deployment the network is applied to real cross-sections (no re-fitting), and trading rules size from the returned posterior. Comparison baselines include a conventional point estimate and an end-to-end Attention Factor Model.</p>
+<p><strong>Results with numbers.</strong> On simulated paths, all practical estimators cluster in one narrow accuracy band <em>well below a full-information oracle</em> — so the posterior adds no accuracy, only calibrated uncertainty. On Korean equities, net of costs, the conventional point estimate over-forecasts realized P&amp;L by <strong>~1000 basis points per holding period</strong>, and the amortized methods <strong>cut that forecast-realization gap by a factor of roughly 2 to 8</strong>. Sizing from the posterior on the same learned factors <strong>matches the Sharpe ratio</strong> of the Attention Factor Model's base rule to within the period's noise, at no more risk.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Statistical arbitrage</strong> — trading on the expectation that a mispriced spread between related assets will revert to its normal level.</li>
+<li><strong>Mean reversion / Ornstein–Uhlenbeck</strong> — a process continually pulled back toward a long-run average, like a spring; $\kappa$ sets how strong the pull is.</li>
+<li><strong>Posterior distribution</strong> — the full probability distribution of an unknown quantity given the data, rather than a single best guess.</li>
+<li><strong>Filtering</strong> — estimating a hidden state in real time from a stream of noisy observations.</li>
+<li><strong>Amortized inference</strong> — training one model once so that inference on any new case is a cheap single pass, instead of a fresh optimization each time.</li>
+<li><strong>Basis point</strong> — one hundredth of a percent; 1000 basis points is 10 percentage points.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The honest headline is that the fancy posterior does <em>not</em> make you more accurate — the paper says so plainly — so the whole value proposition rests on calibration improving position sizing and taming over-optimistic backtests. That's worth something, but it's a subtler, harder-to-sell benefit than "we predict better." The empirical evidence is one market (Korean equities) and the simulator's realism (especially the chosen innovation law) is doing heavy lifting; a mis-specified noise law would give confidently wrong posteriors. A practitioner could plausibly use the sizing discipline, but should treat the closed backtest-live gap as the real product.</p>
+<h3>Bottom Line</h3>
+<p>Knowing how little you know is worth more than a slightly better guess.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Cross-product Modelling in Continuous Intraday Electricity Markets via Hawkes Processes</h2>
+  <p class="meta">Ayoub Jhabli, Tarek Alskaif, Kwabena E. Bennin, Bedir Tekinerdogan, Joost M. E. Pennings<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-16 &middot; <a href="http://arxiv.org/abs/2610.23619v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.23619v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>In Europe's intraday power market, quarter-hour contracts normally lead the hourly ones — but when the market gets stressed, that leadership nearly vanishes and the reaction time collapses from six seconds to one.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Electricity can't be stored easily, so supply and demand must match instant by instant. As wind and solar flood the grid with unpredictable output, traders lean on <em>intraday</em> markets to rebalance right up to delivery. These markets trade overlapping products at once — contracts for a specific <em>quarter-hour</em> of delivery and contracts for the whole <em>hour</em> that contains it. Because they cover the same electricity, trading in one spills into the other, creating hidden liquidity links. If those links behave differently in a crisis than in calm, risk managers and the grid operator need to know — a liquidity shock that cascades across products can destabilize the whole balancing mechanism.</p>
+<p><strong>The idea.</strong> The authors model order arrivals with a <strong>Hawkes process</strong> — a mathematical description of events that <em>trigger more events</em>, like aftershocks following an earthquake, or one retweet sparking a cascade. Each incoming order raises the short-term probability of further orders, both in its own contract (self-excitation) and in the related contract (cross-excitation). To see how the links shift with conditions, they split trading sessions into two regimes — "Normal" and "Stressed" — using a composite stress score built from the bid-ask spread, how much the mid-price is bouncing around, and how lopsided the order queue is. Then they measure who leads whom, and how fast, in each regime.</p>
+<p><strong>What they found.</strong> Order flow is overwhelmingly <em>self</em>-driven: roughly 95% of orders arrive as reactions to earlier orders in the <em>same</em> contract, in both regimes — the market is mostly talking to itself. Cross-product influence runs mainly from the quarter-hourly to the hourly contract (the granular product leads the coarse one), but under stress that leadership weakens sharply — the lead/lag ratio falls from 2.8 to 1.5, so the two products start influencing each other almost equally. Stress also makes the quarter-to-hourly channel much <em>faster</em>: the average reaction lag drops from about 6 seconds to under 1 second. And the strong seasonal patterns visible in calm periods largely wash out under stress, with different months converging to the same structure.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model the stream of order events as a <strong>multivariate point process</strong>. For each product $i$ (quarter-hourly or hourly), events arrive with a stochastic intensity $\lambda_i(t)$ — the instantaneous rate of order arrivals — that jumps up after each event and decays back. The <strong>multivariate State-Dependent Hawkes Process (SDHP)</strong> writes the intensity of product $i$ as
+$$\lambda_i(t) = \mu_i + \sum_{j}\sum_{t_k^{j} < t} \phi_{ij}\big(t - t_k^{j}\big),$$
+where $\mu_i$ is the baseline (exogenous) arrival rate of product $i$; the sum over $j$ runs over all products (including $i$ itself); $t_k^{j}$ are the past event times of product $j$; and $\phi_{ij}(\cdot)$ is a decaying <strong>excitation kernel</strong> measuring how strongly a past event in $j$ raises the current intensity of $i$. Diagonal terms $\phi_{ii}$ capture self-excitation, off-diagonal $\phi_{ij}$ ($i\neq j$) capture cross-excitation. "State-dependent" means the parameters are allowed to differ by regime.</p>
+<p><strong>Reading the numbers.</strong> The <strong>branching ratio</strong> — the integral $\int_0^\infty \phi_{ij}(s)\,ds$ divided across products — gives the expected number of child events each event triggers; summed over self-terms it reports the ~95% self-excitation. The ratio of cross-excitation integrals $\big(\int\phi_{QH\to H}\big)\big/\big(\int\phi_{H\to QH}\big)$ measures directional leadership, and the kernel's time constant measures the reaction lag.</p>
+<p><strong>The method.</strong> The multivariate SDHP is <strong>calibrated by maximum likelihood</strong> on level-3 (full order-by-order) limit order book data from the Dutch EPEX SPOT intraday market, using the first month of each quarter of 2024. Regimes are assigned by thresholding a composite stress metric combining bid-ask spread, mid-price volatility, and queue imbalance; the model is fit separately within each regime to compare kernels.</p>
+<p><strong>Results with numbers.</strong> Self-excitation accounts for <strong>~95%</strong> of order flow in both regimes. Cross-excitation runs mainly Quarter-Hourly $\to$ Hourly, but the cumulative cross-excitation ratio <strong>falls from 2.8 (Normal) to 1.5 (Stressed)</strong>. The mean lag of the Quarter-Hourly $\to$ Hourly channel <strong>shrinks from 6.05 s to 0.93 s</strong> under stress. Strong seasonal variation present in calm periods <strong>largely disappears under stress</strong>, with all four months converging to the same structure.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Intraday continuous electricity market</strong> — a market where power contracts for delivery later the same day trade continuously, letting participants rebalance close to real time.</li>
+<li><strong>Hawkes process</strong> — a point process in which each event temporarily raises the rate of future events, capturing self- and cross-triggering cascades.</li>
+<li><strong>Intensity $\lambda(t)$</strong> — the instantaneous expected rate of events at time $t$, conditional on the past.</li>
+<li><strong>Excitation kernel $\phi_{ij}$</strong> — the decaying function describing how an event in product $j$ boosts the arrival rate of product $i$.</li>
+<li><strong>Branching ratio</strong> — the expected number of follow-on events each event triggers; near 1 means a near-critical, cascade-prone market.</li>
+<li><strong>Level-3 limit order book data</strong> — the most granular feed, recording every individual order submission, modification, and cancellation.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a careful empirical/calibration study of one market (Dutch EPEX SPOT) and two product granularities, so the specific numbers won't transfer blindly to other power markets or asset classes. The regime split into just "Normal" and "Stressed" via a composite threshold is a modeling choice that could smear genuinely distinct conditions together, and Hawkes kernels assume a particular exponential-ish decay structure that real order flow only approximates. Still, the qualitative finding — that cross-product coupling tightens and speeds up precisely when the market is stressed — is exactly the kind of state-dependent fragility a grid operator or market-maker should plan for.</p>
+<h3>Bottom Line</h3>
+<p>Calm markets have a clear leader and a leisurely echo; stressed ones react in a heartbeat and nobody's in charge.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
