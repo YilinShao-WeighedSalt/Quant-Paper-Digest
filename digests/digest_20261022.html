@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 22, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 22, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal Trading Filters and the Value of Predictive Signals</h2>
+  <p class="meta">Matteo Smerlak<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-17 &middot; <a href="http://arxiv.org/abs/2610.24558v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.24558v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A price forecast is only worth money if you can act on it cheaply — this paper derives the exact filter that turns a forecast into trades once you have to pay for your own market impact.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine a crystal ball that whispers "this stock will drift up a little over the next hour." Wonderful — but to profit you have to actually buy, and buying pushes the price up against you, and that push lingers for a while. So the raw forecast and the money you actually make are two different things. Classic finance theory (Markowitz) says a signal's value is about its <em>accuracy</em>. In the real world, two equally accurate forecasts can be worth wildly different amounts once trading costs enter, because one is easy to trade on and the other demands constant, expensive churning. Think of two weather forecasts: "warmer next week" gives you days to swap your coat; "a five-second sun-break every 90 seconds" is technically just as accurate and utterly useless to act on. Trading desks spend fortunes on predictive "alpha" signals, so knowing which ones survive the toll booth of transaction costs is worth real money.</p>
+<p><strong>The idea.</strong> The author reframes trading as a <em>smoothing</em> problem. You never jump straight to your ideal position; you glide toward it, and how fast you glide depends on how quickly the market "forgives" your past trades — i.e. how fast your impact decays. The key move is to split the problem into two clean pieces: first, your best guess of future returns (the forecast), and second, a fixed <em>filter</em> — a recipe that weighs that forecast over time and smears your trading out to hold costs down. The filter is derived, not hand-tuned, using a classic engineering tool called Wiener–Hopf factorization.</p>
+<p><strong>What they found.</strong> When impact decays exponentially (the market quickly forgets), he recovers the famous Gârleanu–Pedersen "aim portfolio": always trade a fixed fraction of the way toward your target. But when impact decays slowly, as a power law (the market has a long memory), the optimal filter needs <em>infinite</em> memory — no finite "trade X% toward target" rule works. He also shows a counterintuitive fact: with costs, a faster-reverting signal is not always better; there is an intermediate reversion speed that is optimal.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The investor controls the trading rate $\dot q_t$ (the derivative of position $q_t$). The traded asset's return carries a predictable component $\alpha_t$ — the signal. Transient impact means a trade at past time $s$ still distorts the price at time $t$ through a decay kernel $G$:
+$$I_t = \int_{-\infty}^{t} G(t-s)\,\dot q_s\,ds$$
+where $I_t$ is the accumulated price distortion, $\dot q_s$ the trading rate at past time $s$, and $G$ the resilience kernel — $G(\tau)=e^{-\rho\tau}$ for exponential resilience with decay rate $\rho$, or $G(\tau)\sim \tau^{-\gamma}$ for slow, power-law "long memory."</p>
+<p><strong>The key objective.</strong> Everything is quadratic and stationary — expected profit minus a risk penalty on holdings minus the cost of impact:
+$$\max_{\dot q}\ \mathbb E\!\left[\int \Big(q_t\,\alpha_t - \tfrac{\lambda}{2}\,q_t^2 - \tfrac{1}{2}\,\dot q_t\, I_t\Big)\,dt\right]$$
+with $q_t$ the position, $\alpha_t$ the forecast return, $\lambda$ the risk-aversion coefficient, and the last term the self-cost of moving the price. Because the whole functional is quadratic and time-stationary, it is solved in the frequency domain.</p>
+<p><strong>The key equation — Wiener–Hopf factorization.</strong> The optimal policy is the <em>causal</em> (past-data-only) projection of the frictionless target. In the frequency domain, with $\omega$ frequency and a hat denoting Fourier transform,
+$$\hat q^{\,*}(\omega) = K(\omega)\,\cdot\,\widehat{\mathbb E[\alpha]}(\omega),$$
+i.e. the optimal position is the composition of (i) the conditional forecast of future returns and (ii) an explicit linear filter $K$ obtained by factorizing the cost spectrum into analytic "past" and "future" pieces.</p>
+<p><strong>The method.</strong> Wiener–Hopf factorization splits a spectral density into causal and anticausal factors so the controller uses only information available up to now. It yields closed forms: under exponential resilience the filter is first-order (the trade-toward-aim rule); under power-law decay it is <em>fractional</em> — infinite-dimensional, not expressible as finite-state LQR control.</p>
+<p><strong>Results with numbers.</strong> At a fixed positive risk penalty, signals of equal instantaneous predictive strength have <em>equal</em> frictionless Markowitz value. With costs, the net attainable value equals the mean square of the friction-weighted conditional forecast — a clean formula for a signal's post-cost worth. For Ornstein–Uhlenbeck signals under power-law impact with "exposure bleeding," there is an intermediate optimal mean-reversion rate rather than "faster is better."</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Transient price impact</strong> — the fact that your own trades move the price, and that push fades over time rather than instantly.</li>
+<li><strong>Wiener–Hopf factorization</strong> — a math trick that splits a problem into a "depends only on the past" part and a "depends on the future" part so you can build a filter from known data only.</li>
+<li><strong>Gârleanu–Pedersen aim portfolio</strong> — a known optimal rule where you trade a constant fraction of the distance toward your ideal position each step.</li>
+<li><strong>Ornstein–Uhlenbeck process</strong> — a random process that keeps drifting back toward an average (mean-reverting); a standard signal model.</li>
+<li><strong>LQR control</strong> — linear-quadratic regulator, the standard finite-memory optimal-control toolkit; power-law impact breaks it because it demands infinite memory.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance rests on a stationary, quadratic, single-asset world with a <em>known</em> impact kernel; real markets are multi-asset, non-stationary, and the kernel is itself uncertain and regime-dependent. The infinite-memory fractional filters are clean on paper but must be truncated to run, and the "value of a signal" formula presumes you already possess a correct conditional forecast — which is the genuinely hard part. Even so, the decomposition is useful: a desk could apply the net-value formula to triage which alphas are worth trading at all.</p>
+<h3>Bottom Line</h3>
+<p>Accuracy gets a forecast into the room; trade-ability decides whether it leaves with any money.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> DSINC beyond Heston: the 3/2 and other non-affine stochastic-volatility models</h2>
+  <p class="meta">Andrey Itkin<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-10-20 &middot; <a href="http://arxiv.org/abs/2610.28847v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.28847v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A fast numerical method for pricing American options now works for the realistic "non-affine" volatility models that the original version could not handle.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An American option lets you exercise early — any time before expiry, not just at the end. That small freedom makes pricing hard: at every instant you must ask "is it better to cash in now or wait?", and the answer traces a moving boundary in price-and-time that you do not know in advance. Worse, real markets do not have constant volatility — volatility itself wiggles randomly ("stochastic volatility"). Banks must price thousands of such options fast and accurately for trading and risk. Everyday analogy: it is like deciding when to resell a concert ticket whose resale value jumps around — you want a rule for the exact price at which you bail versus hold, and that rule keeps shifting as the show date nears.</p>
+<p><strong>The idea.</strong> There is an existing fast method, DSINC ("damped-sinc"), that cleverly turns the messy early-exercise calculation into a single clean integral — but only for the "affine" Heston model, a mathematically convenient special case. This paper shows the same trick (a "collapse identity") survives for the more realistic models traders actually prefer: the 3/2 model, SABR, and GARCH-type volatility. The enabling move is a change of coordinates for the volatility factor that makes the hard conditional probabilities factor neatly. Where a tidy formula exists they write it down (using special functions called Kummer and Bessel functions); where it does not, they solve one small differential equation per frequency instead of gridding the entire price space.</p>
+<p><strong>What they found.</strong> The method matches gold-standard (but slow) finite-difference prices to within one basis point of the strike — essentially exact — at computational cost comparable to or lower than finite differences.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A general one-factor stochastic-volatility model for the spot $S_t$ and a volatility factor $v_t$:
+$$dS_t = (r-q)\,S_t\,dt + \sigma(v_t)\,S_t\,dW^S_t,\qquad dv_t = \mu_v(v_t)\,dt + \eta(v_t)\,dW^v_t,$$
+with $dW^S_t\,dW^v_t = \rho\,dt$. Symbols: $S_t$ the spot price, $v_t$ the volatility factor, $r$ the interest rate, $q$ the dividend yield, $\sigma(\cdot)$ the local-volatility function, $\mu_v$ and $\eta$ the drift and vol-of-vol of the factor, $W^S_t,W^v_t$ correlated Brownian motions, and $\rho$ their correlation. Under the risk-neutral measure the discounted spot is a nonnegative local martingale, which is exactly the condition that admits a damping parameter between zero and one.</p>
+<p><strong>The key equation.</strong> The American value splits into the European value plus an early-exercise premium, and the <em>collapse identity</em> reduces that premium's two-dimensional integral to a single spectral integral. The engine is the conditional characteristic function
+$$\phi(\xi;t) = \mathbb E\!\left[e^{\,i\xi X_t}\right],\qquad X_t=\log S_t,$$
+with $\xi$ the Fourier frequency and $X_t$ the log-price. An Itô transformation $v\mapsto g(v)$ factorizes $\phi$ so the price-dependence and volatility-dependence separate, leaving one integral over $\xi$ rather than a 2-D grid. For the 3/2 model the joint transform is closed-form in Kummer confluent hypergeometric functions $M(a,b,z)$; uncorrelated SABR admits a Bessel-function representation.</p>
+<p><strong>The method.</strong> A Fourier/spectral approach: where a closed-form transform exists, integrate it directly; where it does not, solve one backward ODE per frequency — no log-price grid needed. A known change of volatility coordinate extends the approach to correlated SABR.</p>
+<p><strong>Results with numbers.</strong> Across the 3/2, SABR, GARCH, and lognormal-volatility models, prices agree with fine finite-difference benchmarks to within <strong>one basis point of the strike</strong>. Cost is comparable to or lower than their finite-difference implementation, except for the slower Hankel-transform route for uncorrelated SABR.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>American option</strong> — an option exercisable at any time up to expiry, not only at the end.</li>
+<li><strong>Stochastic volatility</strong> — a model in which the volatility is itself random and changes over time.</li>
+<li><strong>Affine vs non-affine model</strong> — "affine" models (like Heston) have characteristic functions in neat exponential form; non-affine ones (3/2, SABR) do not and are harder.</li>
+<li><strong>Characteristic function</strong> — the Fourier transform of a distribution; pricing methods love it because convolutions become multiplications.</li>
+<li><strong>Kummer / Bessel functions</strong> — standard "special functions" that arise as closed-form solutions of certain differential equations.</li>
+<li><strong>Collapse identity</strong> — the reduction that squeezes the 2-D early-exercise integral down to a single frequency integral.</li>
+<li><strong>Basis point</strong> — one hundredth of one percent; here, a tiny pricing error relative to the strike.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a numerics paper: it assumes you have already committed to a one-factor stochastic-volatility model and know its parameters — it does not tell you which model is right, and real desks often need multi-factor or rough-volatility models it does not cover (though it reaches correlated SABR). The uncorrelated-SABR Hankel route is slow. But for the models it does cover, basis-point accuracy at finite-difference-level-or-better speed is genuinely useful inside a pricing library.</p>
+<h3>Bottom Line</h3>
+<p>The same elegant shortcut that priced American options under Heston turns out to survive in the messier volatility models traders actually use.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Arithmetic Models for Commodity Futures, Vanilla, and Calendar Spread Options</h2>
+  <p class="meta">Malthe Rauh Johansen, Nina Lange, David Skovmand<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-10-20 &middot; <a href="http://arxiv.org/abs/2610.28071v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.28071v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>An "arithmetic" (additive) volatility model prices oil futures and their options — including calendar spreads — well enough to estimate on a decade of data, and shows that ignoring spread options makes you misprice how futures move together.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Oil does not trade as one price. There is a whole <em>curve</em> of futures — oil for delivery next month, in six months, next year — each with its own volatility, and they move partly together and partly apart. Traders buy options on these, including "calendar spread options" that pay off on the difference between two delivery dates. To price and hedge all of this you need a model of the entire curve at once. Everyday analogy: it is like modeling not just today's temperature but the whole forecast curve for the coming year — and then betting on how much warmer June is than December, which depends on how correlated those months are.</p>
+<p><strong>The idea.</strong> Most models are "geometric" — prices move in percentage terms, like stocks. This paper uses an "arithmetic" model, where prices move in additive (dollar) terms, which, combined with a few stochastic-volatility factors, keeps the entire futures curve low-dimensional and <em>Markovian</em> (the future depends only on today's state, not the whole path). That yields near-closed-form prices for vanilla and spread options, so the model can actually be estimated on years of data. They fit it to WTI crude oil over 2013–2024 using an unscented Kalman filter.</p>
+<p><strong>What they found.</strong> You need <em>three</em> volatility factors to capture both the level and the slope of the volatility term structure. Crucially, calendar spread options carry information nothing else does: a model fit <em>without</em> them overstates how much adjacent contracts "decorrelate," and therefore systematically overprices the spread options. Including them fixes both the correlation and the pricing, at only a small cost to vanilla accuracy. The arithmetic model also beats its geometric cousin on fit and hedges vanillas slightly better.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $F(t,T)$ be the time-$t$ futures price for delivery at maturity $T$. Under the pricing measure each futures is a martingale driven by several stochastic variance factors:
+$$dF(t,T) = \sum_{i=1}^{n}\sigma_i(t,T)\,\sqrt{V_i(t)}\;dW_i(t),$$
+where $F(t,T)$ is the futures price, $\sigma_i(t,T)$ are deterministic loading functions that shape the curve, $V_i(t)$ are the stochastic variance factors, and $W_i(t)$ are Brownian motions. The variance factors follow mean-reverting CIR-type dynamics:
+$$dV_i(t) = \kappa_i\big(\theta_i - V_i(t)\big)\,dt + \nu_i\,\sqrt{V_i(t)}\;dW_i^V(t),$$
+with $\kappa_i$ the mean-reversion speed, $\theta_i$ the long-run variance level, and $\nu_i$ the vol-of-vol.</p>
+<p><strong>Why it is tractable.</strong> Because the specification is <em>arithmetic</em>, $F(t,T)$ is, conditional on the variance path, a Gaussian mixture, so the characteristic function of futures (and of spreads and baskets) is semi-closed-form. That enables Fourier pricing of vanilla <em>and</em> calendar spread options.</p>
+<p><strong>The method.</strong> Estimation uses an <strong>unscented Kalman filter (UKF)</strong> — a nonlinear filter that propagates a small cloud of representative "sigma points" through the model to update the latent variance states $V_i(t)$ and the parameters from observed prices. The panel is WTI futures plus vanilla plus calendar spread options, 2013–2024.</p>
+<p><strong>Results with numbers.</strong> Three stochastic-volatility factors are required; factor-based hedges remove almost all of the daily risk of a vanilla-option portfolio. Omitting spread options leads to systematic <em>overpricing</em> of them by overstating decorrelation between adjacent contracts; including them brings the model's decorrelation close to the observed decorrelation, removing the overpricing and improving spread-option hedges, at only a small loss of vanilla pricing and hedging accuracy. The arithmetic model fits futures and vanilla options better than its geometric counterpart.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Futures curve</strong> — the set of prices today for delivery at many future dates.</li>
+<li><strong>Arithmetic vs geometric model</strong> — arithmetic models move prices in additive (dollar) terms; geometric models move them in multiplicative (percentage) terms.</li>
+<li><strong>Calendar spread option</strong> — an option on the price <em>difference</em> between two different delivery months.</li>
+<li><strong>Markovian</strong> — the model's future depends only on its current state, not its entire history, which keeps it tractable.</li>
+<li><strong>Unscented Kalman filter</strong> — a numerical filter that estimates the hidden states of a nonlinear system by pushing a handful of representative points through it.</li>
+<li><strong>Decorrelation</strong> — how much two futures contracts' moves stop lining up as their maturities separate.</li>
+<li><strong>CIR process</strong> — Cox–Ingersoll–Ross, a mean-reverting process kept nonnegative, standard for variance.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The model is calibrated to one market (WTI crude) over one era; whether the three-factor arithmetic structure travels to natural gas, power, or metals — which carry seasonality and spikes crude lacks — is untested. Arithmetic models also permit negative prices, which is awkward in general but arguably a feature for oil after 2020. The headline lesson, though — that spread options are not redundant and actively discipline your correlation structure — is robust and matters to anyone running a commodity options book.</p>
+<h3>Bottom Line</h3>
+<p>If you want to price bets on how two delivery months move apart, you must let those very bets teach your model — vanilla options alone will lie to you.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Distributions or Quantiles? A Convex Variational Theory of Worst-Case Risk</h2>
+  <p class="meta">Jianjun Gao, Jonathan Li, Zhen Wang, Yang Zhang<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-10-21 &middot; <a href="http://arxiv.org/abs/2610.29652v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.29652v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A single convex-optimization framework computes the worst-case risk over a whole family of plausible probability distributions — and knows when to work with distributions versus quantiles depending on which keeps the problem convex.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every risk number — how much you could lose — rests on assuming a probability distribution for returns, but you never know the true one. So a robust manager asks: "over all the distributions I consider plausible, what is the worst risk I could face?" That is worst-case risk under <em>ambiguity</em>. The trouble is that the known answers have been scattered — one clever trick for this family of distributions, another for that one, with no unifying principle. Everyday analogy: you are packing for a city whose weather you cannot pin down, so instead of betting on one forecast you prepare for the worst plausible weather within reason — but "within reason" can be described by temperature ranges or by percentiles, and which description makes planning tractable matters a great deal.</p>
+<p><strong>The idea.</strong> The authors show the whole family of these problems becomes clean once you pick the right representation. Describe your set of plausible distributions in whichever of two languages — the distribution itself, or its <em>quantiles</em> (the inverse view: "the 5% worst outcome is such-and-such") — keeps the set <em>convex</em>, i.e. bowl-shaped, so optimization has a single answer. Once convex, standard optimality conditions hand you the worst-case distribution and its risk value. They build everything on "spectral risk measures," a flexible class that includes the widely used Expected Shortfall.</p>
+<p><strong>What they found.</strong> One theory reproduces classic textbook bounds <em>and</em> gives new closed-form or near-closed-form answers for many practically motivated ambiguity sets: Wasserstein balls with tail stress, two-sided Expected-Shortfall bands, asymmetric partial moments, geometric-moment bounds, and Kullback–Leibler neighborhoods of a Gaussian. Best of all, for a high-dimensional portfolio under "mean-anchored KL" ambiguity with a Gaussian reference, robust portfolio choice collapses to a single second-order cone program after one calibration — genuinely solvable at scale.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A random loss $X$ with law $P$ drawn from an ambiguity set $\mathcal P$. The objective is a spectral risk measure with weighting ("spectrum") $\phi$:
+$$\rho_\phi(X) = \int_0^1 \phi(u)\,F_X^{-1}(u)\,du,$$
+where $F_X^{-1}(u)$ is the quantile function (the loss at the $u$-th percentile) and $\phi(u)\ge 0$ is nondecreasing with $\int_0^1\phi(u)\,du=1$ — more weight on worse outcomes. Expected Shortfall is the special case $\phi(u)=\tfrac{1}{1-\beta}\mathbf 1\{u\ge \beta\}$, with $\beta$ the confidence level.</p>
+<p><strong>The key problem.</strong> Worst-case risk is the supremum over the ambiguity set:
+$$\sup_{P\in\mathcal P}\ \rho_\phi(X).$$
+The <em>representation principle</em>: take the quantile formulation (with $Q(u)=F_X^{-1}(u)$ as the decision variable) or the distribution formulation (with the density as the variable), whichever renders $\mathcal P$ convex. The problem is then a convex variational problem whose optimality (Euler–Lagrange / KKT) conditions pin down the worst-case law. For a KL ambiguity set $\mathcal P=\{P: D_{\mathrm{KL}}(P\,\|\,P_0)\le \epsilon\}$ around a reference $P_0$, the worst case is an exponential tilt
+$$\frac{dP^{*}}{dP_0}(x)\ \propto\ e^{\,\theta\,\ell(x)},$$
+with $\ell(x)$ the loss, $P_0$ the reference law, $\epsilon$ the ambiguity budget, and $\theta$ the Lagrange multiplier set so the budget binds.</p>
+<p><strong>The method.</strong> Convex variational analysis supplies the optimality conditions; projection-based algorithms deliver fixed-grid convergence under the stated assumptions. For portfolios, an exact projection identity under mean-anchored joint KL ambiguity with a Gaussian reference yields a standardized worst-case Expected-Shortfall coefficient that applies to <em>every</em> portfolio, reducing robust selection to a second-order cone program (SOCP) after a single calibration.</p>
+<p><strong>Results with numbers.</strong> The framework recovers classical central-moment bounds and produces closed or semi-closed forms for Wasserstein-with-tail-stress, two-sided ES bands, asymmetric partial moments, geometric-moment bounds, and exponential- or Gaussian-reference KL neighborhoods — and the exact SOCP reduction for high-dimensional robust portfolios.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Ambiguity set</strong> — the collection of probability distributions you consider plausible because you do not trust a single one.</li>
+<li><strong>Spectral risk measure</strong> — a risk number built by weighting all the loss quantiles, with heavier weight on worse outcomes (Expected Shortfall is one example).</li>
+<li><strong>Quantile function</strong> — the inverse of a distribution: it answers "what loss sits at the $p$-th percentile?"</li>
+<li><strong>Convex</strong> — bowl-shaped; optimization over a convex set has a single, findable optimum.</li>
+<li><strong>KL divergence / Wasserstein distance</strong> — two ways to measure how far one probability distribution is from another, used to define the ambiguity set.</li>
+<li><strong>Second-order cone program (SOCP)</strong> — a well-understood class of convex optimization that solvers handle quickly even in high dimensions.</li>
+<li><strong>Expected Shortfall</strong> — the average loss in the worst (say) 5% of cases.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The power comes from assuming the ambiguity set is specified by well-behaved moment or divergence constraints and that spectral risk is the right objective; a manager must still choose the set's size (the $\epsilon$), and a badly chosen set gives a worst case that is either toothless or absurdly pessimistic. The analytic results are gems but presume you trust a reference distribution — often Gaussian — that you are merely perturbing. For a quant risk team, though, the SOCP reduction is exactly the kind of result that ships into production.</p>
+<h3>Bottom Line</h3>
+<p>Robust risk stops being a grab-bag of special cases once you let the problem choose its own language — distributions or quantiles, whichever stays convex.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> A game-theoretic analysis of the market microstructure in decentralized exchanges with concentrated liquidity</h2>
+  <p class="meta">Mikhail Belokon, Rostislav Berezovskiy<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-20 &middot; <a href="http://arxiv.org/abs/2610.28863v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.28863v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Providing liquidity on Uniswap-style exchanges is modeled as a crowd game, yielding a parameter-free formula for the exact volatility above which being a liquidity provider stops paying.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On decentralized exchanges (DEXs) like Uniswap v3, anyone can be a "liquidity provider" (LP): you deposit two tokens into a pool and earn a share of trading fees, but you must choose a price <em>range</em> to concentrate your money in, and if the price wanders out of your range you earn nothing until you "rebalance" — which costs gas. More LPs crowding in means each earns a thinner slice of the fees. And if the price is too volatile, you are constantly knocked out of range and paying to rebalance. Everyday analogy: it is like renting stalls at a farmers' market that keeps relocating — you earn rent only while shoppers are near your stall, moving your stall costs money, and the more stalls there are the less each one earns. Should you even bother, and how wide should your stall's reach be?</p>
+<p><strong>The idea.</strong> They model all LPs together as a <em>mean-field game</em>: each LP optimizes against the <em>average</em> behavior of the whole crowd, because your fee share depends on everyone else's liquidity. The setup is a controlled Markov chain — the price hops between price levels ("ticks") — and they solve for the equilibrium: the liquidity profile at which no one wants to change their range width or rebalancing timing. Because your fee share shrinks as others pile in, the equilibrium is unique.</p>
+<p><strong>What they found.</strong> Closed-form answers for the optimal range width, the value of a position, and — most strikingly — a <em>critical volatility</em> above which providing liquidity does not pay, so free entry keeps a pool just below that threshold. The critical volatility needs no fitted parameters: just the fee tier, traded volume, active-tick liquidity, and price. Tested on 2.5 years of hourly data from five WETH/USDC pools, it tracks realized volatility, and on the standard Uniswap fee tiers it coincides with the pool's on-chain implied volatility.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The price lives on a discrete grid of ticks, modeled as a controlled continuous-time Markov chain (CTMC) on a finite state space. An LP chooses a range width $w$ and a rebalancing policy, pays a cost $c$ per rebalance, and earns fees in proportion to its share of the liquidity active at the current tick. The <em>population state</em> is the distribution of all positions, and each LP's fee share depends on it.</p>
+<p><strong>The key equation.</strong> Each LP solves a discounted control problem
+$$V(x) = \max_{w,\,\tau}\ \mathbb E\!\left[\int_0^\infty e^{-r t}\Big(\underbrace{\text{fee rate}(x_t; m)}_{\text{share}\,\times\,\text{volume}} \;-\; c\,dN_t\Big)\,dt\right],$$
+where $V$ is the value function, $x_t$ the state of the position (price relative to its range), $m$ the population (mean-field) law, $w$ the range width, $\tau$ the rebalancing times, $N_t$ the count of rebalances, $r$ the discount rate, and $c$ the gas cost per rebalance. The fee rate depends on $m$ because an LP's share is $\ell/(\ell + L(m))$, with $\ell$ its own liquidity and $L(m)$ the competing liquidity.</p>
+<p>In an averaged version of the game — a rebalanced position re-centered at a draw from the long-run law of the price — a mean-field equilibrium exists, and because the share is decreasing in aggregate liquidity it is unique. For the exact dynamics (rebalancing at the range boundary, fast execution) they obtain closed forms for the optimal width $w^{*}$, the value function, and the stationary law, together with a <strong>critical volatility</strong>
+$$\sigma_c = f\big(\text{fee tier},\ \text{traded volume},\ \text{active-tick liquidity},\ \text{price}\big),$$
+computed with <em>no fitted parameter</em>; provision pays if and only if realized volatility is below $\sigma_c$.</p>
+<p><strong>The method.</strong> Controlled-CTMC dynamic programming combined with a mean-field fixed point, closed-form asymptotics in the fast-rebalancing limit, and empirical validation against realized and on-chain implied volatility.</p>
+<p><strong>Results with numbers.</strong> On five WETH/USDC pools (Ethereum and Base) over 2.5 years of hourly data, $\sigma_c$ tracks realized volatility. On the Ethereum 0.3% pool the ratio of realized to critical volatility is below one, so provision pays and an optimal width $w^{*}$ exists. On the standard Uniswap fee tiers, $\sigma_c$ coincides with the pool's on-chain implied volatility.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Decentralized exchange (DEX)</strong> — an on-chain marketplace where trades execute against a pooled automated market maker, not a traditional order book.</li>
+<li><strong>Concentrated liquidity</strong> — Uniswap v3's feature that lets an LP deposit into a chosen price range rather than the whole price axis.</li>
+<li><strong>Liquidity provider (LP)</strong> — someone who deposits tokens into a pool to earn trading fees.</li>
+<li><strong>Mean-field game</strong> — a game with many small players where each optimizes against the average of the crowd rather than against each rival individually.</li>
+<li><strong>Controlled Markov chain</strong> — a random process hopping between states whose transition rates you partly steer through your actions.</li>
+<li><strong>Tick</strong> — a discrete price level on Uniswap v3's grid.</li>
+<li><strong>Implied volatility</strong> — the volatility level that market prices imply; here derived on-chain from the pool's own parameters.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The clean closed forms lean on strong simplifications — a finite tick grid, fast at-boundary rebalancing, fees re-centered at the stationary price, and gas treated as a flat per-rebalance cost — while real LPs face MEV, toxic arbitrage flow, discrete jumps, and gas that spikes exactly when they most need to rebalance. The empirical match to implied volatility is striking but rests on a single pair, WETH/USDC. Still, a parameter-free "should I LP here?" threshold computed purely from public pool data is immediately usable by anyone weighing whether a pool is worth entering.</p>
+<h3>Bottom Line</h3>
+<p>Whether providing liquidity pays comes down to one number — the pool's critical volatility — and the market quietly prices itself right up to it.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
