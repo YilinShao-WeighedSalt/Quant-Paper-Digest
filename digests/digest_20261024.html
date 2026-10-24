@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 24, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 24, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Multiple Stopping and Exercise Boundaries for American Put Options</h2>
+  <p class="meta">Katsunori Ano<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-10-22 &middot; <a href="http://arxiv.org/abs/2610.30637v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.30637v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you own an option that lets you cash in up to $m$ separate times — but must wait a fixed cooling-off period between each use — there is a clean, orderly rule for exactly when to pull each trigger.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An ordinary American put option gives you the right to sell a stock at a fixed strike price any time before expiry. The classic question is <em>when</em> to exercise: too early and you waste time value, too late and the stock may have recovered. Now imagine a richer contract: you don't get one sell-right, you get several — say five — but a rule says you cannot use two of them back-to-back. After each exercise you must sit on your hands for a fixed waiting period before the next one unlocks. Real contracts with this flavor show up in energy (swing options let a utility draw gas on multiple days), in employee stock plans, and in insurance guarantees. The practical question is identical in spirit but much harder: with several rights and a mandatory rest between them, when do you use each one?</p>
+<p><strong>The idea.</strong> Think of each remaining right as a coupon, and think of the decision as a ladder. The paper shows that for every possible number of coupons left in your pocket, there is a single "price trigger line" — a stock-price threshold below which you should exercise immediately and above which you should wait. The elegant finding is that these trigger lines are <em>stacked in order</em>: the more coupons you still hold, the more eager you are to use one (you can afford to spend one now because you have spares), so its trigger line sits higher. As you burn through coupons, your triggers get fussier and you demand the stock fall further before acting. The cooling-off period carves time into "strips," and the behavior near each deadline (where an unused right is about to expire worthless) needs separate, careful handling.</p>
+<p><strong>What they found.</strong> They prove rigorously that this single-threshold, nicely-ordered picture is genuinely optimal — the best you can do is exercise the first time the stock touches the current trigger line. Earlier work often assumed such structure or handled only one or two rights; here it is derived from scratch for general $m$, with the waiting period and the possibility that the whole contract is terminated early by some outside event both built in.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The stock follows the risk-neutral Black–Scholes dynamics
+$$dS_t = r S_t\,dt + \sigma S_t\,dW_t,$$
+where $S_t$ is the stock price at time $t$, $r$ the risk-free interest rate, $\sigma$ the volatility, and $W_t$ a Brownian motion under the risk-neutral measure. The holder has $n \le m$ exercise rights remaining and a refractory period $\delta > 0$: consecutive exercises must be at least $\delta$ apart, and rights unused by expiry $T$ vanish.</p>
+<p><strong>The key objects.</strong> Let $V_n(t, s)$ be the value of the contract with $n$ rights left, current time $t$, current price $s$. Exercising a put right yields the payoff $(K - s)^+ = \max(K - s, 0)$, where $K$ is the strike. The value solves a <em>quasi-variational inequality</em>: at each point either you are waiting (and the value satisfies the Black–Scholes PDE) or you exercise (and the value equals immediate payoff plus the discounted value of continuing with $n-1$ rights after waiting $\delta$). Schematically,
+$$\min\Big\{ -\partial_t V_n - \mathcal{L}V_n,\; V_n - \big[(K-s)^+ + \text{(discounted } V_{n-1}\text{ after } \delta)\big] \Big\} = 0,$$
+where $\mathcal{L} = rs\,\partial_s + \tfrac12\sigma^2 s^2 \partial_{ss} - r$ is the Black–Scholes operator (the generator of the discounted price process). Each $n$ has an exercise boundary $b_n(t)$: exercise when $S_t \le b_n(t)$. The paper proves these are ordered, $b_1(t) \le b_2(t) \le \cdots \le b_m(t)$.</p>
+<p><strong>The method.</strong> The analysis combines optimal-stopping theory with free-boundary PDE techniques. Away from deadlines they establish <em>smooth fit</em> (value and its first derivative match continuously across $b_n$), derive an <em>early-exercise-premium</em> decomposition (option value = European value + premium from the right to exercise early), and reduce the boundaries to <em>recursive Volterra-type integral equations</em> — each $b_n$ is pinned down by an integral equation that references $b_{n-1}$. A <em>verification theorem</em> confirms the candidate value and the first boundary-hitting time are truly optimal. They also prove local Lipschitz continuity of each boundary inside its deadline strip, and extend everything to an independent random termination time.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper: the "results" are the proved structural theorems — single ordered boundaries, smooth fit, the Volterra recursions, Lipschitz regularity, and the verification theorem — rather than numerical benchmarks. The payoff is a computable scheme (solve the boundaries recursively from $n=1$ upward) rather than a reported error reduction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>American put option</strong> — the right, but not the obligation, to sell an asset at a fixed strike price at any time up to expiry.</li>
+<li><strong>Risk-neutral measure</strong> — a reweighting of probabilities under which discounted asset prices are fair-game martingales, making prices computable as expected discounted payoffs.</li>
+<li><strong>Exercise boundary</strong> — the stock-price threshold, varying in time, at which exercising becomes optimal.</li>
+<li><strong>Quasi-variational inequality</strong> — a system saying "at every point, either keep waiting or exercise, whichever is worth more," generalizing a PDE to problems with decision stopping.</li>
+<li><strong>Smooth fit</strong> — the condition that the value function joins the payoff function tangentially (matching slopes) at the exercise boundary.</li>
+<li><strong>Volterra integral equation</strong> — an integral equation where the unknown appears under an integral with a moving upper limit, here used to solve for the boundary.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is clean, rigorous mathematics in the idealized Black–Scholes world: constant volatility, frictionless trading, a single underlying, and exogenous rules. Real swing and multi-exercise contracts live in markets with stochastic volatility, jumps, and transaction costs, none of which are here. But as a structural result — proving the optimal policy is genuinely a ladder of ordered thresholds — it gives practitioners a trustworthy scaffold and a concrete numerical recipe to build on.</p>
+<h3>Bottom Line</h3>
+<p>More unused rights make you a quicker trigger, and the math proves that intuition is exactly optimal.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Dynamics of the Liquidity Profile in Concentrated Liquidity Provision: An SPIDE Approach</h2>
+  <p class="meta">Cheuk Yin Lee, Jimmy Risk, Shen-Ning Tung, Tai-Ho Wang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-21 &middot; <a href="http://arxiv.org/abs/2610.30539v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.30539v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The paper describes how the "where is everyone's money parked" curve inside a modern decentralized exchange wobbles over time, using the same kind of equation physicists use for heat spreading along a bar.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On a decentralized crypto exchange like Uniswap V3, there is no traditional order book. Instead, people ("liquidity providers") deposit two tokens into a shared pool and each chooses a <em>price range</em> in which their money is active — like saying "use my cash only while ETH trades between USD 2,000 and 2,200." Traders then swap against whatever liquidity is active at the current price. The total of everyone's chosen ranges forms a <em>liquidity profile</em>: a curve showing how much money is available at each price level. This profile matters enormously — it sets how much a trade moves the price, how much fee income providers earn, and how much they lose when the price drifts (the dreaded "loss-versus-rebalancing"). But the profile is not static: providers constantly add, remove, and reposition their money, and the market price itself wanders. How does this living curve evolve?</p>
+<p><strong>The idea.</strong> The authors treat the liquidity profile as a continuous shape that flows and reshapes itself, much like a temperature distribution along a metal rod. Two forces act on it. First, a pull toward concentrating liquidity around the current price — providers crowd near where trading happens, like heat pooling where it's applied. Second, a <em>redistribution</em> force: when someone yanks liquidity from one price range and parks it elsewhere, money teleports across the curve in a nonlocal way. They write one master equation capturing both forces plus random noise, then show the whole complicated curve can be summarized by just a few simple numbers describing its overall <em>level</em> (how much total liquidity), <em>slope</em> (is it lopsided?), and <em>curvature</em> (how sharply peaked?).</p>
+<p><strong>What they found.</strong> This compression — from an infinite-dimensional wobbling curve down to a handful of tracked quantities — makes the model genuinely usable. Fitted to three real Uniswap pools, it produced interpretable parameter estimates and forecast the "active band" of liquidity more accurately than a naive baseline (a martingale, i.e. "tomorrow looks like today") on the two pools where the model's stationarity assumptions held. On the third pool it failed gracefully — the diagnostics flagged non-stationary behavior, correctly telling you the model needs extending rather than silently misleading you.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $\ell(t, x)$ denote the liquidity density at time $t$ and tick coordinate $x$ (a log-price coordinate across "tick space"). The profile lives in a weighted $L^2$ space — square-integrable functions under a chosen weight — built on the <em>Gegenbauer eigensystem</em> (a family of orthogonal polynomials that diagonalize the relevant operator). The driving randomness is an infinite-dimensional noise.</p>
+<p><strong>The key equation.</strong> The profile evolves under a stochastic partial integro-differential equation (SPIDE):
+$$d\ell(t,x) = \big[\mathcal{A}\,\ell(t,x) + (\mathcal{K}\ell)(t,x)\big]\,dt + dM_t(x),$$
+where $\ell(t,x)$ is the liquidity density, $\mathcal{A}$ is a <em>degenerate Sturm–Liouville operator</em> encoding mean-reverting concentration toward the market price, $\mathcal{K}$ is a <em>Hilbert–Schmidt integral operator</em> capturing nonlocal redistribution from repositioning, and $dM_t(x)$ is the stochastic forcing (noise). "Integro-differential" means the equation mixes derivatives (local smoothing) with an integral operator (nonlocal transport). They establish existence and uniqueness of a <em>mild solution</em> in the weighted $L^2$ space.</p>
+<p><strong>The method.</strong> By projecting onto the Gegenbauer eigenbasis, the infinite-dimensional SPIDE collapses into a finite, coupled system of linear stochastic differential equations:
+$$dc_k(t) = \Big(-\lambda_k c_k(t) + \sum_j K_{kj} c_j(t)\Big)dt + dm_k(t),$$
+where $c_k(t)$ is the coefficient of the $k$-th eigenmode, $\lambda_k \ge 0$ is that mode's eigenvalue (its decay rate), $K_{kj}$ are redistribution couplings between modes, and $dm_k(t)$ is the projected noise. The low-order modes $c_0, c_1, c_2$ correspond to the level, slope, and curvature of the profile. Pairing this with a log-price process (Ornstein–Uhlenbeck or geometric-Brownian-motion type) yields closed-form expressions for pool reserves, pool value, and loss-versus-rebalancing. Calibration uses a finite-rank fit in a fixed reference frame.</p>
+<p><strong>Results with numbers.</strong> Applied to three Uniswap pools, the finite-rank calibration gave interpretable estimates and <em>lowered active-band forecast error relative to a martingale benchmark</em> on the two pools compatible with the stationary specification. On the third, out-of-sample diagnostics flagged non-stationarity, motivating price-aware, time-varying extensions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Concentrated liquidity (Uniswap V3)</strong> — a design where providers commit funds only within a chosen price range, rather than across all prices.</li>
+<li><strong>Loss-versus-rebalancing (LVR)</strong> — the systematic loss a liquidity provider suffers relative to continuously rebalancing a reference portfolio, caused by arbitrageurs picking off stale prices.</li>
+<li><strong>SPIDE</strong> — a stochastic partial integro-differential equation: an evolution equation combining spatial derivatives, an integral operator, and random noise.</li>
+<li><strong>Sturm–Liouville operator</strong> — a classical second-order differential operator whose eigenfunctions form an orthogonal basis; "degenerate" means its diffusion coefficient vanishes at the boundary.</li>
+<li><strong>Hilbert–Schmidt integral operator</strong> — an integral operator with a square-integrable kernel, well-behaved enough to guarantee existence/uniqueness results.</li>
+<li><strong>Mild solution</strong> — a solution defined via the operator semigroup (an integral representation) rather than requiring classical derivatives to exist everywhere.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance is real, but it rests on a stationarity assumption that one of three test pools already violated — crypto liquidity is driven by sentiment, incentives, and reflexive provider behavior that a linear mean-reverting model cannot fully capture. The forecast gains are over a deliberately weak baseline (a martingale), so "better than doing nothing clever" is the honest framing. Still, reducing a chaotic on-chain curve to interpretable level/slope/curvature modes is a genuinely useful lens for anyone managing LP positions.</p>
+<h3>Bottom Line</h3>
+<p>A wobbling wall of on-chain liquidity turns out to be describable by just its level, tilt, and sharpness — when the pool behaves itself.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Dynamic Programming for Value-at-Risk Markov Decision Processes in Continuous Spaces</h2>
+  <p class="meta">Xian Chen, Erick Delage, Weikai Wang<br>
+    <span class="cat">math.OC</span> &middot; 2026-10-17 &middot; <a href="http://arxiv.org/abs/2610.24439v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.24439v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>It is now mathematically proven that you can solve sequential decision problems aimed at controlling Value-at-Risk using step-by-step dynamic programming, even when the states and actions form a continuum.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Many real decisions are made over and over as conditions change: how fast to sell a large block of shares, how to dispatch a power plant, how to manage a portfolio day by day. The standard toolkit for such sequential decisions is the Markov decision process (MDP), and the standard way to solve an MDP is <em>dynamic programming</em> — break a hard multi-step problem into a chain of easy one-step problems, working backward from the end. This works beautifully when your goal is "maximize average reward." But risk managers often care about something else: Value-at-Risk (VaR), the loss level you won't exceed except on, say, the worst 5% of days. Optimizing VaR step-by-step is notoriously tricky because VaR is a <em>quantile</em> — it doesn't add up nicely across time the way averages do, so the usual "work backward one step at a time" trick isn't obviously valid.</p>
+<p><strong>The idea.</strong> Recent work cracked this for small, finite problems — a handful of discrete states and actions — by cleverly enlarging the problem: you track not just where you are, but also a running "risk budget" or target quantile level, and you optimize over that augmented picture. The catch was that real problems aren't finite: prices, inventories, and trade sizes live on a continuum. This paper proves, for the first time, that the same backward-recursion equations remain valid in continuous state and action spaces — for both problems with a fixed deadline (finite horizon) and ones that run indefinitely (infinite horizon). In plain terms: the elegant trick doesn't break when you let the variables be real numbers instead of a short list.</p>
+<p><strong>What they found.</strong> Beyond the proof itself, they put it to work on a classic quant problem: <em>optimal execution</em>, where a trader must unload a large position over time while balancing the market impact of trading fast against the price risk of trading slow — but now with a VaR objective rather than the usual variance penalty. Their framework pins down the optimal dynamic trading strategy in this setting, resolving a question that had been open in the field.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider a Markov decision process with continuous state space $\mathcal{S}$ and action space $\mathcal{A}$. At each time the controller observes state $s_t$, picks action $a_t$, incurs cost, and transitions to $s_{t+1}$ according to a transition kernel $P(\cdot \mid s_t, a_t)$. The objective is the Value-at-Risk of the cumulative cost: for confidence level $\alpha$,
+$$\mathrm{VaR}_\alpha(X) = \inf\{\, x \in \mathbb{R} : \mathbb{P}(X \le x) \ge \alpha \,\},$$
+where $X$ is the total cost (or loss) over the horizon, $\alpha$ the confidence level, and $\mathbb{P}$ the probability. VaR is the $\alpha$-quantile of the loss distribution.</p>
+<p><strong>The key construction.</strong> The difficulty is that $\mathrm{VaR}_\alpha$ is not <em>time-consistent</em> — the optimal plan today may not stay optimal tomorrow. The remedy is <em>state augmentation</em>: carry an auxiliary variable $y$ representing the current quantile target, and define an augmented value function $V(s, y)$. The paper establishes a dynamic programming principle of the form
+$$V(s, y) = \inf_{a \in \mathcal{A}} \; \Big[\, \text{running cost} + \text{(risk-adjusted continuation value integrated over } P(\cdot\mid s,a)) \,\Big],$$
+with the auxiliary level $y$ updated consistently along the way. The theorems prove this recursion is valid — the augmented value function exists, is measurable, and the backward equations characterize the true optimal VaR.</p>
+<p><strong>The method.</strong> The proof machinery is measure-theoretic dynamic programming in general (Borel) spaces: establishing the required measurability and selection results so that the infimum is attained by a measurable policy, and proving the finite-case Bellman-type equations extend to continuous spaces in both the finite- and infinite-horizon regimes. The infinite-horizon case additionally requires contraction/limiting arguments to guarantee the recursion converges.</p>
+<p><strong>Results with numbers.</strong> As a theory contribution, the headline "result" is the proven validity of the DP equations in continuous spaces — not an empirical error metric. The concrete application is the optimal-execution problem under a VaR objective, where the framework yields a characterization of the optimal dynamic strategy, resolving a previously open question.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Markov decision process (MDP)</strong> — a model of sequential decision-making where the future depends only on the current state and chosen action, not the full history.</li>
+<li><strong>Dynamic programming</strong> — solving a multi-step optimization by recursively solving its sub-problems backward from the end (Bellman's principle).</li>
+<li><strong>Value-at-Risk (VaR)</strong> — the loss threshold that is exceeded only with a small specified probability; the $\alpha$-quantile of the loss distribution.</li>
+<li><strong>Time-consistency</strong> — the property that a plan judged optimal now remains optimal at every later step; VaR objectives generally lack it, which is why state augmentation is needed.</li>
+<li><strong>State augmentation</strong> — enlarging the state with an extra variable (here a running risk/quantile level) so that an otherwise time-inconsistent problem becomes solvable by dynamic programming.</li>
+<li><strong>Optimal execution</strong> — the problem of trading a large order over time to minimize the combined cost of market impact and price risk.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a foundational "the equations are valid" result, not a plug-and-play algorithm — actually computing the augmented value function in high dimensions still faces the curse of dimensionality, and the paper doesn't claim to have beaten it. VaR itself remains a controversial objective (it ignores how bad the tail beyond the threshold gets, unlike CVaR). But closing the continuous-space gap is exactly the kind of rigorous groundwork that lets later numerical methods stand on solid ground.</p>
+<h3>Bottom Line</h3>
+<p>The backward-recursion trick for taming worst-case losses now officially works in the continuous world where real trading lives.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> A Pricing and Hedging Framework for Infinite-Dimensional Financial Markets</h2>
+  <p class="meta">Hanchao Liu<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-16 &middot; <a href="http://arxiv.org/abs/2610.24169v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.24169v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The paper rebuilds the entire Black–Scholes option-pricing machine in a world where the "asset price" is not a number but an infinite list of numbers — a point in an infinite-dimensional space.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The famous Black–Scholes framework prices options assuming one asset whose price is a single wiggling number. But many real markets are better described by a whole <em>continuum</em> of interrelated prices at once: a yield curve is an interest rate for every maturity; an electricity forward market has a price for every delivery date; a book of many assets is a long vector. Each of these is naturally infinite-dimensional (or so high-dimensional it's cleaner to treat as infinite). The deep question: does the beautiful classical theory — risk-neutral pricing, perfect hedging by replication, no-arbitrage, market completeness — survive when the thing you're modeling is an infinite-dimensional object rather than a single stock?</p>
+<p><strong>The idea.</strong> Picture the asset not as a dot moving on a line but as an entire curve or shape evolving randomly through time, living in an abstract space (a Hilbert space — the natural infinite-dimensional generalization of ordinary flat space, where you can still measure lengths and angles). Discounting by interest is handled not by dividing by a number but by applying a family of operators (think: a machine that shrinks the whole shape consistently over time). Payoffs of contracts become shape-valued too. The author then asks whether you can still <em>replicate</em> a payoff — build a trading portfolio that exactly reproduces it — and whether a unique fair price exists. The surprising answer: much of the classical story carries over, but with important subtleties. Perfect replication holds for well-behaved ("strong") solutions, while for rougher ("mild") solutions you can only replicate <em>asymptotically</em> — approximately, with the error shrinking as you refine.</p>
+<p><strong>What they found.</strong> They derive an infinite-dimensional Black–Scholes equation, prove exact replication in the clean case and approximate replication in the rough case (via a controlled finite-dimensional approximation), characterize when the market has no arbitrage and is complete, and give explicit pricing formulas in tractable examples. A nice sanity check: the framework specializes to a <em>segmented market</em> made of infinitely many ordinary one-dimensional Black–Scholes stocks running in parallel — recovering familiar ground as a special case.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Asset prices are modeled by a stochastic evolution equation in a separable Hilbert space $H$. The risk-free asset and discounting are governed by a <em>strongly continuous group</em> $\{T_t\}$ of bounded linear operators on $H$ — the infinite-dimensional analogue of multiplying by $e^{rt}$. Contingent claims have $H$-valued payoffs discounted through these operators.</p>
+<p><strong>The key equation.</strong> The authors introduce geometric Brownian motion in Hilbert space, an $H$-valued process $S_t$ solving
+$$dS_t = A S_t\,dt + \sigma(S_t)\,dW_t,$$
+where $S_t \in H$ is the (infinite-dimensional) asset-price state, $A$ is the infinitesimal generator of the operator group (playing the role of the drift/discount rate), $\sigma$ is the volatility operator, and $W_t$ is a Hilbert-space-valued (cylindrical) Brownian motion. For the special case $A = rI$ ($r$ times the identity operator $I$), the setup collapses to allow real-valued claims and reproduces familiar scalar formulas. The option value satisfies an infinite-dimensional Black–Scholes PDE for functions on $H$.</p>
+<p><strong>The method.</strong> The analysis is operator-theoretic. <em>Replication</em> for strong solutions is established directly; for <em>mild solutions</em> (defined via the semigroup integral form, not requiring classical derivatives), replication is only asymptotic, obtained through <em>Yosida approximations</em> — a standard device that replaces an unbounded operator $A$ by bounded approximants $A_\lambda = \lambda A(\lambda I - A)^{-1}$ that converge to $A$. No-arbitrage and completeness are formulated using a <em>Hilbert lattice</em> structure (an ordering on $H$ letting you say what a positive payoff/arbitrage is), and attainability is characterized through operator equations tied to martingale representation theorems. Finite-dimensional noise truncations plus Yosida approximation yield approximate and asymptotic completeness. Existence and uniqueness of an equivalent risk-neutral (martingale) measure are proven under stated conditions, with explicit pricing formulas in tractable examples.</p>
+<p><strong>Results with numbers.</strong> This is pure financial mathematics; the deliverables are theorems — the infinite-dimensional Black–Scholes equation, exact replication for strong solutions, asymptotic replication for mild solutions, no-arbitrage and (asymptotic) completeness characterizations, existence/uniqueness of the risk-neutral measure, and closed-form prices in special cases — rather than numerical benchmarks.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hilbert space</strong> — an infinite-dimensional vector space with an inner product, so notions of length, angle, and orthogonality still make sense.</li>
+<li><strong>Strongly continuous (operator) group/semigroup</strong> — a time-indexed family of operators composing like $T_{s+t} = T_s T_t$ and varying continuously; the operator version of exponential growth/decay.</li>
+<li><strong>Infinitesimal generator</strong> — the operator $A$ that is the "time-derivative at zero" of a semigroup, encoding its instantaneous dynamics (often unbounded).</li>
+<li><strong>Mild vs. strong solution</strong> — a strong solution satisfies the equation with genuine derivatives; a mild solution satisfies only its integral (semigroup) form, so it exists under weaker conditions.</li>
+<li><strong>Yosida approximation</strong> — a construction replacing an unbounded operator by bounded ones that converge to it, used to transfer results from the nice case to the general one.</li>
+<li><strong>Market completeness</strong> — the property that every contingent claim can be replicated (and hence uniquely priced) by trading the available assets.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational mathematics aimed at generality, not at a trading desk — there is no calibration, no data, and the hardest practical issues (what the volatility operator really is, how to hedge with finitely many instruments, transaction costs) are either idealized away or left to the "approximate" results. The asymptotic-replication caveat for mild solutions matters: in the realistic rough case you only hedge imperfectly. Its value is conceptual clarity and a rigorous scaffold for yield-curve and energy-forward modeling, where infinite-dimensional dynamics are genuinely natural.</p>
+<h3>Bottom Line</h3>
+<p>Black–Scholes still works when the "stock" is an entire evolving shape — exactly in the clean cases, and in the limit for the messy ones.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Probabilistic Limit Order Book Forecasting with Conditional Diffusion Models</h2>
+  <p class="meta">Junyu Chen, Franklin Liu, Moshu Xu, Lijian Yang<br>
+    <span class="cat">cs.LG</span> &middot; 2026-10-18 &middot; <a href="http://arxiv.org/abs/2610.25495v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.25495v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A generative AI model learns to forecast the near future of an exchange's order book — and, unusually, comes with a mathematical guarantee on how good its forecasts can be.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A limit order book (LOB) is the live ledger of every buy and sell order waiting at each price for a given asset — the raw heartbeat of a modern market. Predicting how it will evolve over the next instants is central to execution (how will my order fill?), to risk, and to testing trading strategies. The honest difficulty is that the future is not a single number but a <em>distribution</em> of possibilities: you don't just want "the price will be X," you want the full range of plausible next-states with their probabilities, so you can quantify risk. Most existing models either predict a single best guess or generate samples without any theoretical handle on <em>how close</em> those samples are to the true distribution.</p>
+<p><strong>The idea.</strong> The authors borrow <em>diffusion models</em> — the same family of generative AI behind modern image generators. The trick there is to teach a network to reverse a process that gradually adds noise: start from pure static and denoise step by step until a realistic sample emerges. Here, instead of images, the "samples" are future order-book snapshots, and the denoising is <em>conditioned</em> on the recent history of the book, which a recurrent network (an RNN, a memory that summarizes a sequence) compresses into a compact state. So the model asks: "given how the book has been moving, what are the plausible next snapshots, and how likely is each?" Crucially, they don't stop at "it works well empirically" — they prove a theorem bounding how far the model's learned distribution can stray from the truth.</p>
+<p><strong>What they found.</strong> Their model, LOBGrad, beats its own simpler version (the same diffusion generator <em>without</em> the recurrent memory) across every queue metric they report, confirming that remembering the recent trajectory genuinely helps. It holds its own against other baselines, reproduces the well-known statistical "fingerprints" of real order-book microstructure (the stylized facts), and — importantly for risk use — produces reasonably <em>calibrated</em> prediction intervals, meaning its stated 90% ranges actually contain the truth about 90% of the time. A small downstream trading-style task illustrates that the forecasts carry usable signal.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $x_0$ denote a future LOB state (volumes across price levels) to be predicted, conditioned on a window of recent history $h$ summarized by an autoregressive RNN encoder into a latent state. The generative model is a conditional denoising diffusion probabilistic model (DDPM). A forward process adds Gaussian noise over steps $k = 1, \dots, K$:
+$$x_k = \sqrt{\bar\alpha_k}\,x_0 + \sqrt{1-\bar\alpha_k}\,\epsilon, \qquad \epsilon \sim \mathcal{N}(0, I),$$
+where $x_k$ is the noised state at step $k$, $\bar\alpha_k \in (0,1)$ is the cumulative noise-retention schedule (how much signal survives), $\epsilon$ is standard Gaussian noise, and $I$ the identity covariance.</p>
+<p><strong>The key equation.</strong> The network $\epsilon_\theta$ (parameters $\theta$) is trained to predict the injected noise given the noisy state, step, and conditioning, minimizing
+$$\mathcal{L}(\theta) = \mathbb{E}_{k,\,x_0,\,\epsilon}\Big[\big\|\epsilon - \epsilon_\theta(x_k, k, h)\big\|^2\Big],$$
+where $\mathcal{L}(\theta)$ is the one-step noise-prediction loss, $\epsilon_\theta(x_k,k,h)$ the network's estimate of the noise, $h$ the RNN-encoded history, and the expectation runs over the step $k$, data $x_0$, and noise $\epsilon$. Sampling runs the learned denoiser backward from noise to a forecast.</p>
+<p><strong>The method.</strong> The core theoretical contribution is an <em>excess-risk oracle inequality</em> for this objective: under <em>exponential mixing</em> (dependence between time steps decays geometrically) and regularity assumptions, they bound how much worse the learned model is than the best achievable, in terms of sample size, model capacity, and the conditioning-window length. They further show that under <em>contractive dynamics</em> the dependence on the history-window length can be replaced by dependence on the (smaller) latent-state dimension — a meaningful tightening, since it says you don't pay for a long memory window if the system forgets fast.</p>
+<p><strong>Results with numbers.</strong> On BTC/USDT, GOOGL, and META data, LOBGrad improves over its encoder-free diffusion ablation across all reported queue metrics, is competitive with other baselines, reproduces key LOB stylized facts, and yields reasonably calibrated queue-based predictive intervals. (The paper reports metric-by-metric improvements over the ablation rather than a single headline percentage.)</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book (LOB)</strong> — the real-time list of all outstanding buy and sell orders at each price level for an asset.</li>
+<li><strong>Diffusion model (DDPM)</strong> — a generative model that learns to turn random noise into realistic samples by reversing a gradual noising process.</li>
+<li><strong>Autoregressive RNN encoder</strong> — a recurrent neural network that reads a sequence step by step and compresses its history into a compact state.</li>
+<li><strong>Excess-risk oracle inequality</strong> — a theorem bounding how much worse a learned model performs than the best possible ("oracle") model, as a function of data and complexity.</li>
+<li><strong>Exponential mixing</strong> — a decay condition saying the statistical dependence between time points shrinks geometrically as they move apart, which makes time-series learning tractable.</li>
+<li><strong>Calibration</strong> — the property that stated predictive probabilities match observed frequencies (a 90% interval really covers 90% of outcomes).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Diffusion models are slow to sample and heavy to train, which is a real concern for latency-sensitive trading; the paper's downstream task is "stylized," so practical profitability is not demonstrated. The elegant theory leans on assumptions (exponential mixing, contractive dynamics, regularity) that real markets may violate during stress. But pairing a strong generative model with an actual statistical guarantee and genuine calibration is a welcome step above the usual "it generates plausible-looking books" standard.</p>
+<h3>Bottom Line</h3>
+<p>A diffusion model that dreams up plausible next order books — and, rarely for its kind, can prove how close its dreams are to reality.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
