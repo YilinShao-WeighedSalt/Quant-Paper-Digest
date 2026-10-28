@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — October 28, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">October 28, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> A Deep Learning-Driven Operator Splitting Scheme for Free Boundary Problems: An Application to American Option Pricing in Incomplete Markets</h2>
+  <p class="meta">Dong Yan, Haocheng Zhu, Yao Li<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-27 &middot; <a href="http://arxiv.org/abs/2610.36921v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.36921v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>They teach a neural network to price an American option in a realistically messy market with five interacting risk factors, by splitting the hard "when should I cash in?" decision into a smooth part a network can learn and a simple snap-to-the-rule part.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An <em>American</em> option is a contract that lets you buy (or sell) something at a fixed price on <em>any</em> day up to an expiry date, not just at the end. The hard part is not the payoff — it's the timing. Imagine you hold a coupon that lets you buy a share of a company for 100 dollars any time this year. If the share is at 130 dollars today, do you use the coupon now, or wait and hope it climbs to 160, risking that it falls back to 90? Every day you must compare "cash in now" against "the value of keeping my options open." Pricing the coupon means solving that comparison at every possible price, on every possible day, <em>simultaneously</em>. In a textbook world with one source of randomness this is already fiddly; in a real market it is brutal, because volatility itself wanders, trading costs eat into every transaction, and the ease of buying and selling (liquidity) dries up and returns. Stack all of that together and you are tracking five moving quantities at once. The usual trick — laying down a grid over all possible states — collapses, because a grid fine enough in five dimensions has astronomically many points.</p>
+<p><strong>The idea.</strong> Their move is to break one impossibly hard step into two easy ones, repeated backwards in time from expiry. At each small time step they first <em>pretend the option cannot be exercised yet</em> and ask only "what is it worth if I'm forced to keep holding?" That question is smooth and well-behaved, and they let a neural network — a flexible function-fitter — learn its answer across the whole five-dimensional space without ever building a grid. Then they apply the exercise rule as a trivial second step: at every state, the true value is simply the larger of "keep holding" and "cash in now." Smooth-solve, then snap. This is the "operator splitting" in the title: a complicated combined operator is factored into a part the network handles and a part that is one line of arithmetic.</p>
+<p><strong>What they found.</strong> On problems simple enough that slow, trusted methods (fine finite-difference grids and Longstaff–Schwartz Monte Carlo) still work, their scheme lands on essentially the same prices <em>and</em> recovers the same early-exercise boundary — the moving frontier of prices at which you should cash in. The payoff is that their method keeps working in the full five-dimensional setting where the trusted grid method cannot even be run.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The option value $V(t,x)$ depends on time $t$ and a state vector $x=(S,v_1,v_2,\ell)$: the underlying price $S$, two stochastic-volatility factors $v_1,v_2$, and a liquidity factor $\ell$ whose drift is nonlinear and fitted to S&amp;P 500 data. Proportional transaction costs make the problem nonlinear. On the continuation region (where holding beats exercising) $V$ satisfies a parabolic equation; against it sits the constraint that $V$ can never drop below the immediate payoff $g(x)$.</p>
+<p><strong>The key equations.</strong> American pricing is a <em>variational inequality</em>:
+$$\min\big\{\, -\partial_t V - \mathcal{L}V + rV,\;\; V - g \,\big\} = 0,$$
+where $\partial_t V$ is the time derivative, $\mathcal{L}$ is the (nonlinear) second-order operator encoding the dynamics of $S,v_1,v_2,\ell$ and their volatilities and correlations, $r$ is the interest rate, and $g(x)$ is the exercise payoff. The $\min$ says: at each point <em>either</em> the holding equation holds (first term zero, you keep waiting) <em>or</em> the option is at its exercise floor (second term zero, you cash in) — never a violation of either. Their operator-splitting step over a time slice of size $\Delta t$ is
+$$\tilde V \;=\; \text{solve the elliptic continuation equation (no exercise)}, \qquad V = \max\{\tilde V,\, g\},$$
+so the first stage is an elliptic PDE approximated by a <em>physics-informed neural network</em> (a network trained so its own derivatives satisfy the PDE), and the second stage is the pointwise projection onto the constraint $V \ge g$.</p>
+<p><strong>The method.</strong> A physics-informed neural network (PINN) represents $\tilde V$ and is trained by penalizing how badly it violates the continuation PDE and its boundary conditions; the exercise constraint is then imposed in closed form by the $\max$. They prove a <em>conditional $\ell^\infty$ stability bound</em> — under stated resolvent and Lipschitz assumptions, errors measured in the worst-case (sup) norm do not blow up as the scheme marches backward in time.</p>
+<p><strong>Results with numbers.</strong> Against finite-difference and least-squares Monte-Carlo benchmarks, both the computed option prices and the learned exercise boundary show close agreement with the reference solutions, in a problem whose variational inequality is five-dimensional and highly nonlinear — a regime where the finite-difference grid is not feasible to refine. Sensitivity analyses in the key parameters are also reported.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>American option</strong> — a contract exercisable on any date up to expiry, not only at expiry.</li>
+<li><strong>Variational inequality</strong> — a problem demanding a function satisfy an equation <em>or</em> sit on a constraint boundary at every point, used for "act now vs. wait" decisions.</li>
+<li><strong>Free boundary / exercise boundary</strong> — the unknown, moving frontier in state space separating "keep holding" from "cash in now," solved for as part of the problem.</li>
+<li><strong>Operator splitting</strong> — breaking one combined evolution step into a sequence of simpler sub-steps applied in turn.</li>
+<li><strong>Physics-informed neural network (PINN)</strong> — a neural network trained so that its own derivatives satisfy a target differential equation, letting it stand in for the PDE solution.</li>
+<li><strong>$\ell^\infty$ (sup-norm) stability</strong> — a guarantee that the largest pointwise error stays bounded as the numerical scheme iterates.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The stability bound is <em>conditional</em> on resolvent and Lipschitz assumptions that real transaction-cost and liquidity dynamics may not honor, and PINNs are notoriously finicky to train — convergence is shown by matching benchmarks, not by a convergence-rate theorem. The five-factor model is still a stylized market: the nonlinear liquidity drift is fitted to one index, and whether the learned exercise boundary stays accurate out-of-sample under regime change is untested. As a research scheme for high-dimensional free-boundary pricing it is promising; a desk would want far more validation before trusting it over Monte Carlo.</p>
+<h3>Bottom Line</h3>
+<p>Split the "when to exercise" problem into a smooth part a network learns and a one-line snap to the payoff, and American options become priceable in five dimensions where grids give up.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Martingality in EFM Signature Volatility Models</h2>
+  <p class="meta">Dimitri Sotnikov, Adeline Viot<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-26 &middot; <a href="http://arxiv.org/abs/2610.35022v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.35022v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>For a flexible volatility model that remembers a stock's entire past path, they prove an exact rule — the model's truncation must be odd-ordered and one correlation sign must line up — for when the model produces sensible, arbitrage-free prices.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Option prices depend enormously on <em>volatility</em> — how violently a price jitters. The catch is that volatility is itself random and changes over time, so modelers give it its own equation. A newer, very expressive idea is to let today's volatility depend not just on where the price is now, but on the <em>whole shape of the path it took to get here</em> — fast runs, slow drifts, reversals and all. That memory is encoded by a mathematical object called the <em>path signature</em>, a tidy infinite list of numbers that summarizes a trajectory. Models built this way fit real markets beautifully. But flexibility has a hidden danger: a model can look fine yet secretly misprice, because the quantity that is supposed to behave like a fair bet — the discounted price — can quietly "leak" value and fail to be a true fair bet. When that happens you get phantom bubbles and arbitrage, and your prices are wrong in ways that are hard to see. Everyday analogy: a casino game is "fair" if, on average, your bankroll neither grows nor shrinks; a subtly rigged game can pass many spot-checks while still bleeding you dry over time. The authors want a crisp test for whether a signature-volatility model is "fair" in exactly this sense.</p>
+<p><strong>The idea.</strong> They work with a particular, well-engineered flavor — the <em>Exponentially Fading Memory</em> (EFM) signature — in which the influence of the distant past decays smoothly, so the model is globally stable and even settles into a long-run statistical equilibrium rather than drifting off to extremes. Within this family they hunt for the precise boundary between "healthy" models and "leaky" ones, and they find that it is governed by two simple dials: how far you truncate the (infinite) signature, and the sign of the correlation between price shocks and volatility shocks.</p>
+<p><strong>What they found.</strong> The headline is sharp and, pleasingly, <em>clean</em>: excluding trivial cases, the price process is a true fair bet <strong>if and only if</strong> the truncation order is an <em>odd</em> number <em>and</em> a specific sign condition on the correlation parameter holds. This extends a 2026 result of Abi Jaber, Gassiat and Sotnikov, and it hands practitioners a checkbox: pick your truncation and correlation to satisfy the rule, and the model is safe to price with; break it, and your model is secretly leaking.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $\hat W_t = (t, W_t)$ be time-augmented Brownian motion, and let $\mathbb{X}_t$ be its EFM signature — the collection of iterated integrals of $\hat W$ with an exponential fading weight, living in the tensor algebra. The volatility is a <em>linear functional</em> of this signature,
+$$\sigma_t = \langle \boldsymbol\ell,\, \mathbb{X}_t\rangle,$$
+where $\boldsymbol\ell$ is a fixed coefficient vector and $\langle\cdot,\cdot\rangle$ pairs it against the signature components. Because $\sigma_t$ depends on the whole fading-weighted history, the model is <em>non-Markovian</em>; the EFM weighting makes it globally well-behaved and gives it a stationary distribution (allowing a random initial signature value), and $\sigma_t$ can be tuned to match the initial forward-variance curve.</p>
+<p><strong>The key equation.</strong> The (discounted) price follows
+$$dS_t = \sigma_t\, S_t \big(\rho\, dW_t + \sqrt{1-\rho^2}\, dB_t\big),$$
+where $S_t$ is the price, $\sigma_t$ the signature-driven volatility above, $W_t$ the Brownian motion that also drives the volatility, $B_t$ an independent Brownian motion, and $\rho\in[-1,1]$ the correlation (the leverage/skew parameter) between price and volatility shocks. $S_t$ is always a <em>local</em> martingale by construction; the question is whether it is a <em>true</em> martingale — the condition for arbitrage-free pricing and for $\mathbb{E}[S_T]=S_0$ to actually hold.</p>
+<p><strong>The method.</strong> They derive a martingality <em>criterion</em> — a necessary-and-sufficient condition — rather than a mere sufficient check. Controlling the moments and growth of the signature-driven volatility (using the fading-memory structure to tame the non-Markovian dynamics), they show the true-martingale property reduces to two algebraic conditions on the model's free parameters.</p>
+<p><strong>Results with numbers.</strong> The result is qualitative-exact rather than numerical: excluding trivial degenerate cases, $S$ is a true martingale <strong>iff</strong> the signature <em>truncation order</em> $N$ is <strong>odd</strong> and a stated <strong>sign condition on $\rho$</strong> holds. Evenness of the truncation, or the wrong correlation sign, breaks true-martingality and makes the model price inconsistently.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Path signature</strong> — an ordered collection of iterated integrals that compactly and faithfully encodes the entire shape of a trajectory.</li>
+<li><strong>EFM (Exponentially Fading Memory) signature</strong> — a signature variant that down-weights the distant past exponentially, yielding globally stable, stationary dynamics.</li>
+<li><strong>Martingale</strong> — a process whose expected future value, given today, equals today's value: the mathematical form of a "fair bet."</li>
+<li><strong>Local vs. true martingale</strong> — a local martingale can still leak expected value over time; only a <em>true</em> martingale guarantees fair pricing and no bubbles.</li>
+<li><strong>Non-Markovian</strong> — the future depends on the full history, not just the present state.</li>
+<li><strong>Truncation order</strong> — how many levels of the infinite signature you keep; here its parity (odd/even) decides the model's validity.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theoretical result, not a trading recipe: it tells you which parameter choices are <em>admissible</em>, not which fit the market best, and the elegant odd-truncation rule is a constraint you must respect, not a feature you exploit. It lives inside the EFM family, so it does not settle martingality for other signature constructions, and calibration, hedging performance and computational cost under the valid regime are left for other work. Still, for anyone building these increasingly popular signature-volatility models, a sharp "iff" is exactly the guardrail the field was missing.</p>
+<h3>Bottom Line</h3>
+<p>Keep the signature truncation odd and the correlation sign right, and your path-memory volatility model prices fairly — otherwise it is secretly leaking value.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> An Application of Geometric Riemannian Pricing Algorithm for Valuing Catastrophe Bonds in Incomplete Markets: Market-Consistent Financial Entropy and the Split of Frequency and Severity Risk Premia</h2>
+  <p class="meta">Saeid Safarveisi<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-10-27 &middot; <a href="http://arxiv.org/abs/2610.37171v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.37171v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>To price a catastrophe bond when you cannot hedge earthquakes, they pick the "most honest" pricing probability by maximizing a financial entropy over a curved geometry of candidate probabilities, pinned down by observed market spreads.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>catastrophe (CAT) bond</em> lets an insurer offload disaster risk to investors. You buy the bond, collect fat coupons — and if a specified earthquake (or hurricane) hits a defined trigger, you lose some or all of your principal, which the insurer then uses to pay claims. The pricing headache is that earthquakes are <em>unhedgeable</em>: there is no earthquake you can buy and sell to offset your exposure the way you can offset a stock position by shorting the stock. In a complete market, no-arbitrage pins down one unique fair price. In this <em>incomplete</em> market it does not — many different probability assignments are all internally consistent, and each gives a different price. So which probability should you price with? Everyday analogy: you want to bet fairly on a loaded die you can't inspect, knowing only the results of a few past rolls. Infinitely many "loadings" fit those few rolls; you need a principled way to choose one that respects the evidence you <em>do</em> have while otherwise assuming as little as possible.</p>
+<p><strong>The idea.</strong> Their principle is <em>maximum entropy with a reality anchor</em>. Entropy here measures how far a candidate pricing probability strays from the real-world ("physical") probability — the one estimated from actual earthquake frequencies and severities. Pure entropy maximization would just hand back reality itself, which ignores that investors demand extra compensation for bearing disaster risk. So they <em>constrain</em> the choice to reproduce the CAT-bond spreads actually quoted in the secondary market. Among all probabilities consistent with those observed spreads, they pick the one closest to reality. The clever extra step: the family of candidate probabilities forms a smooth curved surface (a <em>manifold</em>), and they use the geometry of that surface — distances and curvature in the sense of Riemannian geometry — to do the optimization cleanly and to understand how the two kinds of disaster risk (how <em>often</em> catastrophes strike vs. how <em>bad</em> they are) are rewarded.</p>
+<p><strong>What they found.</strong> A striking identifiability result: from market prices alone you <em>cannot</em> separately pin down the premium for frequency risk and the premium for severity risk — the data only sees a single combined "risk-neutral trigger intensity." The entropy criterion breaks that tie. Calibrated to a real bond's quarterly spreads, their model says investors price the trigger as if earthquakes were 6.6 to 10.5 times more likely than they physically are, and the model's implied risk multiple (8.87) lands almost exactly on the market's own spread-to-expected-loss ratio (8.81).</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Losses follow a <em>compound Poisson–generalized Pareto</em> model: catastrophe arrivals are Poisson with intensity $\lambda$ (how frequently), and each event's severity is drawn from a generalized Pareto distribution (how bad, with heavy tails). A <em>Wang distortion</em> reshapes the loss distribution to encode risk aversion. Candidate pricing measures $\mathbb{Q}$ form a finite-dimensional manifold $\mathcal{M}$ of measures equivalent to the physical measure $\mathbb{P}$, parameterized by the market prices of <em>frequency</em> risk and <em>severity</em> risk; discounting is fixed by the default-free term structure.</p>
+<p><strong>The key equations.</strong> Pricing-measure selection is a <em>maximum financial entropy</em> problem,
+$$\mathbb{Q}^\star = \arg\max_{\mathbb{Q}\in\mathcal{M}} \; H(\mathbb{Q}\,\|\,\mathbb{P}) \quad\text{s.t.}\quad \mathbb{E}^{\mathbb{Q}}[\text{discounted payoff}] = \text{observed price},$$
+where $H(\mathbb{Q}\|\mathbb{P})$ is the financial entropy of $\mathbb{Q}$ relative to the physical measure $\mathbb{P}$, and the constraint forces the chosen measure to reproduce the market spreads (pooled, or date by date). On the manifold they equip the parameters with a <em>Riemannian metric</em> $g_{ij}$,
+$$g_{ij} = -\,\partial^2_{\theta_i\theta_j} H,$$
+the (negative) second derivative of entropy in the risk-price parameters $\theta=(\theta_{\text{freq}},\theta_{\text{sev}})$ — a Fisher-information-style metric measuring how sharply entropy curves as you move between candidate measures. For the compound Poisson–GPD–Wang model both $H$ and $g_{ij}$ have <em>closed-form</em> expressions.</p>
+<p><strong>The method.</strong> Constrained entropy maximization on the equivalent-measure manifold, solved analytically thanks to the closed-form entropy and metric, with the Riemannian structure exposing why frequency and severity premia are not separately identifiable: CAT-bond prices depend on them <em>only</em> through the risk-neutral trigger intensity, so the data constrains a single combination and the entropy criterion selects a unique split.</p>
+<p><strong>Results with numbers.</strong> Calibrated to quarterly spreads of a hypothetical earthquake bond matched to <em>Golden State Re II Ltd. (Series 2014-1)</em>, the risk-neutral trigger intensity is <strong>6.58 to 10.45 times</strong> the physical intensity (9.20 pooled, 18.26 at end-2015). The model-implied risk multiple is <strong>8.87 versus the market spread-to-expected-loss ratio of 8.81</strong> at issuance, and the minimal-entropy measure attributes roughly <strong>53.5% to 63%</strong> of the premium to one risk component.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Catastrophe (CAT) bond</strong> — a bond that pays high coupons but forfeits principal if a specified disaster triggers, transferring insurance risk to investors.</li>
+<li><strong>Incomplete market</strong> — a market where some risks can't be hedged by trading, so no-arbitrage alone doesn't fix a unique price.</li>
+<li><strong>Pricing measure (risk-neutral measure)</strong> — the probability under which discounted expected payoff equals today's price; many exist when the market is incomplete.</li>
+<li><strong>Relative entropy</strong> — a measure of how far one probability distribution sits from a reference distribution.</li>
+<li><strong>Riemannian metric</strong> — a rule for measuring distances and curvature on a curved parameter surface; here it quantifies how entropy changes between candidate measures.</li>
+<li><strong>Compound Poisson–generalized Pareto</strong> — a loss model combining random event <em>timing</em> (Poisson) with heavy-tailed event <em>size</em> (generalized Pareto).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The reality anchor is only as good as the secondary-market spreads it ingests — CAT-bond markets are thin and illiquid, so quoted spreads carry liquidity and supply-demand noise the model reads as pure risk premium. The entropy <em>principle</em> for splitting frequency and severity premia is mathematically clean but economically a convention: nothing guarantees real investors weight the two the way minimum entropy does, and the calibration is to a single hypothetical bond. It is a genuinely elegant way to tame an ill-posed pricing problem, best read as a disciplined interpolation tool rather than a verdict on true risk premia.</p>
+<h3>Bottom Line</h3>
+<p>When earthquakes can't be hedged, let the market spreads tell you <em>how much</em> risk is priced and let maximum entropy decide <em>which</em> risk — and a single curved geometry gives both in closed form.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Optimal ratcheting dividend policies with resets</h2>
+  <p class="meta">Alexandre Roch, Simone Scotti<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-25 &middot; <a href="http://arxiv.org/abs/2610.34348v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.34348v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>They work out the optimal dividend policy for a firm that — unlike in classic models — is allowed to <em>cut</em> its dividend, but pays a reputational price for doing so, and show exactly when a manager should raise, hold, or grit their teeth and cut.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A company sitting on cash has to decide how much to hand shareholders as dividends and how much to keep as a buffer against bad times. Pay too little and shareholders feel short-changed; pay too much and a run of bad luck can push the firm into bankruptcy. Classic models impose a <em>ratcheting</em> rule: the dividend rate can only ever go up, never down, because markets famously punish dividend cuts — a cut screams "we're in trouble" and the stock drops. But real firms <em>do</em> cut dividends when cornered, precisely to avoid something worse. The everyday version: you've been giving your kid a steadily rising weekly allowance. Cutting it causes an uproar at the dinner table (the signal), but if your own income collapses, a painful cut now may be smarter than cheerfully overpaying your way into debt. The question is: given that a cut hurts <em>and</em> that bankruptcy is catastrophic, what is the mathematically optimal payout strategy over time?</p>
+<p><strong>The idea.</strong> The authors build a model where the dividend rate is allowed to <em>decrease</em>, but each cut inflicts an explicit hit on the firm's equity valuation — a concrete cost standing in for the bad market signal, matching a large empirical literature on dividend "stickiness." The manager then balances three levers continuously: nudge the dividend <em>up</em> a little when things are going well; hold steady; or, when the cash buffer gets dangerously thin, take a discrete <em>reset</em> downward, swallowing the signaling cost to stave off bankruptcy. Solving this is like planning a long road trip where you can gently accelerate, cruise, or occasionally slam the brakes — each brake-slam is unpleasant and you want to use them sparingly and only at the right moments.</p>
+<p><strong>What they found.</strong> They pin down <em>exactly when</em> the whole problem even has a finite answer (an explicit necessary-and-sufficient condition), prove the value function is smooth enough to work with, and characterize the optimal policy through a two-dimensional free-boundary problem that they then <em>collapse to one dimension</em>, simplifying both the math and the financial story. The punchline with teeth: a manager's tendency to <em>over-react</em> to the pain of a dividend cut materially reshapes the optimal policy — fear of the signal, not just the economics, drives behavior.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The firm's cash surplus (equity) $X_t$ evolves as a drifted Brownian motion net of dividends,
+$$dX_t = \mu\, dt + \sigma\, dW_t - dD_t,$$
+where $\mu>0$ is the surplus drift (profitability), $\sigma>0$ its volatility, $W_t$ a Brownian motion, and $D_t$ the cumulative dividends paid. The dividend is paid at a rate $\delta_t$ that the manager controls; bankruptcy is the first time $X_t$ hits $0$. The state is <em>two-dimensional</em>: the surplus $X_t$ <em>and</em> the current running dividend rate $\delta_t$ (because what counts as a "cut" depends on where the rate stands now).</p>
+<p><strong>The key equations.</strong> The manager maximizes expected discounted dividends net of the signaling cost of cuts,
+$$V(x,\delta) = \sup \;\mathbb{E}\!\left[\int_0^{\tau} e^{-rt}\, \delta_t\, dt \;-\; \sum_{\text{cuts}} e^{-rt_k}\, c(\Delta\delta_k)\right],$$
+where $V$ is the value function, $r$ the discount rate, $\tau$ the bankruptcy time, $c(\cdot)\ge 0$ the cost charged for a downward reset of size $\Delta\delta_k$, and the sum runs over the reset times $t_k$. The value function solves a <em>variational inequality</em> of the form
+$$\min\Big\{\, rV - \mathcal{L}V - \text{(rate-increase terms)},\;\; V - \mathcal{M}V \,\Big\} = 0,$$
+combining <em>optimal stopping</em> (bankruptcy), <em>singular control</em> (continuous upward adjustment of the rate), and <em>impulse control</em> via the intervention operator $\mathcal{M}V(x,\delta)=\sup_{\Delta}\{V(x,\delta-\Delta) - c(\Delta)\}$ (discrete downward resets), where $\mathcal{L}$ is the generator of $X_t$.</p>
+<p><strong>The method.</strong> They characterize $V$ as the unique <em>viscosity solution</em> of the variational inequality, prove its <em>differentiability</em> and the <em>supercontact</em> (smooth-pasting) property at the free boundaries, give an explicit necessary-and-sufficient condition for $V$ to be <em>finite</em>, and then exploit a scaling/homogeneity structure to reduce the two-dimensional problem to a <em>one-dimensional</em> one — after which a numerical study and parameter sensitivities are computed.</p>
+<p><strong>Results with numbers.</strong> The paper's quantitative payload is the dimension reduction and the sensitivity analysis rather than a single benchmark figure: the finiteness condition is stated explicitly in the model parameters $(\mu,\sigma,r)$ and cut-cost $c$, and the numerics trace how the increase, hold, and reset regions of the optimal policy shift — in particular showing that larger "over-reaction" to the signaling cost pushes the firm toward paying less and resetting later.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Dividend ratcheting</strong> — a policy constraint that the dividend rate may only rise, never fall.</li>
+<li><strong>Surplus process</strong> — the firm's cash buffer, modeled here as a drifted Brownian motion that bankruptcy ends at zero.</li>
+<li><strong>Singular control</strong> — steering a process with cumulative adjustments that can act continuously and in unbounded bursts, used for the upward dividend nudges.</li>
+<li><strong>Impulse control</strong> — intervening at chosen moments with discrete jumps, each carrying a fixed/variable cost — here, the dividend cuts.</li>
+<li><strong>Viscosity solution</strong> — a generalized notion of solution for the governing equation that works even where the value function isn't classically differentiable.</li>
+<li><strong>Supercontact / smooth pasting</strong> — a boundary condition requiring the value function to meet the free boundary tangentially (matching derivatives), which locates the optimal thresholds.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The firm is a drifted Brownian motion with no jumps, no debt structure, and a single stylized "signaling cost" standing in for the whole messy reality of how markets punish cuts — so the elegant one-dimensional reduction buys tractability at the price of realism. The signaling cost $c$ is exogenous and hard to calibrate, and the result that over-reaction reshapes policy is only as meaningful as that cost's correspondence to real market reactions. As corporate-finance theory it is a clean, genuinely novel relaxation of the ratcheting constraint; as a tool a CFO could run tomorrow, it is still a long way off.</p>
+<h3>Bottom Line</h3>
+<p>Let a firm cut dividends but charge it for the signal, and the optimal payout policy becomes a three-way dance of nudge-up, hold, and reluctant reset — one this paper solves and then cleverly shrinks to a single dimension.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Do Round Numbers Hold Prices? Occupation Densities and Depth-Conditioned Hazards in the Limit Order Book</h2>
+  <p class="meta">Jiwon Jung, Kiseop Lee<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-26 &middot; <a href="http://arxiv.org/abs/2610.34787v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.34787v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Prices look "sticky" at round numbers like 100 dollars, but once you account for the fact that far more orders simply pile up there, the stickiness mostly evaporates — it's a traffic jam, not a psychological wall.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Traders have long noticed that prices cluster at round numbers — a stock lingers at 100.00 rather than 99.97, and round levels seem to "hold" like invisible barriers. The tidy story is psychological: people place orders at round numbers, and those levels act as support or resistance. But there's a boring alternative that predicts the <em>same</em> surface pattern. In modern markets, buy and sell orders wait in a queue called the <em>limit order book</em>, and the price moves to the next level only once the queue at the current level is exhausted. If more orders happen to rest at round numbers — which they do — then the price <em>mechanically</em> takes longer to leave those levels, with no psychology required. Everyday analogy: a checkout lane with 30 people in it takes longer to clear than one with 3. If you only timed how long each lane stayed busy, you might conclude the 30-person lane is "special" or "sticky" — when really it just had more people. The question is whether round-number prices are genuinely sticky <em>after</em> you correct for how deep the queue is.</p>
+<p><strong>The idea.</strong> The authors set up a clean measurement on a grid of price ticks. For each price level they count how often the price <em>departs</em> from it and relate that to how long it dwells there, giving a <em>departure hazard</em> — the instantaneous chance of leaving a level, like the odds a busy checkout lane finally clears in the next minute. Crucially they make this hazard <em>depth-conditioned</em>: they compare levels with the <em>same</em> queue depth, so the 30-person lane is judged against other 30-person lanes, not against empty ones. If round levels are truly barriers, they should show longer dwell times <em>even at equal depth</em>. If it's just the queue, the round-number effect should vanish once depth is matched.</p>
+<p><strong>What they found.</strong> Across five Nasdaq stocks over all of 2025, round levels do attract more liquidity — the queues really are deeper there — but they do <strong>not</strong> show longer <em>depth-adjusted</em> durations. In other words, the apparent stickiness is the queue, not a barrier. Two stocks (Intel and SoFi) show a directional twist: departures are actually biased <em>away</em> from round levels, the opposite of a barrier that holds price in place.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Price lives on a discrete <em>tick grid</em> $\{p_k\}$. For a level $k$, the paper uses the machinery of <em>occupation density</em> (local time): over a trading period, $L_t(k)$ accumulates the time the price process spends at level $k$, and <em>departures</em> from $k$ are counted as crossings/exits. The "level-wise volatility," interpreted as a <em>departure hazard</em>, measures the rate at which the price leaves a level given that it is currently there. The conditioning variable is $D$, the resting depth (queue size) at the level.</p>
+<p><strong>The key equations.</strong> The central object is a depth-conditioned departure hazard
+$$\lambda(k \mid D) = \frac{\#\{\text{departures from level } k\}}{L(k \mid D)},$$
+where $\lambda(k\mid D)$ is the hazard (departures per unit occupation time) at level $k$ for a given depth $D$, the numerator counts exits from level $k$, and $L(k\mid D)$ is the accumulated occupation time (local time) spent at level $k$ conditional on depth $D$. The <em>barrier</em> hypothesis predicts round levels have a <em>lower</em> hazard (prices leave more slowly) even after fixing $D$; the <em>mechanical</em> hypothesis predicts
+$$\lambda(\text{round}\mid D) \approx \lambda(\text{non-round}\mid D),$$
+i.e. equal depth-adjusted hazards. Occupation density formalizes "time spent at a level" the way local time does for a diffusion: informally $\int f(p)\,dt = \sum_k f(p_k)\,L(k)$, so dwell time is decomposed level by level.</p>
+<p><strong>The method.</strong> An empirical, model-light estimation on high-frequency limit-order-book data: reconstruct the book, bin prices onto the tick grid, estimate occupation times and departure counts per level, and compare hazards across round vs. non-round levels <em>within</em> matched depth buckets (so depth is held fixed rather than modeled parametrically). Directional (up vs. down departure) hazards are also estimated.</p>
+<p><strong>Results with numbers.</strong> Using data for <strong>five Nasdaq stocks throughout 2025</strong>: round levels attract <strong>more</strong> liquidity (greater depth), but exhibit <strong>no longer depth-adjusted durations</strong> — the barrier signature disappears once depth is controlled. For <strong>Intel and SoFi</strong>, estimated departures are directionally biased <em>away</em> from round levels, inconsistent with round numbers acting as holding barriers.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book</strong> — the live queue of resting buy and sell orders at each price; the price moves to the next level only when a level's queue is depleted.</li>
+<li><strong>Tick grid</strong> — the discrete set of allowable prices (spaced by the minimum tick), on which levels are defined.</li>
+<li><strong>Occupation density / local time</strong> — a measure of how much time a price process spends at (or infinitesimally near) each level.</li>
+<li><strong>Departure hazard</strong> — the instantaneous rate at which the price leaves a given level, given that it is currently there.</li>
+<li><strong>Depth-conditioned</strong> — compared only across levels with the same resting queue size, so queue depth can't masquerade as stickiness.</li>
+<li><strong>Depth (liquidity)</strong> — the total volume of orders resting at a price level.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a careful <em>negative</em> result on five large-cap Nasdaq names in a single year, so it speaks to liquid US equities and may not carry to thin stocks, futures, or crypto where round-number psychology could bite harder. Conditioning on depth cleanly separates queue from barrier, but depth itself may be <em>endogenous</em> — if traders cluster orders at round numbers <em>because</em> they believe in the barrier, the mechanism and the belief are entangled in a way a hazard comparison can't fully disentangle. Still, it is a rigorous reminder that a dramatic surface pattern can have a dull mechanical cause, and that controlling for the obvious confounder changes the story.</p>
+<h3>Bottom Line</h3>
+<p>Round numbers don't hold prices — deep queues do, and once you compare like-for-like queue depth, the famous "barrier" is mostly a measurement illusion.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
