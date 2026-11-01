@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 01, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 01, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Optimal Order Placement under a State-Dependent Hawkes Process Limit Order Book model</h2>
+  <p class="meta">Jonathan Chávez Casillas, Li Gan<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-27 &middot; <a href="http://arxiv.org/abs/2610.37324v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.37324v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A market maker's robot decides where to post buy and sell quotes by predicting that trades arrive in self-exciting bursts and solving, step by step, how to end the day holding as little risky inventory as possible.</p>
+<h3>Plain English</h3>
+<p>Imagine you run a little currency-exchange booth in a busy airport. You quote a price to buy dollars and a slightly higher price to sell them, and you earn the gap — the "spread" — on every trade. The catch: if a tour group suddenly dumps a pile of dollars on you, you're now sitting on a big pile of dollars yourself, and if the dollar drops before you can offload it, you lose. So your real job isn't just "quote a spread" — it's "quote a spread <em>while never getting stuck holding too much of anything</em>." That is exactly the problem of a <strong>market maker</strong> on a modern electronic exchange, who posts quotes into the <strong>limit order book</strong> (the live list of everyone's standing buy and sell offers) and must manage <strong>inventory</strong> — how much of the asset they're currently holding.</p>
+<p>The authors' key insight is about <em>how trades arrive</em>. Trades don't trickle in evenly like raindrops; they come in clusters. One big buy tends to trigger more buys, the way one person yawning sets off a room. The mathematical name for "events that make more of themselves" is a <strong>Hawkes process</strong> — a model of self-exciting bursts. The authors go further and make it <strong>state-dependent</strong>: the burstiness depends on the current condition of the order book, not just on past trades. On top of that they add a simple rule linking <em>how many</em> orders arrive to <em>how much volume</em> actually executes against the market maker.</p>
+<p>With that picture of the flow, they ask the planning question: given where I stand right now — how much inventory I hold, how excited the flow is — where should I post my quotes, this instant and for the rest of the session, to come out ahead while being punished for ending with leftover inventory? They solve it by working <em>backwards</em> from the final moment (a technique we'll name below), which tells them the best quote for every situation they might find themselves in.</p>
+<p>What they found: tested on real high-frequency data (the LOBSTER dataset), their adaptive strategy made more total end-of-day money than naive "always quote a fixed one-tick spread" and "always three ticks" rules — but it actually <em>lost</em> to the fixed two-tick rule on raw wealth. Honestly reported, not spun: the point is that their strategy optimizes a <em>risk-penalized</em> objective, so comparing it on raw wealth alone misses what it was built to do.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Order-arrival events are modeled as a multivariate <strong>state-dependent Hawkes process</strong>. A counting process $N_t$ (number of events by time $t$) has a stochastic <strong>intensity</strong> $\lambda_t$ — the instantaneous arrival rate — of the form
+$$\lambda_t = \mu(Z_t) + \sum_{t_i < t} \phi(t - t_i,\, Z_{t_i}),$$
+where $\mu(\cdot)$ is a baseline rate, $Z_t$ is the order-book <strong>state</strong> (e.g. queue sizes, spread), $t_i$ are past event times, and $\phi(\cdot)$ is the <strong>excitation kernel</strong> — how much a past event at $t_i$ lifts the current rate, decaying with elapsed time $t - t_i$. "Self-exciting" means each event raises $\lambda$ for events that follow.</p>
+<p>A <strong>block-based linear demand</strong> specification links market-order <em>counts</em> to executed <em>volume</em>, giving the demand moments the control problem needs: expected executed volume against a posted quote is taken affine in the relevant count, supplying $\mathbb{E}[\text{volume}]$ and its variance.</p>
+<p><strong>The control problem.</strong> Let $q_t$ be inventory and $X_t$ cash. The maker chooses quote placements (depths in ticks) to maximize terminal wealth minus a <strong>quadratic inventory penalty</strong>:
+$$\max \ \mathbb{E}\!\left[ X_T + q_T S_T - \gamma\, q_T^2 \right],$$
+where $T$ is the horizon, $S_T$ the terminal mid-price, and $\gamma > 0$ the penalty weighting leftover inventory risk. The $-\gamma q_T^2$ term is what makes ending flat (small $|q_T|$) attractive.</p>
+<p><strong>The method — backward dynamic programming.</strong> In discrete time over the continuous-state dynamics, the value function is shown to be <strong>quadratic in inventory</strong>,
+$$V_t(q) = a_t\, q^2 + b_t\, q + c_t,$$
+and the optimal quotes are <strong>inventory-dependent</strong> (you quote differently when long vs. short). Plugging this guess into the Bellman recursion yields <strong>backward recursions</strong> for the coefficients $a_t, b_t, c_t$, solved from the terminal condition $a_T=-\gamma,\ b_T=0$ back to the present. "Dynamic programming" simply means: solve the last step first, then use that answer to solve the step before, repeatedly.</p>
+<p><strong>Results with numbers.</strong> On LOBSTER data, aggregate terminal wealth beat the <strong>1-tick</strong> and <strong>3-tick</strong> fixed-spread benchmarks but fell below the <strong>2-tick</strong> benchmark; the authors stress that terminal-wealth ranking differs from ranking under the inventory-penalized objective the strategy actually optimizes.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book</strong> — the live, sorted list of all outstanding buy and sell offers for an asset at each price.</li>
+<li><strong>Hawkes process</strong> — a model where each event temporarily increases the chance of further events, producing clusters.</li>
+<li><strong>Intensity</strong> — the instantaneous arrival rate of a point process; the expected number of events per unit time right now.</li>
+<li><strong>Inventory penalty</strong> — a cost term, here $\gamma q_T^2$, that discourages ending with a large position.</li>
+<li><strong>Dynamic programming / Bellman recursion</strong> — solving a multi-step optimization by working backward from the last step, reusing solved subproblems.</li>
+<li><strong>Tick</strong> — the smallest allowed price increment on the exchange.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a careful framework paper, not a production strategy: it's calibrated and run on historical LOBSTER snapshots, so it assumes the maker's own quotes wouldn't have changed how others traded (no feedback), and the demand link is deliberately simple (linear, block-based). Its own results show a plain 2-tick spread beat it on raw wealth, so a practitioner would need to decide whether the inventory-risk reduction is worth the complexity. The honesty about that comparison is a point in its favor.</p>
+<h3>Bottom Line</h3>
+<p>Model the bursts, penalize the leftovers, and solve it backwards — but don't assume beating the naive benchmark on dollars is the same as beating it on risk.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> The Term Structure of Implied Fee Rates in Liquidity Pools</h2>
+  <p class="meta">Diogo Duarte, Lucas X. Ferreira, Emmanuel Gobet, Yuri F. Saporito<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-10-26 &middot; <a href="http://arxiv.org/abs/2610.36392v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.36392v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>By treating a crypto liquidity provider's position like a hidden option and pricing it off the options market, you can read off exactly how much "yield" the fees really are worth — and it turns out to be positive but shrinking with time and very sensitive to how you set your price range.</p>
+<h3>Plain English</h3>
+<p>On a regular exchange, when you want to swap one currency for another, a human or firm quotes you a price. On the crypto exchanges called <strong>automated market makers (AMMs)</strong> — Uniswap is the famous one — there's no quoter. Instead there's a shared pot of two assets (say ETH and a dollar-stablecoin, USDC), and a fixed mathematical formula sets the swap price based purely on how much of each is in the pot. Anyone can throw money into the pot and become a <strong>liquidity provider (LP)</strong>. In return, every trader who swaps pays a small fee, and LPs earn a slice of those fees. It sounds like free yield.</p>
+<p>The problem: it isn't free. When the price of ETH moves, the pot automatically rebalances in a way that tends to leave LPs holding more of whatever just got cheaper — a drag nicknamed <strong>impermanent loss</strong>. So the real question every would-be LP faces is: <em>are the fees I'll collect actually enough to compensate me for this hidden loss?</em> Until now people mostly guessed by looking backward at fees already earned.</p>
+<p>The authors' idea is to look <em>forward</em> instead, and to borrow a trick from traditional finance. An LP's eventual payoff — what the position is worth when you pull out — has a shape, as a function of the final ETH price, that looks exactly like a bundle of <strong>options</strong> (contracts whose value depends on where a price ends up). And options have a market: Deribit, where ETH options trade and reveal what the market thinks future ETH swings will be. So the authors price the LP's future payoff using those option prices, and whatever fee income is left over, after accounting for that payoff, <em>is</em> the fair forward-looking fee compensation. They turn it into an <strong>implied fee rate</strong> — a clean annualized yield number you can compare across pools and time horizons.</p>
+<p>What they found: implied fee rates are genuinely positive (being an LP is compensated, not a sucker's game), but they <em>slope downward</em> with maturity (the longer you commit, the lower the annualized fee reward) and depend enormously on <strong>range design</strong> — in Uniswap v3 you can concentrate your money in a narrow price band, and tight bands near the current price earn the biggest implied returns.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A Uniswap v2 pool holds reserves $(x, y)$ of two tokens obeying the <strong>constant-product</strong> rule $x \cdot y = L^2$, so the marginal price is $p = y/x$ and $L$ is the (constant) <strong>liquidity</strong>. The LP's position value as a function of price $p$ is
+$$V(p) = 2L\sqrt{p},$$
+a concave curve — the source of the "impermanent loss" shape. Uniswap v3 lets liquidity be active only on a price interval $[p_a, p_b]$, giving a truncated, option-like payoff.</p>
+<p><strong>The key relation.</strong> Under a risk-neutral pricing measure $\mathbb{Q}$, the authors show
+$$\mathbb{E}^{\mathbb{Q}}\!\big[\text{accumulated fees over } [0,T]\big] \;=\; V_0 \;-\; e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\big[V(S_T)\big],$$
+where $V_0$ is the current pool value, $r$ the risk-free rate, $T$ the horizon, and $S_T$ the terminal price. In words: <strong>expected fees equal today's value minus the discounted risk-neutral value of the terminal LP payoff</strong>. This reduces "forecast the fees" to "price the LP payoff" — a standard derivatives problem. The <strong>implied fee rate</strong> is then the constant yield that makes this balance, extracted by solving for it.</p>
+<p><strong>The method.</strong> They model ETH under a <strong>stochastic-volatility jump-diffusion</strong> (SVJD): the price has random, mean-reverting volatility plus occasional jumps,
+$$dS_t = (r-\lambda k)S_t\,dt + \sqrt{v_t}\,S_t\,dW_t^S + dJ_t,\qquad dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_t^v,$$
+where $v_t$ is the variance, $\kappa$ the mean-reversion speed, $\theta$ the long-run variance, $\xi$ the vol-of-vol, $\lambda$ the jump rate, $J_t$ the jump component with mean size $k$, and $W^S, W^v$ correlated Brownian motions. They <strong>calibrate</strong> this model (fit its parameters) to Deribit ETH option prices, then compute the risk-neutral payoff value — a Fourier/transform pricing step the SVJD structure allows — and read off the implied fee rate.</p>
+<p><strong>Results with numbers.</strong> Applied to Uniswap v2 and v3 ETH–USDC pools, implied fee rates come out <strong>positive, time-varying, and downward-sloping in maturity</strong>, and are <strong>highly sensitive to range design</strong>: tighter near-the-money v3 ranges earn materially larger implied returns than wide ranges or the v2 full-range position.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Automated market maker (AMM)</strong> — an exchange where prices come from a fixed formula over a pooled reserve, not from human quotes.</li>
+<li><strong>Liquidity provider (LP)</strong> — someone who deposits assets into the pool and earns a share of trading fees.</li>
+<li><strong>Impermanent loss</strong> — the shortfall an LP suffers because the pool auto-rebalances toward the asset that fell in relative value.</li>
+<li><strong>Risk-neutral measure ($\mathbb{Q}$)</strong> — the adjusted probabilities under which every asset's discounted price is a fair game, used for no-arbitrage pricing.</li>
+<li><strong>Stochastic-volatility jump-diffusion</strong> — a price model with randomly changing volatility plus sudden jumps.</li>
+<li><strong>Calibration</strong> — tuning a model's parameters so its prices match observed market prices.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The number is only as good as the SVJD model and the Deribit calibration behind it, so it inherits every assumption about ETH's future volatility and jumps — and it quietly assumes the options and AMM markets are mutually arbitrage-free, which on-chain frictions (gas, latency, MEV) can violate. It also prices the payoff but says less about <em>realized</em> LP experience under active rebalancing. Still, as a forward-looking, comparable yardstick for LP compensation, it's a real step past staring at past fees.</p>
+<h3>Bottom Line</h3>
+<p>An LP position is a hidden option, and once you price it off the options market, "is the fee worth it?" stops being a guess and becomes a number.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Depositing More Should Not Earn Less: Supplier Income Monotonicity and Rate Curve Design in Pooled Lending Markets</h2>
+  <p class="meta">Ahzam Khan, Cavey Cool<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-10-27 &middot; <a href="http://arxiv.org/abs/2610.36899v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.36899v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>In crypto lending pools, adding more money to your deposit can perversely <em>shrink</em> your total interest — and there's a single clean inequality that tells a protocol exactly when, and how to design the rate curve so it never happens.</p>
+<h3>Plain English</h3>
+<p>Picture a community money pot people lend from. Depositors (suppliers) put cash in; borrowers take cash out and pay interest. The interest rate isn't fixed — it rises as the pot gets more "used up." The sensible-sounding logic: when lots of the pot is borrowed (high <strong>utilization</strong>), lenders are scarce relative to demand, so the rate should go up to attract more cash. This is how essentially every big crypto lending protocol (Aave, Compound, Drift, and friends) works: a <strong>utilization-dependent interest rate curve</strong>.</p>
+<p>Here's the trap the authors expose. Suppose you're already a big lender in a small pool. You add more money. That's good for you in two ways — you own a bigger share, and... wait. Adding money <em>lowers</em> utilization (the borrowed amount is now a smaller fraction of a bigger pot), which <em>lowers the rate everyone earns</em>. If you're big enough, the rate you knocked down on your <em>entire</em> existing stake outweighs the interest on the <em>new</em> dollars you added. Net result: you deposited more and earned less. It's like buying more shares of a company and thereby cutting the dividend on all your shares so much that your total dividend check shrinks.</p>
+<p>Worse, the paper shows the mirror image: when that happens, you could <em>withdraw</em> money to push utilization (and the rate) back up and come out ahead — which is exactly the destabilizing behavior a lending market does not want.</p>
+<p>The idea is to pin down precisely when this misbehavior can occur. It turns out to depend on just two things: how large a share of the pool you hold, and how steeply the borrow rate reacts to utilization (its <strong>elasticity</strong>). The authors get a crisp condition, and — the useful part — they flip it into a <em>design rule</em>: a protocol can decide in advance the biggest lender it's willing to protect, and that choice uniquely dictates the whole shape of an "admissible" rate curve.</p>
+<p>What they found: this isn't theoretical hand-wringing. On two real Drift markets, a lender held a bigger slice of the pool than the curve protected in <strong>at least one hour in nine on SOL</strong> and <strong>one hour in thirteen on USDC</strong> — so the perverse incentive was live, not hypothetical.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A pool has total supply (deposited funds) $S$ and total borrows $B$, with <strong>utilization</strong> $u = B/S \in [0,1]$. The borrow interest rate is a function $r(u)$ — the rate curve. A supplier holding a fraction $\alpha$ of the final pool supply earns interest proportional to their share of the borrow interest the pool generates. The question is how that supplier's total income changes when they make a marginal additional deposit.</p>
+<p><strong>The key condition.</strong> Define the <strong>elasticity of the borrow rate with respect to utilization</strong>
+$$\eta \;=\; \frac{u\, r'(u)}{r(u)},$$
+where $r'(u)$ is the derivative of the rate curve and $\eta$ measures the percentage change in rate per percentage change in utilization. The paper's central result: a supplier holding share $\alpha$ keeps income <strong>non-decreasing</strong> under a marginal deposit <strong>exactly when</strong>
+$$\alpha\,(1+\eta) \;\le\; 1.$$
+If this fails, the supplier's income falls when they add liquidity — and they can instead raise income by withdrawing, pushing $u$ (and the rate) up.</p>
+<p><strong>The method — turning a constraint into a curve.</strong> A protocol chooses, at each utilization level $u$, the largest supplier share $\alpha(u)$ it intends to protect. The monotonicity condition then <strong>caps the elasticity</strong>: $\eta(u) \le \frac{1}{\alpha(u)} - 1$. Since $\eta$ is a logarithmic derivative, <strong>integrating the cap</strong> reconstructs the admissible rate curve:
+$$\ln r(u) = \int \frac{\eta(u)}{u}\,du.$$
+Two natural policies fall out in closed form: protecting the <strong>same share at every utilization</strong> gives a <strong>power-law</strong> rate boundary $r(u)\propto u^{c}$; protecting <strong>every fresh depositor</strong> (share $\to$ marginal) gives a <strong>hyperbolic</strong> boundary.</p>
+<p><strong>Results with numbers.</strong> Empirically, on Drift's <strong>SOL</strong> market a lender exceeded the protected share in roughly <strong>1 hour in 9</strong>, and on <strong>USDC</strong> in about <strong>1 hour in 13</strong>. On a multi-kink USDT market, "compliant repairs" to the curve can raise <em>or</em> lower the rate level, because the constraint governs how income <em>responds</em> to deposits, not the level of the rate itself.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Utilization</strong> — the fraction of a lending pool that is currently borrowed, $u = B/S$.</li>
+<li><strong>Rate curve</strong> — the function mapping utilization to the borrow interest rate, $r(u)$.</li>
+<li><strong>Elasticity</strong> — the percentage change in one quantity per percentage change in another; here $\eta = u r'(u)/r(u)$.</li>
+<li><strong>Supplier share ($\alpha$)</strong> — the fraction of the total pool supply a given lender owns.</li>
+<li><strong>Income monotonicity</strong> — the property that depositing more never lowers a supplier's total interest income.</li>
+<li><strong>Kink</strong> — a point where a piecewise rate curve changes slope (multi-kink curves are common in practice).</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The result is clean because the model is stylized: it treats a marginal deposit's effect on utilization as instantaneous and holds borrower demand fixed, whereas in reality borrowers react to rate changes too, which could soften or sharpen the effect. It also measures "could have been exploited," not that anyone did. But the design rule is genuinely actionable — a protocol can audit its curve against $\alpha(1+\eta)\le 1$ today — which is rare for a theory result.</p>
+<h3>Bottom Line</h3>
+<p>One inequality, $\alpha(1+\eta)\le 1$, decides whether a lending pool rewards or punishes its biggest depositors — and it hands protocol designers the exact curve that keeps the reward honest.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Risk measures for infinite-server queues driven by a Cox-BESQ process</h2>
+  <p class="meta">José Da Fonseca, Yajun Shi, Wenjun Zhang<br>
+    <span class="cat">math.PR</span> &middot; 2026-10-27 &middot; <a href="http://arxiv.org/abs/2610.36473v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.36473v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If customers arrive at random in bursts whose rate itself wanders like a mean-reverting random walk, this paper finds an exact formula for everything you'd want to know about the crowd — and uses it to measure the risk of the system overflowing.</p>
+<h3>Plain English</h3>
+<p>Think of a call center, a hospital's incoming patients, or — the quant-finance version — insurance claims landing on a reinsurer, or trades hitting a venue. Customers (claims, trades, patients) show up at random. The classic simple assumption is that they arrive at a steady average rate, like raindrops. But reality is lumpier: the arrival <em>rate itself</em> changes over time — some hours are frantic, some are dead — and often in a way that drifts and reverts, high periods followed by calm. The authors want to model exactly this: a crowd whose underlying intensity is itself a moving, random quantity.</p>
+<p>They use an <strong>infinite-server queue</strong> — jargon for "there's always a free server, so no one waits; the only thing that varies is how many customers are in the system at once." The twist is what drives the arrivals: a <strong>Cox process</strong>, which is just a Poisson process (the standard random-arrivals model) whose rate is allowed to be random, driven here by a <strong>squared Bessel (BESQ) process</strong> — a specific well-behaved random path that stays positive and reverts, making it a natural model for a fluctuating, always-nonnegative arrival rate.</p>
+<p>Why does a quant care? Because the "number in the system" and especially its <em>accumulated</em> total over a window are exactly the kinds of quantities that blow up and cause losses — think total claims over a quarter, or cumulative exposure. The authors' real payoff is that their model is mathematically special enough (<strong>affine</strong>, explained below) to give a <em>closed-form</em> answer — an exact formula, not a slow simulation — for the complete statistical fingerprint of these quantities. From that formula they build <strong>risk measures</strong>: numbers like "what's the expected load <em>given that</em> we're already in a bad, above-threshold state?" — precisely the conditional, tail-focused questions risk management lives on.</p>
+<p>What they found: they derive the joint behavior of three linked quantities — the arrival rate, the headcount, and the time-integral of the headcount — at one time <em>and</em> across two or more times, and show numerically that the formulas work and that the conditional risk measures reveal things a steady-rate model would miss.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Arrivals follow a <strong>Cox process</strong> (doubly-stochastic Poisson) with stochastic intensity $\lambda_t$ given by a <strong>squared Bessel process</strong>:
+$$d\lambda_t = \big(a - b\,\lambda_t\big)\,dt + \sigma\sqrt{\lambda_t}\;dW_t,$$
+where $a$ controls the inflow/mean level, $b$ the mean-reversion speed, $\sigma$ the volatility, and $W_t$ a Brownian motion; the $\sqrt{\lambda_t}$ keeps $\lambda_t \ge 0$. Let $Q_t$ be the number of customers in the infinite-server system and $I_t = \int_0^t Q_s\,ds$ its time-integral (cumulative occupancy).</p>
+<p><strong>The key object.</strong> The authors derive a <strong>closed-form joint moment-generating function (MGF)</strong>
+$$\Phi(u,v,w) \;=\; \mathbb{E}\!\left[\exp\!\big(u\,\lambda_t + v\,Q_t + w\,I_t\big)\right] \;=\; \exp\!\big(A(t) + B(t)\,\lambda_0\big),$$
+where $u,v,w$ are transform arguments for the rate, the headcount, and the integrated headcount, and $A(t), B(t)$ solve a system of ordinary differential equations (ODEs) determined by the model parameters. An MGF is a single function that, once known, encodes <em>all</em> moments and the full distribution. The same construction extends to <strong>two (or more) dates</strong>, capturing how the system evolves in time.</p>
+<p><strong>The method — affine processes.</strong> The model is <strong>affine</strong>: its drift and squared-diffusion coefficients are linear (affine) in the state. This is the structural gift that makes the MGF exponential-affine and reduces the whole problem to solving <strong>Riccati-type ODEs</strong> for $A(t), B(t)$ — the same machinery behind affine term-structure models in interest-rate theory. <strong>Risk measures</strong> (e.g. the joint moments conditional on one variable exceeding a critical threshold) are then recovered from the MGF via <strong>Fourier representations</strong> — inverting the transform to get tail and conditional quantities.</p>
+<p><strong>Results with numbers.</strong> The paper reports <strong>numerical experiments</strong> confirming the explicit MGF-based formulas and demonstrating the conditional risk measures at one and two dates; the headline is methodological — exact, simulation-free evaluation — rather than a single benchmark-beating statistic.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Infinite-server queue</strong> — a queue with unlimited servers, so no customer ever waits; you track only how many are present.</li>
+<li><strong>Cox process</strong> — a Poisson process whose arrival rate is itself random over time.</li>
+<li><strong>Squared Bessel (BESQ) process</strong> — a nonnegative mean-reverting random path, here used for the arrival intensity.</li>
+<li><strong>Affine process</strong> — a process whose drift and variance are linear in the state, yielding exponential-affine transforms.</li>
+<li><strong>Moment-generating function (MGF)</strong> — a transform $\mathbb{E}[e^{uX}]$ that encodes all moments and the distribution of $X$.</li>
+<li><strong>Riccati ODE</strong> — a quadratic first-order differential equation; affine models reduce to solving these.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The elegance comes from the affine/BESQ structure, which buys closed forms but also constrains how arrival rates may behave — real claim or trade intensities may show jumps, regime shifts, or fat tails the BESQ path can't capture. The infinite-server assumption (no capacity limit, no waiting) is clean but sidesteps congestion effects that matter in some applications. As a fast, exact engine for conditional tail risk under stochastic intensity, though, it's a genuinely useful building block.</p>
+<h3>Bottom Line</h3>
+<p>When arrivals come in random, reverting bursts, the right model doesn't just simulate the crowd — it hands you an exact formula for how badly it can overflow.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Jensen gaps and the decomposition principle</h2>
+  <p class="meta">Lilian Hu, Ruodu Wang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-24 &middot; <a href="http://arxiv.org/abs/2610.33786v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.33786v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Variance, the entropy of information theory, and the "cost of uncertainty" in economics are secretly the same creature — the gap in Jensen's inequality — and this paper proves what simple, natural rules force a risk measure to be exactly that creature.</p>
+<h3>Plain English</h3>
+<p>Here's a fact that quietly runs through finance, physics, and information theory: if you average something <em>after</em> bending it through a curved function, you don't get the same answer as bending the average. Flip a fair coin for a payout of 0 or 100 dollars. The <em>average payout</em> is 50. But a cautious person doesn't value that gamble at 50 — they value it lower, because losing hurts more than winning helps. That shortfall — the gap between "average of the curved values" and "curved value of the average" — is <strong>Jensen's gap</strong>, and it is a universal way of measuring <em>how much uncertainty matters</em>.</p>
+<p>The striking thing is how many famous quantities are secretly this one gap with a different curve plugged in. Use the curve $x^2$ and the gap <em>is</em> the <strong>variance</strong>. Use $x\log x$ and it becomes the <strong>Kullback–Leibler divergence</strong> — the fundamental "distance between probability distributions" from information theory. Use a utility curve and it's the <strong>utility premium</strong>, an economist's price of risk. Different fields, same skeleton.</p>
+<p>So the authors ask a very mathematician's question: instead of defining variance or entropy by their formulas, can we define them by the <em>properties they obey</em> — and show those properties pin them down uniquely? This is <strong>axiomatic characterization</strong>: pick a short list of reasonable rules, then prove that the only things satisfying all the rules are exactly the Jensen gaps. The crucial rule they isolate is a <strong>decomposition principle</strong> — roughly, a sensible consistency requirement for how the risk of a combined situation relates to the risk of its pieces when you condition on partial information. Add one more mild rule about how the measure behaves when you rescale or shift the quantity, and the generating curve is forced to be a specific familiar family.</p>
+<p>What they found: law-invariance (only the distribution matters, not labels) plus a binary decomposition principle is enough to force a risk functional to be a Jensen gap. Then demanding <strong>scaling invariance</strong> singles out the logarithmic, $x\log x$, and power-law curves, while demanding <strong>translation invariance</strong> singles out the exponential and quadratic ones — recovering variance, KL divergence, and their cousins from first principles.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on an atomless probability space. A <strong>Jensen-gap functional</strong> has the form
+$$\rho(X) \;=\; \mathbb{E}\big[f(X)\big] \;-\; f\big(\mathbb{E}[X]\big),$$
+where $X$ is a random variable (a payoff, a loss, a message), $\mathbb{E}$ is expectation, and $f$ is a real-valued <strong>generator</strong> function. By Jensen's inequality, if $f$ is convex then $\rho(X)\ge 0$; $\rho$ measures how far $X$ is from being a sure thing. Examples: $f(x)=x^2 \Rightarrow \rho=\mathrm{Var}(X)$; $f(x)=x\log x \Rightarrow \rho = $ KL divergence; a concave utility $f \Rightarrow \rho = $ (negative of) the utility premium.</p>
+<p><strong>The key axioms.</strong> The functional is <strong>law-invariant</strong>: $\rho(X)$ depends only on the distribution of $X$. The engine is a <strong>(binary) decomposition principle</strong>, stated via <em>conditional</em> law-invariant functionals, requiring that the gap of a variable decompose consistently across a two-way conditioning — intuitively, total uncertainty = uncertainty between groups + uncertainty within groups, the same bookkeeping that splits total variance into between- and within-group parts.</p>
+<p><strong>The characterization.</strong> The main theorem: on simple random variables over an atomless space, <strong>law invariance + the binary decomposition principle $\Rightarrow$ $\rho$ is a Jensen gap</strong> for some generator $f$. Under suitable <strong>continuity</strong> conditions this extends to compactly supported and then integrable random variables. The generator is then identified by an invariance requirement on how $\rho$ reacts to transforming $X$:
+$$\rho(aX) = g(a)\,\rho(X)\ \ (\text{scaling}) \qquad\text{or}\qquad \rho(X+c) = \rho(X)\ \ (\text{translation}),$$
+where $a>0$ is a scale factor and $c$ a constant shift. <strong>Scaling invariance</strong> forces $f$ into the logarithmic, $x\log x$, and <strong>power</strong> families; <strong>translation invariance</strong> forces the <strong>exponential</strong> and <strong>quadratic</strong> families.</p>
+<p><strong>The method.</strong> The proof is a functional-equation argument: the decomposition principle is turned into an identity that $f$ must satisfy for all admissible splits, and solving that functional equation (the classic route behind Cauchy/Pexider-type equations) yields the Jensen-gap form; the invariance conditions then reduce to a scalar functional equation whose solutions are exactly the named generator families. No numerics — this is a characterization theorem, and its "result" is the exhaustive list of what satisfies the axioms.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Jensen's inequality / Jensen gap</strong> — for convex $f$, $\mathbb{E}[f(X)]\ge f(\mathbb{E}[X])$; the gap between the two sides measures the effect of uncertainty.</li>
+<li><strong>Generator ($f$)</strong> — the function whose curvature produces the gap; choosing $f$ selects variance, entropy, etc.</li>
+<li><strong>Law-invariant</strong> — depending only on a variable's probability distribution, not on how outcomes are labeled.</li>
+<li><strong>Decomposition principle</strong> — a consistency rule for how a functional splits when you condition on partial information (think between-group + within-group).</li>
+<li><strong>Kullback–Leibler divergence</strong> — an information-theoretic measure of how far one probability distribution is from another.</li>
+<li><strong>Scaling / translation invariance</strong> — behaving predictably when the variable is multiplied by a constant / shifted by a constant.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational mathematics, not a trading tool — its value is conceptual unification, showing that risk, dispersion, and information "distance" share one algebraic backbone and are forced by clean axioms. The axioms (atomless space, the exact form of the decomposition principle) are idealizations, and a practitioner won't trade on it directly; its payoff is clearer thinking about <em>which</em> variability measure a problem actually calls for, and why.</p>
+<h3>Bottom Line</h3>
+<p>Variance and entropy aren't cousins by coincidence — they're the same Jensen gap wearing different generators, and a short list of axioms proves there's nothing else in the family.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
