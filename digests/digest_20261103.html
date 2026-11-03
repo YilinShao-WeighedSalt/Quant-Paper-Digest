@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 03, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 03, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> TensorLOB: Structure-Preserving Tensor Learning for Limit Order Book Forecasting</h2>
+  <p class="meta">Yuxuan Gu, Danilo Mandic<br>
+    <span class="cat">cs.LG</span> &middot; 2026-11-02 &middot; <a href="http://arxiv.org/abs/2611.02866v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.02866v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A stock's order book is really a four-dimensional object, and if you stop squashing it flat into a spreadsheet and model it in its natural 4D shape, you predict the next price move better.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every stock on a modern exchange has a <em>limit order book</em> — a live, constantly updating list of everyone who has said "I'll buy 100 shares at 50.01 dollars" or "I'll sell 200 at 50.03 dollars." Those resting orders stack up at many different prices on both the buy side and the sell side. Traders desperately want to guess where the price is about to go in the next few fractions of a second, because that is the difference between a profitable and an unprofitable trade. So the practical problem is: given a snapshot movie of the order book, predict whether the price will tick up, down, or stay flat.</p>
+<p><strong>The idea.</strong> Here is the catch the authors noticed. The order book is naturally organized along <em>four separate axes at once</em>: time (successive snapshots), side (buy vs. sell), price level (best price, second-best, third-best…), and attribute (is this a price or a quantity?). Think of it like a Rubik's cube where each little cube carries a number, and the three directions of the cube mean genuinely different things. The standard approach takes this tidy cube and smashes it into one long flat list of numbers before feeding it to a neural network — which is like describing a chessboard by reading all 64 squares out in a single row and hoping the computer re-discovers that it was a grid. You destroy the structure and force the model to relearn it from scratch. TensorLOB instead keeps the cube a cube. It processes each axis <em>as its own axis</em>, mixing information along the "price level" direction separately from the "time" direction, so the model always knows that the second-best buy price and the second-best sell price are playing symmetric roles.</p>
+<p><strong>What they found.</strong> On FI-2010, the standard public benchmark for this exact task, TensorLOB beat the existing flatten-it-first models on accuracy, recall, and F1 score — and it did so across <em>all four</em> prediction horizons they tested (from the very next move out to moves further ahead), not just one lucky setting. The headline is less any single number than the principle: respecting the data's natural multi-way shape, rather than flattening it, is worth real predictive accuracy.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A snapshot of the order book is not a vector but a <em>tensor</em> — a multi-dimensional array. Here the relevant object is an order-4 tensor
+$$\mathcal{X} \in \mathbb{R}^{T \times S \times L \times A}$$
+where $T$ indexes time steps (the window of recent snapshots), $S$ indexes the market side (bid vs. ask, so $S=2$), $L$ indexes the price level (1st through $L$th best quote on each side), and $A$ indexes the attribute at each slot (typically price and volume). An entry $\mathcal{X}_{t,s,\ell,a}$ is one real number — e.g. the volume resting at the 3rd-best ask at time $t$.</p>
+<p><strong>The key operation.</strong> The engine is the <em>mode-$n$ contraction</em> (a tensor–matrix product along one axis). Contracting $\mathcal{X}$ along its time mode with a learned weight matrix $U^{(1)}$ gives a new tensor
+$$\big(\mathcal{X} \times_1 U^{(1)}\big)_{j,s,\ell,a} \;=\; \sum_{t=1}^{T} \mathcal{X}_{t,s,\ell,a}\, U^{(1)}_{j,t},$$
+and analogously $\times_2, \times_3, \times_4$ act on the side, level, and attribute modes. The symbol $\times_n$ means "multiply along mode $n$ only, leaving the other axes untouched"; $U^{(n)}$ is the per-mode learnable weight matrix; the subscripts after the equals sign are the surviving axes. Stacking these mode-wise contractions is the structure-preserving analogue of a dense layer: each axis gets its own transformation instead of all axes being melted together.</p>
+<p><strong>The prediction.</strong> For classification, the learned feature tensor $\mathcal{H}$ is contracted directly against a set of <em>low-rank class-weight tensors</em> $\{\mathcal{W}_c\}$, one per class $c \in \{\text{up},\text{down},\text{flat}\}$, to produce a score
+$$z_c \;=\; \langle \mathcal{H},\, \mathcal{W}_c\rangle \;=\; \sum_{\text{all indices}} \mathcal{H}_{\dots}\,\big(\mathcal{W}_c\big)_{\dots},$$
+where $\langle\cdot,\cdot\rangle$ is the full tensor inner product and each $\mathcal{W}_c$ is stored in a factorized (low-rank) form so the parameter count stays small. The scores $z_c$ feed a softmax to give class probabilities.</p>
+<p><strong>The method.</strong> It is a supervised neural classifier trained by minimizing cross-entropy loss via stochastic gradient descent, but every layer is a tensor contraction rather than a flatten-then-dense operation — a deliberate architectural constraint that bakes in the known structure of the LOB (this is what "structure-preserving" and "first principles" mean).</p>
+<p><strong>Results with numbers.</strong> On the FI-2010 benchmark, TensorLOB posts the highest accuracy, recall, and F1 of the compared models at <em>every</em> one of the four forecast horizons tested — a clean sweep rather than a per-metric trade-off, which is the authors' evidence that the multi-way inductive bias helps.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Limit order book (LOB)</strong> — the live ledger of all resting buy and sell orders at each price, from which the current best bid and ask are read off.</li>
+<li><strong>Tensor / order-$n$ tensor</strong> — a number arranged in an $n$-dimensional grid; order-1 is a vector, order-2 a matrix, order-4 the time×side×level×attribute cube here.</li>
+<li><strong>Mode-$n$ contraction ($\times_n$)</strong> — multiplying a tensor by a matrix along exactly one of its axes, transforming that axis while leaving the others intact.</li>
+<li><strong>Low-rank tensor</strong> — a big array stored as a product of a few small factors, which keeps the parameter count and overfitting risk low.</li>
+<li><strong>F1 score</strong> — the harmonic mean of precision and recall, a single balanced accuracy number that is honest even when the up/down/flat classes are imbalanced.</li>
+<li><strong>FI-2010</strong> — a widely used public dataset of Nasdaq Nordic order-book snapshots that serves as the standard scoreboard for LOB price-move prediction.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is explicitly a proof of concept on one academic benchmark (FI-2010), not a live trading system, so leaderboard wins there don't guarantee an edge against real exchange latency, fees, and adversarial counterparties. FI-2010 is also known to be somewhat easy and dated, and the paper reports classification metrics, not out-of-sample dollar P&amp;L. The structural idea is genuinely appealing, but a practitioner would want to see it hold on raw, messy, modern data before trusting it.</p>
+<h3>Bottom Line</h3>
+<p>Don't flatten the Rubik's cube before you read it — keeping the order book's four axes separate is a free accuracy boost waiting to be claimed.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Symbol-based residual certification of reduced and neural surrogates for tempered-fractional CGMY pricing</h2>
+  <p class="meta">Davood Damircheli<br>
+    <span class="cat">math.NA</span> &middot; 2026-11-02 &middot; <a href="http://arxiv.org/abs/2611.03463v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.03463v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When a fast "cheat-sheet" approximation prices an exotic option, this paper gives you a cheap, mathematically rigorous alarm bell that fires <em>exactly when the cheat sheet has gone wrong</em> — and it catches a neural-network shortcut being off by 46×.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks price options by solving equations that describe how an option's value changes as the stock moves. For realistic models — ones where stock prices can suddenly <em>jump</em>, not just drift smoothly — these equations are expensive to solve, and you often have to solve them thousands of times (every strike, every maturity, every risk scenario). So people build <em>surrogates</em>: fast approximate stand-ins, either a compressed "reduced model" or a trained neural network, that spit out an answer in milliseconds. The danger is obvious — a fast approximation is worthless, even dangerous, if you can't tell when it is quietly lying to you. A mispriced option on a trading desk is real money lost.</p>
+<p><strong>The idea.</strong> Instead of trusting the surrogate or re-running the slow exact solver to check it (which defeats the purpose), the author builds a <em>certificate</em>: a cheap formula that bounds how far the surrogate's answer could possibly be from the true answer, with a guarantee. The clever move is to exploit hidden regularity in the pricing equation. The matrices involved have a special repetitive "Toeplitz" structure — like a wallpaper pattern that repeats as you shift along it — and that pattern is completely described by a single underlying function called a <em>symbol</em>. Knowing the symbol lets you compute the error bound analytically, in time proportional to the problem size rather than its cube, and even make the whole operator depend on its parameters through just ~36 building blocks. A three-stage rule then only escalates to the expensive airtight check when the cheap checks are inconclusive — like a bouncer who only calls for ID when something looks off.</p>
+<p><strong>What they found.</strong> At the resolution that prices the entire parameter range to within one cent, the full certificate costs just <strong>6%</strong> of a direct solve, and a compressed rank-80 model certified this way costs <strong>3%</strong> and resolves 99.8% of 10,000 queries without ever touching the full solver. Crucially, it had <strong>zero false accepts</strong> on every query with a known answer. And when the author tried neural-network surrogates, the certificate flagged — in a few milliseconds, on every single query — that they missed the one-cent tolerance by at least <strong>46×</strong>. The guard works.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The underlying follows the <strong>Carr–Geman–Madan–Yor (CGMY)</strong> Lévy process, a pure-jump model whose log-price has Lévy density
+$$\nu(x) = C\,\frac{e^{-G|x|}}{|x|^{1+Y}}\mathbf{1}_{x<0} + C\,\frac{e^{-M x}}{x^{1+Y}}\mathbf{1}_{x>0},$$
+where $C>0$ controls overall jump intensity, $G,M>0$ control exponential damping of large down/up jumps (fatter or thinner tails), and $Y\in(0,2)$ is the fractional index governing the activity of small jumps. A European put price $u(x,t)$ then satisfies a <strong>tempered-fractional partial integro-differential equation</strong> — essentially the Black–Scholes PDE with the second-derivative diffusion term replaced by a fractional (nonlocal) operator that encodes jumps.</p>
+<p><strong>The key objects.</strong> Discretizing by a <strong>spline Galerkin</strong> method produces linear systems $S_I\,\mathbf{c} = \mathbf{b}$ whose stiffness/mass matrices are <em>Toeplitz sections</em> of an explicit periodised Fourier <strong>symbol</strong> $f(\theta)$. The symbol is the function whose Fourier coefficients <em>are</em> the matrix diagonals, so one function encodes the whole matrix family. Summing the aliasing series of the symbol to a controlled tail makes the assembled system exact to $10^{-8}$. A <strong>Lévy–Khintchine</strong> argument then yields a parameter-explicit lower bound on the smallest eigenvalue of the symmetric part,
+$$\lambda_{\min}(S_I) \ge r\,m_{\min},$$
+where $\lambda_{\min}$ is the smallest eigenvalue (a proxy for how invertible/stable the system is), $r$ is the risk-free rate, and $m_{\min}$ is the minimum of the mass symbol — replacing a shaky numerical eigenvalue estimate with a proven inequality, valid for $Y\in(0,2)\setminus\{1\}$.</p>
+<p><strong>The method.</strong> The residual certificate is a rigorous <em>a posteriori</em> error bound: given any surrogate solution $\tilde u$, it computes the residual $\|\,b - S_I\tilde u\,\|$ in a <strong>banded comparison norm</strong> built from the mass and stiffness symbols, divides by the certified eigenvalue bound, and returns a guaranteed error with explicit <em>effectivity</em> (tightness) at $O(N)$ cost. <strong>Empirical interpolation</strong> makes the operator affine in ~36 terms, so a reduced <strong>POD–Galerkin</strong> model is certified at a cost <em>independent of</em> $N$.</p>
+<p><strong>Results with numbers.</strong> At $N=1024$ (one-cent accuracy across the parameter box): full-order certificate = 6% of a direct solve; certified rank-80 POD model = 3%, settling 99.8% of $10^4$ queries without the full space. Zero false accepts on all queries with a reference (150 inside the box, 264 outside); outside the box it correctly accepts 193 of 210 queries where the reduced model is still within one cent. Neural surrogates missed tolerance by ≥46× — caught every time in milliseconds.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>CGMY / Lévy process</strong> — a jump model for asset returns whose four parameters tune jump rate, up/down tail fatness, and small-jump activity.</li>
+<li><strong>Tempered-fractional operator</strong> — a nonlocal "derivative of fractional order" that mathematically represents price jumps instead of smooth diffusion.</li>
+<li><strong>Galerkin discretization</strong> — turning a continuous equation into a finite linear system by projecting onto a basis of simple functions (here, splines).</li>
+<li><strong>Toeplitz matrix / symbol</strong> — a matrix constant along each diagonal, fully described by a single generating function called its symbol.</li>
+<li><strong>A posteriori certificate</strong> — an error bound computed <em>after</em> you have a candidate answer, guaranteeing how wrong it can be without knowing the true answer.</li>
+<li><strong>POD–Galerkin reduced model</strong> — a low-dimensional surrogate built by keeping only the few most important modes of a collection of solved problems.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This certifies <em>European puts</em> under one specific (if rich) jump model; the American-put version is only sketched as an outlook, and real desks price far messier instruments. The guarantees also live inside the discretized problem — they bound the surrogate against the full solver, not against the true market price, so model risk remains. Still, as infrastructure for safely deploying fast surrogates, the "trust but verify cheaply" philosophy is exactly what a quant library should have.</p>
+<h3>Bottom Line</h3>
+<p>A fast approximation you can't audit is a liability; this paper makes the audit cost 3% of the thing it's auditing.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Neural Network Methods in the 2BSDE Formalism for Solving the High-Dimensional Black--Scholes Equation with Transaction Costs</h2>
+  <p class="meta">Guhesh Kumaran<br>
+    <span class="cat">math.OC</span> &middot; 2026-10-29 &middot; <a href="http://arxiv.org/abs/2610.41019v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.41019v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Pricing an option on a basket of 100 stocks <em>with</em> real trading-cost frictions is normally hopeless because of the "curse of dimensionality," and this paper trains a single neural network to do it accurately by rewriting the problem in a formalism that tracks not just the option's slope but its curvature.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> The textbook Black–Scholes formula prices an option on one stock, assuming you can trade continuously and for free. Reality breaks both assumptions. First, real options are often written on <em>baskets</em> — say, the average of 100 tech stocks — and the pricing equation then lives in 100-plus dimensions. Classical methods (grids, trees) blow up exponentially with dimension: ten points per axis across 100 axes is $10^{100}$ cells, more than atoms in the universe. Second, hedging an option means constantly rebalancing a stock position, and every trade costs money (bid–ask spread, fees). Those costs depend on <em>how much</em> you have to rebalance, which depends on the option's curvature. Ignore the costs and your "price" is a fantasy.</p>
+<p><strong>The idea.</strong> There's a modern trick for high-dimensional pricing PDEs: rewrite them as <em>backward stochastic differential equations</em> (BSDEs) and let a neural network learn the solution by simulating random price paths — this dodges the grid entirely because random sampling doesn't care how many dimensions there are. The twist here is that transaction costs (via the classic <em>Leland</em> model) make the equation <em>fully nonlinear</em>: the cost term depends on the <strong>sign of the curvature</strong> of the option value, i.e. whether you're long or short "gamma." An ordinary BSDE isn't enough; you need the richer <em>second-order</em> BSDE (<strong>2BSDE</strong>), which carries along not just the price and its gradient but its full second-derivative (Hessian) structure. The author feeds the network the "speed" (the derivative of curvature) and lets a single ResNet learn both the price surface and the extra curvature degrees of freedom at once.</p>
+<p><strong>What they found.</strong> The single network priced real instruments — call options and butterfly spreads on geometric baskets — in both <strong>10 and 100 dimensions</strong>, hitting a time-averaged root-mean-square error below <strong>0.1</strong> in each case. That a 100-dimensional <em>nonlinear</em>, cost-aware pricing problem can be solved to that accuracy by one network is the point: the method scales where grids cannot.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The basket price vector $S_t \in \mathbb{R}^{D}$ follows correlated geometric Brownian motions, and the option value $u(t,x)$ solves a $(D{+}1)$-dimensional Black–Scholes PDE augmented by the <strong>Leland</strong> transaction-cost term. Leland's correction modifies the volatility by an amount proportional to the cost rate and the <em>sign of gamma</em>, making the PDE fully nonlinear in the Hessian $D^2_x u$:
+$$\partial_t u + \tfrac{1}{2}\,\mathrm{Tr}\!\big(\tilde\sigma(D^2_x u)\,\sigma\sigma^\top\, D^2_x u\big) + r\big(x\cdot \nabla_x u - u\big) = 0,$$
+where $u$ is the option price, $\partial_t u$ its time-decay, $\nabla_x u$ the gradient (the hedge, or "delta"), $D^2_x u$ the Hessian (the "gamma"/curvature), $\mathrm{Tr}$ the trace, $\sigma$ the volatility matrix, $r$ the risk-free rate, and $\tilde\sigma(\cdot)$ the Leland-adjusted volatility that <em>depends on the sign of the curvature</em>.</p>
+<p><strong>The key representation.</strong> Because the equation is nonlinear in $D^2_x u$, it is cast as a <strong>second-order BSDE</strong>:
+$$Y_t = g(X_T) + \int_t^T f\big(s,X_s,Y_s,Z_s,\Gamma_s\big)\,ds - \int_t^T Z_s^\top\,dX_s,$$
+with the companion dynamics $dZ_t = A_t\,dt + \Gamma_t\,dX_t$. Here $X_t$ is the forward state (the simulated basket), $Y_t = u(t,X_t)$ the option value along the path, $Z_t = \nabla_x u$ the gradient process, $\Gamma_t = D^2_x u$ the Hessian (second-order) process, $g$ the payoff at maturity $T$, and $f$ the nonlinear driver carrying the Leland cost. The "speed" — the derivative of the curvature — is the extra input that pins down the degrees of freedom in $\Gamma_t$.</p>
+<p><strong>The method.</strong> A single <strong>ResNet</strong> (deep residual network) parameterizes the solution and the curvature matrix's free components. Training simulates many forward paths of $X_t$ (Monte-Carlo), and the network's weights are optimized by gradient descent so that the simulated $Y_T$ matches the known terminal payoff $g(X_T)$ — a <em>deep-BSDE</em> scheme that converts solving a PDE into minimizing a loss over sample paths, sidestepping any spatial grid.</p>
+<p><strong>Results with numbers.</strong> For $D = 10$ and $D = 100$, pricing call options and butterfly spreads on geometric baskets, the method achieves a <strong>time-averaged RMSE below 0.1</strong> in each case — accurate high-dimensional pricing <em>with</em> transaction-cost nonlinearity from one network.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>BSDE / 2BSDE</strong> — a differential equation solved backward from a known final payoff; the second-order version additionally tracks the solution's curvature (Hessian), needed when the equation is nonlinear in it.</li>
+<li><strong>Curse of dimensionality</strong> — the exponential explosion of grid-based methods as the number of variables grows, which random-sampling methods avoid.</li>
+<li><strong>Hessian / gamma</strong> — the matrix of second derivatives of the option price; in finance, the option's sensitivity to the <em>curvature</em> of its payoff.</li>
+<li><strong>Leland model</strong> — a classic adjustment that prices discrete-time hedging under proportional transaction costs by tweaking the effective volatility.</li>
+<li><strong>ResNet</strong> — a deep neural network with "skip connections" that make very deep models trainable.</li>
+<li><strong>RMSE</strong> — root-mean-square error, the typical size of the pricing mistake in the same units as price.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>An RMSE below 0.1 is encouraging but needs a reference price it's measured against, and geometric-basket calls are chosen partly because semi-analytic benchmarks exist — real baskets (arithmetic averages, dividends, American exercise) are harder. Deep-BSDE methods can also be finicky to train and offer no hard error guarantee, so a desk would treat this as a research prototype rather than a production pricer. Still, handling the sign-of-gamma nonlinearity in 100 dimensions at all is a meaningful step.</p>
+<h3>Bottom Line</h3>
+<p>When the dimension is 100 and the frictions are real, you don't build a grid — you simulate paths and let a network learn the curvature, and this shows it actually works.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> When is the deepest drawdown also the longest?</h2>
+  <p class="meta">Yinhao Wu<br>
+    <span class="cat">math.PR</span> &middot; 2026-10-30 &middot; <a href="http://arxiv.org/abs/2610.41990v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.41990v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Whether your worst-ever loss is also your slowest-to-recover loss depends entirely on one thing — whether your losses are mild-and-frequent or rare-and-catastrophic — and the paper pins down the crossover with exact probabilities.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> If you track any strategy, fund, or asset over time, it goes through episodes of decline and recovery — <em>drawdowns</em>. Two things worry every investor about a drawdown: how <em>deep</em> it goes (how much you lost from a peak) and how <em>long</em> it lasts (how long you stayed underwater before clawing back to a new high). A natural gut question: is the <em>deepest</em> drawdown you ever suffer also the <em>longest</em>? Intuitively you'd think a huge loss takes forever to recover — but that intuition turns out to depend crucially on <em>what kind</em> of losses your process has, and getting this right matters for risk management, because stress tests and capital buffers are built around worst-case depth <em>and</em> worst-case duration.</p>
+<p><strong>The idea.</strong> The authors model your cumulative gains as a random walk that drifts upward on average (you make money in the long run) but takes random steps, some negative. They then ask: among all the drawdown episodes over a long horizon, do the deepest and longest tend to be the <em>same</em> episode? The beautiful answer is that it flips depending on the "tail" of your losses. If big losses are <em>light-tailed</em> (rare and never enormous — think a bell curve, where a loss ten times normal is essentially impossible), then depth and duration are driven by <em>different</em> mechanisms: a deep drawdown happens by a run of moderately-bad luck, while a long drawdown happens by a <em>long</em> string of mild bad luck — and these almost never coincide. But if losses are <em>heavy-tailed</em> (one single catastrophic crash can dominate — think 2008), then one giant loss creates <em>both</em> the deepest <em>and</em> the longest episode simultaneously, so they coincide.</p>
+<p><strong>What they found.</strong> Under light tails, the deepest and longest episodes are eventually <em>distinct</em> almost surely; the deepest episode's duration is only a fraction $\rho \in (0,1)$ of the longest, and remarkably, in the <strong>Gaussian</strong> (bell-curve) case $\rho = 1/2$ <em>regardless of drift or volatility</em>. Under heavy (regularly varying) tails, the opposite: the deepest and longest episodes coincide with probability tending to one, and this even extends to the top-$k$ deepest matching the top-$k$ longest, in the same order. It's a clean dichotomy with an explicit number at the boundary.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $S_n = \sum_{i=1}^{n} X_i$ be a random walk with i.i.d. increments $X_i$ of positive finite mean $\mathbb{E}[X_i] = \mu > 0$ (the upward drift). The <em>running maximum</em> is $M_n = \max_{k\le n} S_k$, and the <strong>drawdown</strong> process is
+$$D_n = M_n - S_n \ge 0,$$
+the current shortfall below the all-time high. An <em>episode</em> is an excursion of $D_n$ away from zero (a period underwater between two record highs); each episode has a <strong>depth</strong> (its maximum $D$) and a <strong>duration</strong> (its length in steps). Over $n$ episodes one ranks them by depth and by duration.</p>
+<p><strong>The key results.</strong> When losses have a <strong>finite exponential moment</strong> (light tails: $\mathbb{E}[e^{\theta X_i}] < \infty$ for some $\theta>0$), the ratio of the deepest episode's duration to the <em>longest</em> duration among $n$ episodes converges in probability to an explicit constant,
+$$\frac{\text{duration of deepest episode}}{\max_n \text{duration}} \xrightarrow{\;\mathbb{P}\;} \rho \in (0,1),$$
+and the deepest episode's rank <em>by duration</em> grows like $n^{\,1-\rho+o_{\mathbb{P}}(1)}$. Here $\xrightarrow{\mathbb{P}}$ denotes convergence in probability (the random ratio piles up near $\rho$ as $n\to\infty$), and $o_{\mathbb{P}}(1)$ is a vanishing random error. In the <strong>Gaussian</strong> model, $\rho = 1/2$ <em>independent of $\mu$ and the variance</em>. The mechanism: reaching a large depth and sustaining a long duration carry <em>different exponential costs</em> (large-deviations rates), so the extremes decouple.</p>
+<p>For <strong>regularly varying</strong> losses (heavy tails, $\mathbb{P}(X_i < -x) \sim x^{-\alpha}L(x)$), a single large loss governs both depth and duration, so
+$$\frac{\text{duration of deepest episode}}{\max_n \text{duration}} \xrightarrow{\;\text{a.s.}\;} 1,$$
+and for every fixed $k$, the $k$ deepest and $k$ longest episodes share the same indices in the same order with probability $\to 1$. For $k_n \to \infty$ with $k_n = o(n)$, the common-episode proportion among the top-$k_n$ tends to $0$ (light tails) or $1$ (heavy tails).</p>
+<p><strong>The method.</strong> Pure probability theory: the increments' moment structure feeds a <strong>large-deviations</strong> analysis of excursions, comparing the exponential rate of achieving great depth versus long duration; the light-tailed separation and the heavy-tailed coincidence follow from which rate dominates. Results also hold for <em>completed</em> drawdowns within a fixed observation horizon.</p>
+<p><strong>Results with numbers.</strong> The sharp dichotomy — proportion of common top episodes $\to 0$ (light) vs. $\to 1$ (heavy) — and the universal $\rho = 1/2$ for the Gaussian case are the quantitative headlines.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Drawdown</strong> — the drop from a running peak to the current value; the "how far underwater" measure.</li>
+<li><strong>Episode / excursion</strong> — one continuous period spent below a previous all-time high, between two record peaks.</li>
+<li><strong>Light-tailed vs. heavy-tailed</strong> — whether extreme losses decay fast (exponentially, like a bell curve) or slowly (polynomially), so a single huge loss is plausible.</li>
+<li><strong>Regularly varying</strong> — a precise way of saying "polynomial (heavy) tail," $\mathbb{P}(\text{loss}>x)\approx x^{-\alpha}$.</li>
+<li><strong>Convergence in probability ($\xrightarrow{\mathbb{P}}$)</strong> — a random quantity settles arbitrarily close to a fixed value as the sample grows.</li>
+<li><strong>Large deviations</strong> — the theory of exponentially small probabilities of rare events, used here to weigh "deep" against "long."</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean limit theorem for i.i.d. increments with positive drift — real returns have volatility clustering, autocorrelation, and regime shifts that violate independence, so the sharp dichotomy is a stylized lens, not a trading rule. But its qualitative message is robust and useful: in calm, light-tailed regimes depth and duration risk are <em>separate</em> budgets, while in crash-prone heavy-tailed regimes they collapse into one, so you cannot diversify your worst-depth and worst-duration scenarios apart.</p>
+<h3>Bottom Line</h3>
+<p>In gentle markets your deepest and longest drawdowns are two different accidents; in crash-prone markets they are the same catastrophe wearing two hats.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Robust distortion riskmetrics under symmetry, unimodality, and Wasserstein constraints</h2>
+  <p class="meta">Liu Peng, Zhang Yiying, Zuo Baishuai<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-10-31 &middot; <a href="http://arxiv.org/abs/2611.01003v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.01003v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you only half-trust your model of future losses, this paper computes the <em>worst</em> risk number any plausible-but-honest alternative model could hand you — while still respecting that losses are symmetric and single-peaked — so you can set capital for the bad case instead of the convenient one.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A risk manager has to attach a single number to "how bad could losses get" — a figure like Value-at-Risk or Expected Shortfall that drives how much capital a bank must hold. But that number is computed from a <em>model</em> of the loss distribution, and the model is never exactly right. So the honest question is not "what's the risk under my model?" but "what's the <em>worst</em> risk over all the distributions I can't rule out?" If you don't ask that, you set capital for the comfortable case and get blindsided by the plausible-but-nastier one. The challenge is to make "distributions I can't rule out" precise without letting it become absurd — you don't want the worst case to be some ridiculous spiky distribution nothing like reality.</p>
+<p><strong>The idea.</strong> The authors define the set of admissible alternatives sensibly: all distributions that (1) stay within a fixed <em>Wasserstein distance</em> of your reference model — Wasserstein distance measures how much "work" it takes to reshape one distribution into another, so a small ball means "not too far from what I believe" — and (2) keep the same mean and variance, and (3) obey realistic shape constraints: <em>symmetry</em> (losses and gains mirror each other) and optionally <em>unimodality</em> (one peak, no weird bumps). Then they find the single distribution inside that set that maximizes your chosen risk measure. The technical breakthrough is a clever "auxiliary distortion" that bakes the Wasserstein constraint into the problem while <em>preserving</em> symmetry when you apply the concave-envelope operation — a mathematical maneuver that keeps the whole optimization tractable and sharp.</p>
+<p><strong>What they found.</strong> They get <em>sharp</em> (not loose) upper bounds on a very broad family of risk measures — "distortion riskmetrics," which includes VaR, Expected Shortfall, and Range-VaR as special cases — even allowing risk measures that are non-monotone or have jumps. They identify exactly which worst-case distribution attains the bound, and show that adding unimodality cleanly fixes the geometry (the quantile's concave-to-convex switch sits at the midpoint) so the worst case can be found by projecting onto a fixed convex cone. Numerical examples for ES, RVaR, and VaR show how much shape restrictions and the reference model actually tighten or loosen the worst case.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a reference loss distribution $F_0$ with mean $\mu$ and variance $\sigma^2$. The ambiguity set is
+$$\mathcal{P} = \Big\{F : W_p(F,F_0)\le \varepsilon,\ \mathbb{E}_F[X]=\mu,\ \mathrm{Var}_F(X)=\sigma^2,\ F\ \text{symmetric (and unimodal)}\Big\},$$
+where $W_p$ is the <strong>Wasserstein-$p$ distance</strong> and $\varepsilon$ is the ambiguity budget (ball radius). A <strong>distortion riskmetric</strong> is a functional
+$$\rho_g(F) = \int_0^1 F^{-1}(u)\,dg(u),$$
+where $F^{-1}$ is the quantile function (the loss at probability level $u$) and $g:[0,1]\to\mathbb{R}$ is a <strong>distortion function</strong> of bounded variation that reweights the quantiles; different $g$'s give VaR, ES, RVaR, etc. The goal is the <strong>worst-case</strong> value
+$$\sup_{F\in\mathcal{P}} \rho_g(F).$$</p>
+<p><strong>The key construction.</strong> The engine is a <strong>reference-dependent auxiliary distortion</strong> $\tilde g$ that encodes the Wasserstein constraint <em>inside</em> the distortion itself, built so that applying the <strong>concave-envelope operator</strong> (replacing $g$ by the smallest concave function above it — the standard way to handle a general $g$) <em>preserves symmetry</em>. Under regularity and nondegeneracy, this yields sharp upper bounds for distortions of bounded variation — permitting nonmonotone $g$ and interior discontinuities — and names the <strong>extremal distribution</strong> attaining them. A symmetry-and-moment-preserving approximation shows the <strong>upper-semicontinuous relaxation</strong> of the symmetrized distortion leaves the supremum unchanged whenever the budget $\varepsilon$ exceeds a feasibility threshold.</p>
+<p><strong>The method.</strong> It is convex/variational optimization over distributions. With added <strong>unimodality</strong>, symmetry pins the quantile's concavity–convexity transition exactly at the midpoint $u=1/2$, which converts the worst-case search (for absolutely continuous distortions with square-integrable derivative) into an <strong>$L^2$-projection onto a fixed closed convex cone</strong> — a clean, computable geometry. The authors also run simulations with <em>data-dependent</em> Wasserstein radii to test worst-case ES and feasibility under correctly specified and <em>misspecified</em> shape restrictions.</p>
+<p><strong>Results with numbers.</strong> Rather than one headline statistic, the paper delivers closed-form sharp bounds and explicit extremal distributions for ES, RVaR, and VaR, plus simulation evidence on how feasibility and worst-case ES respond as the radius $\varepsilon$ grows and when the symmetry/unimodality assumptions are right versus wrong.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Distortion riskmetric</strong> — a risk measure that integrates the quantile function against a reweighting function $g$; VaR, ES, and RVaR are all special cases.</li>
+<li><strong>Value-at-Risk (VaR) / Expected Shortfall (ES) / RVaR</strong> — the loss quantile at a confidence level, the average loss beyond it, and a trimmed average between two levels, respectively.</li>
+<li><strong>Wasserstein distance</strong> — the minimal "cost" to transport one probability distribution's mass into another's, a geometric measure of how different two distributions are.</li>
+<li><strong>Ambiguity / uncertainty set</strong> — the family of distributions a modeler regards as plausible, over which the worst case is taken.</li>
+<li><strong>Concave envelope</strong> — the smallest concave function lying above a given one, the standard tool for turning an arbitrary distortion into a tractable one.</li>
+<li><strong>$L^2$-projection onto a convex cone</strong> — finding the closest point, in squared-error sense, inside a cone-shaped constraint set; here it computes the worst-case quantile.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The power comes from strong shape assumptions — exact symmetry and unimodality of losses — which real financial losses often violate (they are famously skewed and fat-tailed), and the paper's own misspecification simulations acknowledge this is where things get delicate. Choosing the Wasserstein radius $\varepsilon$ is also an art, not a science, and a badly chosen budget makes the worst case either toothless or paralyzing. That said, for regulators and risk desks who already lean on ES, this gives a principled, computable way to stress it against nearby models.</p>
+<h3>Bottom Line</h3>
+<p>Don't price your capital off the model you hope is true — price it off the worst honest model within reach, and this tells you exactly how bad that is.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
