@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 05, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 05, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Functional Tensor Trains for High-Order Greeks and Exposure Tails of Multi-Asset Structured Products</h2>
+  <p class="meta">Javier Lopez-Piqueres, Atithi Acharya, Yue Sun, Niraj Kumar<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-10-30 &middot; <a href="http://arxiv.org/abs/2610.42119v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2610.42119v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Instead of rolling millions of random dice to value a tricky multi-asset note and estimate its risk, they store the whole pricing function as a cleverly compressed grid that gives every sensitivity exactly, with no random noise at all.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Banks sell "structured products" — think of a complicated bet packaged as a single security. A popular one is the <em>worst-of autocallable</em>: it pays you a nice coupon each month as long as the weakest of several stocks stays above a barrier, it automatically pays you back early ("auto-calls") if things go well, and it hurts you if the worst stock crashes. To manage the risk of holding thousands of these, a bank needs two things. First, the <em>Greeks</em>: how much the note's value moves if a stock nudges up a penny (first order), if its volatility twitches (also sensitivities), and even third-order sensitivities for fine hedging. Second, the <em>potential future exposure</em>: a worst-case guess of what the note will be worth months from now — essentially "how much could we be on the hook for?"</p>
+<p><strong>The idea.</strong> The standard tool is Monte Carlo: simulate the stocks wandering randomly tens of thousands of times and average the outcomes. It works, but it has a nasty property. Every time you differentiate to get a higher-order Greek, the random jitter in your answer blows up, and the more often the note is observed (monthly checks on the barrier), the worse it gets. And estimating a worst-case future value means running simulations <em>inside</em> simulations, which is brutally expensive and biased. The authors throw out random sampling. They instead solve the pricing problem backwards in time — from the note's maturity back to today — and at each step they store the "value so far" as a compressed object called a <em>functional tensor train</em>. Picture a huge multi-dimensional lookup table (one axis per stock) that would normally be impossibly large; a tensor train squeezes it into a chain of small pieces, like expressing a giant number as a tidy product of small factors. They also chop these pieces exactly at the barrier levels, so a "worst stock breached the barrier" event is handled perfectly rather than approximately.</p>
+<p><strong>What they found.</strong> Because the whole value function is stored, differentiating it is just calculus on a stored object — no new noise. One solve gives <em>every</em> Greek at <em>any</em> starting price. Against the best Monte Carlo methods they could build or find, the verdict depends on how accurate you need to be: at 1% accuracy Monte Carlo still wins for simple first-order Greeks, but their method is up to <strong>100× cheaper for every third-order Greek</strong>; at 0.1% accuracy their method is cheaper for <em>every</em> Greek they tested.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The note's price is a function $V(t, S)$ of time $t$ and the vector of asset prices $S = (S^1, \dots, S^d)$. Under the risk-neutral measure the assets follow a diffusion (geometric Brownian motion or a local-volatility model), and the price obeys the backward recursion
+$$V(t_k, S) = e^{-r\Delta t}\,\mathbb{E}\big[\,V(t_{k+1}, S_{t_{k+1}}) \mid S_{t_k}=S\,\big]$$
+between observation dates $t_k$, with barrier/coupon/autocall rules applied at each $t_k$. Here $r$ is the interest rate, $\Delta t$ the spacing of observations, and the expectation is taken over the one-step transition of the assets.</p>
+<p><strong>The key idea — the hp functional tensor train.</strong> The continuation value is represented as
+$$V(t, S) \approx \sum_{\alpha_1,\dots,\alpha_{d-1}} G_1(S^1)_{\alpha_1}\, G_2(S^2)_{\alpha_1\alpha_2}\cdots G_d(S^d)_{\alpha_{d-1}},$$
+a <em>tensor train</em>: each core $G_i$ depends only on one asset's price, and the internal indices $\alpha_i$ (bond dimensions, capped at a <em>rank</em>) glue them together. Each core is piecewise-polynomial in $S^i$ — the "hp" refers to splitting the domain into pieces (h) and using polynomials of degree p on each — with the split points placed <strong>exactly at the barriers</strong>, so a barrier event acts with rank one and no smearing.</p>
+<p><strong>The method.</strong> They march the recursion backward, at each date projecting $V$ onto the hp-FTT format. A key theoretical result bounds the cost: for Gaussian (log-normal) transitions, the polynomial degree needed to reach error $\varepsilon$ grows only like
+$$p(\varepsilon) = \mathcal{O}\!\big(\sqrt{\log(1/\varepsilon)}\big),$$
+i.e. extremely slowly — halving the error barely raises the degree. Greeks come from integrating a <em>likelihood-ratio weight</em> against the stored value, so $\partial V/\partial S$, second and third derivatives are all read off one stored function without re-simulating.</p>
+<p><strong>Results with numbers.</strong> On worst-of autocallables observed monthly on 3–5 assets, at <strong>1% accuracy</strong> Monte Carlo is &gt;10× cheaper for deltas (first order), second-order Greeks "go either way," and hp-FTT is up to <strong>two orders of magnitude</strong> cheaper for third-order Greeks. At <strong>0.1% accuracy</strong> hp-FTT is cheaper for every Greek tested, under both geometric Brownian motion and local volatility. For potential future exposure alone, Monte Carlo wins at 1% and hp-FTT at 0.1% — and a solve done for the Greeks yields the exposure almost for free.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Greeks</strong> — the derivatives of an option's price with respect to inputs like spot price and volatility, used to hedge.</li>
+<li><strong>Autocallable</strong> — a note that automatically redeems early and pays a coupon if underlying assets stay above set levels.</li>
+<li><strong>Potential future exposure</strong> — a high quantile (worst-case) of what a position could be worth at a future date.</li>
+<li><strong>Tensor train</strong> — a way to compress a high-dimensional array into a chain of small matrices, dodging the exponential "curse of dimensionality."</li>
+<li><strong>Likelihood-ratio weight</strong> — a reweighting trick that turns a derivative of a price into an expectation you can integrate against a stored function.</li>
+<li><strong>Local volatility</strong> — a model where volatility depends on the current price and time, generalizing constant-volatility Black–Scholes.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The method shines for high-order Greeks and high accuracy, but Monte Carlo remains cheaper for low-order Greeks at coarse accuracy, for notes observed rarely, and as the number of assets grows (rank cost grows with assets, the way sampling variance grows with each derivative). So it is a complement, not a replacement — a desk would reach for it specifically when third-order sensitivities or tight exposure tails matter. The demonstrated cases are GBM and local vol; stochastic-volatility or many-asset baskets would stress the rank budget.</p>
+<h3>Bottom Line</h3>
+<p>Store the pricing function once as a compressed, barrier-aware grid and you get every high-order Greek exactly — no dice, no noise — right where Monte Carlo hurts most.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Security and Derivative Pricing with Fast Regime Switches</h2>
+  <p class="meta">Peter Cotton<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-10-30 &middot; <a href="http://arxiv.org/abs/2611.00466v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.00466v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If market conditions flip between hidden "regimes" much faster than your option expires, you can price almost any standard derivative with a short Taylor-style correction to the no-switching price, instead of a heavy numerical solve.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Markets are not always the same beast. Sometimes they are calm, sometimes stormy; interest rates are sometimes rising, sometimes falling. A natural way to capture this is a <em>regime-switching model</em>: imagine a hidden switch that flips between a few states, and in each state your usual pricing model (its volatility, its drift, its rates) takes different values. The catch is that pricing a bond, a swaption, or an option on top of this switch usually means solving a coupled system of equations numerically for each instrument — doable, but fiddly and slow, and you must redo it for every product.</p>
+<p><strong>The idea.</strong> The author notices something simple and powerful: in many real markets the hidden switch flips <em>fast</em> compared with how long the contract lasts. A credit regime might change every few months, but you're pricing a 5-year instrument. When the switching is fast, the contract mostly "averages over" the regimes, with only a small correction for which regime you happen to start in. So instead of a full solve, you expand the answer in powers of the <em>mean holding time</em> — the average time the switch stays in one state before flipping. The leading term is the easy averaged price; the first correction captures the fact that you started in a particular regime. It's the pricing analogue of "if the weather changes every hour, your week-long trip only cares about the average weather plus a small nudge for today's."</p>
+<p><strong>What they found.</strong> This one linear system — the same equation with different "forcing" plugged in — prices a remarkable zoo of instruments: bonds, swaptions, caps, credit default swaps, Asian and digital options, and equity options under stochastic rates. The first correction has a clean, interpretable form borrowed from physics (a <em>Green–Kubo</em> term). And crucially, the author checks every numerical claim two ways: against QuantLib in the limit where regimes coincide, and against an independent referee with switching turned on. The code is public.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A hidden continuous-time Markov chain with $N$ states has generator matrix $Q$ (an $N\times N$ matrix whose off-diagonal entries are switching rates and whose rows sum to zero). Every parameter of an underlying affine or exponential-Lévy model is allowed to depend on the current state. For transform-based pricing, the key object is a vector $a(t) \in \mathbb{C}^N$ — one component per regime — collecting the characteristic-function / transform values conditional on the current state.</p>
+<p><strong>The key equation.</strong> The pricing problem reduces to a single linear ODE system
+$$a'(t) = \big(Q + \operatorname{diag} g(t)\big)\, a(t),$$
+where $a(t)$ is the vector of regime-conditional transform values, $Q$ is the chain's generator, $g(t)$ is a model-specific <em>forcing</em> (the per-regime characteristic exponent of the underlying), and $\operatorname{diag} g(t)$ places those exponents on the diagonal. Only $Q$ and $g$ are needed; swapping $g$ swaps the instrument.</p>
+<p><strong>The method.</strong> Write $Q = \varepsilon^{-1} \tilde Q$, where $\varepsilon$ is the mean holding time (small when switching is fast), and expand
+$$a(t) = a^{(0)}(t) + \varepsilon\, a^{(1)}(t) + \varepsilon^2 a^{(2)}(t) + \cdots$$
+to any order, with an <em>initial layer</em> (boundary-layer correction) that fixes up the starting regime. The leading term $a^{(0)}$ is the regime-averaged price; the first correction is identified as a <strong>Green–Kubo matrix</strong> built from the <em>group inverse</em> of $Q$ — a controlled pseudo-inverse that exists even though $Q$ is singular. Payoffs are then recovered by <strong>Gil–Pelaez inversion</strong> (a Fourier integral that turns a characteristic function into a probability/price), conditioned on the regime at expiry when the payoff depends on it. Path-dependent instruments (barrier, American, Bermudan) fall back to the coupled equations on a grid.</p>
+<p><strong>Results with numbers.</strong> The paper's validation is its headline "number": every numerical claim is reproduced against <strong>QuantLib</strong> in the degenerate limit where all regimes coincide (so the switching model must collapse to the textbook price), and against an <strong>independent referee</strong> implementation with switching active. The expansion is carried out to arbitrary order, so accuracy is controlled by how many terms in $\varepsilon$ you keep — the faster the switching, the fewer terms you need.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Regime-switching model</strong> — a model where parameters jump between a few hidden states driven by a Markov chain.</li>
+<li><strong>Generator $Q$</strong> — the matrix of instantaneous switching rates between regimes; its exponential gives transition probabilities.</li>
+<li><strong>Affine / exponential-Lévy model</strong> — tractable model families (Heston, variance-gamma, etc.) whose transforms are known in closed form.</li>
+<li><strong>Group inverse</strong> — a specific generalized inverse of a singular matrix that respects its null space, used to invert $Q$ "where it is invertible."</li>
+<li><strong>Green–Kubo matrix</strong> — a structure from statistical physics expressing a correction as an integrated autocorrelation; here it encodes the first switching correction.</li>
+<li><strong>Gil–Pelaez inversion</strong> — a Fourier-integral formula recovering a cumulative distribution (hence an option price) from its characteristic function.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The whole machinery leans on the switch being <em>fast</em> relative to the contract — when regimes are slow or comparable to maturity, you need many expansion terms and the elegance fades back toward a full solve. Path-dependent products (barriers, Americans) still require the grid, so the closed-form boost is mainly for European-style and transform-friendly instruments. That said, a single validated, public implementation covering bonds through equity options is genuinely useful plumbing for a quant library.</p>
+<h3>Bottom Line</h3>
+<p>One linear system, one small parameter: fast regime switches collapse a zoo of pricing problems into an averaged price plus a tidy physics-flavored correction.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Finite-horizon Optimal Consumption and Investment with Costly Income Adjustment</h2>
+  <p class="meta">Gugyum Ha, Junkee Jeon<br>
+    <span class="cat">math.OC</span> &middot; 2026-11-02 &middot; <a href="http://arxiv.org/abs/2611.03076v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.03076v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If boosting your future salary costs money and can't be undone, there's a sharp "don't bother" window right before retirement — and the math pins down exactly how wide it is and how your whole saving-and-investing plan bends around it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Picture someone working toward a fixed retirement date. They earn a salary, spend some of it, and invest the rest in a risky stock and a safe bond. Now add two real-world frictions. First, they can <em>pay</em> to permanently raise their income rate — think of buying into a higher-paying track, or an annuity-like income stream — but it's irreversible and costs a fixed price per unit of extra income. Second, they <em>cannot borrow against future salary</em> — the bank won't lend you money just because you'll earn it later. The question: how should they spend, invest, and when (if ever) should they pay to bump up their income?</p>
+<p><strong>The idea.</strong> Intuitively, buying more income only pays off if you'll collect it long enough to recoup the price. Near retirement there isn't enough runway, so there must be a final stretch where you'd never buy income no matter what. The authors prove this rigorously: there's a cutoff period right before retirement — whose length depends <em>only</em> on the interest rate and the price of income — in which no income is ever purchased. Before that period, the decision is governed by two moving "walls" in the space of wealth: a lower wall set by the no-borrowing rule, and an upper wall where it becomes worth paying to raise income. As you approach that final no-buy stretch, the upper wall shoots off to infinity (you'd need infinite wealth to justify buying). The heavy lifting is transforming this messy two-wall problem into a clean, solvable equation.</p>
+<p><strong>What they found.</strong> They deliver a complete, rigorous solution: both walls are infinitely smooth curves, the value function (the best achievable lifetime satisfaction) is a genuine classical solution everywhere, and optimality is verified. They also derive equations you can actually compute the walls from, prove the finite-horizon problem converges exponentially fast to the simpler "live forever" version, and find numerically that the income-purchase threshold is <strong>U-shaped</strong> in the time left to retirement.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Wealth $X_t$ evolves from investing in a risk-free asset (rate $r$) and a risky asset following geometric Brownian motion, plus labor income at rate $y_t$ received until retirement $T$, minus consumption $c_t$. The agent may irreversibly increase $y_t$ by purchasing income at constant price $p$ per unit of income flow, and faces the no-borrowing constraint $X_t \ge 0$ (cannot borrow against future income). The objective is to maximize expected discounted utility of consumption
+$$\sup_{c,\,\text{income purchases}} \; \mathbb{E}\!\left[\int_0^T e^{-\rho t}\, U(c_t)\, dt\right],$$
+where $U$ is a utility function (e.g. CRRA), $\rho$ the time-preference rate, and the supremum is over consumption and the irreversible income-purchase policy.</p>
+<p><strong>The key structure.</strong> A <em>pathwise</em> argument shows no income is purchased during a final interval $[T-\tau^\*, T]$ whose length $\tau^\*$ depends only on $r$ and $p$. On $[0, T-\tau^\*]$ the <strong>dual problem</strong> has two free boundaries: a lower one from the borrowing constraint and an upper one (the purchase boundary) that escapes to infinity as $t \to T-\tau^\*$. During the final interval the dual problem is a single <strong>obstacle problem</strong>; before it, a <strong>partial hodograph transformation</strong> straightens both free boundaries onto a fixed interval, converting the problem into a <em>quasilinear parabolic PDE with oblique boundary conditions</em>.</p>
+<p><strong>The method.</strong> On the fixed domain, comparison principles, explicit barrier functions, and regularity theory for quasilinear parabolic equations give existence, uniqueness, and smoothness; transforming back and gluing the two pieces yields <strong>global regularity</strong> — both free boundaries are $C^\infty$ and the value function is a classical solution at every positive wealth. A <em>dual budget process</em> verifies optimality (the candidate is truly optimal, not just a critical point). The free boundaries are also characterized by <strong>coupled Volterra integral equations</strong>, and the solution is shown to converge <strong>exponentially</strong> to the perpetual (infinite-horizon) problem under a scalar condition.</p>
+<p><strong>Results with numbers.</strong> The qualitative "numbers" are structural and sharp: the no-purchase window has an <em>explicit</em> length depending only on $r$ and $p$; convergence to the perpetual problem is <em>exponential</em> in the horizon; and the numerically computed purchase threshold is <strong>U-shaped in time-to-retirement</strong> — high far from retirement, dipping in the middle, rising again toward the cutoff.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Free boundary</strong> — an unknown curve, solved for as part of the problem, separating regions where you act differently (here: buy income vs. don't).</li>
+<li><strong>Obstacle problem</strong> — a PDE where the solution must stay above a given obstacle, with the contact set determined endogenously — classic for optimal-stopping/irreversible decisions.</li>
+<li><strong>Dual problem</strong> — a reformulation (via convex duality) that is often linear or simpler, whose solution maps back to the original optimal policy.</li>
+<li><strong>Hodograph transformation</strong> — a change of variables that swaps the roles of dependent and independent variables to flatten a moving boundary into a fixed one.</li>
+<li><strong>Quasilinear parabolic PDE</strong> — a heat-equation-type PDE whose coefficients depend on the solution itself.</li>
+<li><strong>Volterra integral equation</strong> — an integral equation with a variable upper limit, here characterizing the free boundaries over time.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean, fully rigorous piece of stochastic control, but it buys tractability with strong idealizations: income can only ever go <em>up</em>, at a <em>constant</em> price, with a single risky asset and classical utility. Real careers have income that falls, job loss, taxes, and lumpy opportunities, none of which fit the irreversible-one-way-purchase frame. The value is conceptual — a sharp characterization of when costly, irreversible income boosts are worthwhile — more than a plug-and-play retirement calculator.</p>
+<h3>Bottom Line</h3>
+<p>Costly, irreversible income comes with a mathematically exact expiry date — a final window before retirement where buying more simply never pays.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Long-term yields of short-rate models as Feynman-Kac ground states: a variational quantum eigensolver with single-setting energy estimation on two NISQ platforms</h2>
+  <p class="meta">Doyeol &quot;David&quot; Ahn<br>
+    <span class="cat">quant-ph</span> &middot; 2026-11-01 &middot; <a href="http://arxiv.org/abs/2611.01855v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.01855v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>The long-run interest rate baked into a bond model turns out to be the lowest energy level of a quantum-mechanics-style operator — so you can read it off a quantum computer the way physicists read ground-state energies.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Interest-rate models describe how the short-term rate wanders over time, and from them you price bonds and infer long-term yields (like the 30-year Treasury rate). For some models you get neat formulas; for realistic ones like Black–Karasinski you don't, and computing the <em>long-term</em> yield — the rate that very-long bonds settle toward — means grinding through hard numerics. The author asks a surprising question: can a quantum computer help, and is there a deep reason it should?</p>
+<p><strong>The idea.</strong> Here's the beautiful bridge. The equation that prices bonds (via the Feynman–Kac formula) can be rewritten as a <em>Schrödinger equation</em> — the central equation of quantum mechanics. In that language, the long-term yield is exactly the <strong>ground-state energy</strong>: the lowest possible energy of the system. Physicists have a standard quantum tool for ground-state energies — the <em>variational quantum eigensolver</em> (VQE) — which tunes a quantum circuit to push the measured energy as low as it can go. So pricing the long end of the yield curve becomes "find the ground state," a task quantum hardware is built for. A further gift: the relevant operator is <em>stoquastic</em>, meaning its ground state has all-positive weights, so you can estimate the energy from simple computational-basis measurements with a <em>single</em> measurement setting instead of nine — far less quantum overhead.</p>
+<p><strong>What they found.</strong> Calibrated monthly to the U.S. Treasury curve from 1985 to 2026, the model's long-term yield tracks the actual 30-year yield with a correlation of <strong>0.98</strong>. On two real quantum machines (an IBM superconducting chip and an IonQ trapped-ion system), after careful noise cleanup, four-qubit estimates land within <strong>23–125 basis points</strong> of the exact grid answer. And the single-setting trick beats the standard quantum approach by roughly <strong>10×</strong> in error, using one measurement setting instead of nine.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A short-rate model specifies the instantaneous rate $r_t$ by an SDE, e.g. Vasicek $dr_t = \kappa(\theta - r_t)\,dt + \sigma\, dW_t$, Cox–Ingersoll–Ross, or Black–Karasinski (lognormal, no closed form). The zero-coupon bond price is the Feynman–Kac expectation
+$$P(t,T) = \mathbb{E}\!\left[\exp\!\Big(-\!\int_t^T r_s\, ds\Big)\,\Big|\, r_t\right],$$
+where $P(t,T)$ is the price at time $t$ of a bond paying 1 at maturity $T$, and the expectation is over the risk-neutral dynamics of $r$.</p>
+<p><strong>The key equation.</strong> Feynman–Kac turns this into a parabolic PDE; separating variables, the long-maturity behavior is governed by the dominant eigenvalue of a Schrödinger-type operator
+$$\mathcal{H}\,\psi = E\,\psi, \qquad \mathcal{H} = -\tfrac{1}{2}\sigma^2\partial_{xx} + b(x)\partial_x + r(x),$$
+where $\mathcal{H}$ is the (transformed) generator plus the rate as a potential, $\psi$ is the eigenfunction, and the <strong>long-term yield equals the smallest eigenvalue</strong> $E_0$ (the ground-state energy). After a symmetrizing change of variables, $\mathcal{H}$ becomes a Schrödinger operator $-\tfrac{1}{2}\partial_{xx} + V(x)$ with an effective potential $V$.</p>
+<p><strong>The method.</strong> Discretize $\mathcal{H}$ on a grid, map it to a qubit Hamiltonian, and run a <strong>variational quantum eigensolver</strong>: a parameterized circuit $|\psi(\boldsymbol\vartheta)\rangle$ is optimized to minimize $\langle \psi(\boldsymbol\vartheta)|\mathcal{H}|\psi(\boldsymbol\vartheta)\rangle$, whose minimum is $E_0$. Because $\mathcal{H}$ is <strong>stoquastic</strong>, its ground state is nodeless/positive and $E_0$ is estimated from <strong>computational-basis samples with a single measurement setting</strong>. Hardware noise is tamed by a <strong>bit-flip deconvolution</strong> (tail set by a WKB criterion), <strong>readout error mitigation</strong>, and <strong>zero-noise extrapolation</strong>.</p>
+<p><strong>Results with numbers.</strong> In-sample correlation with the 30-year Treasury yield: <strong>0.98</strong> (1985–2026, monthly). On <code>ibm_cleveland</code>, four-qubit energy estimates fall within <strong>33–125 bp</strong> of the grid ground state across Vasicek/CIR/Black–Karasinski, and within <strong>23–67 bp</strong> for Treasury-calibrated parameters; IonQ Forte Enterprise reduces errors proportionally. The single-setting estimator deviates by the above, versus <strong>791–1,129 bp</strong> for a standard Pauli-measurement VQE — about <strong>10× smaller error with one setting instead of nine</strong>. An on-device VQE converges from <strong>4,939 bp down to 130 bp</strong>.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Short-rate model</strong> — a stochastic model for the instantaneous interest rate, from which bond prices and the whole yield curve follow.</li>
+<li><strong>Feynman–Kac formula</strong> — the bridge equating the solution of a PDE to an expected value of a stochastic process (and vice versa).</li>
+<li><strong>Ground-state energy</strong> — the lowest eigenvalue of a quantum operator; here it equals the long-term yield.</li>
+<li><strong>Variational quantum eigensolver (VQE)</strong> — a quantum algorithm that tunes a circuit to minimize measured energy, approximating the ground state.</li>
+<li><strong>Stoquastic operator</strong> — a Hamiltonian with non-positive off-diagonal terms, whose ground state is positive and sign-problem-free, enabling simple sampling.</li>
+<li><strong>Basis point (bp)</strong> — one hundredth of a percentage point; 100 bp = 1% of yield.</li>
+<li><strong>Zero-noise extrapolation</strong> — a mitigation trick that runs circuits at amplified noise and extrapolates back to the zero-noise limit.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a proof of concept on four qubits, and the errors (tens to &gt;100 bp) are large for a practitioner who can already solve these 1-D problems exactly on a laptop in microseconds — classical grids win decisively today. The real contribution is conceptual (yields <em>are</em> ground-state energies) plus a genuinely clever single-setting estimator exploiting stoquasticity. Whether it ever beats classical methods hinges on scaling to high-dimensional rate models where grids choke, which this paper does not demonstrate.</p>
+<h3>Bottom Line</h3>
+<p>Long-term interest rates are ground-state energies in disguise — and a quantum computer can already find them, even if your laptop still does it better.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Robust distortion riskmetrics over Bregman--Wasserstein balls and their intersections</h2>
+  <p class="meta">Peng Liu, Steven Vanduffel, Carole Bernard<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-11-02 &middot; <a href="http://arxiv.org/abs/2611.04021v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.04021v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you only half-trust your estimate of how bad losses could get, this paper computes the single worst-case risk number across all the plausible loss distributions near your guess — and does it with a clean one-dimensional formula.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every risk number — Value-at-Risk, Expected Shortfall, and their cousins — is computed from a <em>distribution</em> of possible losses. But you never know the true distribution; you estimate it from limited, noisy data. So a natural worry: how wrong could my risk figure be if the real distribution is a bit different from my estimate? Regulators and risk managers want the <em>robust</em> answer — the worst risk value over all distributions "close to" my best guess — so they aren't blindsided by a slightly-off model. A subtlety that matters in finance: being wrong on the <em>downside</em> (losses bigger than expected) is far scarier than being wrong on the upside, so the notion of "close" should be allowed to penalize the two directions differently.</p>
+<p><strong>The idea.</strong> The usual way to measure "closeness" between distributions, squared Wasserstein distance, treats over- and under-shoots symmetrically. The authors instead use <em>Bregman–Wasserstein</em> divergences, a flexible family that can penalize upward and downward deviations asymmetrically — matching the asymmetry of real risk. They then ask: over a "ball" of distributions within a chosen Bregman–Wasserstein distance of my reference, what is the worst value of my risk measure? And they handle very general risk measures (<em>distortion riskmetrics</em>) — a broad class that need not even be monotone or normalized. Remarkably, the scary-looking infinite-dimensional optimization (over all distributions) collapses to a <strong>one-dimensional</strong> problem you can actually solve. They even extend it to <em>intersections</em> of several such balls — useful when multiple stakeholders each have their own "acceptable" region and you need a model all of them tolerate.</p>
+<p><strong>What they found.</strong> A clean dual formula for the worst-case value; an explicit description of the worst-case distribution (when the constraint binds) via a <em>least concave majorant</em>; and, for well-behaved cases, the optimal quantile function obtained by an <em>isotonic (monotone) projection</em>. They illustrate everything numerically and extend the whole picture to intersecting uncertainty sets.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A loss has reference distribution with quantile function $F^{-1}$. A <strong>distortion riskmetric</strong> is
+$$\rho_g(X) = \int_0^1 F_X^{-1}(u)\, dg(u),$$
+where $g:[0,1]\to\mathbb{R}$ is a <em>generalized distortion function</em> of bounded variation with $g(0)=0$ and suitable endpoint regularity — crucially <strong>not required</strong> to be monotone, normalized, or upper semicontinuous (so this covers Expected Shortfall, range-VaR, and many more). The uncertainty set is a <strong>Bregman–Wasserstein ball</strong>
+$$\mathcal{B} = \{\, Q : D_\phi^{W}(Q, P) \le \delta \,\},$$
+where $D_\phi^{W}$ is the Bregman–Wasserstein divergence generated by a convex function $\phi$ (which, unlike the symmetric squared-$2$-Wasserstein case, can weight upward and downward deviations differently), $P$ is the reference distribution, and $\delta$ the radius.</p>
+<p><strong>The key result.</strong> For strictly convex generators $\phi$ satisfying a two-sided $p$-growth condition, the worst-case value admits a <strong>one-dimensional dual representation</strong>:
+$$\sup_{Q \in \mathcal{B}} \rho_g(Q) = \inf_{\lambda > 0}\; \Big\{\, \lambda\delta + \textstyle\int_0^1 \Psi_\lambda(u)\, du \,\Big\},$$
+schematically — an outer minimization over a single Lagrange multiplier $\lambda \ge 0$ (the shadow price of the divergence budget $\delta$), with $\Psi_\lambda$ an explicitly computable integrand built from $g$, $\phi$, and the reference quantile. When a <em>positive</em> $\lambda$ makes the divergence constraint bind, the optimizer is a <strong>unique quantile function identified through a least concave majorant</strong> of a transformed objective.</p>
+<p><strong>The method.</strong> The infinite-dimensional problem over distributions is reduced via <strong>convex duality</strong> to the scalar problem above. For absolutely continuous generalized distortion functions the worst-case quantile is characterized by an <strong>isotonic projection</strong> (projecting onto the cone of non-decreasing functions — enforcing that a quantile function must be monotone). The authors also treat shape constraints such as <strong>unimodality</strong>, and extend to <strong>intersections of Bregman–Wasserstein balls</strong>, characterizing models simultaneously acceptable to several decision-makers.</p>
+<p><strong>Results with numbers.</strong> The contribution is structural rather than a benchmark score: the headline is the reduction of a worst-case-over-all-distributions problem to a <em>single</em> scalar optimization with an explicitly constructed optimizer (via least concave majorant / isotonic projection), valid for non-monotone, non-normalized distortion functions — a strict generalization of prior results that required symmetric Wasserstein balls and well-behaved (monotone) distortions. Numerical illustrations confirm the dual formula and the shape of the worst-case quantile.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Distortion riskmetric</strong> — a risk measure formed by integrating the loss quantile against a weighting ("distortion") function; includes VaR and Expected Shortfall.</li>
+<li><strong>Bregman–Wasserstein divergence</strong> — a distance-like measure between distributions built from a convex function, able to penalize up- and down-deviations asymmetrically.</li>
+<li><strong>Worst-case / robust value</strong> — the largest risk value over all distributions inside an uncertainty set around your estimate.</li>
+<li><strong>Convex duality</strong> — reformulating a hard constrained optimization as a simpler problem over Lagrange multipliers.</li>
+<li><strong>Least concave majorant</strong> — the smallest concave function lying above a given one; here it pins down the worst-case quantile.</li>
+<li><strong>Isotonic projection</strong> — projecting a function onto the set of monotone functions, enforcing the quantile's required shape.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is elegant, rigorous robust-finance theory, but it stays at the level of a single loss distribution and a chosen divergence/radius — it doesn't tell you how to <em>pick</em> the radius $\delta$ or the generator $\phi$ from data, which is where practice actually bites. Multivariate portfolio risk (dependence across many assets) isn't the object here. For a risk team it's a principled worst-case calculator once you've committed to an uncertainty model, not an end-to-end estimation pipeline.</p>
+<h3>Bottom Line</h3>
+<p>Half-trust your loss model, and robust risk is no longer a leap of faith: the worst case over all nearby — even lopsided — distributions shrinks to one solvable equation.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
