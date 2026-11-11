@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 11, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 11, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Adjoint Kernel Sensitivity of the Rough Heston Characteristic Exponent</h2>
+  <p class="meta">Carlos Escudero, Francisco J. Luguera-Parúas, Miguel Sama<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-08 &middot; <a href="http://arxiv.org/abs/2611.11652v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.11652v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you tweak the "memory" that a rough-volatility model uses to price options, this paper tells you — exactly, and cheaply — how much the price will move.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When a bank sells you an option (a contract that pays off if, say, a stock ends up above some level), it needs a model of how jumpy that stock's volatility is. Markets turn out to have a strange feature: volatility is <em>rough</em> — it wiggles far more erratically than classical models assumed, and it has long <em>memory</em>, meaning a shock to volatility today keeps echoing for a long time. Models that capture this, like the "rough Heston" model, price options much better. But they are expensive to run, so in practice people replace the exact memory with a shortcut: a weighted sum of a handful of simple decaying factors. The worry is obvious — if you fake the memory, how wrong are your prices?</p>
+<p><strong>The idea.</strong> Imagine the model's memory as a dimmer-switch profile: how strongly the past influences the present at each time lag. The authors ask: if I nudge that profile a little — brighten the influence of lags around "three months ago," say — how much does the thing I actually need for pricing shift? Rather than re-pricing everything for every possible nudge (slow), they find a single "sensitivity map" you compute once, which already contains the answer for <em>every</em> direction you might nudge in. It's like having a weather map that tells you the effect of a gust from any direction, instead of re-running the forecast once per wind direction.</p>
+<p><strong>What they found.</strong> They prove this sensitivity map exists, is well-behaved (continuous), and can be written as an integral against one reusable function. Crucially, it works on exactly the restricted family of memory profiles people actually use in practice (the fractional kernel and its multi-factor approximations), even though that family is mathematically awkward — it has "empty interior," meaning you can't wiggle freely in all directions without leaving it. Their numerics show how piling perturbation mass at short versus long lags changes the response.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> In the rough Heston model the variance process is driven by a <em>Volterra</em> equation with a memory kernel $K$. For Fourier-based option pricing, the key object is the <strong>characteristic exponent</strong>, obtained from the solution $\psi$ of a <em>Volterra–Riccati</em> equation. Write the exponent-generating functional as $\mathcal{L}_T(K,z)$, where $T$ is the option maturity and $z$ is the Fourier transform variable (complex, living on a strip). The map $K \mapsto \mathcal{L}_T(K,z)$ is what pricing depends on; the question is its derivative in $K$.</p>
+<p><strong>The key equation.</strong> The Volterra–Riccati equation has the schematic form
+$$\psi(t,z) = \int_0^t K(t-s)\,R\big(z,\psi(s,z)\big)\,ds,$$
+where $\psi(t,z)$ is the Riccati solution at time $t$, $K$ is the memory kernel, and $R$ is the quadratic Riccati nonlinearity $R(z,\psi) = \tfrac12(z^2-z) + \text{(mean-reversion and vol-of-vol terms in }\psi)$. The paper's central result is a representation of the <strong>Fréchet derivative</strong> of $\mathcal{L}_T$ with respect to $K$, measured in $L^1$ (the space of absolutely integrable kernels):
+$$D_K \mathcal{L}_T(K,z)[h] = \int_0^T B_K(u,z)\,h(u)\,du,$$
+where $h$ is the kernel perturbation (the "nudge"), and $B_K(u,z)$ is a single <strong>continuous sensitivity kernel</strong> that does not depend on the direction $h$. So one function $B_K$ answers all perturbation questions.</p>
+<p><strong>The method.</strong> $B_K$ is obtained by solving a <em>backward linear Volterra equation</em> — the adjoint (transpose) of the equation that governs how a perturbation propagates forward. This is the Volterra analogue of adjoint/"backpropagation" methods: solve one backward equation, read off sensitivities to every input at once. They show $\mathcal{L}_T$ admits a local <strong>real-analytic extension</strong> jointly in $(h,z)$, which is what licenses differentiation; on the structural kernel class they get <strong>Hadamard directional differentiability</strong> and a first-order expansion with a <strong>quadratic $L^1$-remainder</strong> — i.e. error shrinks like $\|h\|_{L^1}^2$ — uniformly on compact sets of $z$.</p>
+<p><strong>Results with numbers.</strong> This is a theory paper, so the "results" are the guarantees: exact first-order sensitivity, remainder of order $\|h\|^2$, and a reusable $B_K$ that <em>also</em> yields derivatives with respect to the multi-factor weights and decay rates — exactly the knobs practitioners calibrate. Numerical experiments at reference multi-factor kernels confirm the finite-resolution implementation and show the lag-distribution effect.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Memory kernel $K$</strong> — a function saying how strongly a shock at lag $u$ still influences the process now.</li>
+<li><strong>Characteristic exponent</strong> — the quantity whose Fourier transform gives option prices; "knowing" it is "knowing" prices.</li>
+<li><strong>Volterra–Riccati equation</strong> — a quadratic integral equation (not a plain ODE) whose solution encodes the model, with memory baked in via $K$.</li>
+<li><strong>Fréchet derivative</strong> — the rigorous notion of a derivative when the input is itself a function, not a number.</li>
+<li><strong>Adjoint method</strong> — solving one backward equation to get sensitivities to all inputs at once, the trick behind backpropagation.</li>
+<li><strong>$L^1$ / Hadamard differentiability</strong> — $L^1$ measures kernels by total absolute size; Hadamard differentiability is a directional derivative robust enough to survive the awkward "empty-interior" kernel family.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a clean first-order (linear) sensitivity result; real recalibrations can be large, where the quadratic remainder stops being negligible and you'd want second-order terms. It assumes model parameters and the input variance curve are held fixed, so it isolates kernel risk only — useful for "how wrong is my memory approximation?" but not a full calibration-error budget. For a quant desk it's a principled tool for choosing how many factors to keep and where to place them.</p>
+<h3>Bottom Line</h3>
+<p>Rough-volatility models have a memory, and this paper hands you its exact price tag — computed once, good in every direction.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Is price-impact decay statistically identifiable by propagator estimation? Diffusive prices force the inferred kernel to be transient and fine-tuned</h2>
+  <p class="meta">Shunta Fujiwara, Yuki Sato, Kiyoshi Kanazawa<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-11-07 &middot; <a href="http://arxiv.org/abs/2611.10574v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.10574v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A popular way to measure how fast a trade's price impact fades is proven to be an optical illusion: it always reports "fading," even when the true impact never fades at all.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy a lot of a stock, you push its price up — that's <em>market impact</em>. A central question for anyone trading at size is: does that push fade away afterward (so you only pay temporarily), or does it stick permanently? There's a famous puzzle wrapped around this. The <em>stream</em> of buy and sell orders is strongly predictable — it has "long memory," so a buy today makes buys tomorrow more likely. If each buy left a lasting price bump, all that correlated buying should make prices trend predictably. Yet prices look like a coin-flip random walk ("diffusive"). The leading reconciliation, the <strong>propagator model</strong>, says: impact <em>does</em> decay, and it decays at just the right rate to cancel the order-flow memory — a delicate balancing act. Researchers have fit this model to data and reported the balance holds. Reassuring.</p>
+<p><strong>The idea.</strong> The authors say: not so fast — that reassurance may be baked into the measuring tape itself. Their claim is a <em>no-go theorem</em>: the standard procedure for inferring the impact-decay curve from data <strong>cannot</strong> actually tell whether impact decays or not. If prices are diffusive, the procedure will hand you back a nicely-decaying, finely-tuned curve <em>regardless of the truth</em> — even if, in reality, every trade's impact is permanent and never decays at all. The "fine-tuned decay" everyone celebrates is a fingerprint of the estimation math, not evidence about markets.</p>
+<p><strong>What they found.</strong> They prove two things about the inferred impact curve (the "propagator"): (i) it is <em>necessarily transient</em> — it must look like it decays — even when the true impact is permanent; and (ii) under mild conditions it decays with a specific exponent fixed <em>entirely by the order-flow correlation</em>, with no input from the real impact mechanism. Then they build an explicit, exactly-solvable toy market where impact is provably permanent, run the standard estimator on it, and watch it confidently report a decaying impact that isn't there.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model the price change as a convolution of past order-flow signs against an impact (propagator) kernel. Let $\varepsilon_t \in \{+1,-1\}$ be the sign of the order at time $t$ (buy/sell), with <strong>long-memory</strong> autocorrelation $C(\ell) = \mathbb{E}[\varepsilon_t \varepsilon_{t+\ell}] \sim \ell^{-\gamma}$ for some $0<\gamma<1$. The price increment is
+$$\delta p_t = \sum_{\ell \ge 0} G(\ell)\,\varepsilon_{t-\ell} + \text{noise},$$
+where $G(\ell)$ is the <strong>propagator</strong> — the impact of a trade $\ell$ steps ago that we want to infer, and $G(\infty)>0$ would mean permanent impact. </p>
+<p><strong>The key step.</strong> Given the measured response and correlation functions, $G$ is recovered by <strong>Wiener–Hopf deconvolution</strong> — solving an equation of the form
+$$R(\ell) = \sum_{m} G(m)\,C(\ell-m),$$
+for $G$, where $R(\ell) = \mathbb{E}[\delta p_{t}\,\varepsilon_{t-\ell}]$ is the measured price-sign response. The diffusivity constraint — that the integrated price autocorrelation vanishes so prices don't trend — imposes a condition linking $G$ and $C$. The authors prove that under this constraint the deconvolution <em>forces</em> the solution $\hat G(\ell)$ to be transient ($\hat G(\infty)=0$) and to decay with exponent tied to $\gamma$ (the <strong>fine-balance exponent</strong>), independent of whether the generating $G$ was permanent.</p>
+<p><strong>The method.</strong> Universal theorems on Wiener–Hopf solutions under long-memory inputs do the work; the diffusivity requirement selects the transient branch. The clincher is a <strong>null model</strong>: an exactly solvable market that keeps the realistic features — order splitting (big orders chopped into child orders) and the empirical <strong>square-root law</strong> (impact of a metaorder grows like the square root of its size) — but whose per-trade impact is <em>strictly permanent</em>. Running the estimator on this model returns a spurious fine-tuned decay.</p>
+<p><strong>Results with numbers.</strong> The headline is qualitative but sharp: <em>identifiability fails</em>. Two proven consequences — (i) inferred propagator is transient even for permanent true impact; (ii) its decay exponent is fixed by the order-flow autocorrelation alone — plus a worked counterexample. They note the result extends to <strong>nonlinear</strong> propagator estimation, since that too is Wiener–Hopf type whenever metaorders have long memory.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Market impact / propagator $G(\ell)$</strong> — how much a trade $\ell$ steps ago still moves the price now.</li>
+<li><strong>Permanent vs. transient impact</strong> — whether a trade's price push lasts forever ($G(\infty)>0$) or fades to zero.</li>
+<li><strong>Long memory</strong> — correlations that decay so slowly (like $\ell^{-\gamma}$) their sum diverges; order flow has this.</li>
+<li><strong>Diffusive prices</strong> — prices that behave like an unpredictable random walk, with no exploitable trend.</li>
+<li><strong>Wiener–Hopf deconvolution</strong> — a classical method for "unmixing" a convolution to recover the kernel $G$ from measured correlations.</li>
+<li><strong>Square-root law</strong> — the empirical regularity that a large order's price impact scales as the square root of its size.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The theorem is about what you <em>cannot</em> learn from one specific (widely used) estimation route — it doesn't say impact is permanent, only that propagator estimation can't adjudicate. That's a genuinely useful negative result, but it leaves open which <em>other</em> measurements could settle decay-vs-permanence. Practitioners should stop reading "the fitted propagator decays" as evidence about real impact; theorists get a clean cautionary tale about identifiability under long memory.</p>
+<h3>Bottom Line</h3>
+<p>Fitting a decaying impact curve and concluding impact decays is circular — the decay was in the ruler, not the market.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Polynomial-Preserving Processes and Volatility Modelling in Discrete Time</h2>
+  <p class="meta">Maciej Augustyniak, Alexandru Badescu, Zekun Zhang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-07 &middot; <a href="http://arxiv.org/abs/2611.10928v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.10928v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A new family of discrete-time volatility models that are flexible enough to fit real markets yet keep their moments computable by plain matrix algebra — and they price options noticeably better.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Option prices depend on how volatile an asset will be, and volatility itself is random and changes over time. Modelers face a constant tension: rich, realistic models (capturing things like the "leverage effect" — volatility jumps when prices fall — and "vol-of-vol," the volatility of volatility) are usually hard to compute with, while computable models are usually too simple to fit the data. You'd like both: realistic <em>and</em> tractable.</p>
+<p><strong>The idea.</strong> The authors build volatility models on a property called <strong>polynomial preservation</strong>. The intuition: pick models where, if you feed in a polynomial of the current state, the model's one-step-ahead <em>expectation</em> is again a polynomial of the same degree. When that holds, computing averages, variances, and cross-correlations of returns and variance over any horizon collapses into multiplying a fixed matrix by itself — like a calculator that stays exact no matter how many steps ahead you look, instead of drifting into approximation. It's the discrete-time cousin of "polynomial diffusions," a known tractable class in continuous time, but built to live in the everyday world of daily or weekly data.</p>
+<p><strong>What they found.</strong> They introduce two new model classes that <em>contain</em> popular existing models as special cases (so you lose nothing) but add flexible leverage, vol-of-vol, and non-Gaussian shocks. They prove that, properly rescaled, these discrete models converge to known continuous-time polynomial diffusions and jump-diffusions — tying the two worlds together. Empirically, on 27 years of S&amp;P 500 returns and a huge panel of options, the new models cut option-pricing error (measured on implied volatility) by roughly <strong>8% to 41%</strong> versus the standard models they generalize.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $R_t$ be the log-return and $V_t$ the (latent) variance over period $t$, on a discrete time grid. The dynamics are specified so that the pair $(R_t, V_t)$ is <strong>polynomial-preserving</strong>: there is a finite-dimensional vector of basis monomials $\mathbf{p}(R,V) = (1, R, V, R^2, RV, V^2, \ldots)^\top$ up to degree $n$ such that conditional expectations map this basis to itself linearly.</p>
+<p><strong>The key equation.</strong> The defining property is a <strong>matrix recursion</strong> for conditional moments:
+$$\mathbb{E}\big[\mathbf{p}(R_{t+1},V_{t+1}) \,\big|\, \mathcal{F}_t\big] = A\,\mathbf{p}(R_t, V_t),$$
+where $\mathbf{p}(\cdot)$ is the monomial basis vector up to degree $n$, $A$ is a fixed square <strong>moment matrix</strong> of coefficients, and $\mathcal{F}_t$ is the information available at time $t$. Iterating gives any multi-step moment in closed form:
+$$\mathbb{E}\big[\mathbf{p}(R_{t+h},V_{t+h}) \,\big|\, \mathcal{F}_t\big] = A^{h}\,\mathbf{p}(R_t,V_t),$$
+so an $h$-step-ahead moment is just the matrix power $A^h$ applied to today's state — exact, no simulation. Serial cross-moments of returns and variance follow from the same $A$.</p>
+<p><strong>The method.</strong> Model estimation uses these exact moments (and the implied likelihood/moment conditions) to fit returns; derivative pricing exploits the tractable moment/transform structure. The <strong>weak-convergence</strong> results are the theoretical backbone: under two scaling regimes, the discrete recursion $A^h$ converges to the continuous-time <strong>matrix exponential</strong> $e^{\mathcal{G}t}$ of a polynomial-diffusion (or jump-diffusion) generator $\mathcal{G}$, and the discrete polynomial moments converge to their continuous counterparts. This is what guarantees the discrete models are legitimate approximations of well-understood continuous models.</p>
+<p><strong>Results with numbers.</strong> On S&amp;P 500 returns (1996–2023) and a large option panel, the proposed specifications improve return fit and reduce <strong>mean weekly implied-volatility RMSE by about 8–41%</strong> relative to their nested benchmarks, with the exact gain depending on the chosen variance dynamics and innovation distribution.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Polynomial preservation</strong> — the property that expectations of polynomials of the state stay polynomials of the same degree, keeping everything matrix-computable.</li>
+<li><strong>Moments / serial cross-moments</strong> — averages of powers ($\mathbb{E}[R^2]$, etc.) and of products across time ($\mathbb{E}[R_t V_{t+1}]$) that pin down a distribution and its dynamics.</li>
+<li><strong>Leverage effect</strong> — the empirical tendency of volatility to rise when prices fall.</li>
+<li><strong>Vol-of-vol</strong> — the volatility of the volatility process itself; needed to match option-price curvature.</li>
+<li><strong>Weak convergence</strong> — convergence of whole probability distributions, so the rescaled discrete model behaves like the continuous one.</li>
+<li><strong>Matrix exponential $e^{\mathcal{G}t}$</strong> — the continuous-time analogue of raising the moment matrix to a power; the solution operator of the limiting diffusion.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Polynomial preservation buys tractability by constraining the model's shape, so some genuinely nonlinear real-world dynamics may still fall outside the class. The 8–41% range is wide and conditional on the benchmark, and gains measured on implied-vol RMSE don't automatically translate into trading profit after transaction costs. Still, for a pricing desk that already runs nested GARCH-style models, this is a low-friction, computationally honest upgrade.</p>
+<h3>Bottom Line</h3>
+<p>Keep the matrix algebra exact and the volatility dynamics rich, and option prices get meaningfully more accurate — no simulation required.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Deep Learning for Operator Maps in Optimal Liquidation</h2>
+  <p class="meta">Ryan Donnelly, Luca Galimberti, Brian Healy, Siqi Zhang<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-11-10 &middot; <a href="http://arxiv.org/abs/2611.14245v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.14245v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>This paper proves that the best way to unwind a big position changes <em>smoothly</em> as your assumptions about price impact change — which is exactly the green light needed to let a neural network learn that strategy once and reuse it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose a fund must sell a huge block of shares. Dump it all at once and you crater the price against yourself; dribble it out too slowly and you risk the price drifting away while you wait. This is <strong>optimal liquidation</strong>: find the selling schedule that balances impact cost against timing risk. The twist is that your optimal schedule depends on <em>how</em> your trading moves the price — and that "impact" isn't a single number. Modern models use a <strong>transient impact kernel</strong>: a whole curve describing how much a trade now dents the price later and how that dent fades. You rarely know this curve exactly, and re-solving the full optimization every time you revise it is slow.</p>
+<p><strong>The idea.</strong> Instead of re-solving from scratch, learn the <em>map</em> from "impact assumptions" to "optimal strategy" — a single function you can evaluate instantly. But a learned map is only trustworthy if the true map is well-behaved: if a tiny change in assumptions could flip the optimal strategy wildly, no network could reliably approximate it. So the authors first <em>prove</em> the map is <strong>locally Lipschitz</strong> — small changes in the model parameters cause only proportionally small changes in the optimal strategy. That smoothness is the mathematical permission slip for the machine-learning step. They then engineer how to feed an infinite-dimensional impact <em>curve</em> into a finite network, generate training data, and measure what it costs you to get the impact curve wrong.</p>
+<p><strong>What they found.</strong> The optimal strategy depends continuously (Lipschitz-continuously) on the temporary-impact parameter, the transient-impact kernel, and the fundamental price process. A neural network taking these as inputs reproduces the optimal liquidation strategy accurately, and — usefully — the trained net lets them <em>quantify the financial cost of misspecifying the impact kernel</em>, i.e. how many dollars you lose by trading optimally for the wrong kernel.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Build on the optimal-execution solution of Abi Jaber and Neuman. The trader holds inventory $Q_t$ (shares left to sell) and trades at rate $u_t = -\dot{Q}_t$. The execution price is the fundamental price $S_t$ minus a <strong>transient impact</strong> term driven by a kernel $G$:
+$$\tilde{S}_t = S_t - \eta\,u_t - \int_0^t G(t-s)\,u_s\,ds,$$
+where $\tilde S_t$ is the price you actually transact at, $\eta \ge 0$ is the <strong>temporary (instantaneous) impact</strong> coefficient, $u_s$ is the trading rate at time $s$, and $G(\cdot)$ is the <strong>transient impact kernel</strong> measuring how past trading still weighs on the current price. The trader minimizes expected cost plus risk over strategies $u$.</p>
+<p><strong>The key result.</strong> Let $\Theta = (\eta, G, S)$ denote the model parameters (impact coefficient, kernel, price process) and let $u^\star(\Theta)$ be the resulting optimal strategy. The paper proves
+$$\big\| u^\star(\Theta_1) - u^\star(\Theta_2) \big\| \;\le\; L \,\big\| \Theta_1 - \Theta_2 \big\|$$
+for parameters in a neighborhood, where $L$ is a finite <strong>Lipschitz constant</strong> and $\|\cdot\|$ are appropriate norms (the kernel lives in a function space). In words: the <strong>solution map</strong> $\Theta \mapsto u^\star(\Theta)$ is locally Lipschitz continuous.</p>
+<p><strong>The method.</strong> Three engineering pieces make this learnable: (1) a procedure to <strong>sample</strong> plausible transient impact kernels $G$ to build training data; (2) a <strong>projection</strong> of the infinite-dimensional kernel onto a finite-dimensional representation that a network can ingest; and (3) a <strong>dimension reduction</strong> exploiting the structural relationship between inventory $Q_t$ and the optimal trade signal. The network is then trained to approximate $u^\star(\Theta)$; the Lipschitz theorem is the approximation-theory justification (smooth target $\Rightarrow$ learnable with controllable error).</p>
+<p><strong>Results with numbers.</strong> This is primarily a structural/approximation result, so the quantitative payoff is the demonstrated accuracy of the trained net against the known optimal strategy, plus a <strong>misspecification cost analysis</strong> — using the net to compute how much extra execution cost you incur when the kernel you assumed differs from the true one.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal liquidation</strong> — the schedule for selling a large position that best trades off price impact against timing risk.</li>
+<li><strong>Transient impact kernel $G$</strong> — a curve giving how a past trade still presses on the current price and how that pressure decays.</li>
+<li><strong>Temporary impact $\eta$</strong> — the instantaneous cost of trading faster, felt only at the moment of the trade.</li>
+<li><strong>Solution map</strong> — the function sending model assumptions to the resulting optimal strategy.</li>
+<li><strong>Lipschitz continuity</strong> — a strong smoothness guarantee: output changes are bounded by a constant times input changes.</li>
+<li><strong>Operator / function-space projection</strong> — compressing an infinite-dimensional object (the kernel) into finitely many numbers a network can read.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline is a <em>continuity</em> theorem, not a trading edge — it licenses the ML approximation but doesn't by itself beat existing solvers; the value is speed and the ability to price kernel-misspecification risk. It inherits the linear-impact, continuous-trading assumptions of the underlying model, which real order books (discrete, with latency and adverse selection) only partly respect. For a desk, the practical win is a fast surrogate that flags how fragile your execution plan is to getting the impact curve wrong.</p>
+<h3>Bottom Line</h3>
+<p>Prove the optimal strategy bends smoothly with your assumptions, and you've earned the right to let a neural net learn it once and trade it everywhere.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Nonzero-Sum Stochastic Exit Games with Singular Belief Dynamics</h2>
+  <p class="meta">Yukun Cao, Jan Palczewski<br>
+    <span class="cat">math.OC</span> &middot; 2026-11-10 &middot; <a href="http://arxiv.org/abs/2611.13841v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.13841v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>When two rival firms must each decide <em>when</em> to quit a shrinking market, and neither knows how desperate the other is, the math predicts strange collective endings — both bailing out at once, or the market suddenly dying altogether.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Picture two companies sharing a declining market — say two ferry operators on a route losing passengers to a new bridge. Each would do better alone (as a monopoly) than sharing (as a duopoly), but running at a loss while you wait for the other to blink is painful. So each faces a timing problem: <em>when do I exit?</em> And there's a catch — each firm privately knows its own "exit value" (what it's worth to walk away: maybe it can redeploy its boats elsewhere), but it does <em>not</em> know the other's. So each is constantly reading the other's behavior for clues: "you're still here — maybe you're stronger than I thought." This is a game of attrition under <strong>asymmetric information</strong>.</p>
+<p><strong>The idea.</strong> The authors model each firm's belief about its rival as a probability that updates over time as the rival keeps <em>not</em> exiting. Normally such belief-updating is smooth. But here there are <em>two</em> exit decisions — quit the duopoly, and later quit the monopoly — and allowing the monopoly exit makes the belief process behave <strong>singularly</strong>: it can jolt rather than drift, and it can't be written as a tidy system of stochastic differential equations. That's the technical heart: they build the belief process as a carefully controlled <em>limit</em> of well-behaved approximations, because the direct object is too wild to write down. Then they look for a stable outcome — a <strong>Nash equilibrium</strong> — where neither firm regrets its strategy given the other's.</p>
+<p><strong>What they found.</strong> They construct a symmetric equilibrium with two surprising features that vanish if you <em>don't</em> allow monopoly exit. <strong>Market collapse:</strong> both firms can abandon the market in finite time, leaving no one. <strong>Clustering:</strong> firms with <em>different</em> private exit values can nonetheless find it optimal to exit at the <em>same</em> instant — a bunching you wouldn't expect from heterogeneous players. These are genuinely new qualitative phenomena for this class of games.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Two players $i \in \{1,2\}$ in a duopoly. Profit flows are driven by a general one-dimensional <strong>diffusion</strong> $X_t$ (the market's state, e.g. demand), with dynamics
+$$dX_t = \mu(X_t)\,dt + \sigma(X_t)\,dW_t,$$
+where $X_t$ is the state, $\mu$ its drift, $\sigma$ its volatility, and $W_t$ a Brownian motion. Each firm $i$ has a <strong>privately observed exit value</strong> $\theta_i$ (its type), unknown to the rival. Each chooses a duopoly-exit time $\tau_i$ and, if it ends up alone, a monopoly-exit time; strategies must be adapted to the information actually available (own type plus observed history).</p>
+<p><strong>The key objects.</strong> Firm $i$'s <strong>belief</strong> about its rival is a process $\pi_t = \mathbb{P}(\text{rival still active} \mid \mathcal{F}_t)$, updated as time passes without the rival exiting. Allowing monopoly exit makes $\pi_t$'s dynamics <strong>singular</strong> — not expressible as $d\pi_t = (\cdots)dt + (\cdots)dW_t$ — so the authors define it as a limit of regular approximations $\pi_t^{(n)} \to \pi_t$. The equilibrium is characterized by <strong>hitting times</strong>: the duopoly exit occurs when the belief process hits a threshold,
+$$\tau = \inf\{t \ge 0 : \pi_t \le \pi^\*\},$$
+where $\pi^\*$ is an equilibrium cutoff belief, while the monopoly exit is a hitting time of the underlying diffusion $X_t$. A <strong>symmetric Nash equilibrium</strong> is a pair of such strategies from which neither player gains by deviating.</p>
+<p><strong>The method.</strong> Stochastic control and optimal-stopping under incomplete information, plus a nonstandard construction of the singular belief dynamics via regular approximation (since no SDE system governs it). They verify the candidate strategies form a Nash equilibrium and derive the resulting phenomenology.</p>
+<p><strong>Results with numbers.</strong> As a pure-theory construction, the deliverables are structural rather than numeric: existence of a symmetric Nash equilibrium of hitting-time form, and two qualitative results proven absent in the always-prefer-monopoly case — <strong>market collapse</strong> (both exit in finite time) and <strong>clustering</strong> (heterogeneous types exit simultaneously).</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Nonzero-sum game</strong> — the players' payoffs don't simply offset; both can win or both lose, so cooperation and conflict mix.</li>
+<li><strong>Asymmetric information</strong> — each firm knows its own exit value but not the rival's, so actions become signals.</li>
+<li><strong>Belief process $\pi_t$</strong> — a firm's running probability estimate about its rival, updated from observed (non-)exit.</li>
+<li><strong>Singular dynamics</strong> — motion that can't be written as a standard drift-plus-noise SDE; here built as a limit of nicer processes.</li>
+<li><strong>Hitting time</strong> — the first moment a process crosses a threshold; the equilibrium strategies are of this form.</li>
+<li><strong>Nash equilibrium</strong> — a strategy profile where no player benefits from unilaterally changing course.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is foundational stochastic-game theory, not a calibrated tool — there are no data, and the symmetric, one-dimensional-diffusion, two-player setup is deliberately stylized. "Market collapse" and "clustering" are striking <em>qualitative</em> predictions, but mapping them to a real industry would need richer heterogeneity and more players. Its value is conceptual: it shows that merely <em>allowing</em> a later monopoly exit reshapes the whole attrition dynamic, a caution for anyone modeling exit under private information.</p>
+<h3>Bottom Line</h3>
+<p>Give two secretive rivals a second chance to quit, and the exit game can end in a stampede — even a total market blackout.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
