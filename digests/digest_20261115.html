@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 15, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 15, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Polynomial-Preserving Processes and Volatility Modelling in Discrete Time</h2>
+  <p class="meta">Maciej Augustyniak, Alexandru Badescu, Zekun Zhang<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-07 &middot; <a href="http://arxiv.org/abs/2611.10928v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.10928v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>You can build a stock-volatility model that lives in discrete time steps (like daily closes) yet still gives you exact, pen-and-paper formulas for every moment of returns and variance — and it prices options better than the standard workhorses.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> When you buy an option — say the right to buy Apple at USD 200 three months from now — its price depends almost entirely on how much the stock is expected to <em>wiggle</em>, not on where it's going. That wiggle is "volatility," and the catch is that volatility is itself random and changes over time: markets are calm for weeks, then convulse. To price options you need a model of how volatility moves. The two classic families both have an annoying flaw. Continuous-time models (the kind that use calculus and Brownian motion) are mathematically elegant but you often can't compute anything without heavy simulation. Discrete-time models (the GARCH family, which update volatility day by day) match real daily data well but usually force you into a specific, rigid shape for the randomness, and extracting exact statistical properties is a slog.</p>
+<p><strong>The idea.</strong> The authors borrow a trick from continuous-time finance called "polynomial-preserving" processes and rebuild it for discrete time. The magic property is this: if you ask "what's the expected value of some polynomial of tomorrow's variance?", the answer is again a polynomial of today's variance — of the same degree. Nothing blows up in complexity as you look further ahead. That means you can compute the average, the variance-of-the-variance, the skewness, how today's shock correlates with next week's variance — <em>any</em> moment, over any horizon — by multiplying matrices, no simulation required. Think of it like discovering that a certain shape of dough, no matter how many times you fold it, always stays the same kind of shape, just rescaled, so you can predict the final pastry exactly.</p>
+<p><strong>What they found.</strong> They introduce two new families of volatility models that <em>contain</em> the popular existing ones as special cases, but add flexibility: realistic "leverage" (bad news spikes volatility more than good news), volatility that is itself volatile, and fat-tailed, non-bell-curve shocks. Tested on 27 years of S&amp;P 500 returns and a huge panel of options (1996–2023), the new models cut the average weekly implied-volatility pricing error by roughly 8% to 41% versus the standard models they generalize.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $R_t$ be the log-return over period $t$ and $h_t$ the conditional variance. A process is <em>polynomial-preserving</em> of degree $n$ if, for the variance dynamics, the one-step conditional expectation of any polynomial of $h_{t+1}$ up to degree $n$ is itself a polynomial in $h_t$ of degree at most $n$. Concretely, collecting the monomials $1, h_t, h_t^2, \dots, h_t^n$ into a vector $\mathbf{H}_t = (1, h_t, \dots, h_t^n)^\top$, the defining requirement is a linear recursion</p>
+<p>$$\mathbb{E}\big[\mathbf{H}_{t+1} \mid \mathcal{F}_t\big] = \mathbf{G}\,\mathbf{H}_t$$</p>
+<p>where $\mathbf{G}$ is a fixed $(n{+}1)\times(n{+}1)$ matrix, and $\mathcal{F}_t$ is the information available at time $t$.</p>
+<p><strong>The key equations.</strong> Because expectation is linear and the one-step map is matrix multiplication, the $k$-step-ahead moments are just powers of $\mathbf{G}$:</p>
+<p>$$\mathbb{E}\big[\mathbf{H}_{t+k} \mid \mathcal{F}_t\big] = \mathbf{G}^{k}\,\mathbf{H}_t.$$</p>
+<p>Here $\mathbf{G}^{k}$ is the matrix $\mathbf{G}$ raised to the $k$-th power, and $k$ is the number of steps ahead. Serial cross-moments between returns and variance — e.g. $\mathbb{E}[R_{t}^2 h_{t+j}]$ — follow from similar finite-dimensional matrix objects. Under two scaling regimes (shrinking the time step), they prove <strong>weak convergence</strong> of the discrete process to a continuous-time <em>polynomial diffusion</em> (or jump-diffusion):</p>
+<p>$$dh_t = b(h_t)\,dt + \sigma(h_t)\,dW_t, \qquad \text{with } \mathbb{E}[\mathbf{H}_T \mid h_0] = e^{\mathbf{A}T}\,\mathbf{H}_0,$$</p>
+<p>so the discrete matrix power $\mathbf{G}^{k}$ limits to the continuous matrix exponential $e^{\mathbf{A}T}$, where $\mathbf{A}$ is the generator matrix and $W_t$ a Brownian motion.</p>
+<p><strong>The method.</strong> Everything is <strong>moment recursion via linear algebra</strong>: specify the model so the preservation property holds, then read off moments as matrix powers (discrete) or matrix exponentials (continuous). Option prices and implied-vol fits are obtained by matching these exact moments and standard discrete-time valuation; the convergence theorems link the two worlds rigorously rather than by analogy.</p>
+<p><strong>Results with numbers.</strong> On S&amp;P 500 data 1996–2023, the new specifications improve return fit and reduce mean weekly implied-volatility root-mean-squared error by roughly <strong>8–41%</strong> relative to their nested benchmarks, the exact figure depending on the variance dynamics and the choice of innovation distribution.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Conditional variance</strong> — the market's expected size-of-wiggle for the next step, given everything known so far.</li>
+<li><strong>Polynomial-preserving process</strong> — a process where the expected value of any polynomial of the next state stays a polynomial (same degree) of the current state, so moments compute by matrix algebra.</li>
+<li><strong>Moment</strong> — a summary number of a distribution (mean, variance, skewness, etc.) obtained by averaging a power of the variable.</li>
+<li><strong>Weak convergence</strong> — as the time step shrinks, the discrete model's <em>distributions</em> approach those of a continuous-time model.</li>
+<li><strong>Matrix exponential</strong> $e^{\mathbf{A}T}$ — the continuous-time analogue of repeatedly multiplying by a matrix; it propagates moments forward over a horizon $T$.</li>
+<li><strong>Leverage effect</strong> — the empirical tendency for volatility to rise more after price drops than after equal-sized rises.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The gains are real but measured against the models it generalizes, not against the full zoo of modern rough-volatility or neural approaches, so "state of the art" is not claimed. Polynomial preservation buys tractability by constraining the variance dynamics to a specific algebraic form, which may not flex enough for every regime, and exact moments don't automatically mean exact tail or crash behavior. For a practitioner it's genuinely usable: closed-form moments make calibration and risk aggregation fast.</p>
+<h3>Bottom Line</h3>
+<p>Fold volatility the right algebraic way and the whole future stays computable — matrices in, option prices out, no simulation needed.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> A high-order recombination algorithm with adaptive scale selection for weak approximation of stochastic differential equations</h2>
+  <p class="meta">Yuming Ma, Syoiti Ninomiya<br>
+    <span class="cat">math.PR</span> &middot; 2026-11-11 &middot; <a href="http://arxiv.org/abs/2611.15564v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.15564v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A smarter way to prune the exploding tree of scenarios in a Monte-Carlo-style calculation so you keep far fewer points without losing accuracy — and it picks its own pruning scale instead of making you guess.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Pricing a complex derivative, or measuring a portfolio's risk, often means computing the average of some payoff under a model where prices evolve randomly. One powerful way to do this without millions of random simulations is to build a <em>tree</em>: at each time step the current scenarios branch into several children, forming a weighted cloud of points that together reproduce the true probabilities. The trouble is the tree grows explosively — branch a handful of ways at each of many steps and you quickly have astronomically many points. "Recombination" fights this: at each stage you throw away most of the cloud and keep a small, cleverly chosen subset that still has the same averages (the same <em>moments</em>) as the full cloud. The question is <em>which</em> points to keep, and at <em>what spatial scale</em> to group them — and existing methods make you set that scale by hand with a single tuning number whose "right" value secretly depends on your units (prices quoted near 100 behave differently from rates near 0.02).</p>
+<p><strong>The idea.</strong> The authors fix the scale-picking. Their rule (AWLL) chooses the grouping scale <em>adaptively during the computation</em>, matched to how big the actual random increments are and — crucially — accounting for the fact that different coordinates (a stock price vs. an interest rate) can live on wildly different numerical scales. Instead of one knob, they let the scale be a whole <em>matrix</em> that stretches and rotates to fit the geometry of the cloud. It's the difference between always using the same-size sieve regardless of what you're sifting, versus a sieve that resizes itself to the grain in front of it. They also rebuild the arithmetic engine underneath so that eliminating points is dramatically cheaper.</p>
+<p><strong>What they found.</strong> On two standard volatility models (Heston and SABR) with a price or forward rate of 100, their adaptive rule shrinks the final set of kept points by factors of <strong>137×</strong> and <strong>1488×</strong> compared to the old fixed-scale rule at the same accuracy. And they speed up the core elimination step from cubic cost to linear in the number of nodes — a huge practical difference when the clouds are large.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Consider a stochastic differential equation (SDE) for a $d$-dimensional state $X_t$ (asset prices, variances, rates):</p>
+<p>$$dX_t = V_0(X_t)\,dt + \sum_{i=1}^{m} V_i(X_t)\,dW_t^i,$$</p>
+<p>where $V_0$ is the drift vector field, $V_1,\dots,V_m$ are diffusion vector fields, and $W^i$ are independent Brownian motions. <strong>Weak approximation</strong> seeks to compute $\mathbb{E}[f(X_T)]$ (a price or risk number) accurately, not to track individual paths. Cubature / high-order methods represent the law of $X_t$ by a finite weighted measure $\sum_j w_j \delta_{x_j}$ whose moments match the target up to some order; iterating over time steps makes the number of support points $J$ explode.</p>
+<p><strong>The key idea — recombination.</strong> At each patch of nodes, replace the local measure by a smaller one with the <em>same</em> moments up to a chosen rank. The Litterer–Lyons test decides patch membership using a scale; the classic <strong>WLL</strong> rule uses a scalar $\lambda > 0$ fixed in advance:</p>
+<p>$$\text{keep nodes within a radius set by } \lambda,$$</p>
+<p>but the appropriate $\lambda$ depends on coordinate units. The proposed <strong>AWLL</strong> rule instead selects the scale <em>within a bounded factor of the measured increment amplitude</em> and promotes $\lambda$ to a positive-definite matrix $\Lambda$, with a <em>joint</em> error bound covering both prices and sensitivities (Greeks), plus explicit bounds on how the shape of $\Lambda$ can amplify error and on the resulting patch counts.</p>
+<p><strong>The method.</strong> It's <strong>moment-preserving measure reduction</strong> solved by <strong>batched basis exchange</strong> (a linear-algebra pivoting scheme). The headline computational result: the elimination stage needs</p>
+<p>$$O(J) \text{ arithmetic operations for } J \text{ nodes}$$</p>
+<p>at fixed moment rank and panel width, versus $\Theta(J^3)$ for the direct kernel update of Ninomiya–Shinozaki. Here $J$ is the number of nodes in a patch, $O(J)$ means cost grows proportionally to $J$, and $\Theta(J^3)$ means it grows like $J$ cubed.</p>
+<p><strong>Results with numbers.</strong> In Heston and shifted-SABR systems with initial price / forward rate 100, AWLL reduces the terminal supports of WLL (with $\lambda = 1$) by factors of <strong>137</strong> and <strong>1488</strong> at comparable errors. The authors note it can <em>enlarge</em> supports at smaller Heston initial prices — an honest caveat that the gain is geometry-dependent.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Weak approximation</strong> — computing the <em>average</em> of a payoff accurately, without needing each simulated path to be correct.</li>
+<li><strong>Recombination</strong> — pruning a branching tree of scenarios to a small subset that preserves the moments (and hence the averages) of the full set.</li>
+<li><strong>Moment</strong> — the expected value of a power of the state; matching moments makes two measures give the same answers for smooth payoffs.</li>
+<li><strong>Positive-definite matrix $\Lambda$</strong> — a scale object that can stretch and rotate differently along each coordinate, respecting mixed units.</li>
+<li><strong>$O(J)$ vs $\Theta(J^3)$</strong> — linear vs cubic cost: at $J=1000$, cubic is a million times heavier than linear.</li>
+<li><strong>Heston / SABR</strong> — standard stochastic-volatility models used to price options.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The speedups are impressive but geometry-dependent: the same rule that shrinks supports 1488× in one setting <em>enlarges</em> them at low initial prices, so it's a better default, not a universal win. It targets smooth expectations, so discontinuous or deeply path-dependent payoffs may need extra care. For a quant running large cubature pricing engines, the $O(J)$ elimination alone could justify adopting it.</p>
+<h3>Bottom Line</h3>
+<p>Let the pruning sieve resize itself to the data and a scenario tree that used to need thousands of points can get by on a handful — at a fraction of the compute.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Optimal Trading Speed on Blockchain</h2>
+  <p class="meta">Ruizhe Jia, Shihao Yu<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-11-10 &middot; <a href="http://arxiv.org/abs/2611.13616v2">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.13616v2">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Making blockchain blocks faster doesn't automatically make trading cheaper — past a sweet spot it hands profits to arbitrageurs and makes the market <em>worse</em> for everyone else.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> On a blockchain exchange (think a decentralized version of a stock exchange), trades are settled in "blocks" that the network produces at some rhythm — maybe one every few seconds. Inside each block, whoever pays the biggest "priority fee" (a tip to the block producer) gets their trade in first. A big chunk of activity is <em>arbitrage</em>: fast traders who pounce whenever the on-chain price drifts from the real-world price, pocketing the gap. Conventional wisdom says: make blocks faster and everything improves — prices track reality more tightly, users win. This paper asks whether that's actually true, because faster blocks also change <em>who captures the money</em>.</p>
+<p><strong>The idea.</strong> The authors build an economic model of the tug-of-war between three parties: arbitrageurs racing each other, the block producer collecting their tips, and the liquidity providers (the people who park capital in the pool so others can trade against it). The key insight is that block speed is like the frequency of an auction. When blocks are slow, arbitrage opportunities pile up and arbitrageurs must bid <em>fiercely</em> against each other for the slot — so they compete away their profit and hand it to the block producer as fees. Speed the blocks up and each opportunity is smaller and less contested, so the fierce bidding collapses: arbitrageurs keep more, the producer gets less. They show there's an <em>interior</em> best speed — a Goldilocks point — where usable liquidity is highest. Go faster than a threshold and a nimble "active" liquidity provider starts <em>cream-skimming</em> the good trades, driving the passive, everyday capital out.</p>
+<p><strong>What they found.</strong> They test the theory against a real natural experiment: the Base network's "Flashblocks" upgrade, which cut block time roughly tenfold. The predictions held. Priority-fee bids dropped sharply, arbitrageurs' net profits rose, and the active liquidity provider rebalanced faster and dodged toxic trades to earn more. Meanwhile pool depth fell and effective spreads <em>widened</em> — trading got more expensive for ordinary users — even though on-chain prices tracked the outside world more closely. Faster was not simply better.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Model block production as a repeated auction with inter-block time $\tau$ (so block speed is $1/\tau$). Between blocks, an external reference price $P_t$ evolves (a diffusion), while the on-chain pool price lags, creating an arbitrage gap. Arbitrageurs are strategic bidders competing for execution priority; the block producer awards priority to the highest <strong>priority-fee</strong> bid. Liquidity providers choose how much capital to supply and, for the active one, how to rebalance.</p>
+<p><strong>The key relationships.</strong> The expected per-block arbitrage profit scales with how far the reference price can wander in time $\tau$ — roughly</p>
+<p>$$\text{gap size} \sim \sigma \sqrt{\tau},$$</p>
+<p>where $\sigma$ is the reference-price volatility. Under competition, arbitrageurs bid up priority fees toward this gap, so the producer's fee revenue falls as $\tau$ shrinks while arbitrageurs' retained rent rises. Equilibrium liquidity $L(\tau)$ is shown to be <strong>non-monotone</strong>: it satisfies an interior optimum</p>
+<p>$$\frac{\partial L}{\partial \tau} = 0 \quad\text{at some } \tau^\star \in (0,\infty),$$</p>
+<p>and beyond a threshold block speed the active liquidity provider's cream-skimming makes passive capital contribution shrink toward zero. Here $L(\tau)$ is equilibrium usable liquidity, $\tau^\star$ the welfare-maximizing inter-block time, and the partial derivative being zero marks the Goldilocks peak.</p>
+<p><strong>The method.</strong> It's a <strong>game-theoretic equilibrium model</strong> (strategic bidding + liquidity-provision optimization) whose comparative statics in $\tau$ generate falsifiable predictions, <strong>tested empirically</strong> via a difference-style analysis around the Base Flashblocks upgrade — a clean tenfold step change in block speed serving as the treatment.</p>
+<p><strong>Results with numbers.</strong> The upgrade was a roughly <strong>10×</strong> block-speed increase. Post-upgrade: priority-fee bids fell sharply, arbitrageurs' net profit rose, the active LP rebalanced faster and avoided toxic flow for higher profit, while <strong>pool depth fell and effective spreads widened</strong> despite closer tracking of external prices — all matching the model's sign predictions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Block / block time</strong> — a batch of settled transactions; block time $\tau$ is how often batches are produced.</li>
+<li><strong>Arbitrage</strong> — profiting from the price gap between the on-chain pool and the real-world reference price.</li>
+<li><strong>Priority fee</strong> — the tip a trader pays the block producer to be ordered first within a block.</li>
+<li><strong>Liquidity provider (LP)</strong> — someone who deposits capital so others can trade against it, earning fees but risking being picked off.</li>
+<li><strong>Cream-skimming</strong> — an active LP selectively capturing only the profitable trades, leaving losses to passive capital.</li>
+<li><strong>Effective spread</strong> — the real round-trip cost a user pays to trade; wider means more expensive.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is an equilibrium model plus one natural experiment, so the empirical weight rests on a single upgrade on a single chain — suggestive, not the final word. The clean tenfold treatment is a strength, but confounds around a protocol upgrade are always a worry, and the welfare conclusion ("faster can be worse") depends on the specific competition structure assumed. Still, it's a sharp warning for protocol designers chasing speed for its own sake.</p>
+<h3>Bottom Line</h3>
+<p>On a blockchain, cranking up block speed can quietly transfer profits from the protocol to arbitrageurs while making trades dearer for everyone else — speed has a sweet spot, not a ceiling.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Risk-Sensitive Reinforcement Learning for an Options Market Maker: An Empirical Study with Real S&amp;P 500 Options</h2>
+  <p class="meta">Jacky Chen, Ing-Haw Cheng, John Hull, Landis Li, Zissis Poulos, Justin Shi et al.<br>
+    <span class="cat">q-fin.RM</span> &middot; 2026-11-07 &middot; <a href="http://arxiv.org/abs/2611.10956v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.10956v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A reinforcement-learning hedging agent trained on <em>real</em> S&amp;P 500 option history — crashes and all — protects against tail losses better than textbook delta hedging, but only in falling markets, and it pays for that edge when markets rise.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> An options market maker is like a shop that's always willing to sell you insurance on stocks. Customers come in and buy whatever they want, and the shop ends up holding a messy, lopsided pile of risk it didn't choose. To stay solvent it must constantly <em>hedge</em> — trade the underlying stock to cancel out the dangerous parts of that pile. The classic recipe, "delta hedging," comes straight from the Nobel-winning Black–Scholes theory and works beautifully in the idealized world where prices wiggle smoothly. Real markets don't: they gap down, they convulse, trading costs money, and it's exactly in those violent moments that a hedge most needs to hold. The question is whether a machine that <em>learns</em> a hedging policy from data can do better than the textbook when it matters most — in the tail, during crashes.</p>
+<p><strong>The idea.</strong> The authors train a reinforcement-learning (RL) agent — software that learns by trial and error to maximize a reward — to hedge options. The twist is <em>where</em> it practices. Most RL hedging studies train the agent inside a simulated market generated by a tidy mathematical model, which never shows it a real crash. These authors instead build an "empirical replay" gym out of actual S&amp;P 500 option data from 1996–2017, so the agent rehearses against real volatility spikes and real plunges. They then race four versions of the same agent — one trained on real history, three trained in increasingly realistic simulators — plus plain delta hedging, all judged out-of-sample on 2018–2023, and all penalized for tail losses rather than average losses.</p>
+<p><strong>What they found.</strong> The agent schooled on real history cut tail losses — measured by Conditional Value-at-Risk, the average of the worst-case outcomes — by <strong>3.1%</strong> versus delta hedging overall, and by a striking <strong>8.9%</strong> specifically in volatile, falling markets. But the edge is conditional: in <em>rising</em> markets it actually <em>cost</em> 7–10% more. The agent learned a subtle habit — to deliberately <em>under-hedge</em> certain books, most aggressively right after prices had dropped — a tilt that only appeared when it trained on real data and vanished with the simplistic simulator.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Hedging is framed as a Markov decision process. The state $s_t$ encodes the current option book, inventory, and market conditions; the action $a_t$ is the hedge trade in the underlying; the reward $r_t$ penalizes hedging error and transaction costs. The agent seeks a policy $\pi$ maximizing risk-adjusted cumulative reward. Rather than minimizing mean loss, they target the tail via <strong>Conditional Value-at-Risk</strong>:</p>
+<p>$$\mathrm{CVaR}_\alpha(L) = \mathbb{E}\big[\,L \mid L \ge \mathrm{VaR}_\alpha(L)\,\big],$$</p>
+<p>where $L$ is the hedging loss, $\mathrm{VaR}_\alpha$ is the $\alpha$-quantile of that loss, and $\mathrm{CVaR}_\alpha$ averages the losses <em>beyond</em> that quantile — i.e. the expected severity of the bad tail.</p>
+<p><strong>The method.</strong> They train a <strong>distributional Twin-Delayed Deep Deterministic Policy Gradient (TD3)</strong> agent — an actor–critic RL algorithm for continuous actions, "distributional" because it learns the whole distribution of returns (not just the mean), which is what lets it optimize a tail measure like CVaR. The contribution is the <strong>empirical replay environment</strong>: historical S&amp;P 500 option paths 1996–2017 used directly as the training world, compared against (i) a geometric Brownian motion simulator $dS_t = \mu S_t\,dt + \sigma S_t\,dW_t$, (ii) a SABR stochastic-volatility simulator, and (iii) a hybrid that values historical paths with Black–Scholes — all sharing identical portfolio mechanics, stochastic order arrivals, costs, and test window. Here $S_t$ is the asset price, $\mu$ the drift, $\sigma$ the volatility, and $W_t$ a Brownian motion.</p>
+<p><strong>Results with numbers.</strong> Out-of-sample 2018–2023, the empirically trained agent reduced CVaR tail loss by <strong>3.1%</strong> versus delta hedging and beat every hedge-ratio rule and every alternative training environment. The reduction reached <strong>8.9%</strong> in volatile, falling markets but <em>reversed to a 7–10% cost</em> in rising markets. The learned policy held a state-dependent short net delta, under-hedging negative-delta books most strongly after price declines; this tilt disappeared under GBM training and was weaker under SABR or the hybrid.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Delta hedging</strong> — offsetting an option position by holding an amount of the underlying equal to the option's price sensitivity (delta).</li>
+<li><strong>Reinforcement learning</strong> — training an agent to choose actions that maximize long-run reward through trial and error.</li>
+<li><strong>Conditional Value-at-Risk (CVaR)</strong> — the average loss in the worst $\alpha$-fraction of outcomes; a tail-risk measure, not an average.</li>
+<li><strong>TD3</strong> — a deep RL algorithm for continuous control using two critics to curb over-optimistic value estimates.</li>
+<li><strong>Empirical replay environment</strong> — a training world built from real historical data rather than a mathematical simulator.</li>
+<li><strong>Net delta</strong> — the overall directional exposure of the book after hedging; "short" means it profits if prices fall.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline rests on a <em>single</em> out-of-sample test path (2018–2023), so the 3.1%/8.9% figures are one draw, not a distribution — the authors say as much. The edge is regime-conditional and literally reverses in rising markets, so this is a tail-insurance tilt, not free lunch, and a desk would need to decide whether paying in up-markets to be safer in down-markets fits its mandate. The real contribution is methodological: it shows the <em>training environment</em> materially changes what the agent learns.</p>
+<h3>Bottom Line</h3>
+<p>Train a hedging bot on real crashes instead of a tidy simulator and it learns to brace for the fall — buying tail protection it quietly pays back when the market climbs.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Novel Esscher concepts for informational risks and valuation in market models under random horizon</h2>
+  <p class="meta">Tahir Choulli, Ella Elazkany<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-12 &middot; <a href="http://arxiv.org/abs/2611.16129v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.16129v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A rigorous way to price financial claims that pay off depending on <em>when</em> something unpredictable happens — a company defaulting, a policyholder dying — by extending a classic pricing transform to account for the extra risk that comes from <em>not knowing</em> that timing.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Some of the most important contracts in finance don't just depend on prices — they depend on <em>an event at an unknown time</em>. A corporate bond pays interest until the issuer defaults, which could be tomorrow or never. A life-insurance or annuity contract pays out depending on when the insured person dies. These "random times" are special: often nobody can see them coming from the ordinary market data everyone watches. That hidden-ness is itself a source of risk — call it <em>informational risk</em> — and it makes pricing genuinely hard. How much should you charge for a claim whose value hinges on a clock only fate can read? Standard option-pricing machinery assumes you can hedge everything with tradable assets; here you can't, because the triggering event lives outside the market's field of view.</p>
+<p><strong>The idea.</strong> The authors generalize a well-known pricing device called the <em>Esscher transform</em>. In ordinary markets the Esscher transform is a principled way to tilt the real-world probabilities into "pricing" probabilities — a bridge that turns statistical odds into fair prices when you can't perfectly hedge. The new move is to make that transform <em>aware of the hidden event</em>. They introduce an "Esscher with degrees-of-freedom," where the extra degrees of freedom are precisely the knobs that absorb the informational risk created by the unknown time. It's like upgrading a thermostat that only knew room temperature so it now also reacts to a second, hidden variable — the chance the furnace is about to fail — and prices heating accordingly. They then pin down exactly what these tilted measures look like and, crucially, how to bound the price of "vulnerable" claims — contracts whose payoff is contingent on that risky event.</p>
+<p><strong>What they found.</strong> They give complete mathematical characterizations of these new Esscher measures in a market where the stock follows a jumpy, stochastic-volatility model and the hidden event can strike at any time. And they show the arbitrage-free <em>price bounds</em> for vulnerable claims can be described through a particular kind of equation — a <em>constrained</em> backward stochastic differential equation — that is itself new to the literature. In short: a workable, rigorous pricing theory for claims whose timing risk cannot be seen or fully hedged.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The model is a triplet $(S, \mathbb{F}, \tau)$. Here $S$ is the discounted price process of the risky assets, assumed to follow a geometric jump-diffusion with stochastic volatility; $\mathbb{F} = (\mathcal{F}_t)_{t\ge 0}$ is the <em>public</em> filtration (the information everyone sees), generated by a Brownian motion $W$ and a Poisson (jump) process $N$; and $\tau$ is an arbitrary <strong>random time</strong> — a default or death time — that need <strong>not</strong> be an $\mathbb{F}$-stopping time, i.e. it may be <em>invisible</em> to the public flow. The enlarged filtration $\mathbb{G}$ that <em>does</em> see $\tau$ is the progressive enlargement $\mathcal{G}_t = \mathcal{F}_t \vee \sigma(\tau \wedge t)$.</p>
+<p><strong>The key objects.</strong> The classical Esscher density tilts the measure by an exponential of a traded risk:</p>
+<p>$$\frac{d\mathbb{Q}}{d\mathbb{P}}\Big|_{\mathcal{F}_t} = \frac{e^{\theta X_t}}{\mathbb{E}[e^{\theta X_t}]},$$</p>
+<p>where $X_t$ is the driving log-process, $\theta$ the Esscher parameter, $\mathbb{P}$ the real-world measure and $\mathbb{Q}$ the pricing measure. The paper's <strong>Esscher-with-degrees-of-freedom</strong> augments this with additional parameters tied to the $\tau$-generated informational risk, and the authors give <em>complete characterizations</em> of when such densities define valid equivalent (martingale) measures in the $\mathbb{G}$-world. The <strong>price bounds</strong> for a vulnerable claim $\xi$ (whose payoff references the occurrence of $\tau$) are then characterized as solutions of a <strong>constrained backward stochastic differential equation</strong>:</p>
+<p>$$-dY_t = f(t, Y_t, Z_t, U_t)\,dt - Z_t\,dW_t - U_t\,dM_t, \quad Y_T = \xi, \quad \text{subject to a constraint on } (Z,U),$$</p>
+<p>where $Y_t$ is the value process (the price at time $t$), $Z_t$ and $U_t$ are the control processes hedging the Brownian and jump/default risks respectively, $M_t$ is the compensated martingale associated with $\tau$, $f$ is the driver, and $\xi$ is the terminal payoff.</p>
+<p><strong>The method.</strong> The tools are <strong>enlargement of filtration</strong> (to make the hidden $\tau$ analyzable), <strong>equivalent-measure / Esscher characterization</strong> (to construct pricing measures that absorb informational risk), and <strong>constrained BSDEs</strong> (to represent the no-arbitrage price bounds). The constraint encodes that you <em>cannot</em> freely hedge the informational component.</p>
+<p><strong>Results.</strong> Full characterizations of the Esscher notions in the informational setting; full characterization of the Esscher price bounds for vulnerable claims via CBSDEs described as novel. (This is a theory paper — the contributions are structural theorems, not numerical benchmarks.)</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Random time $\tau$</strong> — an unpredictable moment such as a default or death, possibly invisible to ordinary market information.</li>
+<li><strong>Filtration</strong> — the growing record of information available over time; the "public" one $\mathbb{F}$ may not reveal $\tau$.</li>
+<li><strong>Enlargement of filtration</strong> — the mathematical technique for adding knowledge of $\tau$ to the public information flow.</li>
+<li><strong>Esscher transform</strong> — an exponential tilting of probabilities used to turn real-world odds into arbitrage-consistent pricing odds.</li>
+<li><strong>Vulnerable claim</strong> — a contract whose payoff is contingent on the risky event $\tau$ occurring.</li>
+<li><strong>Backward SDE (BSDE)</strong> — an equation solved <em>backward</em> from a known terminal payoff to today's price, with control terms that represent hedging.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is pure mathematical finance: it delivers existence and characterization theorems, not a calibrated pricer you can run on a desk tomorrow. The jump-diffusion-with-stochastic-volatility setup is deliberately clean, and real credit or longevity markets add frictions (illiquidity, dependence between $\tau$ and the economy) the framework would need extending to capture. Its value is as a rigorous foundation — the CBSDE representation is the kind of object that later numerical work can discretize and solve.</p>
+<h3>Bottom Line</h3>
+<p>When the thing you're pricing hinges on a clock no one can read, the honest price isn't a single number but a band — and this work shows exactly which equation draws that band.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>

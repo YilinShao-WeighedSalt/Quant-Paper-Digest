@@ -102,7 +102,7 @@ WEB_MAX_ABS = 40     # cap on /abs page fetches (politeness + runtime)
 def _curl_text(url):
     proc = subprocess.run(
         ["curl", "-sS", "--fail", "--max-time", "60",
-         "-H", "User-Agent: quant-paper-digest/1.0 (mailto:ely.shao31@gmail.com)",
+         "-H", "User-Agent: quant-paper-digest/1.0",
          url],
         capture_output=True, timeout=90,
     )
