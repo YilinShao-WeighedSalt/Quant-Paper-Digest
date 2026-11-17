@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 17, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 17, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> European derivatives pricing via constrained Gaussian process regressions</h2>
+  <p class="meta">Arnaud Servais, Donatien Hainaut<br>
+    <span class="cat">q-fin.PR</span> &middot; 2026-11-16 &middot; <a href="http://arxiv.org/abs/2611.20746v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.20746v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you treat the unknown price of an option as a smooth random function and force it to obey the equation finance says it must, you can read off the price — and all its sensitivities — as a tidy formula instead of running millions of simulations.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Suppose you sell a contract whose payoff depends on two stock prices — say it pays off only if both a tech stock and an energy stock end up above certain levels a year from now. To quote a fair price today, and to know how that price wobbles when the stocks move or when markets get jumpy, you need to solve a hard math problem. The industry's workhorse is Monte Carlo: simulate the two stocks forward hundreds of thousands of times, average the payoffs, and you have a price. It works, but it is slow, noisy, and worst of all it gives you a single number — if you also want the <em>sensitivities</em> (how the price changes when volatility ticks up, when a stock moves, when time passes), you have to re-run the whole machine many times over. Traders call these sensitivities "the Greeks," and they need them constantly to hedge.</p>
+<p><strong>The idea.</strong> The authors flip the problem around. Instead of simulating, they say: I don't know the pricing function, so let me start by treating it as a <em>random guess</em> — a fuzzy cloud of plausible smooth functions, which is what a "Gaussian process" is. Now impose the one thing we <em>do</em> know: finance guarantees the true price must satisfy a specific differential equation (the pricing PDE) everywhere. So they pin the cloud down at a scattering of sample points — "collocation points" — demanding the function obey the equation there. Conditioning the cloud on those constraints collapses it to a single, explicit, differentiable formula. Because it is a formula, the Greeks fall out by ordinary differentiation — no re-simulation. The one wrinkle is that stocks sometimes <em>jump</em> (think a sudden gap down on bad news), which makes the equation nastier. They handle jumps with a clever loop: solve an easier no-jump problem, feed the answer back in, solve again, and repeat until it stops changing.</p>
+<p><strong>What they found.</strong> On a genuinely hard five-dimensional test — two stocks under the Heston model (random volatility) with Kou double-exponential jumps — the method matches Monte Carlo but hands you a clean, differentiable price function with the Greeks for free. Crucially, they <em>prove</em> the jump loop always converges, from any starting guess, and they tell you in advance how many loops you need for a target accuracy — a guarantee simulation can't offer.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The underlyings and their risk factors follow a multivariate jump-diffusion. A derivative's price $u(t,x)$ must satisfy the Feynman–Kac partial integro-differential equation (PIDE)
+$$\partial_t u + \mathcal{L}u + \mathcal{J}u - r u = 0, \qquad u(T,x) = g(x),$$
+where $\partial_t u$ is the time derivative, $\mathcal{L}$ is the diffusion operator (drift and second-order volatility terms), $\mathcal{J}$ is the jump integral operator, $r$ is the risk-free rate, $g$ is the terminal payoff, $T$ is maturity, and $x$ collects the state variables (prices and variances).</p>
+<p><strong>The key idea — a GP prior conditioned on the PDE.</strong> Place a Gaussian process prior on the price function, $u \sim \mathcal{GP}(m, k)$, meaning before seeing constraints we believe $u$ is a random function with mean $m$ and covariance kernel $k(x,x')$ (the kernel encodes smoothness). A linear differential operator applied to a GP is still Gaussian, so $\mathcal{A}u$ (with $\mathcal{A} = \partial_t + \mathcal{L} - r$) is jointly Gaussian with $u$. Conditioning on $\mathcal{A}u = 0$ at collocation points $\{x_i\}$ yields a posterior whose mean is a closed-form, infinitely differentiable function — that is the price, and $\partial_x$ of it gives the Greeks analytically.</p>
+<p><strong>Handling jumps iteratively.</strong> The jump term $\mathcal{J}u$ couples the price at $x$ to its value elsewhere. They define a sequence $u^{(n+1)}$ solving the diffusion-only boundary-value problem with $\mathcal{J}u^{(n)}$ moved to the right-hand side:
+$$\mathcal{A}\,u^{(n+1)} = -\mathcal{J}\,u^{(n)}.$$</p>
+<p><strong>The method.</strong> Convergence is proved via <strong>Weissinger's fixed-point theorem</strong> in the supremum norm — a sharpened contraction-mapping argument: if the map $u^{(n)} \mapsto u^{(n+1)}$ satisfies $\sum_n c_n < \infty$ for its iterated Lipschitz constants $c_n$, iteration converges from <em>any</em> start, and the tail $\sum_{k\ge n} c_k$ bounds the remaining error — giving a worst-case iteration count for precision $\varepsilon$.</p>
+<p><strong>Results with numbers.</strong> Demonstrated on a five-dimensional problem: two underlyings, Heston stochastic volatility, Kou double-exponential jumps. Benchmarked against Monte Carlo, the method reproduces prices while delivering Greeks with no finite differences or simulation, plus an a priori bound on iterations needed.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Gaussian process (GP)</strong> — a probability distribution over functions, so that any finite set of function values is jointly Gaussian; a "smooth random function" you can condition on data.</li>
+<li><strong>Feynman–Kac PIDE</strong> — the partial integro-differential equation whose solution equals the expected discounted payoff of a derivative under jump-diffusion dynamics.</li>
+<li><strong>Collocation points</strong> — a finite set of state-space locations where you force the candidate function to satisfy the governing equation exactly.</li>
+<li><strong>The Greeks</strong> — derivatives of an option's price with respect to inputs (spot, volatility, time), used to hedge risk.</li>
+<li><strong>Weissinger's fixed-point theorem</strong> — a generalization of the contraction-mapping (Banach) theorem giving convergence of an iteration when its successive contraction factors are summable.</li>
+<li><strong>Kou double-exponential jumps</strong> — a jump model where jump sizes follow an asymmetric double-exponential law, capturing fat tails and crash asymmetry.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The convergence guarantee is elegant, but collocation-based GP methods scale painfully: picking good collocation points and inverting the kernel matrix gets expensive as dimension and point count grow, and five dimensions is modest next to the baskets desks actually trade. The smoothness prior may also fight against the kinked, non-smooth payoffs that are common in practice. It's a promising, theoretically clean tool for low-to-moderate-dimensional pricing where fast, accurate Greeks matter more than raw dimensionality.</p>
+<h3>Bottom Line</h3>
+<p>Turn pricing into "guess a smooth function, then force it to obey the equation," and the price, its derivatives, and a convergence guarantee all come out together.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Stochastic Modelling of High-frequency (HF) Crypto Limit Order Book (LOB) with General Compound Marked Hawkes Process</h2>
+  <p class="meta">Mine Caglar, Serhat Guldogan, Anatoliy Swishchuk<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-16 &middot; <a href="http://arxiv.org/abs/2611.20839v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.20839v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Buy and sell orders on a crypto exchange arrive in self-exciting bursts — one order makes the next more likely — and this paper proves that when you zoom out, those chaotic bursts settle into a predictable average with Gaussian wobble around it.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Look at the order book of a Bitcoin exchange for one second and it is chaos: hundreds of orders to buy and sell flashing in and out, each of a different size, clustered in bursts. One big market order often triggers a cascade — other traders react, algorithms fire, and suddenly there is a flurry. If you run a trading desk or a market-making bot, you desperately want to know: over the next minute, what is the <em>typical</em> net pressure on the price, and how much does it randomly fluctuate around that typical value? Get the average right and you can predict drift; get the fluctuation right and you can size your risk. The trouble is that standard models assume orders arrive independently, like raindrops — but order flow is nothing like rain. It is more like popcorn: each pop raises the chance of the next.</p>
+<p><strong>The idea.</strong> The authors model order arrivals with a <strong>Hawkes process</strong> — the mathematical version of popcorn. In a Hawkes process, every event temporarily bumps up the rate at which future events happen, so activity self-excites and clusters, exactly like real order flow. They make it richer in two ways. First, each event carries a <strong>mark</strong> — a number attached to it, like the size of the order or its price impact — because a tiny order and a whale order are not the same event. Second, they let these marks <em>compound</em>, adding up over time the way a running tally of net buying pressure would. They call the result a general compound marked Hawkes process (GCMHP). Then they ask the classic probabilist's question: if I let time run and zoom out, what does this messy sum look like?</p>
+<p><strong>What they found.</strong> Two clean limit laws. A <strong>Law of Large Numbers</strong> says the zoomed-out, time-averaged process converges to a straight-line trend — a deterministic drift you can actually estimate. A <strong>Functional Central Limit Theorem</strong> says the <em>fluctuations</em> around that trend, properly rescaled, converge to a Brownian motion — Gaussian noise with a computable variance. So the chaos of the limit order book, viewed from far enough away, becomes "known slope plus known-size random wiggle." They demonstrate the whole thing on real high-frequency Bitcoin order-book data, which is the genuinely new part: these limit theorems for the <em>general</em> compound marked case, applied to crypto microstructure.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Let $N_t$ count order-book events up to time $t$, with event times $\{\tau_i\}$ and i.i.d. marks $\{X_i\}$ (e.g. order sizes) drawn from a distribution with mean $m$ and second moment. $N$ is a <strong>marked Hawkes process</strong> with conditional intensity
+$$\lambda_t = \lambda_\infty + \int_{0}^{t} \mu(t-s)\, dN_s,$$
+where $\lambda_t$ is the instantaneous event rate given the past, $\lambda_\infty > 0$ is the baseline rate, and $\mu(\cdot) \ge 0$ is the <strong>excitation kernel</strong> measuring how strongly a past event lifts the current rate. The quantity $\hat\mu = \int_0^\infty \mu(u)\,du < 1$ (the kernel's total mass, required below one for stability) is the <strong>branching ratio</strong>.</p>
+<p><strong>The key object — the general compound marked process.</strong> The signed, size-weighted flow is
+$$L_t = \sum_{i=1}^{N_t} a(X_i),$$
+where $a(\cdot)$ is a general mark functional (e.g. $+$size for buys, $-$size for sells) — "compound" because it sums the marks, "general" because $a$ need not be the identity.</p>
+<p><strong>The key results.</strong>
+<em>Law of Large Numbers:</em>
+$$\frac{L_{t}}{t} \xrightarrow{\;t\to\infty\;} \frac{\bar a\,\lambda_\infty}{1-\hat\mu} \equiv \ell,$$
+with $\bar a = \mathbb{E}[a(X)]$ the mean mark effect; the denominator $1-\hat\mu$ is the Hawkes self-excitation multiplier.</p>
+<p><em>Functional Central Limit Theorem (constant centralization):</em>
+$$\frac{L_{nt} - \ell\, n t}{\sqrt{n}} \xrightarrow{\;n\to\infty\;} \sigma\, W_t,$$
+convergence in distribution on path space to $\sigma W_t$, where $W_t$ is a standard Brownian motion and $\sigma^2$ is an explicit variance built from $\lambda_\infty$, $\hat\mu$, and the mark moments. A companion <strong>stochastic-centralization</strong> FCLT centers by the random $\int_0^{nt}\ell\,ds$ instead of the deterministic trend.</p>
+<p><strong>The method.</strong> The proofs use the <strong>immigration–birth (cluster) representation</strong> of Hawkes processes together with martingale central limit theory and the <strong>continuous mapping / random time-change</strong> arguments standard in functional limit theorems — turning the compensated counting martingale's quadratic variation into the limiting variance $\sigma^2$.</p>
+<p><strong>Results with numbers.</strong> Illustrated on a real BTC high-frequency LOB dataset, estimating $\lambda_\infty$, the kernel $\mu$, and mark moments, then showing the empirical drift and diffusive scaling match the LLN/FCLT predictions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Hawkes process</strong> — a point process whose event rate is pushed up by its own past events, producing self-exciting clusters.</li>
+<li><strong>Conditional intensity $\lambda_t$</strong> — the instantaneous probability per unit time of an event, given everything that has happened so far.</li>
+<li><strong>Excitation kernel $\mu$</strong> — the function describing how much, and for how long, each past event raises the current event rate.</li>
+<li><strong>Branching ratio $\hat\mu$</strong> — the kernel's total integral; it must be below 1 for the process to stay stable rather than explode.</li>
+<li><strong>Marked / compound process</strong> — a point process whose events carry attached values (marks) that are summed to form a running total.</li>
+<li><strong>Functional Central Limit Theorem (FCLT)</strong> — a central limit theorem for whole rescaled <em>paths</em>, concluding convergence to Brownian motion rather than to a single Gaussian.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Limit theorems describe long-run, zoomed-out behavior, which is exactly the regime a millisecond-scale market maker does <em>not</em> live in — the fluctuations that matter for immediate risk are in the pre-asymptotic, finite-$t$ world the LLN averages away. The i.i.d.-mark assumption is also questionable: order sizes cluster and correlate with intensity in real books. Still, as a principled way to calibrate drift and diffusion scales for crypto order flow, and to stress-test simpler models, it is solid groundwork.</p>
+<h3>Bottom Line</h3>
+<p>Self-exciting order flow looks like chaos up close, but zoom out and it is just a known drift plus Gaussian noise — and now that result holds for the realistic size-weighted, crypto version.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Implied volatility models without static arbitrage</h2>
+  <p class="meta">Michał Barski, Maciej Wiśniewolski<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-13 &middot; <a href="http://arxiv.org/abs/2611.18937v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.18937v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If you let an option's "implied volatility surface" wander randomly over time, there is a real chance it accidentally quotes prices a trader could rob you with — and this paper computes that chance exactly and shows how to build models where it is zero.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Every option has a number called <strong>implied volatility</strong> — essentially the market's guess of how jumpy the underlying stock will be, backed out from the option's price. Plot this number across all strike prices and expiry dates and you get a <em>surface</em>, a rolling landscape that quants stare at all day. Now, this surface is not allowed to be any old shape. If it bulges or dips the wrong way, it implies that some combination of options is a free lunch — a <strong>static arbitrage</strong>, where you buy and sell a basket today, pocket cash immediately, and never risk a loss. Real markets don't offer free lunches, so a self-respecting model of how the surface <em>moves</em> must never, at any future moment, drift into one of these forbidden shapes. The catch: many popular models that evolve the surface randomly make no such promise. Let them run, and sooner or later they produce an arbitrageable surface.</p>
+<p><strong>The idea.</strong> The authors do two things. First, they take the honest, slightly alarming step of <em>measuring the damage</em>: for a common class of models where the surface is driven by Gaussian random factors, they derive exact formulas for the <strong>probability</strong> that the surface commits each classic sin — a calendar-spread arbitrage (mispricing across time), a call-spread arbitrage (mispricing across strikes), or a butterfly arbitrage (a kinked smile that implies negative probabilities). The uncomfortable punchline: that probability is strictly positive. These models <em>will</em> misbehave; it is only a matter of when. Second, they build a cure. By replacing the unbounded Gaussian drivers with <em>bounded</em> random factors — ones that are mathematically fenced into a safe region — they derive precise conditions under which arbitrage can <em>never</em> occur, and then retrofit a well-known existing model (Cont–Vuletić) using "Jacobi diffusions" that stay politely inside their fence, keeping the model's realistic look while slamming the arbitrage door shut.</p>
+<p><strong>What they found.</strong> For Gaussian factor models, arbitrage is not a rare glitch but a guaranteed eventual event with computable odds. For bounded-factor models, they give <em>deterministic</em> necessary-and-sufficient conditions for lifelong arbitrage-freeness, plus simpler sufficient ones that are easy to check. Their rebuilt Cont–Vuletić model is, by construction, free of static arbitrage forever — a genuine upgrade over the original.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a filtered probability space $(\Omega,\mathcal F,(\mathcal F_t),\mathbb P)$. Model the implied volatility surface $\Sigma_t(T,K)$ — or an equivalent transform such as total implied variance $w_t(T,k) = \Sigma_t^2(T,k)\,(T-t)$ in log-moneyness $k=\log(K/F)$ — as a stochastic field driven by factors $Z_t$:
+$$\Sigma_t(T,K) = G\big(T,K,\, Z_t\big),$$
+where $T$ is expiry, $K$ strike, $F$ the forward, and $Z_t\in\mathbb R^d$ the driving factors.</p>
+<p><strong>The no-arbitrage conditions.</strong> Static arbitrage is excluded iff the surface respects three shape constraints at all times:
+- <strong>Calendar:</strong> total variance non-decreasing in maturity, $\partial_T w_t(T,k) \ge 0$.
+- <strong>Butterfly (Durrleman condition):</strong> the risk-neutral density implied by the smile is non-negative, which for total variance $w$ reads
+$$\Big(1 - \tfrac{k\,\partial_k w}{2w}\Big)^{2} - \tfrac{\partial_k w}{4}\Big(\tfrac{1}{w} + \tfrac14\Big)(\partial_k w) + \tfrac{\partial_{kk} w}{2} \;\ge\; 0.$$
+- <strong>Call spread:</strong> monotonicity of call prices in strike.
+Here $\partial_k$, $\partial_{kk}$ are first/second derivatives in log-moneyness.</p>
+<p><strong>Gaussian factor result.</strong> With $Z_t$ Gaussian, each constraint fails on a half-space-type event, so the arbitrage probability is a Gaussian tail
+$$\mathbb P(\text{butterfly arb at } t) = \Phi\!\left(\frac{-\,a(T,k)}{b(T,k)}\right) > 0,$$
+where $\Phi$ is the standard normal CDF and $a,b$ are explicit functions of the model coefficients; strict non-degeneracy ($b>0$) makes it strictly positive.</p>
+<p><strong>The bounded-factor fix.</strong> Replace Gaussian drivers with a bounded diffusion. A <strong>Jacobi diffusion</strong> on $[\ell,u]$ solves
+$$dZ_t = \kappa(\theta - Z_t)\,dt + \sigma\sqrt{(Z_t-\ell)(u-Z_t)}\,dW_t,$$
+with mean-reversion speed $\kappa$, level $\theta$, volatility $\sigma$, and $W_t$ Brownian — its square-root-of-a-product diffusion term vanishes at the boundaries, trapping $Z_t$ inside $[\ell,u]$. Because the factors are now range-bounded, one can impose the shape inequalities <em>uniformly</em> over the attainable set, giving <strong>deterministic necessary and sufficient conditions</strong> for the absence of static arbitrage.</p>
+<p><strong>The method.</strong> The analysis combines (i) stochastic-field representations of the surface, (ii) Gaussian tail computations for the failure events, and (iii) boundary-non-attainment / support arguments for Jacobi diffusions to guarantee the constraints hold pathwise. The arbitrage-free Cont–Vuletić modification is obtained by swapping its drivers for Jacobi diffusions calibrated to preserve empirical features.</p>
+<p><strong>Results with numbers.</strong> Explicit closed-form arbitrage probabilities (Gaussian CDF expressions) for calendar, call-spread, and butterfly arbitrage; a reconstructed Cont–Vuletić model with provably zero static arbitrage that retains the original's qualitative surface dynamics.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Implied volatility surface</strong> — the map from strike and maturity to the volatility implied by each option's market price.</li>
+<li><strong>Static arbitrage</strong> — a position formed today from traded options that can never lose and may gain, i.e. a mispricing free lunch.</li>
+<li><strong>Calendar / call-spread / butterfly arbitrage</strong> — the three canonical violations: across maturities, across strikes, and in smile curvature (negative implied density).</li>
+<li><strong>Total implied variance</strong> — implied volatility squared times time to maturity, the natural coordinate in which no-arbitrage conditions simplify.</li>
+<li><strong>Durrleman / butterfly condition</strong> — the inequality on the smile guaranteeing the implied risk-neutral density is non-negative.</li>
+<li><strong>Jacobi diffusion</strong> — a mean-reverting stochastic process confined to a bounded interval because its noise term shrinks to zero at both ends.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>"Static" arbitrage is only part of the story — a surface can be static-arbitrage-free yet still admit <em>dynamic</em> arbitrage once you trade through time, which this framework doesn't fully close off. Bounded Jacobi factors also trade realism for safety: capping the factors can clip genuine tail moves the market really shows. For model builders and risk teams who need surfaces that provably won't generate phantom free lunches, though, this is a clean and usable recipe.</p>
+<h3>Bottom Line</h3>
+<p>Random volatility surfaces quietly manufacture free lunches with positive probability — unless you fence their drivers inside a box, and this paper hands you the box.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> Deep Learning for Operator Maps in Optimal Liquidation</h2>
+  <p class="meta">Ryan Donnelly, Luca Galimberti, Brian Healy, Siqi Zhang<br>
+    <span class="cat">q-fin.TR</span> &middot; 2026-11-10 &middot; <a href="http://arxiv.org/abs/2611.14245v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.14245v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Selling a huge block of stock without crashing the price is a hard optimization you'd rather not re-solve every time the market changes — so this paper proves the answer varies smoothly with the inputs, which licenses training one neural network to spit out the whole strategy instantly.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Imagine a pension fund that must sell ten million shares by the end of the day. If it dumps them all at once, its own selling pushes the price down and it gets a terrible average price — this is <strong>market impact</strong>. So it slices the order into a schedule: sell a bit now, a bit later, trickling out to avoid moving the price too much. Finding the <em>best</em> trickle is a genuine optimization problem, and it depends sensitively on how the market absorbs pressure: some of your impact is temporary (the price springs back after you stop), and some is <strong>transient</strong> — it lingers and decays slowly, like ripples spreading from where you traded. The exact shape of that lingering, the "impact kernel," is a function, and you never know it precisely. Worse, each time your estimate of it changes, you'd in principle have to re-solve the whole optimal-execution problem from scratch, which is too slow for live trading.</p>
+<p><strong>The idea.</strong> The authors ask a deceptively simple question: if I nudge the market parameters a little — a slightly different impact kernel, a slightly different volatility — does the optimal selling strategy change a little, or could it lurch wildly? They prove it changes a little: the map from "model parameters" to "optimal strategy" is <strong>locally Lipschitz continuous</strong>, meaning small input changes produce proportionally small output changes, with no cliffs or jumps. Why does that matter? Because it is exactly the mathematical permission slip you need to replace the expensive solver with a <strong>neural network</strong> that takes the parameters as input and outputs the strategy directly. Neural nets approximate smooth, well-behaved maps well; they struggle with discontinuous ones. Having proved the map is tame, the authors then do the engineering: they generate realistic impact kernels to make training data, compress each kernel down to a handful of numbers a network can digest, and train the net. Once trained, it produces the optimal liquidation schedule for new market conditions in a blink.</p>
+<p><strong>What they found.</strong> The solution map is provably smooth in the right sense, so the neural-net shortcut is justified, not just convenient. The trained network reproduces the optimal strategy accurately, and — the practically useful bit — they use it to put a dollar figure on the cost of getting the impact kernel <em>wrong</em>, quantifying how much misspecifying the market's memory actually costs a trader.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> A trader holds inventory $q_t$ and trades at rate $v_t = -\dot q_t$ over $[0,T]$, starting at $q_0$ and liquidating to $q_T = 0$. The execution price is the fundamental price $S_t$ plus impact. Following Abi Jaber–Neuman, transient impact is governed by a <strong>kernel</strong> $G$: the price distortion at time $t$ is
+$$I_t = \int_0^t G(t-s)\, v_s\, ds,$$
+and the cost functional to minimize is
+$$J(v) = \mathbb{E}\!\left[\int_0^T \Big(\eta\, v_t^2 + v_t \!\int_0^t G(t-s) v_s\,ds \Big) dt \;-\; \int_0^T q_t\, dS_t\right],$$
+where $\eta > 0$ is the temporary-impact coefficient, $G$ the transient-impact kernel (its decay encodes how long impact lingers), $q_t$ inventory, and $S_t$ the fundamental price. The minimizer $v^\star$ typically solves a <strong>Fredholm integral equation</strong> of the second kind.</p>
+<p><strong>The key result — Lipschitz continuity of the solution map.</strong> Let $\Theta = (\eta, G, \mu_S, \dots)$ collect the model parameters. The authors show the optimal control map
+$$\Phi:\ \Theta \longmapsto v^\star(\Theta)$$
+is <strong>locally Lipschitz</strong>: there is a constant $C$ (uniform on bounded parameter sets) with
+$$\lVert v^\star(\Theta_1) - v^\star(\Theta_2)\rVert \;\le\; C\, \lVert \Theta_1 - \Theta_2 \rVert,$$
+in appropriate function-space norms. This continuity is what justifies approximating $\Phi$ by a neural network $\Phi_\theta$.</p>
+<p><strong>The method.</strong> Three engineering pieces make the proof actionable: (i) a <strong>generative sampler</strong> producing realistic transient-impact kernels $G$ to build training data; (ii) a <strong>projection</strong> of each infinite-dimensional kernel onto a finite basis so it becomes a fixed-length vector the net can ingest; and (iii) a <strong>dimension reduction</strong> exploiting the structural link between inventory $q_t$ and the trade signal to shrink the input further. The network is then trained by supervised regression against solved strategies, with the Lipschitz bound guaranteeing the target map is learnable.</p>
+<p><strong>Results with numbers.</strong> The trained network reproduces optimal liquidation strategies across sampled kernels and is used to quantify the financial cost of <strong>kernel misspecification</strong> — i.e. how much extra execution cost a trader incurs by assuming the wrong impact-decay shape — turning an abstract modeling error into a concrete price tag.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Optimal liquidation / execution</strong> — choosing a trading schedule to sell (or buy) a large position at minimal total cost, balancing speed against price impact.</li>
+<li><strong>Market impact</strong> — the adverse price move caused by your own trading; <em>temporary</em> springs back, <em>transient</em> decays slowly over time.</li>
+<li><strong>Impact kernel $G$</strong> — the function describing how a trade's price impact lingers and fades afterward; the market's "memory."</li>
+<li><strong>Locally Lipschitz continuous</strong> — a map whose output changes by at most a constant times the input change, on any bounded region — smooth enough to approximate reliably.</li>
+<li><strong>Fredholm integral equation</strong> — an equation where the unknown function appears inside an integral against a kernel; the optimal-trading rate solves one.</li>
+<li><strong>Operator / solution map</strong> — the function sending model parameters to the resulting optimal strategy, here shown to be well-behaved enough to learn.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The headline is a continuity theorem, not a new trading edge — it legitimizes a speed-up rather than improving the underlying strategy, which is only as good as the Abi Jaber–Neuman model it inherits (linear impact, a known kernel family, no adversaries reacting to your trades). Real execution also faces adverse selection and regime shifts that a parameter-to-strategy net trained offline won't anticipate. But as infrastructure — fast, differentiable strategy evaluation plus an honest measure of model-risk cost — it's a genuinely useful building block for an execution desk.</p>
+<h3>Bottom Line</h3>
+<p>Prove the best liquidation strategy bends smoothly with the market's assumptions, and you've earned the right to replace a slow solver with a neural net that trades the block in an instant.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Log-optimal portfolios for market models with regime switching</h2>
+  <p class="meta">Tahir Choulli, Xunbai Yin<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-15 &middot; <a href="http://arxiv.org/abs/2611.20163v1">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.20163v1">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If the market secretly flips between "calm" and "stormy" regimes and you can switch which strategy you follow, this paper pins down exactly when a growth-maximizing bet exists and measures how much the hidden regime-switching itself adds to — or steals from — your long-run wealth growth.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Picture an investor who wants their money to grow as fast as possible over the long haul — not to win big once, but to compound wealth at the highest sustainable rate. The classic answer is the <strong>log-optimal</strong> (or "Kelly") strategy: at each moment, bet so as to maximize the expected growth rate of the logarithm of your wealth, and over a long horizon you'll out-compound everyone else almost surely. That's clean in a single, stable market. But real markets are not one market — they lurch between moods. There are calm periods with low volatility and steady drift, and stormy periods with crashes and wild swings, and the economy hops between them at random times. Economists model this with a hidden "regime" that switches back and forth. The honest question is: when the market is really a <em>collection</em> of different models, and you can switch which one you're playing in as the regime changes, does a best growth strategy even exist — and how much does all that switching help or hurt?</p>
+<p><strong>The idea.</strong> The authors set up a flexible switching world: there are $D$ possible market models, and a random clock — a continuous-time Markov chain — decides which regime is active at each instant. They stitch these into one combined "switched" market and ask two sharp questions. First, the existence question: under exactly what conditions on the pair (the family of markets, the switching dynamics) does a log-optimal portfolio actually exist and have finite expected utility? You can't optimize if the maximum is infinite or unattainable, so this matters. Second, the accounting question: compared to just sitting in the first regime forever, how much does the randomness of the regime-switching — and the extra risk it injects — change your best-achievable long-run growth? They decompose that difference into identifiable pieces, so you can see what the switching <em>costs</em> you in risk and what it <em>earns</em> you in opportunity.</p>
+<p><strong>What they found.</strong> They give necessary-and-sufficient conditions for the log-optimal portfolio to exist in the general switching model — a clean "exists if and only if" rather than a one-way sufficient condition. And they fully characterize the <em>increment</em> in maximum expected log-utility between the switching market and the static single-regime market, isolating which factors (the switching intensities, the regimes' own risk-reward profiles, the correlations) drive that increment up or down.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Fix a probability space with a continuous-time <strong>Markov chain</strong> $\alpha = (\alpha_t)_{t\ge 0}$ on states $\{1,\dots,D\}$, $\alpha_0 = 1$, with generator matrix $Q=(q_{ij})$ (off-diagonal $q_{ij}\ge 0$ are switching rates). For each state $i$ there is a semimartingale market model $X^{(i)}$; the agent switches among the family $\mathbb{X} = (X^{(i)})_{i=1,\dots,D}$ as $\alpha$ moves, producing a combined switched model $\widehat X$. Wealth from a self-financing portfolio $\pi$ with initial capital $x$ evolves as
+$$\frac{dV_t^{\pi}}{V_{t^-}^{\pi}} = \pi_t^\top \, d\widehat X_t .$$</p>
+<p><strong>The objective.</strong> The <strong>log-optimal portfolio</strong> maximizes expected terminal logarithmic utility,
+$$\widehat\pi \in \arg\max_{\pi}\ \mathbb{E}\big[\log V_T^{\pi}\big], \qquad \mathbb{E}\big[\log V_T^{\widehat\pi}\big] < \infty .$$
+For a semimartingale with predictable characteristics (drift $b$, diffusion $c$, jump measure $\nu$), the log-growth rate integrand takes the Lévy–Khintchine-type form
+$$g(\pi) = \pi^\top b - \tfrac12 \pi^\top c\, \pi + \int \big(\log(1+\pi^\top z) - \pi^\top z\big)\,\nu(dz),$$
+and $\widehat\pi$ is the pointwise maximizer of $g$ in each regime, coupled across regimes through the switching.</p>
+<p><strong>The key results.</strong> (1) <em>Existence:</em> necessary and sufficient conditions on $(\mathbb{X},\alpha)$ — essentially a <strong>structure-condition / no-unbounded-growth</strong> requirement in every visited regime plus integrability against the chain's occupation measure — for $\widehat\pi$ to exist with finite expected log-utility. (2) <em>Increment decomposition:</em> an explicit expression for
+$$\Delta \;=\; \mathbb{E}\big[\log V_T^{\widehat\pi}(\widehat X)\big] \;-\; \mathbb{E}\big[\log V_T^{\pi^{(1)}}(X^{(1)})\big],$$
+the gain in maximal log-utility from the switched model over the static first-regime model $X^{(1)}$, written in terms of the regimes' individual growth rates, the chain's transition rates $q_{ij}$, and the intrinsic risk of regime randomness.</p>
+<p><strong>The method.</strong> The tools are <strong>semimartingale characteristics</strong> and the structure/no-arbitrage conditions of general mathematical finance, combined with <strong>Markov-modulated (regime-switching) stochastic analysis</strong> — conditioning on the chain's path, maximizing the growth integrand regime-by-regime, then integrating against the chain's law to assemble the global optimum and the increment $\Delta$.</p>
+<p><strong>Results with numbers.</strong> The paper's "numbers" are structural rather than empirical: the exact if-and-only-if existence criterion, and the closed decomposition of $\Delta$ identifying every factor that raises or lowers the switched model's maximal log-growth relative to the single-regime benchmark.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>Log-optimal / Kelly portfolio</strong> — the strategy maximizing expected growth of log-wealth, which almost surely out-compounds any other over a long horizon.</li>
+<li><strong>Regime switching</strong> — a model where market dynamics jump between a finite set of states ("calm," "stormy") governed by a random switching mechanism.</li>
+<li><strong>Continuous-time Markov chain</strong> — a process that sits in one of finitely many states and jumps to others at random times with state-dependent rates.</li>
+<li><strong>Semimartingale</strong> — the general class of "integrable" stochastic processes for which stochastic integration (and hence self-financing wealth) is well defined.</li>
+<li><strong>Generator matrix $Q$</strong> — the matrix of instantaneous switching rates that fully specifies a continuous-time Markov chain's dynamics.</li>
+<li><strong>Expected logarithmic utility</strong> — the growth-rate objective; maximizing it is equivalent to maximizing long-run compound wealth.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a theory paper: it tells you <em>when</em> the optimum exists and <em>what</em> drives the switching premium, not how to estimate regimes or trade them, and log-optimal betting is famously aggressive — real investors rarely stomach full-Kelly drawdowns. It also assumes the agent can cleanly switch models and knows the regime structure, whereas in practice the regime is hidden and must be filtered from noisy data. As a rigorous foundation for understanding growth investing under regime uncertainty, though, it fills a genuine gap.</p>
+<h3>Bottom Line</h3>
+<p>When the market keeps changing its personality, this paper says precisely when a fastest-growth strategy still exists — and exactly how much the mood swings add to or subtract from your compounding.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
