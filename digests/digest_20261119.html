@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Paper Digest — November 19, 2026</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root { --ink:#1a1a2e; --muted:#6b7280; --rule:#e5e7eb; --accent:#3b3b8f; --mathbg:#f6f7fb; }
+  body { font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); max-width:780px; margin:0 auto; padding:32px 20px 80px;
+         line-height:1.62; font-size:17px; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:14px; margin-bottom:8px; }
+  header h1 { font-size:26px; margin:0 0 4px; letter-spacing:-.2px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .intro { color:var(--muted); font-size:15px; margin:14px 0 28px; }
+  section.paper { padding:26px 0; border-bottom:1px solid var(--rule); }
+  section.paper h2 { font-size:20px; line-height:1.35; margin:0 0 6px; }
+  .num { color:var(--accent); font-weight:700; }
+  .meta { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  .meta .cat { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+               background:#eef0f7; color:var(--accent); padding:1px 6px; border-radius:4px; }
+  .meta a { color:var(--accent); text-decoration:none; }
+  .analysis h3 { font-size:15px; text-transform:uppercase; letter-spacing:.06em;
+                 color:var(--accent); margin:22px 0 6px; }
+  .analysis h4 { font-size:16px; margin:18px 0 4px; }
+  .analysis table { border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px; }
+  .analysis th, .analysis td { border:1px solid var(--rule); padding:6px 10px; text-align:left; }
+  .analysis th { background:var(--mathbg); }
+  .analysis code { background:var(--mathbg); padding:1px 5px; border-radius:4px;
+                   font-size:14px; }
+  .analysis pre { background:var(--mathbg); padding:12px; border-radius:6px; overflow-x:auto; }
+  mjx-container[display="true"] { background:var(--mathbg); padding:8px 4px; border-radius:6px;
+                                   overflow-x:auto; }
+  footer { color:var(--muted); font-size:13px; margin-top:36px; text-align:center; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant Paper Digest</h1>
+  <div class="sub">November 19, 2026 &middot; 5 papers from arXiv q-fin</div>
+</header>
+<p class="intro">The week's most substantive quantitative-finance research — the
+modeling, pricing, trading and risk end. Each paper is explained twice: once in
+plain English assuming zero background, once with the actual mathematics.</p>
+
+<section class="paper">
+  <h2><span class="num">1.</span> Algorithmic Market Making Can Lead to Rough Volatility Through the Order Book</h2>
+  <p class="meta">Sai Niranjan Ramachandran<br>
+    <span class="cat">cs.LG</span> &middot; 2026-11-18 &middot; <a href="https://arxiv.org/abs/2611.24028">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.24028">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Millions of automated market-making bots, each nudging its quotes toward a target, can collectively manufacture the jagged "rough" volatility we actually observe in markets.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Volatility means how much a price jiggles around. If you plot how volatility itself changes over time, its path turns out to be <em>rougher</em> — more jagged, less smooth — than the path of a plain random walk. This is a well-documented empirical fact, but it is a puzzle: <em>why</em> should volatility be so jagged? Where does the roughness come from, mechanically? Today most quoting in liquid markets is done by algorithms — automated "market makers" that continuously post buy and sell orders in the order book. If roughness is real, it ought to emerge from what these algorithms do, and nobody had a clean bottom-up story for how.</p>
+<p><strong>The idea.</strong> Picture each market maker as a trading desk with one job: keep its orders a certain distance away from the current mid-price. It does not know the perfect distance; an "oracle" (its private signal) keeps suggesting a target, and the desk just takes a small step toward that target each time — like nudging a thermostat a little whenever the room feels off. Crucially, the desks do not all act at the same instant: each one reacts whenever news relevant to <em>its</em> signal arrives, and each looks back over its own characteristic window of history. Add up all these little nudges and you get exactly the recipe behind training neural networks: <em>stochastic gradient descent</em> with noisy "mini-batches." Zoom out to the continuum and the volume sitting in the order book starts to obey a famous physics equation for jostling crowds of particles (the Dean–Kawasaki equation). Because the desks remember over different horizons, the combined order flow develops long memory that fades slowly — as a power law — and that slow-fading memory is precisely the ingredient that produces rough volatility.</p>
+<p><strong>What they found.</strong> A single, self-consistent mechanism that turns ordinary algorithmic quoting into rough volatility. They check the model's predictions on simulated trading agents and on six months of real Binance crypto data — roughly 790 million orders — and find the order-book behavior matches, especially in liquid, market-maker-dominated venues like perpetual futures.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Desk $i$ posts orders at distance $d_i$ from the mid-price and wants to reach an oracle target $d_i^*$. Using a first-order gradient rule it updates $d_i \leftarrow d_i - \eta\,\nabla_{d_i} L_i$, where $\eta$ is a step size and $L_i$ penalizes the gap from target. Because desks fire asynchronously, each sampling information over its own lookback horizon $\tau_i$, the aggregate update is stochastic gradient descent with information-driven (mini-batch) noise.</p>
+<p><strong>The key equation.</strong> In the continuum limit the order-book volume density $\rho(x,t)$ obeys the conservative Dean–Kawasaki stochastic PDE
+$$\partial_t \rho = \partial_x\!\big(D\,\partial_x\rho + \rho\,\partial_x V\big) + \partial_x\!\big(\sqrt{2D\rho}\;\xi\big),$$
+where $\rho(x,t)$ is the resting volume at log-distance $x$ from the mid at time $t$, $D$ is a diffusion coefficient, $V$ is the potential encoding target distances, and $\xi$ is space–time white noise. The noise enters inside a divergence $\partial_x(\cdot)$, which keeps total volume conserved. The heterogeneous horizons make the order-flow autocovariance decay as a power law,
+$$\operatorname{Cov}\big(Q_{t},Q_{t+s}\big)\sim s^{-\gamma},\qquad 0<\gamma<1,$$
+where $Q_t$ is net order flow and $\gamma$ the memory exponent. Standard scaling then gives a rough volatility process with Hurst exponent
+$$H=\tfrac{1-\gamma}{2}<\tfrac12 ,$$
+so that $\mathbb{E}\,|\sigma_{t+\Delta}-\sigma_t|^2 \sim \Delta^{2H}$, the signature of roughness.</p>
+<p><strong>The method.</strong> A hydrodynamic (continuum) limit of many interacting SGD learners, yielding the Dean–Kawasaki SPDE, combined with scaling arguments that convert power-law order-flow memory into a sub-$1/2$ Hurst exponent — then empirical validation on simulated agents and on the Binance limit-order book.</p>
+<p><strong>Results with numbers.</strong> Tested on six months of Binance data, about 790 million orders; the empirical order-book fluctuations and the slow, power-law decay of order-flow memory line up with the model in liquid, market-maker-driven markets (perpetual futures), the regime where the assumptions hold best.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>order book</strong> — the live list of all resting buy and sell orders at each price.</li>
+<li><strong>mid-price</strong> — the midpoint between the best bid and the best ask.</li>
+<li><strong>stochastic gradient descent (SGD)</strong> — an optimization rule that repeatedly nudges parameters "downhill" using noisy samples of the error.</li>
+<li><strong>Dean–Kawasaki equation</strong> — a stochastic PDE describing how the fluctuating density of many interacting particles evolves while conserving total mass.</li>
+<li><strong>rough volatility</strong> — volatility whose path is less smooth than Brownian motion, with Hurst exponent below one-half.</li>
+<li><strong>Hurst exponent ($H$)</strong> — a number in $(0,1)$ gauging a path's smoothness and memory; $H=1/2$ is Brownian, $H<1/2$ is rough.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a <em>plausible</em> mechanism, not proof that it is the only cause of rough volatility, and the continuum limit leans on idealizations (asynchronous desks, a specific gradient rule). Crypto perpetual futures are an unusually market-maker-dominated venue; equity markets, with messier and more directional flow, may not reduce so cleanly to these dynamics. Even so, it is a genuinely illuminating bridge from microstructure to a stylized fact that has mostly been imposed by hand.</p>
+<h3>Bottom Line</h3>
+<p>Rough volatility may simply be the aggregate fingerprint of countless little thermostats nudging the order book out of step with one another.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">2.</span> Spectral Pricing of Corridor Products under Layered Local Volatility</h2>
+  <p class="meta">Andrey Itkin, Dmitry Muravey<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-11-17 &middot; <a href="https://arxiv.org/abs/2611.23587">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.23587">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A clever change of coordinates turns the slow job of pricing a "pay-while-you-stay-in-the-band" option into one small matrix eigenvalue problem — about sixty times faster than the standard grid method.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> A <em>corridor product</em> pays you according to how much time the underlying asset spends inside a chosen price band (the "corridor"), and often dies if the price touches a knock-out barrier. These are genuinely useful structured products, but they are awkward to price: you care not just about where the price ends up, but about how long it loitered inside the band along the way. The usual workaround is to add a second bookkeeping variable — "time accrued so far" — which makes the computation expensive, especially when volatility realistically depends on both price level and time.</p>
+<p><strong>The idea.</strong> First, approximate volatility as a <em>staircase</em>: constant within each price band and within each time slice (this is "layered local volatility"). Then stretch the price axis so that, in the new coordinates, the pricing operator collapses into a small symmetric tridiagonal matrix — a matrix with numbers only on the diagonal and its immediate neighbors. Such matrices are easy to decompose into their natural "vibration modes" (eigenvalues and eigenfunctions). The option value becomes a sum over these modes, and the sum converges extraordinarily fast. To march through time, you re-express the solution at the end of one volatility slice in the mode-basis of the next slice — like translating a sentence between two closely related dialects.</p>
+<p><strong>What they found.</strong> The method agrees with independent benchmark calculations to nearly the last digit (rounding-error level), and it stays accurate right at the volatility interfaces — the exact spots where ordinary finite-difference grids lose a full order of accuracy. And it runs about sixty times faster than the finite-difference scheme that has to drag the accrued-time variable along.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The underlying follows a diffusion with local volatility that is piecewise constant in price and in time, split into $N$ layers, with knock-out barriers. Pricing reduces to building the <em>killed</em> (knock-out) Green's function $G(x,y;t)$ of the pricing PDE, where $x$ is the scaled price state and $t$ time. The corridor accrual is captured through a Fourier/Laplace transform of the accrual variable rather than by adding it as a live state.</p>
+<p><strong>The key equations.</strong> A spatial scale transformation plus the GIT method reduce the killed Green's function on one time interval to a symmetric tridiagonal system of fixed size $N-1$, whose spectral decomposition gives
+$$G(x,y;t)=\sum_{k\ge 1} e^{-\lambda_k t}\,\phi_k(x)\,\phi_k(y),$$
+where $\lambda_k>0$ are the eigenvalues (decay rates), $\phi_k$ are the eigenfunctions that vanish at every layer interface, and $t$ is elapsed time; the series converges exponentially in the number of retained terms. Successive constant-volatility intervals are stitched by a transfer matrix $M$ that re-expands the current solution in the eigenbasis of the preceding interval,
+$$c^{(n)} = M\,c^{(n-1)},$$
+with $c^{(n)}$ the vector of expansion coefficients on interval $n$. An exact counting theorem locates every eigenvalue even when the scaled layer widths differ.</p>
+<p><strong>The method.</strong> A spectral (eigenfunction-expansion) solution of a killed diffusion with layered coefficients. The corridor accrual law is then recovered by inverting the time and Fourier transforms, and Greeks and per-layer vegas follow simply by differentiating the closed-form expansion.</p>
+<p><strong>Results with numbers.</strong> Benchmarked against independent calculations, the method matches to near rounding error and retains full accuracy at the volatility interfaces, whereas tested uniform finite-difference grids drop by one order of convergence there. It computes the accrual law roughly <strong>60× faster</strong> than the finite-difference scheme that carries accrued time as a second state variable; allowing the killing (knock-out) rate to differ by layer preserves the whole construction.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>local volatility</strong> — a volatility that is a known deterministic function of the current price and time.</li>
+<li><strong>corridor / range-accrual product</strong> — a derivative that pays in proportion to the time the underlying spends inside a price band.</li>
+<li><strong>knock-out barrier</strong> — a price level that cancels the contract if touched.</li>
+<li><strong>Green's function</strong> — the kernel that propagates an initial point mass forward under the pricing equation; "killed" means it also accounts for the knock-out.</li>
+<li><strong>eigenfunction (spectral) expansion</strong> — writing a solution as a weighted sum of an operator's natural vibration modes.</li>
+<li><strong>Greeks / vega</strong> — sensitivities of the price to its inputs; vega is the sensitivity to volatility.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>The speed comes from assuming volatility is a staircase; a genuinely smooth volatility surface must be chopped into layers, and if you need many layers to capture it faithfully, the tridiagonal problem grows and some of the speed edge erodes. But for structured products whose volatility is naturally banded, this is a fast, accurate, desk-ready tool — and keeping accuracy at the interfaces is a real practical win over grids.</p>
+<h3>Bottom Line</h3>
+<p>Rewrite the problem in the right coordinates and a slow grid crawl becomes a fast sum over a handful of modes.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">3.</span> Total Positivity Properties of American Options</h2>
+  <p class="meta">Paul Glasserman, Mike Li, Dan Pirjol<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-17 &middot; <a href="https://arxiv.org/abs/2611.23495">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.23495">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>If an asset's returns are "bell-shaped" in a precise sense, the price ratio of a higher-strike call to a lower-strike call must rise with maturity — and this ordering holds even more reliably for American options than for European ones.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Option prices are not free to be anything they like: no-arbitrage forces hidden shape constraints across strikes and maturities. One subtle such rule, called TP2, says: take a far-out-of-the-money call and a nearer one, and look at the ratio of their prices; that ratio should <em>increase</em> as you move to longer maturities. If it ever goes the wrong way, there may be a small arbitrage to harvest. Earlier work established when this holds for European options (exercised only at expiry). The open question: does it also hold for American options, which the holder can exercise early — and whose value therefore involves an optimal-timing decision?</p>
+<p><strong>The idea.</strong> The crucial ingredient is that the asset's log-returns have a <em>log-concave</em> density — a single-peaked, not-too-heavy-tailed shape, with the Gaussian bell curve as the headline example. Under that assumption, the authors prove TP2 holds for American calls and puts, and, strikingly, that it holds <em>more broadly</em> for American options than for European ones. Early-exercise rights, rather than muddying the ordering, actually reinforce it. Then they go to the data and check.</p>
+<p><strong>What they found.</strong> In real markets, TP2 violations are infrequent, usually small, and reverse quickly — and simple trades that bet on the violation snapping back have high hit rates. Consistent with the theory, violations show up more often among European-style options than American ones.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Write the call price as $C(K,T)$, a function of strike $K$ and time-to-expiration $T$ (puts analogously). The property of interest is <em>total positivity of order 2</em>: $C$, viewed as a kernel in $(K,T)$, is TP2.</p>
+<p><strong>The key equations.</strong> TP2 means every $2\times 2$ determinant has the right sign: for strikes $K_1<K_2$ and maturities $T_1<T_2$,
+$$C(K_1,T_1)\,C(K_2,T_2)\;\ge\;C(K_1,T_2)\,C(K_2,T_1),$$
+which is equivalent to saying the ratio
+$$R(T)=\frac{C(K_2,T)}{C(K_1,T)}\quad\text{is nondecreasing in } T .$$
+The key sufficient condition is that the log-return density $f$ is log-concave, i.e. $\log f$ is concave,
+$$\log f\big(\alpha x+(1-\alpha)y\big)\;\ge\;\alpha\log f(x)+(1-\alpha)\log f(y),\quad \alpha\in[0,1],$$
+with the Gaussian density an important special case. Here $K_1,K_2$ are strikes, $T,T_1,T_2$ maturities, $C$ the (American or European) call price, and $f$ the density of log-returns of the underlying.</p>
+<p><strong>The method.</strong> The engine is Karlin's theory of totally positive kernels and their variation-diminishing property, applied to the optimal-stopping value function that defines an American option. Log-concavity of returns makes the transition kernel TP2, early exercise is shown to preserve and even extend that structure, and the monotone-ratio property follows.</p>
+<p><strong>Results with numbers.</strong> Empirically, TP2 violations are infrequent, typically small in magnitude, and reverse quickly; convergence trades that bet against violations achieve high hit rates. Violations are more common among European than American options — the direction the theory predicts, since American options satisfy TP2 under weaker conditions.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>call / put</strong> — the right to buy / to sell the underlying at a fixed strike price.</li>
+<li><strong>strike / time-to-expiration</strong> — the contract's fixed transaction price / the time left before it expires.</li>
+<li><strong>American vs European option</strong> — American can be exercised any time up to expiry; European only at expiry.</li>
+<li><strong>total positivity of order 2 (TP2)</strong> — a kernel property that all $2\times 2$ minors are nonnegative, equivalent to a monotone-likelihood-ratio ordering.</li>
+<li><strong>log-concave density</strong> — a probability density whose logarithm is concave, implying a single peak and controlled tails.</li>
+<li><strong>optimal stopping</strong> — choosing the best moment to exercise, the mathematics underlying American options.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>Log-concavity rules out heavy-tailed and multimodal return distributions — exactly the regimes that crises and jumps produce — so the guarantee can lapse right when markets turn violent. The arbitrage edge from violations is small and demands cheap, fast execution to be worth harvesting. As a <em>diagnostic</em> for whether a quoted option surface is internally sensible, though, it is clean, rigorous, and backed by the data.</p>
+<h3>Bottom Line</h3>
+<p>Well-behaved returns impose a tidy order on the option grid, and the right to exercise early only makes that order tidier.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">4.</span> PIRanNN: Random-Feature Pricing and Calibration under Jump-Diffusion and Stochastic-Volatility Models</h2>
+  <p class="meta">Saurabh Bansal, Srikanth K. Iyer, Shashi Jain<br>
+    <span class="cat">q-fin.CP</span> &middot; 2026-11-15 &middot; <a href="https://arxiv.org/abs/2611.19792">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.19792">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>A one-layer neural network with its inner weights frozen at random prices options in a single least-squares solve — matching a finite-difference scheme's accuracy at the same speed, and a physics-informed neural net's accuracy in seconds instead of half an hour.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> Pricing options under realistic models — ones with sudden jumps or with randomly moving volatility — and then <em>calibrating</em> those models so their prices match the market is computationally heavy. Physics-informed neural networks (PINNs) can do both, but they need slow iterative training, roughly half an hour per setup. Can we keep the flexibility of a neural network while throwing out the slow training?</p>
+<p><strong>The idea.</strong> Use a <em>random-feature</em> network: a single hidden layer whose inner weights are drawn at random and then frozen, with an S-shaped "probit" activation. Because only the output weights can move, fitting the network to the pricing equation plus the payoff plus the boundary conditions becomes one ordinary regularized least-squares problem — solved in a single shot, no training loop. For the Merton and Kou jump models, each feature's jump integral can be written down explicitly, so there is no slow numerical integration. One matrix factorization then hands you the price everywhere, its Greeks, <em>and</em> the exact derivatives of prices with respect to model parameters, which is exactly what gradient-based calibration needs. A neat trick: subtract the known Black–Scholes price first, which removes the sharp kink in the payoff and slashes the pricing error by about a hundredfold.</p>
+<p><strong>What they found.</strong> The method is about as accurate as a standard Crank–Nicolson finite-difference scheme at the same runtime, and it matches a PINN's accuracy in <em>seconds</em> rather than ~30 minutes. It also delivers a sharp calibration lesson: if your pricing error is not small compared with how much the parameters actually move prices, the optimizer will happily fit the quotes while returning the <em>wrong</em> parameters.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> The option value $u(S,t)$ solves a pricing (partial integro-differential) equation $\mathcal{L}u=0$ with a terminal payoff and boundary conditions, where $S$ is the spot and $t$ time. Models considered: Merton and Kou (jump-diffusion) and Heston and SABR (stochastic volatility).</p>
+<p><strong>The key equations.</strong> The price is approximated by a random-feature sum
+$$u(S,t)\;\approx\;\sum_{j=1}^{M} c_j\,\varphi\big(w_j\!\cdot\!(S,t)+b_j\big),$$
+where $\varphi$ is the probit activation, the inner weights $w_j$ and biases $b_j$ are fixed random numbers, $c_j$ are the only unknowns, and $M$ is the number of features. Enforcing the equation and the payoff/boundary conditions at collocation points turns fitting into
+$$\min_{c}\;\|A c - b\|_2^2 + \lambda\|c\|_2^2,$$
+where $A$ stacks the operator $\mathcal{L}$ and the conditions applied to each feature, $b$ holds the right-hand sides, and $\lambda$ is a regularization weight. A single factorization of $A$ reuses to give the price, the Greeks $\partial u$, and the parameter sensitivities $\partial u/\partial\theta$ for calibrating parameters $\theta$. For Merton/Kou the jump term $\int\!\big(\varphi(Se^{y})-\cdots\big)\nu(dy)$ is explicit per feature, so no quadrature is needed.</p>
+<p><strong>The method.</strong> A random-feature (extreme-learning-machine-style) least-squares collocation solver for the pricing equation, paired with gradient-based calibration using the exact parameter derivatives. Subtracting the Black–Scholes price acts as a control variate that removes the payoff kink.</p>
+<p><strong>Results with numbers.</strong> The Black–Scholes subtraction cuts pricing error by about <strong>two orders of magnitude</strong>. The method then roughly matches Crank–Nicolson finite differences at equal runtime (though an FD scheme that <em>also</em> subtracts Black–Scholes is about 100× more accurate still), and matches a PINN's accuracy in <strong>seconds versus ~30 minutes</strong>. In calibration, without the subtraction the solver misses jump parameters by up to <strong>50%</strong>; with it, they are recovered to within <strong>3%</strong>. For Heston and SABR, pricing errors are about <strong>1%</strong> and calibrated parameters land within about <strong>15%</strong> of the truth.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>jump-diffusion (Merton / Kou)</strong> — an asset model mixing continuous diffusion with random sudden jumps.</li>
+<li><strong>stochastic volatility (Heston / SABR)</strong> — models in which the volatility is itself random over time.</li>
+<li><strong>random feature / extreme learning machine</strong> — a network whose hidden weights are random and frozen, so only the linear output layer is fit.</li>
+<li><strong>collocation</strong> — enforcing an equation exactly at a chosen finite set of points.</li>
+<li><strong>Greeks</strong> — sensitivities of an option's price to its inputs.</li>
+<li><strong>calibration</strong> — choosing model parameters so model prices match observed market quotes.</li>
+<li><strong>control variate</strong> — solving for the difference from a known baseline (here Black–Scholes) to cancel its hard-to-handle part.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>This is a refreshingly honest paper: it admits that a Black–Scholes-subtracted finite-difference scheme remains about 100× more accurate, so the genuine wins are speed and clean, exact gradients, not raw precision. The ~15% parameter error on Heston/SABR is too loose for production calibration. Treat it as a fast, differentiable <em>approximate</em> pricer — and take the identifiability warning seriously, because it applies to any calibration pipeline.</p>
+<h3>Bottom Line</h3>
+<p>Freeze the randomness, solve once, and you get a fast differentiable pricer — just never trust a calibration whose pricing error rivals the effect of the parameters you are trying to find.</p></div>
+</section>
+
+<section class="paper">
+  <h2><span class="num">5.</span> Price-impact Martingale optimal transport</h2>
+  <p class="meta">Erhan Bayraktar, Shuoqing Deng, Daxin Huang, Dominykas Norgilas<br>
+    <span class="cat">q-fin.MF</span> &middot; 2026-11-12 &middot; <a href="https://arxiv.org/abs/2611.17247">abstract</a> &middot; <a href="https://arxiv.org/pdf/2611.17247">pdf</a></p>
+  <div class="analysis"><h3>The Gist</h3>
+<p>Classic model-free option bounds assume you can trade the underlying for free; adding a realistic trading cost makes those bounds depend on your order size and reveals them as an interpolation between two famous transport problems.</p>
+<h3>Plain English</h3>
+<p><strong>The problem.</strong> <em>Martingale optimal transport</em> (MOT) is a beautiful idea: using only the prices of plain vanilla options, you can derive bounds on the price of an exotic option that hold no matter what model generates the market — as long as you can trade the underlying freely. But real trading is not free. When you buy, you push the price up; when you sell, you push it down (that is <em>price impact</em>), and it costs you money. What happens to those model-free bounds once hedging is no longer frictionless?</p>
+<p><strong>The idea.</strong> The authors bolt a quadratic temporary price-impact cost onto the hedging problem and work out the new superhedging price — the cheapest portfolio that still dominates the payoff. They prove a duality: the strict "the price must be a perfect martingale" constraint gets softened into a <em>penalty</em> for drifting away from a martingale, rather than an outright ban. For one asset over one trading period, this reformulates as a <em>weak optimal transport</em> problem with the flavor of projecting onto the martingale set in Wasserstein distance. Best of all, the setup interpolates cleanly: crank the impact cost so deviations are punished infinitely and you recover ordinary MOT; switch the impact off entirely and you recover classical optimal transport. They even pin down how fast you converge to each limit.</p>
+<p><strong>What they found.</strong> Price bounds are no longer a single interval — they tighten or widen with the size of the order you must trade. On real SPX option data they show exactly how the price bounds per claim shift as order size grows.</p>
+<h3>The Math</h3>
+<p><strong>The setup.</strong> Work on a probability space with marginal laws $\mu$ (at time 0) and $\nu$ (at time 1) pinned down by vanilla option prices. In frictionless MOT the coupling of $\mu$ and $\nu$ must be a martingale; here, dynamic trading incurs a quadratic temporary impact cost, and the object of interest is the superhedging price $\pi$ of a claim with payoff $c$.</p>
+<p><strong>The key equations.</strong> The duality relaxes the martingale constraint into a penalty on the conditional drift. In spirit,
+$$\pi \;=\; \sup_{\gamma\,\in\,\Pi(\mu,\nu)}\;\int c\,d\gamma \;-\; \tfrac{1}{4\eta}\int \big|b_\gamma(x)\big|^2\,\mu(dx),$$
+where $\gamma$ is a coupling of $\mu$ and $\nu$, $\Pi(\mu,\nu)$ the set of all such couplings, $c$ the payoff, $b_\gamma(x)=\mathbb{E}_\gamma[\,Y - x \mid X=x\,]$ is the conditional drift (the deviation from the martingale property), and $\eta$ is the price-impact parameter. As $\eta\to 0$ the penalty explodes, forcing $b_\gamma\equiv 0$ — a martingale — and recovering <strong>MOT</strong>; as $\eta\to\infty$ the penalty vanishes and one recovers classical <strong>OT</strong>. For one asset and one period this is a weak optimal transport problem, characterized via a Wasserstein projection onto the martingale couplings, with explicit convergence rates to both the MOT and OT limits.</p>
+<p><strong>The method.</strong> Convex duality plus weak-optimal-transport theory to establish the superhedging formula and the Wasserstein-projection characterization, then linear-programming-style numerics on SPX option data.</p>
+<p><strong>Results with numbers.</strong> Numerical experiments on SPX option data quantify how the per-claim price bounds widen with order size, making concrete the gap between the frictionless MOT bounds (small orders) and the impact-laden bounds (large orders), with convergence rates derived to both the OT and MOT extremes.</p>
+<h3>Jargon Decoded</h3>
+<ul>
+<li><strong>optimal transport (OT)</strong> — the cheapest way to reshape one probability distribution into another.</li>
+<li><strong>martingale</strong> — a process whose expected future value equals its present value, the no-arbitrage "fair game" condition.</li>
+<li><strong>martingale optimal transport (MOT)</strong> — optimal transport restricted to martingale couplings, yielding model-free option price bounds.</li>
+<li><strong>superhedging price</strong> — the cheapest portfolio that dominates the payoff in every scenario.</li>
+<li><strong>temporary quadratic price impact</strong> — the self-inflicted cost of moving the price when you trade, modeled as proportional to the square of order size.</li>
+<li><strong>weak optimal transport / Wasserstein projection</strong> — an OT variant that penalizes a functional of the conditional law; here, the nearest martingale coupling in transport distance.</li>
+</ul>
+<h3>Honest Take</h3>
+<p>So far the sharp results are one-asset, one-period; the multi-period, multi-asset case with impact is substantially harder and still open. Quadratic <em>temporary</em> impact is a convenient idealization — real impact is nonlinear and partly permanent. But the conceptual move is exactly right: it exposes frictionless MOT bounds as a limiting idealization and quantifies how trade size reshapes them, which is what a practitioner sizing a hedge actually faces.</p>
+<h3>Bottom Line</h3>
+<p>Once your own trading moves the price, model-free option bounds stop being one number and start depending on how big you trade.</p></div>
+</section>
+<footer>
+  Generated automatically from arXiv q-fin (MF · PR · CP · TR · ST · RM).
+  Equations rendered with MathJax. Every claim is the author's; read the linked papers to verify.
+</footer>
+</body>
+</html>
